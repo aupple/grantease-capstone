@@ -1,22 +1,18 @@
+// GrantEase JS - Password Toggle
 document.addEventListener("DOMContentLoaded", function () {
     const toggles = document.querySelectorAll(".toggle-password");
 
     toggles.forEach((toggle) => {
         toggle.addEventListener("click", () => {
-            const targetId = toggle.dataset.target;
-            const input = document.getElementById(targetId);
-
-            if (!input) {
-                console.warn(`No input found with ID: ${targetId}`);
-                return;
-            }
+            const input = document.getElementById(toggle.dataset.target);
+            if (!input) return;
 
             if (input.type === "password") {
                 input.type = "text";
-                toggle.textContent = "👁️‍🗨️"; // Hide
+                toggle.textContent = "👁‍🗨"; // Eye with line = hide
             } else {
                 input.type = "password";
-                toggle.textContent = "👁️"; // Show
+                toggle.textContent = "👁️"; // Eye = show
             }
         });
     });
