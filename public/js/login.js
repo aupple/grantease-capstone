@@ -9,10 +9,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (input.type === "password") {
                 input.type = "text";
-                toggle.textContent = "👁‍🗨"; // Eye with line = hide
+                toggle.textContent = "👁‍🗨"; 
             } else {
                 input.type = "password";
-                toggle.textContent = "👁️"; // Eye = show
+                toggle.textContent = "👁️"; 
             }
         });
     });

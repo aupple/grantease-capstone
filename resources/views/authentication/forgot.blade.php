@@ -1,10 +1,10 @@
-@extends('layout')
+@extends('layouts.sign')
 
 @section('content')
 <div class="login-page">
     <div class="form-box">
         <h1 class="title">GrantEase</h1>
-        <p class="subtitle">Scholarship Management System</p>
+        <p class="subtitle">Graduate Scholarship Management System</p>
         
         <h2>Forgot Password</h2>
         <p class="hint">Enter your email address to reset your password.</p>
