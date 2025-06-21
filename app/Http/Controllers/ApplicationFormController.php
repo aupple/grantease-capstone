@@ -7,33 +7,61 @@ use Illuminate\Http\Request;
 
 class ApplicationFormController extends Controller
 {
-    public function index() {
-        return response()->json(ApplicationForm::all());
+    // GET /api/application-forms
+    public function index()
+    {
+        return response()->json(ApplicationForm::with(['user', 'attachments'])->get(), 200);
     }
 
-    public function store(Request $request) {
+    // POST /api/application-forms
+    public function store(Request $request)
+    {
         $validated = $request->validate([
-            'user_id' => 'required|exists:users,user_id',
+            'user_id' => 'required|exists:users,id',  // use 'id' if your users table uses default primary key
             'scholarship_type' => 'required|string',
-            'status' => 'required|string',
+            'status' => 'required|string|in:pending,approved,rejected',
             'date_submitted' => 'required|date',
         ]);
-        return ApplicationForm::create($validated);
+
+        $form = ApplicationForm::create($validated);
+
+        return response()->json($form, 201);
     }
 
-    public function show($id) {
-        return ApplicationForm::findOrFail($id);
+    // GET /api/application-forms/{id}
+    public function show($id)
+    {
+        $form = ApplicationForm::with(['user', 'attachments'])->find($id);
+
+        if (!$form) {
+            return response()->json(['message' => 'Application not found'], 404);
+        }
+
+        return response()->json($form, 200);
     }
 
-    public function update(Request $request, $id) {
+    // PUT /api/application-forms/{id}
+    public function update(Request $request, $id)
+    {
         $form = ApplicationForm::findOrFail($id);
-        $form->update($request->all());
-        return $form;
+
+        $validated = $request->validate([
+            'scholarship_type' => 'sometimes|string',
+            'status' => 'sometimes|string|in:pending,approved,rejected',
+            'date_submitted' => 'sometimes|date',
+        ]);
+
+        $form->update($validated);
+
+        return response()->json($form, 200);
     }
 
-    public function destroy($id) {
+    // DELETE /api/application-forms/{id}
+    public function destroy($id)
+    {
         $form = ApplicationForm::findOrFail($id);
         $form->delete();
-        return response()->json(['message' => 'Deleted']);
+
+        return response()->json(['message' => 'Application deleted'], 200);
     }
 }

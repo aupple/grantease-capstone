@@ -16,10 +16,10 @@ class User extends Authenticatable
         'last_name', 'contact_number', 'application_no'
     ];
 
-    public function roles()
-    {
-        return $this->belongsToMany(Role::class, 'user_role', 'user_id', 'role_id');
-    }
+    public function role()
+{
+    return $this->belongsTo(Role::class, 'role_id');
+}
 
     public function applications()
     {
