@@ -14,7 +14,7 @@ Route::middleware(['auth'])->group(function () {
 
     // ✅ Smarter dashboard route redirects based on user role
     Route::get('/dashboard', function () {
-        $role = auth()->user()->role_id;
+        $role = auth()->Auth::user()()->role_id;
 
         if ($role == 1) {
             return redirect()->route('admin.dashboard');
