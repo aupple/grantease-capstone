@@ -1,8 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Models\ApplicationForm;
 
 Route::redirect('/', '/login');
 
@@ -14,7 +16,7 @@ Route::middleware(['auth'])->group(function () {
 
     // ✅ Smarter dashboard route redirects based on user role
     Route::get('/dashboard', function () {
-        $role = auth()->Auth::user()()->role_id;
+        $role = auth()->user()->role_id;
 
         if ($role == 1) {
             return redirect()->route('admin.dashboard');
@@ -29,9 +31,26 @@ Route::middleware(['auth'])->group(function () {
         return view('applicant.dashboard');
     })->name('applicant.dashboard');
 
-    Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+
+Route::get('/admin/dashboard', function () {
+    return view('admin.dashboard', [
+        'total' => ApplicationForm::count(),
+        'approved' => ApplicationForm::where('status', 'approved')->count(),
+        'rejected' => ApplicationForm::where('status', 'rejected')->count(),
+        'pending' => ApplicationForm::where('status', 'pending')->count(),
+    ]);
+})->name('admin.dashboard');
+
+    Route::get('/admin/applications', [AdminController::class, 'viewApplications'])->name('admin.applications');
+    Route::get('/admin/applications/{id}', [AdminController::class, 'showApplication'])->name('admin.applications.show');
+    Route::post('/admin/applications/{id}/approve', [AdminController::class, 'approveApplication'])->name('admin.applications.approve');
+    Route::post('/admin/applications/{id}/reject', [AdminController::class, 'rejectApplication'])->name('admin.applications.reject');
+    Route::get('/admin/reports', [AdminController::class, 'reportSummary'])->name('admin.reports');
+    Route::get('/admin/reports/pdf', [AdminController::class, 'downloadReportPdf'])->name('admin.reports.pdf');
+    Route::get('/admin/scholars', [AdminController::class, 'viewScholars'])->name('admin.scholars');
+
+
+
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
