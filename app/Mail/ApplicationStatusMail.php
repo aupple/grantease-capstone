@@ -26,8 +26,13 @@ class ApplicationStatusMail extends Mailable
      * Build the message.
      */
     public function build()
-    {
-        return $this->subject('Your Scholarship Application Status')
-                    ->view('emails.application-status');
-    }
+{
+    return $this->subject('Your Scholarship Application Status')
+                ->view('emails.application-status')
+                ->with([
+                    'status' => $this->status,
+                    'remarks' => $this->remarks,
+                ]);
+}
+
 }
