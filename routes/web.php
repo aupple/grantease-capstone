@@ -1,10 +1,11 @@
 <?php
 
+use App\Models\ApplicationForm;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ApplicationFormController;
 use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Models\ApplicationForm;
 
 Route::redirect('/', '/login');
 
@@ -13,7 +14,8 @@ Route::post('/register', [RegisteredUserController::class, 'store'])->name('regi
 
 // Protected routes
 Route::middleware(['auth'])->group(function () {
-
+   Route::get('/applicant/application', [ApplicationFormController::class, 'create'])->name('applicant.application.create');
+    Route::post('/applicant/application', [ApplicationFormController::class, 'store'])->name('applicant.application.store');
     // ✅ Smarter dashboard route redirects based on user role
     Route::get('/dashboard', function () {
         $role = auth()->user()->role_id;

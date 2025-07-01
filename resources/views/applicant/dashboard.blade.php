@@ -1,4 +1,3 @@
-<!-- resources/views/applicant/dashboard.blade.php -->
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -9,8 +8,28 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <h1>Welcome, {{ auth()->user()->name }}!</h1>
-                <p>You are logged in as an <strong>Applicant</strong>.</p>
+                <h1 class="text-2xl font-bold mb-4">Welcome, {{ auth()->user()->name }}!</h1>
+                <p class="mb-6">You are logged in as an <strong>Applicant</strong>.</p>
+
+                <h2 class="text-lg font-semibold mb-4">Apply for a Scholarship Program:</h2>
+
+                <div class="space-y-4 mt-4">
+                    <!-- DOST Button -->
+                    <form action="{{ route('applicant.application.create') }}" method="GET">
+                        <input type="hidden" name="program" value="DOST">
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full">
+                            Apply for DOST Scholarship
+                        </button>
+                    </form>
+
+                    <!-- CHED Button -->
+                    <form action="{{ route('applicant.application.create') }}" method="GET">
+                        <input type="hidden" name="program" value="CHED">
+                        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full">
+                            Apply for CHED Scholarship
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
