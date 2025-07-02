@@ -8,8 +8,18 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <h1 class="text-2xl font-bold mb-4">Welcome, {{ auth()->user()->name }}!</h1>
+                <!-- ✅ Welcome message with full name -->
+                <h1 class="text-2xl font-bold mb-4">
+                    Welcome, {{ auth()->user()->first_name }} {{ auth()->user()->middle_name }} {{ auth()->user()->last_name }}!
+                </h1>
                 <p class="mb-6">You are logged in as an <strong>Applicant</strong>.</p>
+
+                <!-- ✅ Success flash message -->
+                @if (session('success'))
+                    <div class="mb-4 p-4 bg-green-100 text-green-800 border border-green-400 rounded">
+                        {{ session('success') }}
+                    </div>
+                @endif
 
                 <h2 class="text-lg font-semibold mb-4">Apply for a Scholarship Program:</h2>
 

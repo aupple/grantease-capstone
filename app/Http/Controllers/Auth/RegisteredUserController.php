@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Illuminate\Support\Str;
 
 class RegisteredUserController extends Controller
 {
@@ -28,14 +29,19 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+    'first_name' => ['required', 'string', 'max:255'],
+    'middle_name' => ['nullable', 'string', 'max:255'],
+    'last_name' => ['required', 'string', 'max:255'],
+    'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
+    'password' => ['required', 'confirmed', Rules\Password::defaults()],
+]);
+
 
         // Create a new user with default applicant role
         $user = User::create([
-            'name' => $request->name,
+            'first_name' => Str::ucfirst(strtolower($request->first_name)),
+            'middle_name' => $request->middle_name ? Str::ucfirst(strtolower($request->middle_name)) : null,
+            'last_name' => Str::ucfirst(strtolower($request->last_name)),
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role_id' => 2, // 1 = Admin, 2 = Applicant

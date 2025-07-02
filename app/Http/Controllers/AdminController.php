@@ -11,11 +11,19 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class AdminController extends Controller
 {
     // ✅ View all submitted applications
-    public function viewApplications()
-    {
-        $applications = ApplicationForm::with('user')->latest()->get();
-        return view('admin.applications.index', compact('applications'));
-    }
+    public function viewApplications(Request $request)
+{
+    $status = $request->query('status');
+
+    $applications = ApplicationForm::with('user')
+        ->when($status, function ($query, $status) {
+            return $query->where('status', $status);
+        })
+        ->latest()
+        ->get();
+
+    return view('admin.applications.index', compact('applications', 'status'));
+}
 
     // ✅ View a specific application
     public function showApplication($id)

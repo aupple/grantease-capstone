@@ -10,35 +10,33 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    // 👇 Custom primary key
     protected $primaryKey = 'user_id';
 
-    /**
-     * Mass assignable attributes
-     */
     protected $fillable = [
-        'name',
+        'first_name',
+        'middle_name',
+        'last_name',
         'email',
         'password',
-        'role_id', // 👈 must be included for seeding/registration
+        'role_id',
     ];
 
-    /**
-     * Hidden attributes for arrays
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Casts for model properties
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // ✅ Add this accessor for full_name
+    public function getFullNameAttribute()
+    {
+        return trim($this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name);
     }
 }

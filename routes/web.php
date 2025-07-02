@@ -50,7 +50,8 @@ Route::get('/admin/dashboard', function () {
     Route::get('/admin/reports', [AdminController::class, 'reportSummary'])->name('admin.reports');
     Route::get('/admin/reports/pdf', [AdminController::class, 'downloadReportPdf'])->name('admin.reports.pdf');
     Route::get('/admin/scholars', [AdminController::class, 'viewScholars'])->name('admin.scholars');
-
+    Route::get('/admin/applications', [AdminController::class, 'viewApplications'])->name('admin.applications');
+ 
 
 
 
