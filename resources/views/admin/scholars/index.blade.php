@@ -21,7 +21,7 @@
         <tbody>
             @forelse ($scholars as $scholar)
                 <tr>
-                    <td>{{ $scholar->user->name }}</td>
+                    <td>{{ $scholar->user->full_name }}</td>
                     <td>{{ $scholar->user->email }}</td>
                     <td>{{ $scholar->program }}</td>
                     <td>{{ $scholar->school }}</td>
