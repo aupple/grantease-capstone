@@ -6,7 +6,7 @@
 <body>
     <h2>Application Details</h2>
 
-    <p><strong>Applicant:</strong> {{ $application->user->name }}</p>
+    <p><strong>Applicant:</strong> {{ $application->user->full_name }}</p>
     <p><strong>Program:</strong> {{ $application->program }}</p>
     <p><strong>School:</strong> {{ $application->school }}</p>
     <p><strong>Year Level:</strong> {{ $application->year_level }}</p>

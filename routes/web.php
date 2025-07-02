@@ -47,9 +47,30 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/applications/{id}/approve', [AdminController::class, 'approveApplication'])->name('applications.approve');
         Route::post('/applications/{id}/reject', [AdminController::class, 'rejectApplication'])->name('applications.reject');
 
+<<<<<<< HEAD
         // Reports
         Route::get('/reports', [AdminController::class, 'reportSummary'])->name('reports');
         Route::get('/reports/pdf', [AdminController::class, 'downloadReportPdf'])->name('reports.download');
+=======
+Route::get('/admin/dashboard', function () {
+    return view('admin.dashboard', [
+        'total' => ApplicationForm::count(),
+        'approved' => ApplicationForm::where('status', 'approved')->count(),
+        'rejected' => ApplicationForm::where('status', 'rejected')->count(),
+        'pending' => ApplicationForm::where('status', 'pending')->count(),
+    ]);
+})->name('admin.dashboard');
+
+    Route::get('/admin/applications', [AdminController::class, 'viewApplications'])->name('admin.applications');
+    Route::get('/admin/applications/{id}', [AdminController::class, 'showApplication'])->name('admin.applications.show');
+    Route::post('/admin/applications/{id}/approve', [AdminController::class, 'approveApplication'])->name('admin.applications.approve');
+    Route::post('/admin/applications/{id}/reject', [AdminController::class, 'rejectApplication'])->name('admin.applications.reject');
+    Route::get('/admin/reports', [AdminController::class, 'reportSummary'])->name('admin.reports');
+    Route::get('/admin/reports/pdf', [AdminController::class, 'downloadReportPdf'])->name('admin.reports.pdf');
+    Route::get('/admin/scholars', [AdminController::class, 'viewScholars'])->name('admin.scholars');
+    Route::get('/admin/applications', [AdminController::class, 'viewApplications'])->name('admin.applications');
+ 
+>>>>>>> d65b1dac2147ef244807d26b5537693ed11f0791
 
         // Scholars
         Route::get('/scholars', [AdminController::class, 'viewScholars'])->name('scholars');
