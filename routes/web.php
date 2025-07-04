@@ -43,6 +43,8 @@ Route::get('/admin/dashboard', function () {
     ]);
 })->name('admin.dashboard');
 
+
+   //Admin ni na route
     Route::get('/admin/applications', [AdminController::class, 'viewApplications'])->name('admin.applications');
     Route::get('/admin/applications/{id}', [AdminController::class, 'showApplication'])->name('admin.applications.show');
     Route::post('/admin/applications/{id}/approve', [AdminController::class, 'approveApplication'])->name('admin.applications.approve');
@@ -51,7 +53,13 @@ Route::get('/admin/dashboard', function () {
     Route::get('/admin/reports/pdf', [AdminController::class, 'downloadReportPdf'])->name('admin.reports.pdf');
     Route::get('/admin/scholars', [AdminController::class, 'viewScholars'])->name('admin.scholars');
     Route::get('/admin/applications', [AdminController::class, 'viewApplications'])->name('admin.applications');
- 
+
+
+    //applicant ni na route
+    Route::get('/applicant/my-application', [ApplicationFormController::class, 'viewMyApplication'])->name('applicant.application.view');
+    Route::get('/applicant/application/edit', [ApplicationFormController::class, 'edit'])->name('applicant.application.edit');
+    Route::patch('/applicant/application', [ApplicationFormController::class, 'update'])->name('applicant.application.update');
+
 
 
 

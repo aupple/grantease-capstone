@@ -2,6 +2,20 @@
 <html>
 <head>
     <title>Submitted Applications</title>
+    <style>
+        .filter-link {
+            padding: 6px 12px;
+            margin-right: 6px;
+            border-radius: 4px;
+            text-decoration: none;
+            border: 1px solid #ccc;
+            color: #000;
+        }
+        .filter-link.active {
+            background-color: #2563eb;
+            color: #fff;
+        }
+    </style>
 </head>
 <body>
     <h1>Submitted Applications</h1>
@@ -9,14 +23,14 @@
     <!-- ✅ Filter Buttons -->
     <div style="margin-bottom: 20px;">
         <strong>Filter by Status:</strong>
-        <a href="{{ route('admin.applications') }}">All</a> |
-        <a href="{{ route('admin.applications', ['status' => 'pending']) }}">Pending</a> |
-        <a href="{{ route('admin.applications', ['status' => 'approved']) }}">Approved</a> |
-        <a href="{{ route('admin.applications', ['status' => 'rejected']) }}">Rejected</a>
+        <a href="{{ route('admin.applications') }}" class="filter-link {{ is_null($status) ? 'active' : '' }}">All</a>
+        <a href="{{ route('admin.applications', ['status' => 'pending']) }}" class="filter-link {{ $status === 'pending' ? 'active' : '' }}">Pending</a>
+        <a href="{{ route('admin.applications', ['status' => 'approved']) }}" class="filter-link {{ $status === 'approved' ? 'active' : '' }}">Approved</a>
+        <a href="{{ route('admin.applications', ['status' => 'rejected']) }}" class="filter-link {{ $status === 'rejected' ? 'active' : '' }}">Rejected</a>
     </div>
 
     <!-- ✅ Current Filter -->
-    @if (isset($status))
+    @if ($status)
         <p><strong>Showing:</strong> {{ ucfirst($status) }} Applications</p>
     @endif
 
@@ -32,10 +46,21 @@
                 <th>Action</th>
             </tr>
         </thead>
+
+<!-- 🔍 Search Form -->
+<form method="GET" action="{{ route('admin.applications') }}" style="margin-bottom: 20px;">
+    <input type="text" name="search" placeholder="Search by name, program, or status" value="{{ request('search') }}">
+    @if (request('status'))
+        <input type="hidden" name="status" value="{{ request('status') }}">
+    @endif
+    <button type="submit">Search</button>
+</form>
+
+
         <tbody>
             @forelse ($applications as $app)
                 <tr>
-                    <td>{{ $app->user->full_name }}</td>
+                    <td>{{ $app->user->full_name ?? $app->user->first_name . ' ' . $app->user->last_name }}</td>
                     <td>{{ $app->program }}</td>
                     <td>{{ $app->school }}</td>
                     <td>{{ $app->year_level }}</td>
@@ -48,7 +73,7 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="7">No applications submitted yet.</td></tr>
+                <tr><td colspan="7">No applications found for this filter.</td></tr>
             @endforelse
         </tbody>
     </table>

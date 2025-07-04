@@ -39,6 +39,11 @@
                             Apply for CHED Scholarship
                         </button>
                     </form>
+                    <div class="mt-6">
+    <a href="{{ route('applicant.application.view') }}" class="text-blue-600 hover:underline">
+        📄 View My Application
+    </a>
+</div>
                 </div>
             </div>
         </div>
