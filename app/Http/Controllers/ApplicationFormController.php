@@ -15,39 +15,31 @@ class ApplicationFormController extends Controller
         return view('applicant.application-form', compact('program'));
     }
 
-    // ✅ View the logged-in applicant's submitted application
+    // ✅ View the logged-in applicant's submitted applications
     public function viewMyApplication()
     {
-        $application = ApplicationForm::where('user_id', Auth::id())->latest()->first();
-        return view('applicant.my-application', compact('application'));
+        $applications = ApplicationForm::where('user_id', Auth::id())->latest()->get();
+        return view('applicant.my-application', compact('applications'));
     }
 
-    // ✅ Show edit form for pending application
-    public function edit()
+    // ✅ Show edit form for "submitted" applications
+    public function edit($id)
     {
-        $application = ApplicationForm::where('user_id', Auth::id())
-                        ->where('status', 'pending')
-                        ->first();
-
-        if (!$application) {
-            return redirect()->route('applicant.application.view')
-                ->with('error', 'Only pending applications can be edited.');
-        }
+        $application = ApplicationForm::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->where('status', 'submitted') // updated from 'pending'
+            ->firstOrFail();
 
         return view('applicant.application-edit', compact('application'));
     }
 
-    // ✅ Handle update of pending application
-    public function update(Request $request)
+    // ✅ Handle update of "submitted" applications
+    public function update(Request $request, $id)
     {
-        $application = ApplicationForm::where('user_id', Auth::id())
-                        ->where('status', 'pending')
-                        ->first();
-
-        if (!$application) {
-            return redirect()->route('applicant.application.view')
-                ->with('error', 'Only pending applications can be updated.');
-        }
+        $application = ApplicationForm::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->where('status', 'submitted') // updated from 'pending'
+            ->firstOrFail();
 
         $request->validate([
             'school' => 'required|string',
@@ -75,15 +67,25 @@ class ApplicationFormController extends Controller
             'reason' => 'required|string',
         ]);
 
-        $application = new ApplicationForm();
-        $application->user_id = Auth::id();
-        $application->program = $request->program;
-        $application->school = $request->school;
-        $application->year_level = $request->year_level;
-        $application->reason = $request->reason;
-        $application->status = 'pending';
-        $application->submitted_at = now();
-        $application->save();
+        // Check if user already applied for this program
+        $existing = ApplicationForm::where('user_id', Auth::id())
+            ->where('program', $request->program)
+            ->first();
+
+        if ($existing) {
+            return back()->with('error', 'You have already applied for the ' . $request->program . ' program.');
+        }
+
+        // Save new application
+        ApplicationForm::create([
+            'user_id' => Auth::id(),
+            'program' => $request->program,
+            'school' => $request->school,
+            'year_level' => $request->year_level,
+            'reason' => $request->reason,
+            'status' => 'submitted', // ✅ updated from 'pending'
+            'submitted_at' => now(),
+        ]);
 
         return redirect()->route('applicant.dashboard')
             ->with('success', 'Application submitted successfully!');

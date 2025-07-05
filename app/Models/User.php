@@ -26,15 +26,18 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
+    // Relationship: User has many ApplicationForms
+    public function applicationForms()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->hasMany(ApplicationForm::class, 'user_id', 'user_id');
     }
 
-    // ✅ Add this accessor for full_name
+    // Accessor for full name
     public function getFullNameAttribute()
     {
         return trim($this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name);

@@ -37,9 +37,12 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/admin/dashboard', function () {
     return view('admin.dashboard', [
         'total' => ApplicationForm::count(),
+        'submitted' => ApplicationForm::where('status', 'submitted')->count(),
+        'under_review' => ApplicationForm::where('status', 'under_review')->count(),
+        'document_verification' => ApplicationForm::where('status', 'document_verification')->count(),
+        'for_interview' => ApplicationForm::where('status', 'for_interview')->count(),
         'approved' => ApplicationForm::where('status', 'approved')->count(),
         'rejected' => ApplicationForm::where('status', 'rejected')->count(),
-        'pending' => ApplicationForm::where('status', 'pending')->count(),
     ]);
 })->name('admin.dashboard');
 
@@ -49,6 +52,8 @@ Route::get('/admin/dashboard', function () {
     Route::get('/admin/applications/{id}', [AdminController::class, 'showApplication'])->name('admin.applications.show');
     Route::post('/admin/applications/{id}/approve', [AdminController::class, 'approveApplication'])->name('admin.applications.approve');
     Route::post('/admin/applications/{id}/reject', [AdminController::class, 'rejectApplication'])->name('admin.applications.reject');
+    Route::post('/admin/applications/{id}/status', [AdminController::class, 'updateStatus'])
+    ->name('admin.applications.update-status');
     Route::get('/admin/reports', [AdminController::class, 'reportSummary'])->name('admin.reports');
     Route::get('/admin/reports/pdf', [AdminController::class, 'downloadReportPdf'])->name('admin.reports.pdf');
     Route::get('/admin/scholars', [AdminController::class, 'viewScholars'])->name('admin.scholars');
@@ -57,8 +62,8 @@ Route::get('/admin/dashboard', function () {
 
     //applicant ni na route
     Route::get('/applicant/my-application', [ApplicationFormController::class, 'viewMyApplication'])->name('applicant.application.view');
-    Route::get('/applicant/application/edit', [ApplicationFormController::class, 'edit'])->name('applicant.application.edit');
-    Route::patch('/applicant/application', [ApplicationFormController::class, 'update'])->name('applicant.application.update');
+    Route::get('/applicant/application/{id}/edit', [ApplicationFormController::class, 'edit'])->name('applicant.application.edit');
+    Route::patch('/applicant/application/{id}', [ApplicationFormController::class, 'update'])->name('applicant.application.update');
 
 
 

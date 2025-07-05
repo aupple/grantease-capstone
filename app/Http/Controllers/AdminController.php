@@ -19,16 +19,18 @@ class AdminController extends Controller
     $applications = ApplicationForm::with('user')
         ->when($status, fn($query) => $query->where('status', $status))
         ->when($search, function ($query, $search) {
-            $query->whereHas('user', function ($q) use ($search) {
-                $q->where('first_name', 'like', "%$search%")
-                  ->orWhere('middle_name', 'like', "%$search%")
-                  ->orWhere('last_name', 'like', "%$search%");
-            })
-            ->orWhere('program', 'like', "%$search%")
-            ->orWhere('status', 'like', "%$search%");
+            $query->where(function ($subQuery) use ($search) {
+                $subQuery->whereHas('user', function ($q) use ($search) {
+                    $q->where('first_name', 'like', "$search%")    // 👈 begins with
+                      ->orWhere('middle_name', 'like', "$search%")
+                      ->orWhere('last_name', 'like', "$search%");
+                })
+                ->orWhere('program', 'like', "$search%")
+                ->orWhere('status', 'like', "$search%");
+            });
         })
         ->latest()
-        ->get();
+        ->get(); // Or paginate()
 
     return view('admin.applications.index', compact('applications', 'status', 'search'));
 }
@@ -72,27 +74,55 @@ public function rejectApplication(Request $request, $id)
 
     return redirect()->route('admin.applications')->with('success', 'Application rejected.');
 }
+public function updateStatus(Request $request, $id)
+{
+    $request->validate([
+        'status' => 'required|in:submitted,under_review,document_verification,for_interview,approved,rejected',
+        'remarks' => 'nullable|string',
+    ]);
+
+    $application = ApplicationForm::with('user')->findOrFail($id);
+    $application->status = $request->status;
+    $application->remarks = $request->remarks;
+    $application->save();
+
+    // Optionally send email
+    Mail::to($application->user->email)->send(new ApplicationStatusMail($request->status, $request->remarks));
+
+    return redirect()->route('admin.applications.show', $id)
+        ->with('success', 'Application status updated successfully!');
+}
+
+
 public function reportSummary()
 {
     return view('admin.reports.index', [
         'total' => ApplicationForm::count(),
+        'submitted' => ApplicationForm::where('status', 'submitted')->count(),
+        'under_review' => ApplicationForm::where('status', 'under_review')->count(),
+        'document_verification' => ApplicationForm::where('status', 'document_verification')->count(),
+        'for_interview' => ApplicationForm::where('status', 'for_interview')->count(),
         'approved' => ApplicationForm::where('status', 'approved')->count(),
         'rejected' => ApplicationForm::where('status', 'rejected')->count(),
-        'pending' => ApplicationForm::where('status', 'pending')->count(),
     ]);
 }
+
 public function downloadReportPdf()
 {
     $data = [
         'total' => ApplicationForm::count(),
+        'submitted' => ApplicationForm::where('status', 'submitted')->count(),
+        'under_review' => ApplicationForm::where('status', 'under_review')->count(),
+        'document_verification' => ApplicationForm::where('status', 'document_verification')->count(),
+        'for_interview' => ApplicationForm::where('status', 'for_interview')->count(),
         'approved' => ApplicationForm::where('status', 'approved')->count(),
         'rejected' => ApplicationForm::where('status', 'rejected')->count(),
-        'pending' => ApplicationForm::where('status', 'pending')->count(),
     ];
 
     $pdf = Pdf::loadView('admin.reports.pdf', $data);
     return $pdf->download('application-report.pdf');
 }
+
 public function viewScholars()
 {
     $scholars = ApplicationForm::with('user')

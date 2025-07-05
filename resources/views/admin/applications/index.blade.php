@@ -24,9 +24,13 @@
     <div style="margin-bottom: 20px;">
         <strong>Filter by Status:</strong>
         <a href="{{ route('admin.applications') }}" class="filter-link {{ is_null($status) ? 'active' : '' }}">All</a>
-        <a href="{{ route('admin.applications', ['status' => 'pending']) }}" class="filter-link {{ $status === 'pending' ? 'active' : '' }}">Pending</a>
+        <a href="{{ route('admin.applications', ['status' => 'submitted']) }}" class="filter-link {{ $status === 'submitted' ? 'active' : '' }}">Submitted</a>
+        <a href="{{ route('admin.applications', ['status' => 'under_review']) }}" class="filter-link {{ $status === 'under_review' ? 'active' : '' }}">Under Review</a>
+        <a href="{{ route('admin.applications', ['status' => 'document_verification']) }}" class="filter-link {{ $status === 'document_verification' ? 'active' : '' }}">Document Verification</a>
+        <a href="{{ route('admin.applications', ['status' => 'for_interview']) }}" class="filter-link {{ $status === 'for_interview' ? 'active' : '' }}">For Interview</a>
         <a href="{{ route('admin.applications', ['status' => 'approved']) }}" class="filter-link {{ $status === 'approved' ? 'active' : '' }}">Approved</a>
         <a href="{{ route('admin.applications', ['status' => 'rejected']) }}" class="filter-link {{ $status === 'rejected' ? 'active' : '' }}">Rejected</a>
+
     </div>
 
     <!-- ✅ Current Filter -->

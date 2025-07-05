@@ -15,11 +15,15 @@
                 <div class="mt-6">
                     <h3 class="text-lg font-semibold mb-2">📊 Application Summary</h3>
                     <ul class="list-disc list-inside mb-4">
-                        <li><strong>Total Applications:</strong> {{ $total }}</li>
-                        <li><strong>Approved:</strong> {{ $approved }}</li>
-                        <li><strong>Rejected:</strong> {{ $rejected }}</li>
-                        <li><strong>Pending:</strong> {{ $pending }}</li>
-                    </ul>
+    <li><strong>Total Applications:</strong> {{ $total }}</li>
+    <li><strong>Submitted:</strong> {{ $submitted }}</li>
+    <li><strong>Under Review:</strong> {{ $under_review }}</li>
+    <li><strong>Document Verification:</strong> {{ $document_verification }}</li>
+    <li><strong>For Interview:</strong> {{ $for_interview }}</li>
+    <li><strong>Approved:</strong> {{ $approved }}</li>
+    <li><strong>Rejected:</strong> {{ $rejected }}</li>
+</ul>
+
 
                     <!-- ✅ Dashboard Navigation Links -->
                     <div class="space-y-2">

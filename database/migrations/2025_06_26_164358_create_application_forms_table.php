@@ -13,6 +13,17 @@ return new class extends Migration {
             $table->string('school');
             $table->string('year_level');
             $table->text('reason');
+
+            // ✅ Add this line for the status tracking
+            $table->enum('status', [
+                'submitted',
+                'under_review',
+                'document_verification',
+                'for_interview',
+                'approved',
+                'rejected'
+            ])->default('submitted');
+
             $table->timestamps();
 
             $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
