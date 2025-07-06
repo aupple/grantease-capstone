@@ -17,7 +17,7 @@ return new class extends Migration {
             // ✅ Add this line for the status tracking
             $table->enum('status', [
                 'submitted',
-                'under_review',
+                'pending',
                 'document_verification',
                 'for_interview',
                 'approved',

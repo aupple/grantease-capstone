@@ -37,8 +37,9 @@
                 <p><strong>Submitted At:</strong> {{ $application->submitted_at ?? $application->created_at }}</p>
 
                 @if ($application->status === 'pending')
-                    <a href="{{ route('applicant.application.edit', ['id' => $application->id]) }}"
-                       class="edit-btn">✏️ Edit Application</a>
+                    <a href="{{ route('applicant.application.edit', ['id' => $application->application_form_id]) }}"
+   class="edit-btn">✏️ Edit Application</a>
+
                 @endif
             </div>
         @endforeach

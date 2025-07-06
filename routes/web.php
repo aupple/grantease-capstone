@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\ApplicationForm;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
@@ -14,9 +13,19 @@ Route::post('/register', [RegisteredUserController::class, 'store'])->name('regi
 
 // Protected routes
 Route::middleware(['auth'])->group(function () {
-   Route::get('/applicant/application', [ApplicationFormController::class, 'create'])->name('applicant.application.create');
+    // ✅ Applicant Routes
+    Route::get('/applicant/application', [ApplicationFormController::class, 'create'])->name('applicant.application.create');
     Route::post('/applicant/application', [ApplicationFormController::class, 'store'])->name('applicant.application.store');
-    // ✅ Smarter dashboard route redirects based on user role
+
+    Route::get('/applicant/dashboard', function () {
+        return view('applicant.dashboard');
+    })->name('applicant.dashboard');
+
+    Route::get('/applicant/my-application', [ApplicationFormController::class, 'viewMyApplication'])->name('applicant.application.view');
+    Route::get('/applicant/application/{id}/edit', [ApplicationFormController::class, 'edit'])->name('applicant.application.edit');
+    Route::patch('/applicant/application/{id}', [ApplicationFormController::class, 'update'])->name('applicant.application.update');
+
+    // ✅ Smarter role-based redirect
     Route::get('/dashboard', function () {
         $role = auth()->user()->role_id;
 
@@ -29,49 +38,26 @@ Route::middleware(['auth'])->group(function () {
         abort(403); // Unknown or unauthorized role
     })->name('dashboard');
 
-    Route::get('/applicant/dashboard', function () {
-        return view('applicant.dashboard');
-    })->name('applicant.dashboard');
+    // ✅ Admin Dashboard (moved to controller method)
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
-
-Route::get('/admin/dashboard', function () {
-    return view('admin.dashboard', [
-        'total' => ApplicationForm::count(),
-        'submitted' => ApplicationForm::where('status', 'submitted')->count(),
-        'under_review' => ApplicationForm::where('status', 'under_review')->count(),
-        'document_verification' => ApplicationForm::where('status', 'document_verification')->count(),
-        'for_interview' => ApplicationForm::where('status', 'for_interview')->count(),
-        'approved' => ApplicationForm::where('status', 'approved')->count(),
-        'rejected' => ApplicationForm::where('status', 'rejected')->count(),
-    ]);
-})->name('admin.dashboard');
-
-
-   //Admin ni na route
+    // ✅ Admin Application Management Routes
     Route::get('/admin/applications', [AdminController::class, 'viewApplications'])->name('admin.applications');
     Route::get('/admin/applications/{id}', [AdminController::class, 'showApplication'])->name('admin.applications.show');
     Route::post('/admin/applications/{id}/approve', [AdminController::class, 'approveApplication'])->name('admin.applications.approve');
     Route::post('/admin/applications/{id}/reject', [AdminController::class, 'rejectApplication'])->name('admin.applications.reject');
-    Route::post('/admin/applications/{id}/status', [AdminController::class, 'updateStatus'])
-    ->name('admin.applications.update-status');
+    Route::post('/admin/applications/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.applications.update-status');
+
+    // ✅ Admin Report & Scholar Routes
     Route::get('/admin/reports', [AdminController::class, 'reportSummary'])->name('admin.reports');
     Route::get('/admin/reports/pdf', [AdminController::class, 'downloadReportPdf'])->name('admin.reports.pdf');
     Route::get('/admin/scholars', [AdminController::class, 'viewScholars'])->name('admin.scholars');
-    Route::get('/admin/applications', [AdminController::class, 'viewApplications'])->name('admin.applications');
 
-
-    //applicant ni na route
-    Route::get('/applicant/my-application', [ApplicationFormController::class, 'viewMyApplication'])->name('applicant.application.view');
-    Route::get('/applicant/application/{id}/edit', [ApplicationFormController::class, 'edit'])->name('applicant.application.edit');
-    Route::patch('/applicant/application/{id}', [ApplicationFormController::class, 'update'])->name('applicant.application.update');
-
-
-
-
+    // ✅ Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Breeze routes
-require __DIR__.'/auth.php';
+// Breeze auth routes
+require __DIR__ . '/auth.php';

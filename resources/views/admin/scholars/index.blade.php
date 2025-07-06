@@ -1,49 +1,46 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Scholar List</title>
-</head>
-<body>
-    <h1>Approved Scholars</h1>
+@extends('layouts.admin-layout')
 
-    <table border="1" cellpadding="10">
-        <thead>
-            <tr>
-                <th>Applicant Name</th>
-                <th>Email</th>
-                <th>Program</th>
-                <th>School</th>
-                <th>Year Level</th>
-                <th>Submitted At</th>
-                <th>Approved At</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($scholars as $scholar)
-                <tr>
-                    <td>{{ $scholar->user->full_name }}</td>
-                    <td>{{ $scholar->user->email }}</td>
-                    <td>{{ $scholar->program }}</td>
-                    <td>{{ $scholar->school }}</td>
-                    <td>{{ $scholar->year_level }}</td>
-                    <td>
-                        {{ $scholar->submitted_at 
-                            ? \Carbon\Carbon::parse($scholar->submitted_at)->format('Y-m-d') 
-                            : 'Not submitted' }}
-                    </td>
-                    <td>
-                        {{ \Carbon\Carbon::parse($scholar->updated_at)->format('Y-m-d') }}
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="7">No scholars yet.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
+@section('content')
+<div class="mb-6">
+    <h1 class="text-2xl font-bold mb-4">🎓 Approved Scholars</h1>
 
-    <br>
-    <a href="{{ route('admin.dashboard') }}">← Back to Dashboard</a>
-</body>
-</html>
+    <div class="bg-white shadow rounded overflow-x-auto">
+        <table class="min-w-full text-sm">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="p-3 text-left">Applicant Name</th>
+                    <th class="p-3 text-left">Email</th>
+                    <th class="p-3 text-left">Program</th>
+                    <th class="p-3 text-left">School</th>
+                    <th class="p-3 text-left">Year Level</th>
+                    <th class="p-3 text-left">Submitted At</th>
+                    <th class="p-3 text-left">Approved At</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($scholars as $scholar)
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-3">{{ $scholar->user->full_name ?? $scholar->user->first_name . ' ' . $scholar->user->last_name }}</td>
+                        <td class="p-3">{{ $scholar->user->email }}</td>
+                        <td class="p-3">{{ $scholar->program }}</td>
+                        <td class="p-3">{{ $scholar->school }}</td>
+                        <td class="p-3">{{ $scholar->year_level }}</td>
+                        <td class="p-3">
+                            {{ $scholar->submitted_at 
+                                ? \Carbon\Carbon::parse($scholar->submitted_at)->format('M d, Y') 
+                                : 'Not submitted' }}
+                        </td>
+                        <td class="p-3">
+                            {{ \Carbon\Carbon::parse($scholar->updated_at)->format('M d, Y') }}
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="7" class="p-4 text-center text-gray-500">No scholars yet.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
+@endsection

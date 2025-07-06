@@ -83,7 +83,7 @@ class ApplicationFormController extends Controller
             'school' => $request->school,
             'year_level' => $request->year_level,
             'reason' => $request->reason,
-            'status' => 'submitted', // ✅ updated from 'pending'
+            'status' => 'pending', // ✅ updated from 'pending'
             'submitted_at' => now(),
         ]);
 
