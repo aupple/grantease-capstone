@@ -23,28 +23,29 @@ class AdminController extends Controller
 
     // ✅ View all submitted applications
     public function viewApplications(Request $request)
-    {
-        $status = $request->query('status');
-        $search = $request->query('search');
+{
+    $status = $request->query('status');
+    $search = $request->query('search');
 
-        $applications = ApplicationForm::with('user')
-            ->when($status, fn($query) => $query->where('status', $status))
-            ->when($search, function ($query, $search) {
-                $query->where(function ($subQuery) use ($search) {
-                    $subQuery->whereHas('user', function ($q) use ($search) {
-                        $q->where('first_name', 'like', "$search%")
-                          ->orWhere('middle_name', 'like', "$search%")
-                          ->orWhere('last_name', 'like', "$search%");
-                    })
-                    ->orWhere('program', 'like', "$search%")
-                    ->orWhere('status', 'like', "$search%");
-                });
-            })
-            ->latest()
-            ->get();
+    $applications = ApplicationForm::with('user')
+        ->when($status, fn($query) => $query->where('status', $status))
+        ->when($search, function ($query, $search) {
+            $query->where(function ($subQuery) use ($search) {
+                $subQuery->whereHas('user', function ($q) use ($search) {
+                    $q->where('first_name', 'like', "$search%")
+                      ->orWhere('middle_name', 'like', "$search%")
+                      ->orWhere('last_name', 'like', "$search%");
+                })
+                ->orWhere('program', 'like', "$search%")
+                ->orWhere('status', 'like', "$search%");
+            });
+        })
+        ->latest()
+        ->paginate(2); // try lang ni
 
-        return view('admin.applications.index', compact('applications', 'status', 'search'));
-    }
+    return view('admin.applications.index', compact('applications', 'status', 'search'));
+}
+
 
     // ✅ View a specific application
     public function showApplication($id)
@@ -139,7 +140,7 @@ class AdminController extends Controller
             ->where('status', 'approved')
             ->whereNotNull('submitted_at')
             ->latest()
-            ->get();
+            ->Paginate(2); //limit ni sa makita na scholars
 
         return view('admin.scholars.index', compact('scholars'));
     }

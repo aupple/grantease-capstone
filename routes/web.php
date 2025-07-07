@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ApplicationFormController;
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -51,7 +52,12 @@ Route::middleware(['auth'])->group(function () {
     // ✅ Admin Report & Scholar Routes
     Route::get('/admin/reports', [AdminController::class, 'reportSummary'])->name('admin.reports');
     Route::get('/admin/reports/pdf', [AdminController::class, 'downloadReportPdf'])->name('admin.reports.pdf');
-    Route::get('/admin/scholars', [AdminController::class, 'viewScholars'])->name('admin.scholars');
+    Route::get('/admin/scholars', [AdminController::class, 'viewScholars'])->name('admin.scholars');Route::get('/admin/reports/evaluation', [ReportController::class, 'evaluation'])->name('admin.reports.evaluation');
+    Route::get('/admin/reports/applicants', [ReportController::class, 'applicants'])->name('admin.reports.applicants');
+    Route::get('/admin/reports/scholars', [ReportController::class, 'scholars'])->name('admin.reports.scholars');
+    Route::get('/admin/reports/scoresheets', [ReportController::class, 'scoresheets'])->name('admin.reports.scoresheets');
+
+    
 
     // ✅ Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

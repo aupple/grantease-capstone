@@ -77,5 +77,11 @@
             }
         });
     </script>
+
+    <!-- ✅ This enables scripts from @push('scripts') -->
+    @stack('scripts')
+</body>
+</html>
+
 </body>
 </html>

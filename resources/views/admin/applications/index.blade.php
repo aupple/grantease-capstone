@@ -2,32 +2,47 @@
 
 @section('content')
 <div class="mb-6">
-    <h1 class="text-2xl font-bold mb-4">📑 Submitted Applications</h1>
+    <h1 class="text-2xl font-bold mb-4">📑 Scholarship Applications</h1>
 
-    <!-- ✅ Filters -->
+    <!-- ✅ Search (Left) + Filter (Right) -->
     <div class="flex items-center justify-between mb-4">
-        <div class="space-x-2">
-            <a href="{{ route('admin.applications') }}"
-               class="px-3 py-1 rounded border text-sm {{ is_null($status) ? 'bg-blue-600 text-white' : 'bg-white text-gray-800' }}">
-               All
-            </a>
-            @foreach(['pending', 'document_verification', 'for_interview', 'approved', 'rejected'] as $s)
-                <a href="{{ route('admin.applications', ['status' => $s]) }}"
-                   class="px-3 py-1 rounded border text-sm {{ $status === $s ? 'bg-blue-600 text-white' : 'bg-white text-gray-800' }}">
-                    {{ ucfirst(str_replace('_', ' ', $s)) }}
-                </a>
-            @endforeach
-        </div>
+        <!-- 🔍 Search Left -->
+<!-- 🔍 Sleek Line-Only Search -->
+<form method="GET" action="{{ route('admin.applications') }}" class="flex items-center gap-2">
+    <div class="relative">
+        <input type="text"
+       name="search"
+       placeholder="Search applicants..."
+       value="{{ request('search') }}"
+       class="bg-transparent border-0 border-b border-gray-400 text-sm w-64 px-0 py-1.5
+              focus:outline-none focus:ring-0 focus:border-blue-600 placeholder-gray-500" />
+    </div>
 
-        <!-- 🔍 Search -->
+    @if (request('status'))
+        <input type="hidden" name="status" value="{{ request('status') }}">
+    @endif
+
+   <button type="submit"
+    class="text-sm bg-blue-600 text-white px-2 py-1 rounded-md hover:bg-blue-700 transition font-semibold">
+    Search
+</button>
+
+</form>
+
+        <!-- 📂 Filter Right -->
         <form method="GET" action="{{ route('admin.applications') }}" class="flex items-center space-x-2">
-            <input type="text" name="search" placeholder="Search..." value="{{ request('search') }}"
-                   class="border rounded px-3 py-1 text-sm">
-            @if (request('status'))
-                <input type="hidden" name="status" value="{{ request('status') }}">
+            @if (request('search'))
+                <input type="hidden" name="search" value="{{ request('search') }}">
             @endif
-            <button type="submit"
-                    class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">Search</button>
+            <label for="status" class="font-semibold text-sm text-gray-700">Filter:</label>
+            <select name="status" id="status" onchange="this.form.submit()" class="border text-sm px-2 py-1 rounded shadow-sm focus:ring-blue-200 focus:outline-none">
+                <option value="" {{ is_null(request('status')) ? 'selected' : '' }}>All</option>
+                @foreach(['pending', 'document_verification', 'for_interview', 'approved', 'rejected'] as $s)
+                    <option value="{{ $s }}" {{ request('status') === $s ? 'selected' : '' }}>
+                        {{ ucfirst(str_replace('_', ' ', $s)) }}
+                    </option>
+                @endforeach
+            </select>
         </form>
     </div>
 
@@ -67,7 +82,7 @@
                         <td class="p-2">{{ $app->submitted_at ?? $app->created_at->format('M d, Y') }}</td>
                         <td class="p-2">
                             <a href="{{ route('admin.applications.show', $app->application_form_id) }}"
-                               class="text-blue-600 hover:underline text-sm">View</a>
+                               class="text-blue-600 hover:underline text-sm font-semibold">View</a>
                         </td>
                     </tr>
                 @empty
@@ -75,6 +90,11 @@
                 @endforelse
             </tbody>
         </table>
+
+        <!-- ✅ Pagination Controls -->
+        <div class="p-4">
+            {{ $applications->withQueryString()->links('pagination::tailwind') }}
+        </div>
     </div>
 </div>
 @endsection

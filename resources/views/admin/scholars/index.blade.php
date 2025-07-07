@@ -15,6 +15,7 @@
                     <th class="p-3 text-left">Year Level</th>
                     <th class="p-3 text-left">Submitted At</th>
                     <th class="p-3 text-left">Approved At</th>
+                    <th class="p-3 text-left">Action</th> <!-- ✅ NEW COLUMN -->
                 </tr>
             </thead>
             <tbody>
@@ -33,14 +34,25 @@
                         <td class="p-3">
                             {{ \Carbon\Carbon::parse($scholar->updated_at)->format('M d, Y') }}
                         </td>
+                        <td class="p-3"> <!-- ✅ VIEW BUTTON -->
+                            <a href="{{ route('admin.applications.show', $scholar->application_form_id) }}"
+                               class="text-blue-600 hover:underline text-sm font-semibold">View</a>
+                        </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="p-4 text-center text-gray-500">No scholars yet.</td>
+                        <td colspan="8" class="p-4 text-center text-gray-500">No scholars yet.</td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
+
+    <!-- ✅ Pagination -->
+    @if ($scholars->hasPages())
+        <div class="mt-4">
+            {{ $scholars->links() }}
+        </div>
+    @endif
 </div>
 @endsection
