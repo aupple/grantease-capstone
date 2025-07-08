@@ -4,6 +4,7 @@
 <div class="mb-6">
     <h1 class="text-2xl font-bold mb-4">🎓 Approved Scholars</h1>
 
+    <!-- Scholars Table (NO export/select) -->
     <div class="bg-white shadow rounded overflow-x-auto">
         <table class="min-w-full text-sm">
             <thead class="bg-gray-100">
@@ -15,7 +16,7 @@
                     <th class="p-3 text-left">Year Level</th>
                     <th class="p-3 text-left">Submitted At</th>
                     <th class="p-3 text-left">Approved At</th>
-                    <th class="p-3 text-left">Action</th> <!-- ✅ NEW COLUMN -->
+                    <th class="p-3 text-left">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -34,7 +35,7 @@
                         <td class="p-3">
                             {{ \Carbon\Carbon::parse($scholar->updated_at)->format('M d, Y') }}
                         </td>
-                        <td class="p-3"> <!-- ✅ VIEW BUTTON -->
+                        <td class="p-3">
                             <a href="{{ route('admin.applications.show', $scholar->application_form_id) }}"
                                class="text-blue-600 hover:underline text-sm font-semibold">View</a>
                         </td>
@@ -48,10 +49,10 @@
         </table>
     </div>
 
-    <!-- ✅ Pagination -->
+    <!-- Pagination -->
     @if ($scholars->hasPages())
         <div class="mt-4">
-            {{ $scholars->links() }}
+            {{ $scholars->links('pagination::tailwind') }}
         </div>
     @endif
 </div>

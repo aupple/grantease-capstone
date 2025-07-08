@@ -4,32 +4,26 @@
 <div class="mb-6">
     <h1 class="text-2xl font-bold mb-4">📑 Scholarship Applications</h1>
 
-    <!-- ✅ Search (Left) + Filter (Right) -->
+    <!-- Search + Filter -->
     <div class="flex items-center justify-between mb-4">
-        <!-- 🔍 Search Left -->
-<!-- 🔍 Sleek Line-Only Search -->
-<form method="GET" action="{{ route('admin.applications') }}" class="flex items-center gap-2">
-    <div class="relative">
-        <input type="text"
-       name="search"
-       placeholder="Search applicants..."
-       value="{{ request('search') }}"
-       class="bg-transparent border-0 border-b border-gray-400 text-sm w-64 px-0 py-1.5
-              focus:outline-none focus:ring-0 focus:border-blue-600 placeholder-gray-500" />
-    </div>
+        <form method="GET" action="{{ route('admin.applications') }}" class="flex items-center gap-2">
+            <div class="relative">
+                <input type="text"
+                    name="search"
+                    placeholder="Search applicants..."
+                    value="{{ request('search') }}"
+                    class="bg-transparent border-0 border-b border-gray-400 text-sm w-64 px-0 py-1.5
+                        focus:outline-none focus:ring-0 focus:border-blue-600 placeholder-gray-500" />
+            </div>
+            @if (request('status'))
+                <input type="hidden" name="status" value="{{ request('status') }}">
+            @endif
+            <button type="submit"
+                class="text-sm bg-blue-600 text-white px-2 py-1 rounded-md hover:bg-blue-700 transition font-semibold">
+                Search
+            </button>
+        </form>
 
-    @if (request('status'))
-        <input type="hidden" name="status" value="{{ request('status') }}">
-    @endif
-
-   <button type="submit"
-    class="text-sm bg-blue-600 text-white px-2 py-1 rounded-md hover:bg-blue-700 transition font-semibold">
-    Search
-</button>
-
-</form>
-
-        <!-- 📂 Filter Right -->
         <form method="GET" action="{{ route('admin.applications') }}" class="flex items-center space-x-2">
             @if (request('search'))
                 <input type="hidden" name="search" value="{{ request('search') }}">
@@ -46,7 +40,7 @@
         </form>
     </div>
 
-    <!-- ✅ Applications Table -->
+    <!-- Applications Table (NO export/select) -->
     <div class="bg-white shadow rounded overflow-x-auto">
         <table class="min-w-full text-sm">
             <thead class="bg-gray-100">
@@ -86,15 +80,17 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="7" class="p-4 text-center text-gray-500">No applications found.</td></tr>
+                    <tr>
+                        <td colspan="7" class="p-4 text-center text-gray-500">No applications found.</td>
+                    </tr>
                 @endforelse
             </tbody>
         </table>
+    </div>
 
-        <!-- ✅ Pagination Controls -->
-        <div class="p-4">
-            {{ $applications->withQueryString()->links('pagination::tailwind') }}
-        </div>
+    <!-- Pagination -->
+    <div class="p-4">
+        {{ $applications->withQueryString()->links('pagination::tailwind') }}
     </div>
 </div>
 @endsection

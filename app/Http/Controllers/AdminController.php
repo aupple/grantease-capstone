@@ -7,19 +7,33 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ApplicationStatusMail;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
+
 
 class AdminController extends Controller
 {
     // ✅ Admin Dashboard
     public function dashboard()
-    {
-        return view('admin.dashboard', [
-            'total_applicants' => ApplicationForm::count(),
-            'pending' => ApplicationForm::where('status', 'pending')->count(),
-            'approved' => ApplicationForm::where('status', 'approved')->count(),
-            'rejected' => ApplicationForm::where('status', 'rejected')->count(),
-        ]);
-    }
+{
+    // Applicant counts
+    $total_applicants = ApplicationForm::count(); // ✅ match this to the Blade
+$pending = ApplicationForm::where('status', 'pending')->count();
+$approved = ApplicationForm::where('status', 'approved')->count();
+$rejected = ApplicationForm::where('status', 'rejected')->count();
+
+$scholarStatuses = \App\Models\Scholar::select('status', DB::raw('count(*) as total'))
+    ->groupBy('status')
+    ->pluck('total', 'status');
+
+return view('admin.dashboard', compact(
+    'total_applicants',
+    'pending',
+    'approved',
+    'rejected',
+    'scholarStatuses'
+));
+
+}
 
     // ✅ View all submitted applications
     public function viewApplications(Request $request)
@@ -105,17 +119,38 @@ class AdminController extends Controller
     }
 
     // ✅ Reports Summary View
-    public function reportSummary()
-    {
-        return view('admin.reports.index', [
-            'total_applicants' => ApplicationForm::count(),
-            'pending' => ApplicationForm::where('status', 'pending')->count(),
-            'document_verification' => ApplicationForm::where('status', 'document_verification')->count(),
-            'for_interview' => ApplicationForm::where('status', 'for_interview')->count(),
-            'approved' => ApplicationForm::where('status', 'approved')->count(),
-            'rejected' => ApplicationForm::where('status', 'rejected')->count(),
-        ]);
+    public function reportSummary(Request $request)
+{
+    // Counts for dashboard
+    $total_applicants = ApplicationForm::count();
+    $pending = ApplicationForm::where('status', 'pending')->count();
+    $document_verification = ApplicationForm::where('status', 'document_verification')->count();
+    $for_interview = ApplicationForm::where('status', 'for_interview')->count();
+    $approved = ApplicationForm::where('status', 'approved')->count();
+    $rejected = ApplicationForm::where('status', 'rejected')->count();
+
+    // Scholar filter (if pie chart redirects with status query)
+    $statusFilter = $request->query('status');
+
+    $query = \App\Models\Scholar::with(['user', 'applicationForm']);
+    if ($statusFilter) {
+        $query->where('status', $statusFilter);
     }
+
+    $scholars = $query->latest()->paginate(10);
+
+    return view('admin.reports.index', compact(
+        'total_applicants',
+        'pending',
+        'document_verification',
+        'for_interview',
+        'approved',
+        'rejected',
+        'scholars',
+        'statusFilter'
+    ));
+}
+
 
     // ✅ PDF Report Download
     public function downloadReportPdf()
