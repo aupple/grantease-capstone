@@ -105,17 +105,6 @@
         </form>
     </div>
 
-    <!-- PDF Full Export -->
-    <div class="bg-white p-6 rounded shadow">
-        <h2 class="text-lg font-semibold mb-2">📄 Export Entire Summary</h2>
-        <p class="text-sm text-gray-600 mb-3">Download the full applicant & scholar summary as a PDF.</p>
-        <a href="{{ route('admin.reports.pdf') }}" target="_blank"
-           class="inline-block bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 text-sm">
-            📥 Download Full Report (PDF)
-        </a>
-    </div>
-</div>
-
 <!-- Toggle all checkbox script -->
 <script>
     function toggleAll(source) {
