@@ -37,28 +37,22 @@ class ReportController extends Controller
     public function evaluationShow($id)
     {
         $applicant = ApplicationForm::with('user')->findOrFail($id);
-        $evaluation = Evaluation::where('application_form_id', $id)->first(); // optional preload
-        return view('admin.reports.evaluation-show', compact('applicant', 'evaluation'));
+        $evaluation = Evaluation::where('application_form_id', $id)->first();
+        return view('admin.reports.evaluation-form', compact('applicant', 'evaluation'));
     }
 
     public function evaluationUpdate(Request $request, $id)
     {
         $request->validate([
-            'academic_score' => 'nullable|numeric',
-            'financial_score' => 'nullable|numeric',
-            'interview_score' => 'nullable|numeric',
             'remarks' => 'nullable|string',
         ]);
 
         $application = ApplicationForm::findOrFail($id);
         $application->update([
-            'academic_score' => $request->academic_score,
-            'financial_score' => $request->financial_score,
-            'interview_score' => $request->interview_score,
             'remarks' => $request->remarks,
         ]);
 
-        return redirect()->route('admin.reports.evaluation')->with('success', 'Scores updated successfully.');
+        return redirect()->route('admin.reports.evaluation')->with('success', 'Remarks updated successfully.');
     }
 
     public function evaluationSave(Request $request, $id)
@@ -113,18 +107,17 @@ class ReportController extends Controller
         return view('admin.reports.scholars');
     }
 
-   public function scoresheets()
-{
-    $applicants = ApplicationForm::with('user')->paginate(10);
-    return view('admin.reports.scoresheets', compact('applicants'));
-}
+    public function scoresheets()
+    {
+        $applicants = ApplicationForm::with('user')->paginate(10);
+        return view('admin.reports.scoresheets', compact('applicants'));
+    }
 
-public function scoresheetShow($id)
-{
-    $applicant = ApplicationForm::with('user')->findOrFail($id);
-    return view('admin.reports.scoresheet-show', compact('applicant'));
-}
-
+    public function scoresheetShow($id)
+    {
+        $applicant = ApplicationForm::with('user')->findOrFail($id);
+        return view('admin.reports.scoresheet-show', compact('applicant'));
+    }
 
     public function exportSelected(Request $request)
     {

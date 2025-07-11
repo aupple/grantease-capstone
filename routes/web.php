@@ -29,7 +29,7 @@ Route::middleware(['auth'])->group(function () {
 
     // ✅ Smarter role-based redirect
     Route::get('/dashboard', function () {
-        $role = auth()->Auth::user()()->role_id;
+        $role = auth()->user()->role_id;
 
         if ($role == 1) {
             return redirect()->route('admin.dashboard');
@@ -55,22 +55,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/reports/pdf', [AdminController::class, 'downloadReportPdf'])->name('admin.reports.pdf');
     Route::post('/admin/reports/export-selected', [ReportController::class, 'exportSelected'])->name('admin.reports.export-selected');
 
-    //Evaluation Sheet routes (index and show)
-    Route::get('/admin/reports/evaluation/{id}', [ReportController::class, 'evaluationShow'])->name('admin.reports.evaluation.show');
-    Route::get('/admin/reports/evaluation', [ReportController::class, 'evaluation'])->name('admin.reports.evaluation');
-    Route::post('/admin/reports/evaluation/{id}/update', [ReportController::class, 'evaluationUpdate'])->name('admin.reports.evaluation.update');
-    Route::post('/admin/reports/evaluation/{id}/save', [ReportController::class, 'evaluationSave'])->name('admin.reports.evaluation.save');
-    
-    // Scorescheets
-    Route::get('/admin/reports/scoresheets', [ReportController::class, 'scoresheets'])->name('admin.reports.scoresheets');
-    Route::get('/admin/reports/scoresheets/{id}', [ReportController::class, 'scoresheetShow'])->name('admin.reports.scoresheet.show');
-
-
-
-    // Other Report Pages
+    // Remaining Report Pages
     Route::get('/admin/reports/applicants', [ReportController::class, 'applicants'])->name('admin.reports.applicants');
     Route::get('/admin/reports/scholars', [ReportController::class, 'scholars'])->name('admin.reports.scholars');
-    Route::get('/admin/reports/scoresheets', [ReportController::class, 'scoresheets'])->name('admin.reports.scoresheets');
 
     // Scholars list (from AdminController)
     Route::get('/admin/scholars', [AdminController::class, 'viewScholars'])->name('admin.scholars');

@@ -31,7 +31,7 @@
             <label for="status" class="font-semibold text-sm text-gray-700">Filter:</label>
             <select name="status" id="status" onchange="this.form.submit()" class="border text-sm px-2 py-1 rounded shadow-sm focus:ring-blue-200 focus:outline-none">
                 <option value="" {{ is_null(request('status')) ? 'selected' : '' }}>All</option>
-                @foreach(['pending', 'document_verification', 'for_interview', 'approved', 'rejected'] as $s)
+                @foreach(['pending', 'approved', 'rejected'] as $s)
                     <option value="{{ $s }}" {{ request('status') === $s ? 'selected' : '' }}>
                         {{ ucfirst(str_replace('_', ' ', $s)) }}
                     </option>

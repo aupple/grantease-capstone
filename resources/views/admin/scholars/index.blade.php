@@ -4,7 +4,7 @@
 <div class="mb-6">
     <h1 class="text-2xl font-bold mb-4">🎓 Approved Scholars</h1>
 
-    <!-- Scholars Table (NO export/select) -->
+    <!-- Scholars Table -->
     <div class="bg-white shadow rounded overflow-x-auto">
         <table class="min-w-full text-sm">
             <thead class="bg-gray-100">
@@ -22,19 +22,20 @@
             <tbody>
                 @forelse ($scholars as $scholar)
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="p-3">{{ $scholar->user->full_name ?? $scholar->user->first_name . ' ' . $scholar->user->last_name }}</td>
+                        <td class="p-3">
+                            {{ $scholar->user->full_name ?? $scholar->user->first_name . ' ' . $scholar->user->last_name }}
+                        </td>
                         <td class="p-3">{{ $scholar->user->email }}</td>
-                        <td class="p-3">{{ $scholar->program }}</td>
-                        <td class="p-3">{{ $scholar->school }}</td>
-                        <td class="p-3">{{ $scholar->year_level }}</td>
+
+                        {{-- ✅ These come from the applicationForm relation --}}
+                        <td class="p-3">{{ $scholar->applicationForm->program ?? 'N/A' }}</td>
+                        <td class="p-3">{{ $scholar->applicationForm->school ?? 'N/A' }}</td>
+                        <td class="p-3">{{ $scholar->applicationForm->year_level ?? 'N/A' }}</td>
+
                         <td class="p-3">
-                            {{ $scholar->submitted_at 
-                                ? \Carbon\Carbon::parse($scholar->submitted_at)->format('M d, Y') 
-                                : 'Not submitted' }}
+                            {{ optional($scholar->applicationForm->submitted_at ?? $scholar->applicationForm->created_at)->format('M d, Y') }}
                         </td>
-                        <td class="p-3">
-                            {{ \Carbon\Carbon::parse($scholar->updated_at)->format('M d, Y') }}
-                        </td>
+                        <td class="p-3">{{ $scholar->updated_at->format('M d, Y') }}</td>
                         <td class="p-3">
                             <a href="{{ route('admin.applications.show', $scholar->application_form_id) }}"
                                class="text-blue-600 hover:underline text-sm font-semibold">View</a>

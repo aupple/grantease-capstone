@@ -9,11 +9,6 @@
         @php
             $reportCards = [
                 [
-                    'title' => '📋 Evaluation Sheet for Applicants',
-                    'desc' => 'Summarizes academic, financial, and interview scores.',
-                    'route' => 'admin.reports.evaluation'
-                ],
-                [
                     'title' => '🧑‍💼 List of All Applicants',
                     'desc' => 'Shows all applicants and their current status.',
                     'route' => 'admin.reports.applicants'
@@ -22,11 +17,6 @@
                     'title' => '🎓 Monitoring of All Scholars',
                     'desc' => 'Track scholars, their statuses, and compliance.',
                     'route' => 'admin.reports.scholars'
-                ],
-                [
-                    'title' => '📝 Scoresheets for Applicants',
-                    'desc' => 'Breakdown of scores (grades, interview, financials).',
-                    'route' => 'admin.reports.scoresheets'
                 ]
             ];
         @endphp
@@ -105,13 +95,14 @@
         </form>
     </div>
 
-<!-- Toggle all checkbox script -->
-<script>
-    function toggleAll(source) {
-        const checkboxes = document.querySelectorAll('input[name="selected[]"]');
-        for (const box of checkboxes) {
-            box.checked = source.checked;
+    <!-- Toggle all checkbox script -->
+    <script>
+        function toggleAll(source) {
+            const checkboxes = document.querySelectorAll('input[name="selected[]"]');
+            for (const box of checkboxes) {
+                box.checked = source.checked;
+            }
         }
-    }
-</script>
+    </script>
+</div>
 @endsection
