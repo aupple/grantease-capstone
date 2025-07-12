@@ -14,9 +14,14 @@ class ReportController extends Controller
     {
         $type = $request->input('type', 'applicant');
 
-        $records = $type === 'scholar'
-            ? Scholar::with('user')->get()
-            : ApplicationForm::with('user')->get();
+        if ($type === 'scholar') {
+            $records = Scholar::with(['user', 'applicationForm'])
+                ->whereHas('applicationForm', function ($q) {
+                    $q->where('status', 'approved');
+                })->get();
+        } else {
+            $records = ApplicationForm::with('user')->where('status', 'pending')->get();
+        }
 
         return view('admin.reports.index', [
             'type' => $type,
@@ -89,7 +94,7 @@ class ReportController extends Controller
         Evaluation::updateOrCreate(
             ['application_form_id' => $id],
             array_merge($validated, [
-                'evaluator_id' => auth()->Auth::user()->user_id,
+                'evaluator_id' => auth()->user()->user_id,
             ])
         );
 
@@ -129,7 +134,7 @@ class ReportController extends Controller
         }
 
         $records = $type === 'applicant'
-            ? ApplicationForm::with('user')->whereIn('id', $selectedIds)->get()
+            ? ApplicationForm::with('user')->whereIn('application_form_id', $selectedIds)->get()
             : Scholar::with(['user', 'applicationForm'])->whereIn('id', $selectedIds)->get();
 
         $pdf = Pdf::loadView('admin.reports.export-selected', [

@@ -17,4 +17,10 @@ class ApplicationForm extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
+    // 🔁 Relationship with Evaluation
+public function evaluation()
+{
+    return $this->hasOne(Evaluation::class, 'application_form_id', 'application_form_id');
+}
+
 }

@@ -28,8 +28,8 @@ class ScholarSeeder extends Seeder
 
             // Create application form
             $application = ApplicationForm::create([
-                'user_id' => $user->id,
-                'program' => 'BS Info Tech',
+                'user_id' => $user->user_id,  // <-- use user_id, not id
+                'program' => 'DOST','CHED',
                 'school' => 'Test University',
                 'year_level' => '2nd Year',
                 'reason' => 'For Testing',
@@ -39,8 +39,8 @@ class ScholarSeeder extends Seeder
 
             // Create scholar with status
             Scholar::create([
-                'user_id' => $user->id,
-                'application_form_id' => $application->id,
+                'user_id' => $user->user_id,  // <-- use user_id, not id
+                'application_form_id' => $application->application_form_id,  // <-- use application_form_id, not id
                 'status' => $status,
                 'start_date' => now()->subMonths(6),
                 'end_date' => now()->addMonths(6),

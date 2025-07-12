@@ -50,7 +50,7 @@
                                 'leave_of_absence' => ['label' => 'Leave of Absence', 'code' => 'LOA'],
                                 'non_compliance'   => ['label' => 'Non-Compliance', 'code' => 'NC'],
                                 'no_report'        => ['label' => 'No Report', 'code' => 'NR'],
-                                'withdrawn'        => ['label' => '↩Withdrawn', 'code' => 'WD'],
+                                'withdrawn'        => ['label' => 'Withdrawn', 'code' => 'WD'],
                                 'terminated'       => ['label' => 'Terminated', 'code' => 'TERM'],
                             ];
                         @endphp

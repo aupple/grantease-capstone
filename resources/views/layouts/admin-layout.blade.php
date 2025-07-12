@@ -23,9 +23,11 @@
                 <a href="{{ route('admin.scholars') }}" class="block px-3 py-2 rounded hover:bg-blue-100 {{ request()->routeIs('admin.scholars') ? 'bg-blue-50 font-semibold' : '' }}">
                     🎓 Scholars
                 </a>
-                <a href="{{ route('admin.reports') }}" class="block px-3 py-2 rounded hover:bg-blue-100 {{ request()->routeIs('admin.reports') ? 'bg-blue-50 font-semibold' : '' }}">
-                    📊 Reports
-                </a>
+                <a href="{{ route('admin.reports.index') }}"
+   class="block px-3 py-2 rounded hover:bg-blue-100 {{ request()->routeIs('admin.reports.index') ? 'bg-blue-50 font-semibold' : '' }}">
+    📊 Reports
+</a>
+
             </nav>
         </aside>
 

@@ -47,37 +47,51 @@
         <thead>
             <tr>
                 <th>#</th>
-                <th>Full Name</th>
-                @if($type === 'applicant')
-                    <th>Email</th>
-                    <th>Program</th>
-                    <th>Status</th>
-                @else
-                    <th>Program</th>
-                    <th>Scholar Status</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                @endif
+                <th>Last Name</th>
+                <th>First Name</th>
+                <th>Middle Name</th>
+                <th>Suffix</th>
+                <th>Street</th>
+                <th>Village</th>
+                <th>Town</th>
+                <th>Province</th>
+                <th>Zipcode</th>
+                <th>District</th>
+                <th>Region</th>
+                <th>Email</th>
+                <th>Birthday</th>
+                <th>Contact No.</th>
+                <th>Gender</th>
+                <th>Status</th>
             </tr>
         </thead>
         <tbody>
             @foreach($records as $index => $item)
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td>
-                        {{ $item->user?->first_name }} {{ $item->user?->last_name }}
-                    </td>
+                    <td>{{ $item->user?->last_name ?? '—' }}</td>
+                    <td>{{ $item->user?->first_name ?? '—' }}</td>
+                    <td>{{ $item->user?->middle_name ?? '—' }}</td>
+                    <td>{{ $item->user?->suffix ?? '—' }}</td>
+                    <td>{{ $item->user?->street ?? '—' }}</td>
+                    <td>{{ $item->user?->village ?? '—' }}</td>
+                    <td>{{ $item->user?->town ?? '—' }}</td>
+                    <td>{{ $item->user?->province ?? '—' }}</td>
+                    <td>{{ $item->user?->zipcode ?? '—' }}</td>
+                    <td>{{ $item->user?->district ?? '—' }}</td>
+                    <td>{{ $item->user?->region ?? '—' }}</td>
+                    <td>{{ $item->user?->email ?? '—' }}</td>
+                    <td>{{ $item->user?->birthday ?? '—' }}</td>
+                    <td>{{ $item->user?->contact_number ?? '—' }}</td>
+                    <td>{{ $item->user?->gender ?? '—' }}</td>
 
-                    @if($type === 'applicant')
-                        <td>{{ $item->user?->email }}</td>
-                        <td>{{ $item->program ?? 'N/A' }}</td>
-                        <td>{{ ucfirst($item->status) }}</td>
-                    @else
-                        <td>{{ $item->applicationForm?->program ?? 'N/A' }}</td>
-                        <td>{{ ucfirst(str_replace('_', ' ', $item->status)) }}</td>
-                        <td>{{ $item->start_date ?? '—' }}</td>
-                        <td>{{ $item->end_date ?? '—' }}</td>
-                    @endif
+                    <td>
+                        @if($type === 'applicant')
+                            {{ ucfirst($item->status) }}
+                        @else
+                            {{ ucfirst(str_replace('_', ' ', $item->status)) }}
+                        @endif
+                    </td>
                 </tr>
             @endforeach
         </tbody>

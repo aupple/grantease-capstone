@@ -141,6 +141,11 @@ class AdminController extends Controller
             $query->where('status', $statusFilter);
         }
 
+        // Only scholars whose related applicationForm is approved
+        $query->whereHas('applicationForm', function ($q) {
+            $q->where('status', 'approved');
+        });
+
         $scholars = $query->latest()->paginate(10);
 
         return view('admin.reports.index', compact(
@@ -175,6 +180,9 @@ class AdminController extends Controller
     public function viewScholars()
     {
         $scholars = Scholar::with(['user', 'applicationForm'])
+            ->whereHas('applicationForm', function ($query) {
+                $query->where('status', 'approved');
+            })
             ->latest()
             ->paginate(5);
 

@@ -51,9 +51,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin/applications/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.applications.update-status');
 
     // Admin Reports & Scholars
-    Route::get('/admin/reports', [ReportController::class, 'index'])->name('admin.reports');
+    Route::get('/admin/reports', [ReportController::class, 'index'])->name('admin.reports.index');
     Route::get('/admin/reports/pdf', [AdminController::class, 'downloadReportPdf'])->name('admin.reports.pdf');
     Route::post('/admin/reports/export-selected', [ReportController::class, 'exportSelected'])->name('admin.reports.export-selected');
+
 
     // Remaining Report Pages
     Route::get('/admin/reports/applicants', [ReportController::class, 'applicants'])->name('admin.reports.applicants');
