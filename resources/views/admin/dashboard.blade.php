@@ -10,7 +10,7 @@
         <div class="flex flex-col lg:flex-row gap-8 items-start">
             <!-- 🔹 LEFT SIDE: Application Summary Cards -->
             <div class="flex-1">
-                <div class="grid grid-cols-2 md:grid-cols-2 gap-4 mt-12 mb-4">
+                <div class="grid grid-cols-2 md:grid-cols-2 gap-4 mb-4">
                     <div class="bg-blue-100 p-4 rounded text-center shadow">
                         <p class="text-sm text-blue-700 font-semibold">Total Applicants</p>
                         <p class="text-xl font-bold">{{ $total_applicants }}</p>
@@ -37,35 +37,26 @@
                     <canvas id="scholarPieChart"></canvas>
                 </div>
 
-                <!-- Legend -->
-                <div class="w-full max-w-xs">
-                    <ul class="space-y-2 text-sm">
-                        @php
-                            $colors = ['#4CAF50', '#FF9800', '#03A9F4', '#9C27B0', '#F44336', '#FFC107', '#00BCD4', '#607D8B'];
-                            $i = 0;
-                            $statusMap = [
-                                'graduated_ext'    => ['label' => 'Graduated w/ Extension', 'code' => 'GE'],
-                                'good_standing'    => ['label' => 'Good Standing', 'code' => 'GS'],
-                                'on_extension'     => ['label' => 'On Extension', 'code' => 'Extension'],
-                                'leave_of_absence' => ['label' => 'Leave of Absence', 'code' => 'LOA'],
-                                'non_compliance'   => ['label' => 'Non-Compliance', 'code' => 'NC'],
-                                'no_report'        => ['label' => 'No Report', 'code' => 'NR'],
-                                'withdrawn'        => ['label' => 'Withdrawn', 'code' => 'WD'],
-                                'terminated'       => ['label' => 'Terminated', 'code' => 'TERM'],
-                            ];
-                        @endphp
+                <!-- Legend (Revised for Monitoring Sheet Status) -->
+<div class="w-full max-w-xs">
+    <ul class="space-y-2 text-sm">
+        @php
+            $colors = [
+                '#4CAF50', '#FF9800', '#03A9F4', '#9C27B0', '#F44336', '#FFC107',
+                '#00BCD4', '#607D8B', '#795548', '#E91E63', '#8BC34A', '#2196F3',
+                '#CDDC39', '#009688', '#673AB7'
+            ];
+            $i = 0;
+        @endphp
 
-                        @foreach ($scholarStatuses as $status => $count)
-                            @php
-                                $info = $statusMap[$status] ?? ['label' => ucfirst(str_replace('_', ' ', $status)), 'code' => strtoupper(substr($status, 0, 3))];
-                            @endphp
-                            <li class="flex items-center gap-2">
-                                <span class="inline-block w-4 h-4 rounded" style="background-color: {{ $colors[$i++] }};"></span>
-                                <span>{{ $info['label'] }} <span class="text-gray-500">({{ $info['code'] }})</span> – {{ $count }}</span>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
+        @foreach ($scholarStatuses as $label => $count)
+            <li class="flex items-center gap-2">
+                <span class="inline-block w-4 h-4 rounded" style="background-color: {{ $colors[$i++] }};"></span>
+                <span>{{ $label }} – {{ $count }}</span>
+            </li>
+        @endforeach
+    </ul>
+</div>
             </div>
         </div>
     </div>
@@ -122,7 +113,7 @@
 <script>
     const ctx = document.getElementById('scholarPieChart').getContext('2d');
     const data = {
-        labels: {!! json_encode($scholarStatuses->keys()) !!},
+labels: {!! json_encode(array_values($scholarStatuses->keys()->toArray())) !!},
         datasets: [{
             data: {!! json_encode($scholarStatuses->values()) !!},
             backgroundColor: [
@@ -137,12 +128,13 @@
         data: data,
         options: {
             plugins: {
-                legend: { display: false } // ❌ Hides default Chart.js legend
+                legend: { display: false }
             },
             onClick: (e, elements) => {
                 if (elements.length > 0) {
                     const label = data.labels[elements[0].index];
-                    window.location.href = `/admin/reports?status=${label}`;
+                    window.location.href = "{{ route('admin.reports.monitoring') }}";
+
                 }
             }
         }

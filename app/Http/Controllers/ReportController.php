@@ -7,6 +7,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\ApplicationForm;
 use App\Models\Scholar;
 use App\Models\Evaluation;
+use App\Models\ScholarMonitoring;
+
 
 class ReportController extends Controller
 {
@@ -107,10 +109,21 @@ class ReportController extends Controller
         return view('admin.reports.applicants');
     }
 
-    public function scholars()
-    {
-        return view('admin.reports.scholars');
-    }
+
+public function monitoring()
+{
+    $grouped = ScholarMonitoring::all()->groupBy('degree_type');
+    return view('admin.reports.monitoring', compact('grouped'));
+}
+
+public function downloadMonitoring()
+{
+    $grouped = ScholarMonitoring::all()->groupBy('degree_type');
+
+    $pdf = Pdf::loadView('admin.reports.monitoring-pdf', compact('grouped'))->setPaper('legal', 'landscape');
+
+    return $pdf->download('Scholarship_Monitoring_Report.pdf');
+}
 
     public function scoresheets()
     {
@@ -144,4 +157,29 @@ class ReportController extends Controller
 
         return $pdf->download("selected-{$type}s-records.pdf");
     }
+    public function saveMonitoring(Request $request)
+{
+    $data = $request->input('data');
+
+    foreach ($data as $degree => $years) {
+        foreach ($years as $year => $statuses) {
+            foreach ($statuses as $code => $count) {
+                if ($count > 0) {
+                    ScholarMonitoring::updateOrCreate(
+                        [
+                            'degree_type' => $degree,
+                            'year_awarded' => $year,
+                            'status_code' => $code,
+                        ],
+                        ['total' => $count]
+                    );
+                }
+            }
+        }
+    }
+
+    return redirect()->back()->with('success', 'Monitoring data saved!');
+}
+
+
 }

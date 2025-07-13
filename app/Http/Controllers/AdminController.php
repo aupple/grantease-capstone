@@ -13,25 +13,48 @@ use Illuminate\Support\Facades\DB;
 class AdminController extends Controller
 {
     // ✅ Admin Dashboard
-    public function dashboard()
-    {
-        $total_applicants = ApplicationForm::count();
-        $pending = ApplicationForm::where('status', 'pending')->count();
-        $approved = ApplicationForm::where('status', 'approved')->count();
-        $rejected = ApplicationForm::where('status', 'rejected')->count();
+   public function dashboard()
+{
+    $total_applicants = ApplicationForm::count();
+    $pending = ApplicationForm::where('status', 'pending')->count();
+    $approved = ApplicationForm::where('status', 'approved')->count();
+    $rejected = ApplicationForm::where('status', 'rejected')->count();
 
-        $scholarStatuses = Scholar::select('status', DB::raw('count(*) as total'))
-            ->groupBy('status')
-            ->pluck('total', 'status');
+    $rawStatuses = Scholar::select('status', DB::raw('count(*) as total'))
+        ->groupBy('status')
+        ->pluck('total', 'status');
 
-        return view('admin.dashboard', compact(
-            'total_applicants',
-            'pending',
-            'approved',
-            'rejected',
-            'scholarStatuses'
-        ));
-    }
+    $statusMap = [
+        'qualifiers' => ['label' => 'Qualifiers', 'code' => '1'],
+        'not_availing' => ['label' => 'Not Availing', 'code' => '2'],
+        'deferred' => ['label' => 'Deferred', 'code' => '3'],
+        'graduated_on_time' => ['label' => 'Graduated on Time', 'code' => '4a'],
+        'graduated_ext' => ['label' => 'Graduated with Extension', 'code' => '4b'],
+        'on_ext_complete_fa' => ['label' => 'On Ext - Complete FA', 'code' => '5a'],
+        'on_ext_with_fa' => ['label' => 'On Ext - With FA', 'code' => '5b'],
+        'on_ext_for_monitoring' => ['label' => 'On Ext - For Monitoring', 'code' => '5c'],
+        'gs_on_track' => ['label' => 'GS - On Track', 'code' => '6a'],
+        'leave_of_absence' => ['label' => 'Leave of Absence', 'code' => '6b'],
+        'suspended' => ['label' => 'Suspended', 'code' => '6c'],
+        'no_report' => ['label' => 'No Report', 'code' => '6d'],
+        'non_compliance' => ['label' => 'Non-Compliance', 'code' => '7'],
+        'terminated' => ['label' => 'Terminated', 'code' => '8'],
+        'withdrawn' => ['label' => 'Withdrew', 'code' => '9'],
+    ];
+
+    $scholarStatuses = collect($statusMap)->mapWithKeys(function ($info, $key) use ($rawStatuses) {
+        return [$info['label'] => $rawStatuses[$key] ?? 0];
+    });
+
+    return view('admin.dashboard', compact(
+        'total_applicants',
+        'pending',
+        'approved',
+        'rejected',
+        'scholarStatuses'
+    ));
+}
+
 
     // ✅ View all submitted applications
     public function viewApplications(Request $request)
@@ -125,40 +148,68 @@ class AdminController extends Controller
     }
 
     // ✅ Reports Summary View
-    public function reportSummary(Request $request)
-    {
-        $total_applicants = ApplicationForm::count();
-        $pending = ApplicationForm::where('status', 'pending')->count();
-        $document_verification = ApplicationForm::where('status', 'document_verification')->count();
-        $for_interview = ApplicationForm::where('status', 'for_interview')->count();
-        $approved = ApplicationForm::where('status', 'approved')->count();
-        $rejected = ApplicationForm::where('status', 'rejected')->count();
+ public function reportSummary(Request $request)
+{
+    $total_applicants = ApplicationForm::count();
+    $pending = ApplicationForm::where('status', 'pending')->count();
+    $document_verification = ApplicationForm::where('status', 'document_verification')->count();
+    $for_interview = ApplicationForm::where('status', 'for_interview')->count();
+    $approved = ApplicationForm::where('status', 'approved')->count();
+    $rejected = ApplicationForm::where('status', 'rejected')->count();
 
-        $statusFilter = $request->query('status');
+    $statusFilter = $request->query('status');
 
-        $query = Scholar::with(['user', 'applicationForm']);
-        if ($statusFilter) {
-            $query->where('status', $statusFilter);
-        }
-
-        // Only scholars whose related applicationForm is approved
-        $query->whereHas('applicationForm', function ($q) {
+    $query = Scholar::with(['user', 'applicationForm'])
+        ->whereHas('applicationForm', function ($q) {
             $q->where('status', 'approved');
         });
 
-        $scholars = $query->latest()->paginate(10);
-
-        return view('admin.reports.index', compact(
-            'total_applicants',
-            'pending',
-            'document_verification',
-            'for_interview',
-            'approved',
-            'rejected',
-            'scholars',
-            'statusFilter'
-        ));
+    if ($statusFilter) {
+        $query->where('status', $statusFilter);
     }
+
+    $scholars = $query->latest()->paginate(10);
+
+    $rawStatuses = Scholar::select('status', DB::raw('count(*) as total'))
+        ->whereHas('applicationForm', fn($q) => $q->where('status', 'approved'))
+        ->groupBy('status')
+        ->pluck('total', 'status');
+
+    $statusMap = [
+        'qualifiers' => ['label' => 'Qualifiers', 'code' => '1'],
+        'not_availing' => ['label' => 'Not Availing', 'code' => '2'],
+        'deferred' => ['label' => 'Deferred', 'code' => '3'],
+        'graduated_on_time' => ['label' => 'Graduated on Time', 'code' => '4a'],
+        'graduated_ext' => ['label' => 'Graduated with Extension', 'code' => '4b'],
+        'on_ext_complete_fa' => ['label' => 'On Ext - Complete FA', 'code' => '5a'],
+        'on_ext_with_fa' => ['label' => 'On Ext - With FA', 'code' => '5b'],
+        'on_ext_for_monitoring' => ['label' => 'On Ext - For Monitoring', 'code' => '5c'],
+        'gs_on_track' => ['label' => 'GS - On Track', 'code' => '6a'],
+        'leave_of_absence' => ['label' => 'Leave of Absence', 'code' => '6b'],
+        'suspended' => ['label' => 'Suspended', 'code' => '6c'],
+        'no_report' => ['label' => 'No Report', 'code' => '6d'],
+        'non_compliance' => ['label' => 'Non-Compliance', 'code' => '7'],
+        'terminated' => ['label' => 'Terminated', 'code' => '8'],
+        'withdrawn' => ['label' => 'Withdrew', 'code' => '9'],
+    ];
+
+    $scholarStatuses = collect($statusMap)->mapWithKeys(function ($info, $key) use ($rawStatuses) {
+        return [$info['label'] => $rawStatuses[$key] ?? 0];
+    });
+
+    return view('admin.reports.index', compact(
+        'total_applicants',
+        'pending',
+        'document_verification',
+        'for_interview',
+        'approved',
+        'rejected',
+        'scholars',
+        'statusFilter',
+        'scholarStatuses'
+    ));
+}
+
 
     // ✅ PDF Report Download
     public function downloadReportPdf()

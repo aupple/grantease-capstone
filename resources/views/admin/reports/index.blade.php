@@ -16,7 +16,7 @@
                     [
                         'title' => '🎓 Monitoring of All Scholars',
                         'desc' => 'Track scholars, their statuses, and compliance.',
-                        'route' => 'admin.reports.scholars'
+                        'route' => 'admin.reports.monitoring'
                     ]
                 ];
             @endphp
@@ -34,7 +34,7 @@
     <!-- FILTER DROPDOWN FORM -->
     <form action="{{ route('admin.reports.index') }}" method="GET" class="mb-4">
         <label class="block mb-1 text-sm font-medium text-gray-700">Filter by Type:</label>
-        <select name="type" class="w-full border rounded p-2" onchange="this.form.submit()">
+        <select name="type" class="w-[1200px] border rounded p-2" onchange="this.form.submit()">
             <option value="applicant" {{ (request('type', $type ?? '') === 'applicant') ? 'selected' : '' }}>Applicants</option>
             <option value="scholar" {{ (request('type', $type ?? '') === 'scholar') ? 'selected' : '' }}>Scholars</option>
         </select>
@@ -47,7 +47,7 @@
 
         <!-- SCROLLABLE TABLE -->
         <div class="overflow-x-auto border rounded max-w-full">
-            <div class="w-[700px] min-w-[700px]">
+            <div class="w-[1200px] min-w-[700px] overflow-y-auto max-h-[500px]">
                 <table class="table-auto w-full text-sm text-left" id="export-table">
                     <thead class="bg-gray-100">
                         <tr>
@@ -147,24 +147,25 @@
                                                 {{ $record->user->gender ?? '—' }}
                                                 @break
                                             @case('status')
-                                                @php
-                                                    $recordStatus = $type === 'scholar' ? ($record->status ?? '') : ($record->status ?? '');
-                                                    $statusClass = match($recordStatus) {
-                                                        'approved' => 'bg-green-100 text-green-800',
-                                                        'rejected' => 'bg-red-100 text-red-800',
-                                                        'pending' => 'bg-yellow-100 text-yellow-800',
-                                                        'document_verification' => 'bg-purple-100 text-purple-800',
-                                                        'for_interview' => 'bg-blue-100 text-blue-800',
-                                                        'good_standing' => 'bg-green-200 text-green-900',
-                                                        'graduated_ext', 'on_extension' => 'bg-blue-200 text-blue-900',
-                                                        'non_compliance', 'no_report', 'withdrawn', 'terminated' => 'bg-red-200 text-red-900',
-                                                        default => 'bg-gray-100 text-gray-800',
-                                                    };
-                                                @endphp
-                                                <span class="px-2 py-1 rounded text-xs font-semibold capitalize {{ $statusClass }}">
-                                                    {{ str_replace('_', ' ', $recordStatus) }}
-                                                </span>
-                                                @break
+    @php
+        $recordStatus = $type === 'scholar' ? ($record->status ?? '') : ($record->status ?? '');
+        $statusClass = match($recordStatus) {
+            'approved' => 'bg-green-100 text-green-800',
+            'rejected' => 'bg-red-100 text-red-800',
+            'pending' => 'bg-yellow-100 text-yellow-800',
+            'document_verification' => 'bg-purple-100 text-purple-800',
+            'for_interview' => 'bg-blue-100 text-blue-800',
+            'good_standing' => 'bg-green-200 text-green-900',
+            'graduated_ext', 'on_extension' => 'bg-blue-200 text-blue-900',
+            'non_compliance', 'no_report', 'withdrawn', 'terminated' => 'bg-red-200 text-red-900',
+            default => 'bg-gray-100 text-gray-800',
+        };
+    @endphp
+    <span class="px-2 py-1 rounded text-xs font-semibold capitalize {{ $statusClass }}">
+        {{ str_replace('_', ' ', $recordStatus) }}
+    </span>
+    @break
+
                                         @endswitch
                                     </td>
                                 @endforeach
