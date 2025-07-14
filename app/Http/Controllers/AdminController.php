@@ -76,7 +76,7 @@ class AdminController extends Controller
                 });
             })
             ->latest()
-            ->paginate(5);
+            ->paginate(10);
 
         return view('admin.applications.index', compact('applications', 'status', 'search'));
     }
@@ -235,7 +235,7 @@ class AdminController extends Controller
                 $query->where('status', 'approved');
             })
             ->latest()
-            ->paginate(5);
+            ->paginate(10);
 
         return view('admin.scholars.index', compact('scholars'));
     }
