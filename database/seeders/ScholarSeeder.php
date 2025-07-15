@@ -12,22 +12,23 @@ class ScholarSeeder extends Seeder
     public function run(): void
     {
         $statuses = [
-            'qualifier',
-            'not_availing',
-            'deferred',
-            'graduated_ontime',
-            'graduated_ext',
-            'on_extension_complete_fa',
-            'on_extension_with_fa',
-            'on_extension_monitoring',
-            'gs_on_track',
-            'loa',
-            'suspended',
-            'no_report',
-            'non_compliance',
-            'terminated',
-            'withdrew',
-        ];
+    'qualifiers',
+    'not_availing',
+    'deferred',
+    'graduated_on_time',
+    'graduated_ext',
+    'on_ext_complete_fa',
+    'on_ext_with_fa',
+    'on_ext_for_monitoring',
+    'gs_on_track',
+    'leave_of_absence',
+    'suspended',
+    'no_report',
+    'non_compliance',
+    'terminated',
+    'withdrawn',
+];
+
 
         foreach ($statuses as $status) {
             $user = User::factory()->create();

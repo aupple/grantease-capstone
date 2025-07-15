@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\ApplicationStatusMail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class AdminController extends Controller
 {
@@ -56,30 +57,26 @@ class AdminController extends Controller
 }
 
 
-    // ✅ View all submitted applications
-    public function viewApplications(Request $request)
-    {
-        $status = $request->query('status');
-        $search = $request->query('search');
 
-        $applications = ApplicationForm::with('user')
-            ->when($status, fn($query) => $query->where('status', $status))
-            ->when($search, function ($query, $search) {
-                $query->where(function ($subQuery) use ($search) {
-                    $subQuery->whereHas('user', function ($q) use ($search) {
-                        $q->where('first_name', 'like', "$search%")
-                          ->orWhere('middle_name', 'like', "$search%")
-                          ->orWhere('last_name', 'like', "$search%");
-                    })
-                    ->orWhere('program', 'like', "$search%")
-                    ->orWhere('status', 'like', "$search%");
-                });
-            })
-            ->latest()
-            ->paginate(10);
+public function viewApplications(Request $request)
+{
+    $status = $request->query('status');
+    $search = $request->query('search');
 
-        return view('admin.applications.index', compact('applications', 'status', 'search'));
-    }
+    $applications = ApplicationForm::with('user')
+        ->when($status, fn($query) => $query->where('status', $status))
+        ->when($search, function ($query, $search) {
+            $search = Str::lower($search);
+            $query->whereHas('user', function ($userQuery) use ($search) {
+                $userQuery->whereRaw('LOWER(first_name) LIKE ?', [$search . '%']);
+            });
+        })
+        ->latest()
+        ->paginate(10);
+
+    return view('admin.applications.index', compact('applications', 'status', 'search'));
+}
+
 
     // ✅ View a specific application
     public function showApplication($id)
@@ -209,7 +206,6 @@ class AdminController extends Controller
         'scholarStatuses'
     ));
 }
-
 
     // ✅ PDF Report Download
     public function downloadReportPdf()

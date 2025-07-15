@@ -83,7 +83,7 @@
                                 <th class="p-2 border">
                                     <label class="flex items-center space-x-1">
                                         <input type="checkbox" class="column-toggle" data-column="{{ $key }}"
-                                            {{ in_array($key, ['last_name', 'email', 'status']) ? 'checked' : '' }}>
+                                            {{ in_array($key, ['last_name', 'email', 'status','first_name','middle_name']) ? 'checked' : '' }}>
                                         <span>{{ $label }}</span>
                                     </label>
                                 </th>
@@ -99,7 +99,7 @@
 
                                 @foreach ($columns as $key => $label)
                                     <td class="p-2 border column-{{ $key }}"
-                                        style="{{ in_array($key, ['last_name', 'email', 'status']) ? '' : 'display:none;' }}">
+                                        style="{{ in_array($key, ['last_name', 'email', 'status','first_name','middle_name']) ? '' : 'display:none;' }}">
                                         @switch($key)
                                             @case('last_name')
                                                 {{ $record->user->last_name ?? '—' }}
@@ -146,25 +146,26 @@
                                             @case('gender')
                                                 {{ $record->user->gender ?? '—' }}
                                                 @break
-                                            @case('status')
-    @php
-        $recordStatus = $type === 'scholar' ? ($record->status ?? '') : ($record->status ?? '');
-        $statusClass = match($recordStatus) {
-            'approved' => 'bg-green-100 text-green-800',
-            'rejected' => 'bg-red-100 text-red-800',
-            'pending' => 'bg-yellow-100 text-yellow-800',
-            'document_verification' => 'bg-purple-100 text-purple-800',
-            'for_interview' => 'bg-blue-100 text-blue-800',
-            'good_standing' => 'bg-green-200 text-green-900',
-            'graduated_ext', 'on_extension' => 'bg-blue-200 text-blue-900',
-            'non_compliance', 'no_report', 'withdrawn', 'terminated' => 'bg-red-200 text-red-900',
-            default => 'bg-gray-100 text-gray-800',
-        };
-    @endphp
-    <span class="px-2 py-1 rounded text-xs font-semibold capitalize {{ $statusClass }}">
-        {{ str_replace('_', ' ', $recordStatus) }}
-    </span>
-    @break
+     @case('status')
+@php
+    $recordStatus = $type === 'scholar' ? ($record->status ?? '') : ($record->status ?? '');
+    $statusClass = match($recordStatus) {
+    '', null => 'bg-gray-200 text-gray-600 italic', // 👈 catches missing statuses
+    'qualifiers', 'gs_on_track' => 'bg-green-200 text-green-900',
+    'not_availing' => 'bg-gray-300 text-gray-800',
+    'deferred', 'pending', 'leave_of_absence', 'on_ext_complete_fa' => 'bg-yellow-200 text-yellow-900',
+    'graduated_on_time', 'graduated_ext', 'on_ext_with_fa', 'on_ext_for_monitoring', 'for_interview' => 'bg-blue-200 text-blue-900',
+    'document_verification' => 'bg-purple-200 text-purple-900',
+    'non_compliance', 'terminated', 'withdrawn', 'rejected', 'no_report', 'suspended' => 'bg-red-200 text-red-900',
+    'approved', 'good_standing' => 'bg-green-200 text-green-900',
+    default => 'bg-gray-100 text-gray-800',
+};
+
+@endphp
+<span class="px-2 py-1 rounded text-xs font-semibold capitalize {{ $statusClass }}">
+    {{ str_replace('_', ' ', $recordStatus) }}
+</span>
+@break
 
                                         @endswitch
                                     </td>

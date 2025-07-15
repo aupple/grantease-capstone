@@ -23,7 +23,7 @@
                 <input type="hidden" name="status" value="{{ request('status') }}">
             @endif
             <button type="submit"
-                class="bg-blue-500/80 backdrop-blur-md text-white px-4 py-2 text-sm rounded-md shadow-md hover:bg-blue-600/80 transition font-semibold">
+                class="bg-blue-900 backdrop-blur-md text-white px-4 py-2 text-sm rounded-md shadow-md hover:bg-blue-600/80 transition font-semibold">
                 Search
             </button>
         </form>
