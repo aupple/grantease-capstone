@@ -1,111 +1,188 @@
 @extends('layouts.admin-layout')
 
 @section('content')
-    <h1 class="text-2xl font-bold mb-6">Welcome, {{ auth()->user()->first_name }}!</h1>
+   {{-- <h1 class="text-2xl font-bold mb-6 text-gray-800">Welcome, {{ auth()->user()->first_name }}!</h1> --}}
 
-    <!-- ✅ Scholar Status & Application Summary Overview -->
-    <div class="bg-white p-6 rounded shadow mt-6">
-        <h3 class="text-lg font-bold mb-4">📊 Scholar Status Overview</h3>
+ <!-- ✅ Scholar Status Overview Title with timestamp only -->
+    <div class="mb-6">
+        <div class="flex items-center justify-between">
+    <div>
+        <h3 class="text-3xl font-bold text-gray-800 mb-1">Scholar Management Overview</h3>
+        <p class="text-sm text-gray-600">Summary and statistics for all scholarship applications</p>
+    </div>
+</div>
 
-        <div class="flex flex-col lg:flex-row gap-8 items-start">
-            <!-- 🔹 LEFT SIDE: Application Summary Cards -->
-            <div class="flex-1">
-                <div class="grid grid-cols-2 md:grid-cols-2 gap-4 mb-4">
-                    <div class="bg-blue-100 p-4 rounded text-center shadow">
-                        <p class="text-sm text-blue-700 font-semibold">Total Applicants</p>
-                        <p class="text-xl font-bold">{{ $total_applicants }}</p>
-                    </div>
-                    <div class="bg-yellow-100 p-4 rounded text-center shadow">
-                        <p class="text-sm text-yellow-700 font-semibold">Pending</p>
-                        <p class="text-xl font-bold">{{ $pending }}</p>
-                    </div>
-                    <div class="bg-green-100 p-4 rounded text-center shadow">
-                        <p class="text-sm text-green-700 font-semibold">Approved</p>
-                        <p class="text-xl font-bold">{{ $approved }}</p>
-                    </div>
-                    <div class="bg-red-100 p-4 rounded text-center shadow">
-                        <p class="text-sm text-red-700 font-semibold">Rejected</p>
-                        <p class="text-xl font-bold">{{ $rejected }}</p>
-                    </div>
-                </div>
+    </div>
+
+<!-- ✅ 4 Summary Cards with Light Gradient Accent -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+    <!-- Total Applications -->
+    <div class="relative bg-white/60 backdrop-blur-md p-5 rounded-xl text-center shadow-sm border border-white/30 hover:shadow-md transition-shadow overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-100 to-transparent opacity-30 rounded-xl pointer-events-none"></div>
+        <div class="relative z-10">
+            <div class="flex items-center justify-center mb-2">
+                <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
             </div>
+            <p class="text-sm text-blue-900 font-semibold mb-1">Total Applicants</p>
+            <p class="text-3xl font-bold text-blue-800">{{ $total_applicants }}</p>
+        </div>
+    </div>
 
-            <!-- 🔹 RIGHT SIDE: Pie Chart + Vertical Legend -->
-            <div class="flex-1 flex flex-col lg:flex-row items-center gap-6">
-                <!-- Chart -->
-                <div class="w-full max-w-xs">
-                    <canvas id="scholarPieChart"></canvas>
-                </div>
+    <!-- Pending -->
+    <div class="relative bg-white/60 backdrop-blur-md p-5 rounded-xl text-center shadow-sm border border-white/30 hover:shadow-md transition-shadow overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-yellow-100 to-transparent opacity-30 rounded-xl pointer-events-none"></div>
+        <div class="relative z-10">
+            <div class="flex items-center justify-center mb-2">
+                <svg class="w-6 h-6 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <p class="text-sm text-yellow-900 font-semibold mb-1">Pending</p>
+            <p class="text-3xl font-bold text-yellow-800">{{ $pending }}</p>
+        </div>
+    </div>
 
-                <!-- Legend (Revised for Monitoring Sheet Status) -->
-<div class="w-full max-w-xs">
-    <ul class="space-y-2 text-sm">
+    <!-- Approved -->
+    <div class="relative bg-white/60 backdrop-blur-md p-5 rounded-xl text-center shadow-sm border border-white/30 hover:shadow-md transition-shadow overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-green-100 to-transparent opacity-30 rounded-xl pointer-events-none"></div>
+        <div class="relative z-10">
+            <div class="flex items-center justify-center mb-2">
+                <svg class="w-6 h-6 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <p class="text-sm text-green-900 font-semibold mb-1">Approved</p>
+            <p class="text-3xl font-bold text-green-800">{{ $approved }}</p>
+        </div>
+    </div>
+
+    <!-- Rejected -->
+    <div class="relative bg-white/60 backdrop-blur-md p-5 rounded-xl text-center shadow-sm border border-white/30 hover:shadow-md transition-shadow overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-red-100 to-transparent opacity-30 rounded-xl pointer-events-none"></div>
+        <div class="relative z-10">
+            <div class="flex items-center justify-center mb-2">
+                <svg class="w-6 h-6 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <p class="text-sm text-red-900 font-semibold mb-1">Rejected</p>
+            <p class="text-3xl font-bold text-red-800">{{ $rejected }}</p>
+        </div>
+    </div>
+</div>
+
+<hr class="my-6 border-t border-gray-200/40">
+
+<!-- ✅ Two Column Layout: Recent Applications (Left) & Pie Chart (Right) -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    
+    <!-- Left Column: Recent Applications Table (2/3 width) -->
+    <div class="lg:col-span-2 bg-white/40 backdrop-blur-md border border-white/30 shadow-md rounded-xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center gap-3">
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <h3 class="text-lg font-semibold text-gray-800">Recent Applications</h3>
+            </div>
+            <div class="flex items-center gap-2">
+                <input type="text" placeholder="Search applications..." class="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <button class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    Export
+                </button>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left border-collapse">
+                <thead>
+                    <tr class="bg-white/60 text-gray-700">
+                        <th class="p-4 border-b border-gray-200 font-semibold">Applicant</th>
+                        <th class="p-4 border-b border-gray-200 font-semibold">Program</th>
+                        <th class="p-4 border-b border-gray-200 font-semibold">Status</th>
+                        <th class="p-4 border-b border-gray-200 font-semibold">Date</th>
+                        <th class="p-4 border-b border-gray-200 font-semibold">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white/30 text-gray-800">
+                    @foreach (\App\Models\ApplicationForm::with('user')->latest()->take(5)->get() as $app)
+                        <tr class="hover:bg-white/50 transition-colors border-b border-gray-100">
+                            <td class="p-4 font-medium">{{ $app->user->full_name ?? $app->user->first_name . ' ' . $app->user->last_name }}</td>
+                            <td class="p-4">{{ $app->program }}</td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+                                    @if ($app->status === 'approved') bg-green-100 text-green-800 border border-green-200
+                                    @elseif ($app->status === 'rejected') bg-red-100 text-red-800 border border-red-200
+                                    @elseif ($app->status === 'pending') bg-yellow-100 text-yellow-800 border border-yellow-200
+                                    @elseif ($app->status === 'document_verification') bg-purple-100 text-purple-800 border border-purple-200
+                                    @elseif ($app->status === 'for_interview') bg-blue-100 text-blue-800 border border-blue-200
+                                    @else bg-gray-100 text-gray-800 border border-gray-200
+                                    @endif">
+                                    {{ ucfirst(str_replace('_', ' ', $app->status)) }}
+                                </span>
+                            </td>
+                            <td class="p-4 text-gray-600">{{ $app->created_at->format('M d, Y') }}</td>
+                            <td class="p-4">
+                                <a href="{{ route('admin.applications.show', $app->application_form_id) }}"
+                                   class="inline-flex items-center px-3 py-1 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                    View
+                                </a>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+<!-- ✅ Right Column: Pie Chart & Legend (1/3 width, clean design) -->
+<div class="bg-white/30 backdrop-blur-md border border-white/30 shadow-lg rounded-2xl p-6 ring-1 ring-white/20">
+
+    <h4 class="text-lg font-semibold text-gray-800 mb-4 text-center">Application Status</h4>
+
+    <!-- 📊 Doughnut Chart -->
+    <div class="flex justify-center mb-5">
+        <div class="w-52 h-52">
+            <canvas id="scholarPieChart"></canvas>
+        </div>
+    </div>
+
+    <!-- 🟢 Legend -->
+    <ul class="space-y-2 text-sm text-gray-700 bg-white/20 backdrop-blur-sm rounded-lg p-4 border border-white/10">
         @php
             $colors = [
-                '#4CAF50', '#FF9800', '#03A9F4', '#9C27B0', '#F44336', '#FFC107',
-                '#00BCD4', '#607D8B', '#795548', '#E91E63', '#8BC34A', '#2196F3',
+                '#4CAF50', '#FF9800', '#03A9F4', '#9C27B0',
+                '#F44336', '#FFC107', '#00BCD4', '#607D8B',
+                '#795548', '#E91E63', '#8BC34A', '#2196F3',
                 '#CDDC39', '#009688', '#673AB7'
             ];
             $i = 0;
         @endphp
 
         @foreach ($scholarStatuses as $label => $count)
-            <li class="flex items-center gap-2">
-                <span class="inline-block w-4 h-4 rounded" style="background-color: {{ $colors[$i++] }};"></span>
-                <span>{{ $label }} – {{ $count }}</span>
+            <li class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                    <span class="inline-block w-3 h-3 rounded-full" style="background-color: {{ $colors[$i++] }};"></span>
+                    <span class="text-xs font-medium">{{ $label }}</span>
+                </div>
+                <span class="text-xs font-semibold text-gray-800">{{ $count }}</span>
             </li>
         @endforeach
     </ul>
 </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- ✅ Recent Applications Table -->
-    <div class="bg-white shadow rounded p-6 mt-6">
-        <h3 class="text-lg font-semibold mb-4">📄 Recent Applications</h3>
+    
 
-        <table class="w-full text-sm text-left border border-gray-200">
-            <thead class="bg-gray-100">
-                <tr>
-                    <th class="p-2 border">Applicant</th>
-                    <th class="p-2 border">Program</th>
-                    <th class="p-2 border">Status</th>
-                    <th class="p-2 border">Date</th>
-                    <th class="p-2 border">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (\App\Models\ApplicationForm::with('user')->latest()->take(5)->get() as $app)
-                    <tr class="hover:bg-gray-50">
-                        <td class="p-2 border">
-                            {{ $app->user->full_name ?? $app->user->first_name . ' ' . $app->user->last_name }}
-                        </td>
-                        <td class="p-2 border">{{ $app->program }}</td>
-                        <td class="p-2 border">
-                            <span class="px-2 py-1 rounded text-xs font-semibold
-                                @if ($app->status === 'approved') bg-green-100 text-green-800
-                                @elseif ($app->status === 'rejected') bg-red-100 text-red-800
-                                @elseif ($app->status === 'pending') bg-yellow-100 text-yellow-800
-                                @elseif ($app->status === 'document_verification') bg-purple-100 text-purple-800
-                                @elseif ($app->status === 'for_interview') bg-blue-100 text-blue-800
-                                @else bg-gray-100 text-gray-800
-                                @endif">
-                                {{ ucfirst(str_replace('_', ' ', $app->status)) }}
-                            </span>
-                        </td>
-                        <td class="p-2 border">{{ $app->created_at->format('M d, Y') }}</td>
-                        <td class="p-2 border">
-                            <a href="{{ route('admin.applications.show', $app->application_form_id) }}"
-                               class="text-blue-600 hover:underline">
-                                View
-                            </a>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
 @endsection
 
 @push('scripts')
@@ -113,13 +190,16 @@
 <script>
     const ctx = document.getElementById('scholarPieChart').getContext('2d');
     const data = {
-labels: {!! json_encode(array_values($scholarStatuses->keys()->toArray())) !!},
+        labels: {!! json_encode(array_values($scholarStatuses->keys()->toArray())) !!},
         datasets: [{
             data: {!! json_encode($scholarStatuses->values()) !!},
             backgroundColor: [
                 '#4CAF50', '#FF9800', '#03A9F4', '#9C27B0',
                 '#F44336', '#FFC107', '#00BCD4', '#607D8B'
             ],
+            borderWidth: 2,
+            borderColor: 'rgba(255, 255, 255, 0.8)',
+            hoverBorderWidth: 3,
         }]
     };
 
@@ -127,14 +207,30 @@ labels: {!! json_encode(array_values($scholarStatuses->keys()->toArray())) !!},
         type: 'pie',
         data: data,
         options: {
+            responsive: true,
+            maintainAspectRatio: true,
             plugins: {
-                legend: { display: false }
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: 'white',
+                    bodyColor: 'white',
+                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    callbacks: {
+                        label: function(context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((context.parsed / total) * 100).toFixed(1);
+                            return `${context.label}: ${context.parsed} (${percentage}%)`;
+                        }
+                    }
+                }
             },
             onClick: (e, elements) => {
                 if (elements.length > 0) {
                     const label = data.labels[elements[0].index];
                     window.location.href = "{{ route('admin.reports.monitoring') }}";
-
                 }
             }
         }
