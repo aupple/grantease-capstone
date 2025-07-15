@@ -6,6 +6,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ApplicationFormController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Admin\AdminProfileController;
 
 Route::redirect('/', '/login');
 
@@ -67,11 +68,17 @@ Route::middleware(['auth'])->group(function () {
     // Scholars list (from AdminController)
     Route::get('/admin/scholars', [AdminController::class, 'viewScholars'])->name('admin.scholars');
 
-    // Profile Management
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Profile Management for applicants
+Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+// Profile Management for admin
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/profile/edit', [AdminProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile/update', [AdminProfileController::class, 'update'])->name('profile.update');
 });
 
+});
 // Breeze auth routes
 require __DIR__ . '/auth.php';

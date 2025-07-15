@@ -81,7 +81,7 @@
 
 <!-- ✅ Two Column Layout: Recent Applications (Left) & Pie Chart (Right) -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-    
+
     <!-- Left Column: Recent Applications Table (2/3 width) -->
     <div class="lg:col-span-2 bg-white/40 backdrop-blur-md border border-white/30 shadow-md rounded-xl p-6">
         <div class="flex justify-between items-center mb-6">
@@ -144,7 +144,7 @@
             </table>
         </div>
     </div>
-    
+
 <!-- ✅ Right Column: Pie Chart & Legend (1/3 width, clean design) -->
 <div class="bg-white/30 backdrop-blur-md border border-white/30 shadow-lg rounded-2xl p-6 ring-1 ring-white/20">
 
@@ -181,7 +181,7 @@
     </ul>
 </div>
 
-    
+
 
 @endsection
 
