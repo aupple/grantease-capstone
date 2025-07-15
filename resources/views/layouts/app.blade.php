@@ -25,37 +25,47 @@
 </div>
 
 
-    <!-- Sidebar Navigation -->
-    <nav class="p-6 space-y-4 text-sm">
-        <!-- Dashboard Link -->
-        <a href="{{ route('applicant.dashboard') }}" class="flex items-center gap-2 text-gray-700 font-medium hover:text-blue-600">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path d="M3 12l2-2m0 0l7-7 7 7m-9 2v6m4-6v6m5-6h2a2 2 0 012 2v7a2 2 0 01-2 2h-2.5m-13 0H5a2 2 0 01-2-2v-7a2 2 0 012-2h2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Dashboard
-        </a>
-                <!-- Application Status -->
-        <a href="{{ route('applicant.application.view') }}" class="flex items-center gap-2 text-gray-700 font-medium hover:text-blue-600">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path d="M9 17v-6h13m-2 0l-5-5-5 5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Application Status
-        </a>
+   <!-- Sidebar Navigation -->
+<nav class="p-6 space-y-4 text-sm bg-[#0a1f44] text-white h-full">
 
-        <!-- Divider -->
-        <hr class="border-t border-gray-300 my-4">
+    <!-- Dashboard Link -->
+    <a href="{{ route('applicant.dashboard') }}"
+       class="flex items-center gap-2 font-medium hover:bg-blue-700 p-2 rounded">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24">
+            <path d="M3 12l2-2m0 0l7-7 7 7m-9 2v6m4-6v6m5-6h2a2 2 0 012 2v7a2 2 0 01-2 2h-2.5m-13 0H5a2 2 0 01-2-2v-7a2 2 0 012-2h2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Dashboard
+    </a>
 
-        <!-- Logout -->
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit" class="flex items-center gap-2 text-red-600 font-medium hover:underline">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Logout
-            </button>
-        </form>
-    </nav>
+    <!-- Application Status -->
+    <a href="{{ route('applicant.application.view') }}"
+       class="flex items-center gap-2 font-medium hover:bg-blue-700 p-2 rounded">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24">
+            <path d="M9 17v-6h13m-2 0l-5-5-5 5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Application Status
+    </a>
+
+    <!-- Divider -->
+    <hr class="border-t border-blue-300 my-4">
+
+    <!-- Logout -->
+    <form method="POST" action="{{ route('logout') }}">
+        @csrf
+        <button type="submit"
+                class="flex items-center gap-2 font-medium hover:bg-blue-700 p-2 rounded w-full text-white">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2"
+                 viewBox="0 0 24 24">
+                <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Logout
+        </button>
+    </form>
+</nav>
 </aside>
 
         <!-- ✅ Main Content Area -->
@@ -65,7 +75,7 @@
             <div class="bg-white shadow border-b border-gray-200 px-6 py-5 flex justify-between items-center">
                 <!-- Left: Page Title -->
                 <h1 class="text-1.5xl font-bold text-gray-600">
-                    {{ $headerTitle ?? 'Scholarship Application' }}
+                    {{ $headerTitle ?? 'University of Science and Technology of Southern Philippines' }}
                 </h1>
 
                 <!-- Right: Profile Icon -->

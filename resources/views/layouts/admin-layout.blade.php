@@ -8,28 +8,76 @@
 <body class="bg-gray-100 font-sans antialiased">
     <div class="min-h-screen flex">
 
-        <!-- ✅ Sidebar -->
-        <aside class="w-64 bg-white shadow-md hidden md:block">
-            <div class="p-6 text-lg font-bold border-b">
-                GrantEase Admin
-            </div>
-            <nav class="p-4 space-y-2 text-sm">
-                <a href="{{ route('admin.dashboard') }}" class="block px-3 py-2 rounded hover:bg-blue-100 {{ request()->routeIs('admin.dashboard') ? 'bg-blue-50 font-semibold' : '' }}">
-                    🏠 Dashboard
-                </a>
-                <a href="{{ route('admin.applications') }}" class="block px-3 py-2 rounded hover:bg-blue-100 {{ request()->routeIs('admin.applications') ? 'bg-blue-50 font-semibold' : '' }}">
-                    📑 Applications
-                </a>
-                <a href="{{ route('admin.scholars') }}" class="block px-3 py-2 rounded hover:bg-blue-100 {{ request()->routeIs('admin.scholars') ? 'bg-blue-50 font-semibold' : '' }}">
-                    🎓 Scholars
-                </a>
-                <a href="{{ route('admin.reports.index') }}"
-   class="block px-3 py-2 rounded hover:bg-blue-100 {{ request()->routeIs('admin.reports.index') ? 'bg-blue-50 font-semibold' : '' }}">
-    📊 Reports
-</a>
+      <!-- ✅ Sidebar -->
+<aside class="w-64 bg-white shadow-md hidden md:block">
+    <!-- GrantEase Admin Logo Box -->
+    <div class="bg-[#0a1f44] text-white border-b border-[#081a38] px-6 py-3 flex items-center justify-center text-2xl font-bold">
+        GrantEase 
+    </div>
 
-            </nav>
-        </aside>
+    <!-- Sidebar Navigation -->
+    <nav class="p-6 space-y-4 text-sm bg-[#0a1f44] text-white h-full">
+
+        <!-- Dashboard -->
+        <a href="{{ route('admin.dashboard') }}"
+           class="flex items-center gap-2 font-medium hover:bg-blue-700 p-2 rounded {{ request()->routeIs('admin.dashboard') ? 'bg-blue-800' : '' }}">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2"
+                 viewBox="0 0 24 24">
+                <path d="M3 12l2-2m0 0l7-7 7 7m-9 2v6m4-6v6m5-6h2a2 2 0 012 2v7a2 2 0 01-2 2h-2.5m-13 0H5a2 2 0 01-2-2v-7a2 2 0 012-2h2"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Dashboard
+        </a>
+
+        <!-- Applications -->
+        <a href="{{ route('admin.applications') }}"
+           class="flex items-center gap-2 font-medium hover:bg-blue-700 p-2 rounded {{ request()->routeIs('admin.applications') ? 'bg-blue-800' : '' }}">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2"
+                 viewBox="0 0 24 24">
+                <path d="M9 17v-6h13m-2 0l-5-5-5 5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Applications
+        </a>
+
+        <!-- Scholars -->
+        <a href="{{ route('admin.scholars') }}"
+           class="flex items-center gap-2 font-medium hover:bg-blue-700 p-2 rounded {{ request()->routeIs('admin.scholars') ? 'bg-blue-800' : '' }}">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2"
+                 viewBox="0 0 24 24">
+                <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Scholars
+        </a>
+
+        <!-- Reports -->
+        <a href="{{ route('admin.reports.index') }}"
+           class="flex items-center gap-2 font-medium hover:bg-blue-700 p-2 rounded {{ request()->routeIs('admin.reports.index') ? 'bg-blue-800' : '' }}">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2"
+                 viewBox="0 0 24 24">
+                <path d="M11 17a2.5 2.5 0 005 0m-5 0a2.5 2.5 0 00-5 0m5 0v4m-6-4H5a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2h-2"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Reports
+        </a>
+
+        <!-- Divider -->
+        <hr class="border-t border-blue-300 my-4">
+
+        <!-- Logout -->
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit"
+                    class="flex items-center gap-2 font-medium hover:bg-blue-700 p-2 rounded w-full text-white">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2"
+                     viewBox="0 0 24 24">
+                    <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"
+                          stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Logout
+            </button>
+        </form>
+    </nav>
+</aside>
 
         <!-- ✅ Main Content Area -->
         <main class="flex-1">
