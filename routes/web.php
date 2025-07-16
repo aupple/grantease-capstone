@@ -60,6 +60,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin/reports/monitoring/save', [ReportController::class, 'saveMonitoring'])->name('admin.reports.monitoring.save');
     Route::get('/admin/reports/monitoring/download', [ReportController::class, 'downloadMonitoring'])
     ->name('admin.reports.monitoring.download');
+    Route::post('/admin/reports/applicants/save', [ReportController::class, 'saveApplicants'])->name('admin.reports.applicants.save');
+
 
 
 

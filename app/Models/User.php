@@ -41,6 +41,11 @@ class User extends Authenticatable
     public function getFullNameAttribute()
     {
         return trim($this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name);
+
     }
-    
+    public function role()
+{
+    return $this->belongsTo(Role::class, 'role_id', 'role_id');
+}
+
 }
