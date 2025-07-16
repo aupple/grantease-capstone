@@ -27,7 +27,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="col-span-2 space-y-6">
-            <div class="bg-white p-6 rounded shadow">
+<div class="bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6" >
                 <h3 class="text-lg font-bold mb-4">Personal Information</h3>
                 <p><strong>Name:</strong> {{ $application->user->full_name ?? $application->user->first_name . ' ' . $application->user->last_name }}</p>
                 <p><strong>Email:</strong> {{ $application->user->email }}</p>
@@ -35,7 +35,7 @@
                 <p><strong>Address:</strong> {{ $application->user->address ?? 'N/A' }}</p>
             </div>
 
-            <div class="bg-white p-6 rounded shadow">
+<div class="bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6" >
                 <h3 class="text-lg font-bold mb-4">🎓 Academic Background</h3>
                 <p><strong>Program:</strong> {{ $application->program }}</p>
                 <p><strong>School:</strong> {{ $application->school }}</p>
@@ -43,7 +43,7 @@
                 <p><strong>Reason:</strong> {{ $application->reason ?? 'N/A' }}</p>
             </div>
 
-            <div class="bg-white p-6 rounded shadow">
+<div class="bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6" >
                 <h3 class="text-lg font-bold mb-4">💸 Financial Status</h3>
                 <p><strong>Monthly Income:</strong> {{ $application->monthly_income ?? 'N/A' }}</p>
                 <p><strong>Family Members:</strong> {{ $application->family_size ?? 'N/A' }}</p>
@@ -55,7 +55,7 @@
         <div class="space-y-6">
 
             <!-- 📝 Evaluation & Scoresheet Section -->
-            <div class="bg-white p-6 rounded shadow">
+ <div class="bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6" >
                 <h3 class="text-lg font-bold mb-4">Documents </h3>
 
                 @php
@@ -113,7 +113,7 @@
             </div>
 
             <!-- Application Info -->
-            <div class="bg-white p-3 rounded shadow">
+<div class="bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6" >
                 <h3 class="text-lg font-bold mb-3">Application Info</h3>
                 <div class="mb-3 flex items-center gap-3">
                     <strong class="text-sm">Status:</strong>
@@ -137,7 +137,7 @@
                 </form>
             </div>
             <!-- ✅ Quick Actions -->
-<div class="bg-white p-6 rounded shadow">
+<div class="bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6" >
     <h3 class="text-lg font-bold mb-4">Quick Actions</h3>
     <div class="space-y-2">
         <a href="#" class="block w-full text-center bg-gray-50 border border-gray-200 text-sm text-gray-800 rounded-md px-4 py-2 hover:bg-gray-100 transition">📄 Print Application</a>
