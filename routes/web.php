@@ -61,7 +61,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin/reports/monitoring/save', [ReportController::class, 'saveMonitoring'])->name('admin.reports.monitoring.save');
     Route::get('/admin/reports/monitoring/download', [ReportController::class, 'downloadMonitoring'])
         ->name('admin.reports.monitoring.download');
-    Route::post('/admin/reports/applicants/save', [ReportController::class, 'saveApplicants'])->name('admin.reports.applicants.save');
 
     // Scholars list (from AdminController)
     Route::get('/admin/scholars', [AdminController::class, 'viewScholars'])->name('admin.scholars');
@@ -77,7 +76,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/profile/update', [AdminProfileController::class, 'update'])->name('profile.update');
     });
 
-    // Applicant PDF Routes
+    // ✅ Applicant PDF Routes
     Route::prefix('applicant')->name('applicant.')->group(function () {
         Route::prefix('pdf')->name('pdf.')->group(function () {
             Route::get('/health-certificate', [PdfController::class, 'healthCertificate'])->name('health_certificate');
@@ -91,7 +90,6 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
-}); // <-- Close middleware(['auth'])
-
-// Breeze Auth Routes
-require __DIR__.'/auth.php';
+});
+// Breeze auth routes
+require __DIR__ . '/auth.php';
