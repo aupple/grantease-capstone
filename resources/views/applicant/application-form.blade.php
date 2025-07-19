@@ -68,11 +68,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
                             <label for="academic_year" class="block text-sm font-medium text-gray-700">Academic Year</label>
-                            <input type="text" name="academic_year" id="academic_year" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="e.g., 2024-2025">
+                            <input type="text" name="academic_year" id="academic_year" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="e.g., 2024-2025" required>
                         </div>
                         <div>
                             <label for="school_term" class="block text-sm font-medium text-gray-700">School Term</label>
-                            <select name="school_term" id="school_term" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <select name="school_term" id="school_term" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
                                 <option value="">Select Term</option>
                                 <option value="First">First Semester/Term</option>
                                 <option value="Second">Second Semester/Term</option>
@@ -88,12 +88,12 @@
 
                     <div class="mb-6">
                         <label for="passport_picture" class="block text-sm font-medium text-gray-700">Attach 1 latest passport size picture</label>
-                        <input type="file" name="passport_picture" id="passport_picture" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        <input type="file" name="passport_picture" id="passport_picture" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
                     </div>
 
                     <div class="flex justify-between mt-8">
                         <div></div>
-                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="nextStep(2)">Next: Personal Info</button>
+                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="validateAndNext(1)">Next: Personal Info</button>
                     </div>
                 </div>
 
@@ -105,11 +105,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         <div>
                             <label for="last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
-                            <input type="text" name="last_name" id="last_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            <input type="text" name="last_name" id="last_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
                         </div>
                         <div>
                             <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>
-                            <input type="text" name="first_name" id="first_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            <input type="text" name="first_name" id="first_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
                         </div>
                         <div>
                             <label for="middle_name" class="block text-sm font-medium text-gray-700">Middle Name</label>
@@ -119,21 +119,21 @@
 
                     <div class="mb-4">
                         <label for="permanent_address" class="block text-sm font-medium text-gray-700">Permanent Address</label>
-                        <input type="text" name="permanent_address_no" id="permanent_address_no" placeholder="No." class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm mb-2">
-                        <input type="text" name="permanent_address_street" id="permanent_address_street" placeholder="Street" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm mb-2">
-                        <input type="text" name="permanent_address_barangay" id="permanent_address_barangay" placeholder="Barangay" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm mb-2">
-                        <input type="text" name="permanent_address_city" id="permanent_address_city" placeholder="City/Municipality" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm mb-2">
-                        <input type="text" name="permanent_address_province" id="permanent_address_province" placeholder="Province" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        <input type="text" name="permanent_address_no" id="permanent_address_no" placeholder="No." class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm mb-2" required>
+                        <input type="text" name="permanent_address_street" id="permanent_address_street" placeholder="Street" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm mb-2" required>
+                        <input type="text" name="permanent_address_barangay" id="permanent_address_barangay" placeholder="Barangay" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm mb-2" required>
+                        <input type="text" name="permanent_address_city" id="permanent_address_city" placeholder="City/Municipality" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm mb-2" required>
+                        <input type="text" name="permanent_address_province" id="permanent_address_province" placeholder="Province" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                         <div>
                             <label for="zip_code" class="block text-sm font-medium text-gray-700">Zip Code</label>
-                            <input type="text" name="zip_code" id="zip_code" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            <input type="text" name="zip_code" id="zip_code" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
                         </div>
                         <div>
                             <label for="region" class="block text-sm font-medium text-gray-700">Region</label>
-                            <input type="text" name="region" id="region" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            <input type="text" name="region" id="region" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
                         </div>
                         <div>
                             <label for="district" class="block text-sm font-medium text-gray-700">District</label>
@@ -147,23 +147,23 @@
 
                     <div class="mb-4">
                         <label for="email_address" class="block text-sm font-medium text-gray-700">E-mail Address</label>
-                        <input type="email" name="email_address" id="email_address" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        <input type="email" name="email_address" id="email_address" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
                     </div>
 
                     <div class="mb-4">
                         <label for="current_mailing_address" class="block text-sm font-medium text-gray-700">Current Mailing Address</label>
-                        <input type="text" name="current_mailing_address" id="current_mailing_address" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        <input type="text" name="current_mailing_address" id="current_mailing_address" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
                     </div>
 
                     <div class="mb-4">
                         <label for="telephone_nos" class="block text-sm font-medium text-gray-700">Telephone Nos. (Landline/Mobile)</label>
-                        <input type="text" name="telephone_nos" id="telephone_nos" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        <input type="text" name="telephone_nos" id="telephone_nos" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                         <div>
                             <label for="civil_status" class="block text-sm font-medium text-gray-700">Civil Status</label>
-                            <select name="civil_status" id="civil_status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            <select name="civil_status" id="civil_status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
                                 <option value="">Select</option>
                                 <option value="Single">Single</option>
                                 <option value="Married">Married</option>
@@ -173,15 +173,15 @@
                         </div>
                         <div>
                             <label for="date_of_birth" class="block text-sm font-medium text-gray-700">Date of Birth</label>
-                            <input type="date" name="date_of_birth" id="date_of_birth" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            <input type="date" name="date_of_birth" id="date_of_birth" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
                         </div>
                         <div>
                             <label for="age" class="block text-sm font-medium text-gray-700">Age</label>
-                            <input type="number" name="age" id="age" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            <input type="number" name="age" id="age" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
                         </div>
                         <div>
                             <label for="sex" class="block text-sm font-medium text-gray-700">Sex</label>
-                            <select name="sex" id="sex" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            <select name="sex" id="sex" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
                                 <option value="">Select</option>
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
@@ -192,17 +192,17 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         <div>
                             <label for="father_name" class="block text-sm font-medium text-gray-700">Father’s Name</label>
-                            <input type="text" name="father_name" id="father_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            <input type="text" name="father_name" id="father_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
                         </div>
                         <div>
                             <label for="mother_name" class="block text-sm font-medium text-gray-700">Mother’s Name</label>
-                            <input type="text" name="mother_name" id="mother_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            <input type="text" name="mother_name" id="mother_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
                         </div>
                     </div>
 
                     <div class="flex justify-between mt-8">
                         <button type="button" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400" onclick="prevStep(1)">Back</button>
-                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="nextStep(3)">Next: Education</button>
+                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="validateAndNext(2)">Next: Education</button>
                     </div>
                 </div>
 
@@ -214,9 +214,9 @@
                     <div class="mb-6">
                         <p class="block text-sm font-medium text-gray-700 mb-2">BS Degree</p>
                         <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-2">
-                            <input type="text" name="bs_period" placeholder="PERIOD (Year Started – Year Ended)" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                            <input type="text" name="bs_field" placeholder="FIELD" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                            <input type="text" name="bs_university" placeholder="UNIVERSITY/SCHOOL" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            <input type="text" name="bs_period" placeholder="PERIOD (Year Started – Year Ended)" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
+                            <input type="text" name="bs_field" placeholder="FIELD" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
+                            <input type="text" name="bs_university" placeholder="UNIVERSITY/SCHOOL" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
 
                             <!-- Scholarship Section with Checkboxes -->
                             <div class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm p-2 border">
@@ -329,7 +329,7 @@
 
                     <div class="flex justify-between mt-8">
                         <button type="button" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400" onclick="prevStep(2)">Back</button>
-                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="nextStep(4)">Next: Employment</button>
+                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="validateAndNext(3)">Next: Employment</button>
                     </div>
                 </div>
 
@@ -340,7 +340,7 @@
                         <label class="block text-sm font-medium text-gray-700">a. Present Employment Status</label>
                         <div class="mt-1 flex flex-wrap gap-4">
                             <label class="inline-flex items-center">
-                                <input type="radio" name="employment_status" value="Permanent" class="form-radio">
+                                <input type="radio" name="employment_status" value="Permanent" class="form-radio" required>
                                 <span class="ml-2 text-sm text-gray-700">Permanent</span>
                             </label>
                             <label class="inline-flex items-center">
@@ -441,15 +441,17 @@
 
                     <div class="mb-4">
                         <label for="research_plans" class="block text-sm font-medium text-gray-700">b. RESEARCH PLANS (Please use Form A)</label>
+                        <textarea name="research_plans" id="research_plans" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" placeholder="Briefly discuss your proposed research area/s." required></textarea>
                     </div>
 
                     <div class="mb-6">
                         <label for="career_plans" class="block text-sm font-medium text-gray-700">c. CAREER PLANS (Please use Form B)</label>
+                        <textarea name="career_plans" id="career_plans" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" placeholder="Discuss your future plans after graduation." required></textarea>
                     </div>
 
                     <div class="flex justify-between mt-8">
                         <button type="button" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400" onclick="prevStep(3)">Back</button>
-                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="nextStep(5)">Next: R&D / Pubs / Awards</button>
+                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="validateAndNext(4)">Next: R&D / Pubs / Awards</button>
                     </div>
                 </div>
 
@@ -523,7 +525,7 @@
 
                     <div class="flex justify-between mt-8">
                         <button type="button" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400" onclick="prevStep(4)">Back</button>
-                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="nextStep(6)">Next: Upload Docs</button>
+                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="validateAndNext(5)">Next: Upload Docs</button>
                     </div>
                 </div>
 
@@ -533,19 +535,19 @@
                     <div class="mb-6 space-y-4 border p-4 rounded-md bg-gray-50">
                         <div>
                             <label for="birth_certificate_pdf" class="block text-sm font-medium text-gray-700">Birth Certificate (Photocopy)</label>
-                            <input type="file" name="birth_certificate_pdf" id="birth_certificate_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <input type="file" name="birth_certificate_pdf" id="birth_certificate_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
                         </div>
                         <div>
                             <label for="transcript_of_record_pdf" class="block text-sm font-medium text-gray-700">Certified True Copy of the Official Transcript of Record</label>
-                            <input type="file" name="transcript_of_record_pdf" id="transcript_of_record_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <input type="file" name="transcript_of_record_pdf" id="transcript_of_record_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
                         </div>
                         <div>
                             <label for="endorsement_1_pdf" class="block text-sm font-medium text-gray-700">Endorsement 1 (former professor in college for MS applicant/former professor in the MS program for PhD applicant)</label>
-                            <input type="file" name="endorsement_1_pdf" id="endorsement_1_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <input type="file" name="endorsement_1_pdf" id="endorsement_1_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
                         </div>
                         <div>
                             <label for="endorsement_2_pdf" class="block text-sm font-medium text-gray-700">Endorsement 2 (former professor in college for MS applicant/former professor in the MS program for PhD applicant)</label>
-                            <input type="file" name="endorsement_2_pdf" id="endorsement_2_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <input type="file" name="endorsement_2_pdf" id="endorsement_2_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
                         </div>
 
                         <p class="font-semibold mt-4">If Employed:</p>
@@ -564,27 +566,27 @@
 
                         <div>
                             <label for="form_a_research_plans_pdf" class="block text-sm font-medium text-gray-700">Form A – Research Plans</label>
-                            <input type="file" name="form_a_research_plans_pdf" id="form_a_research_plans_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <input type="file" name="form_a_research_plans_pdf" id="form_a_research_plans_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
                         </div>
                         <div>
                             <label for="form_b_career_plans_pdf" class="block text-sm font-medium text-gray-700">Form B – Career Plans</label>
-                            <input type="file" name="form_b_career_plans_pdf" id="form_b_career_plans_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <input type="file" name="form_b_career_plans_pdf" id="form_b_career_plans_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
                         </div>
                         <div>
                             <label for="form_c_health_status_pdf" class="block text-sm font-medium text-gray-700">Form C – Certification of Health Status</label>
-                            <input type="file" name="form_c_health_status_pdf" id="form_c_health_status_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <input type="file" name="form_c_health_status_pdf" id="form_c_health_status_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
                         </div>
                         <div>
                             <label for="nbi_clearance_pdf" class="block text-sm font-medium text-gray-700">Valid NBI Clearance</label>
-                            <input type="file" name="nbi_clearance_pdf" id="nbi_clearance_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <input type="file" name="nbi_clearance_pdf" id="nbi_clearance_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
                         </div>
                         <div>
                             <label for="letter_of_admission_pdf" class="block text-sm font-medium text-gray-700">Letter of Admission with Regular status from the Program Head of the accepting institution; should include the evaluation sheet</label>
-                            <input type="file" name="letter_of_admission_pdf" id="letter_of_admission_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <input type="file" name="letter_of_admission_pdf" id="letter_of_admission_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
                         </div>
                         <div>
                             <label for="approved_program_of_study_pdf" class="block text-sm font-medium text-gray-700">Approved Program of Study</label>
-                            <input type="file" name="approved_program_of_study_pdf" id="approved_program_of_study_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <input type="file" name="approved_program_of_study_pdf" id="approved_program_of_study_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
                         </div>
 
                         <p class="font-semibold mt-4">Additional Requirements for Lateral Applicants:</p>
@@ -596,7 +598,7 @@
 
                     <div class="flex justify-between mt-8">
                         <button type="button" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400" onclick="prevStep(5)">Back</button>
-                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="nextStep(7)">Next: Declaration</button>
+                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="validateAndNext(6)">Next: Declaration</button>
                     </div>
                 </div>
 
@@ -639,12 +641,86 @@
         document.addEventListener('DOMContentLoaded', function() {
             currentStep = 1;
             updateStepIndicator();
+            attachEmploymentStatusListener();
+            attachDynamicFieldListeners(); // Attach listeners for R&D, Pubs, Awards
         });
 
         let currentStep = 1;
         const totalSteps = 7;
 
+        function validateCurrentStep(step) {
+            const currentStepElement = document.getElementById(`step${step}`);
+            let isValid = true;
+            const requiredInputs = currentStepElement.querySelectorAll('[required]');
+
+            requiredInputs.forEach(input => {
+                if (input.type === 'radio') {
+                    const radioGroupName = input.name;
+                    const radioGroup = document.querySelectorAll(`input[name="${radioGroupName}"]`);
+                    const isChecked = Array.from(radioGroup).some(radio => radio.checked);
+                    if (!isChecked) {
+                        isValid = false;
+                        input.setCustomValidity('Please select an option.');
+                    } else {
+                        input.setCustomValidity('');
+                    }
+                } else if (input.type === 'checkbox') {
+                    if (!input.checked) {
+                        isValid = false;
+                        input.setCustomValidity('Please check this box.');
+                    } else {
+                        input.setCustomValidity('');
+                    }
+                } else if (input.value.trim() === '') {
+                    isValid = false;
+                    input.reportValidity(); // Show browser's validation message
+                }
+            });
+
+            // Specific validation for employment fields if visible
+            const employmentStatus = document.querySelector('input[name="employment_status"]:checked');
+            if (step === 4 && employmentStatus) {
+                if (employmentStatus.value === 'Permanent' || employmentStatus.value === 'Contractual' || employmentStatus.value === 'Probationary') {
+                    const employedFields = document.getElementById('employed_fields');
+                    if (!employedFields.classList.contains('hidden')) {
+                        const employedRequiredInputs = employedFields.querySelectorAll('input[required]');
+                        employedRequiredInputs.forEach(input => {
+                            if (input.value.trim() === '') {
+                                isValid = false;
+                                input.reportValidity();
+                            }
+                        });
+                    }
+                } else if (employmentStatus.value === 'Self-employed') {
+                    const selfEmployedFields = document.getElementById('self_employed_fields');
+                    if (!selfEmployedFields.classList.contains('hidden')) {
+                        const selfEmployedRequiredInputs = selfEmployedFields.querySelectorAll('input[required]');
+                        selfEmployedRequiredInputs.forEach(input => {
+                            if (input.value.trim() === '') {
+                                isValid = false;
+                                input.reportValidity();
+                            }
+                        });
+                    }
+                }
+            }
+
+            return isValid;
+        }
+
+        function validateAndNext(step) {
+            if (validateCurrentStep(currentStep)) {
+                document.getElementById(`step${currentStep}`).classList.add('hidden');
+                currentStep = step + 1; // Move to the next step
+                document.getElementById(`step${currentStep}`).classList.remove('hidden');
+                updateStepIndicator();
+            } else {
+                alert('Please fill in all required fields before proceeding.');
+            }
+        }
+
         function nextStep(step) {
+            // This function is now primarily for internal use after validation
             document.getElementById(`step${currentStep}`).classList.add('hidden');
             currentStep = step;
             document.getElementById(`step${currentStep}`).classList.remove('hidden');
@@ -659,9 +735,15 @@
         }
 
         function goToStep(step) {
+            // Allow going back freely, but going forward requires validation
             if (step < currentStep) {
                 prevStep(step);
             } else if (step > currentStep) {
+                // For simplicity, allowing direct jump forward.
+                // In a real app, you'd validate previous steps before allowing this.
+                // For now, we'll just call nextStep, which will be handled by validateAndNext
+                // if triggered by a button. If triggered by step indicator, it will just move.
+                // A more robust solution would involve validating all steps up to the target.
                 nextStep(step);
             }
         }
@@ -691,64 +773,6 @@
                 }
             });
         }
-    </script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize the first step
-            currentStep = 1;
-            updateStepIndicator();
-            attachEmploymentStatusListener();
-            attachDynamicFieldListeners(); // Attach listeners for R&D, Pubs, Awards
-        });
-
-        let currentStep = 1;
-        const totalSteps = 7; // Update this if you add/remove steps
-
-        function nextStep(step) {
-            // You can add validation logic here before moving to the next step
-            // For example: if (!validateCurrentStep()) return;
-
-            document.getElementById(`step${currentStep}`).classList.add('hidden');
-            currentStep = step;
-            document.getElementById(`step${currentStep}`).classList.remove('hidden');
-            updateStepIndicator();
-        }
-
-        function prevStep(step) {
-            document.getElementById(`step${currentStep}`).classList.add('hidden');
-            currentStep = step;
-            document.getElementById(`step${currentStep}`).classList.remove('hidden');
-            updateStepIndicator();
-        }
-
-        function goToStep(step) {
-            // Only allow going back to previous steps, or forward if validation passes
-            if (step < currentStep) {
-                prevStep(step);
-            } else if (step > currentStep) {
-                // For simplicity, allowing direct jump forward.
-                // In a real app, you'd validate previous steps before allowing this.
-                nextStep(step);
-            }
-        }
-
-        function updateStepIndicator() {
-            const progressBar = document.getElementById('progress-bar');
-            const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
-            progressBar.style.width = `${progressPercentage}%`;
-
-            document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
-                const stepNumber = parseInt(indicator.dataset.step);
-                indicator.classList.remove('active', 'completed');
-                
-                if (stepNumber === currentStep) {
-                    indicator.classList.add('active');
-                } else if (stepNumber < currentStep) {
-                    indicator.classList.add('completed');
-                }
-            });
-        }
 
         function attachEmploymentStatusListener() {
             const employmentStatusRadios = document.querySelectorAll('input[name="employment_status"]');
@@ -757,13 +781,21 @@
 
             employmentStatusRadios.forEach(radio => {
                 radio.addEventListener('change', function() {
+                    // Remove required attributes from all employment-related fields first
+                    employedFields.querySelectorAll('input').forEach(input => input.removeAttribute('required'));
+                    selfEmployedFields.querySelectorAll('input').forEach(input => input.removeAttribute('required'));
+
                     employedFields.classList.add('hidden');
                     selfEmployedFields.classList.add('hidden');
 
                     if (this.value === 'Permanent' || this.value === 'Contractual' || this.value === 'Probationary') {
                         employedFields.classList.remove('hidden');
+                        // Add required attributes to fields in the "employed" section
+                        employedFields.querySelectorAll('input').forEach(input => input.setAttribute('required', 'required'));
                     } else if (this.value === 'Self-employed') {
                         selfEmployedFields.classList.remove('hidden');
+                        // Add required attributes to fields in the "self-employed" section
+                        selfEmployedFields.querySelectorAll('input').forEach(input => input.setAttribute('required', 'required'));
                     }
                 });
             });
