@@ -2,39 +2,42 @@
 
     @section('content')
     <div class="mb-6">
-        <h1 class="text-2xl font-bold mb-6">📊 Reports & Monitoring</h1>
+        <h1 class="text-2xl font-bold mb-6">Reports & Monitoring</h1>
 
-        <!-- Report Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            @php
-                $reportCards = [
-                    [
-                        'title' => '🧑‍💼 List of All Applicants',
-                        'desc' => 'Shows all applicants and their current status.',
-                        'route' => 'admin.reports.applicants'
-                    ],
-                    [
-                        'title' => '🎓 Monitoring of All Scholars',
-                        'desc' => 'Track scholars, their statuses, and compliance.',
-                        'route' => 'admin.reports.monitoring'
-                    ]
-                ];
-            @endphp
+       <!-- Report Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    @php
+        $reportCards = [
+            [
+                'title' => 'List of All Applicants',
+                'desc' => 'Shows all applicants and their current status.',
+                'route' => 'admin.reports.applicants'
+            ],
+            [
+                'title' => 'Monitoring of All Scholars',
+                'desc' => 'Track scholars, their statuses, and compliance.',
+                'route' => 'admin.reports.monitoring'
+            ]
+        ];
+    @endphp
 
-            @foreach ($reportCards as $card)
-            <div class="bg-white p-6 rounded shadow">
-                <h2 class="text-lg font-semibold mb-2">{{ $card['title'] }}</h2>
-                <p class="text-sm text-gray-600 mb-3">{{ $card['desc'] }}</p>
-                <a href="{{ route($card['route']) }}"
-                class="inline-block bg-blue-500 text-white text-sm px-4 py-2 rounded hover:bg-blue-600">Open</a>
-            </div>
-            @endforeach
+    @foreach ($reportCards as $card)
+        <div class="bg-white/20 backdrop-blur-md border border-white/20 shadow-lg rounded-2xl p-6 transition hover:shadow-xl">
+            <h2 class="text-lg font-semibold mb-2 text-gray-800">{{ $card['title'] }}</h2>
+            <p class="text-sm text-gray-700 mb-3">{{ $card['desc'] }}</p>
+            <a href="{{ route($card['route']) }}"
+               class="inline-block bg-blue-900 text-white text-sm px-4 py-2 rounded-md shadow-md hover:bg-blue-700/90 transition font-semibold">
+                Open
+            </a>
         </div>
+    @endforeach
+</div>
+
 
     <!-- FILTER DROPDOWN FORM -->
     <form action="{{ route('admin.reports.index') }}" method="GET" class="mb-4">
         <label class="block mb-1 text-sm font-medium text-gray-700">Filter by Type:</label>
-        <select name="type" class="w-[1200px] border rounded p-2" onchange="this.form.submit()">
+       <select name="type" class="w-full max-w-xl bg-white/30 backdrop-blur-sm border border-white/20 shadow p-2 rounded" onchange="this.form.submit()">
             <option value="applicant" {{ (request('type', $type ?? '') === 'applicant') ? 'selected' : '' }}>Applicants</option>
             <option value="scholar" {{ (request('type', $type ?? '') === 'scholar') ? 'selected' : '' }}>Scholars</option>
         </select>
@@ -46,8 +49,10 @@
         <input type="hidden" name="type" value="{{ $type }}">
 
         <!-- SCROLLABLE TABLE -->
-        <div class="overflow-x-auto border rounded max-w-full">
-            <div class="w-[1200px] min-w-[700px] overflow-y-auto max-h-[500px]">
+    <div class="border border-white/20 rounded-2xl bg-white/20 backdrop-blur-md shadow-lg p-4 w-full overflow-hidden">
+     <div class="overflow-x-auto bg-white/30 backdrop-blur-sm border border-white/10 shadow rounded-2xl max-w-full">
+
+
                 <table class="table-auto w-full text-sm text-left" id="export-table">
                     <thead class="bg-gray-100">
                         <tr>
@@ -83,7 +88,7 @@
                                 <th class="p-2 border">
                                     <label class="flex items-center space-x-1">
                                         <input type="checkbox" class="column-toggle" data-column="{{ $key }}"
-                                            {{ in_array($key, ['last_name', 'email', 'status']) ? 'checked' : '' }}>
+                                            {{ in_array($key, ['last_name', 'email', 'status','first_name','middle_name']) ? 'checked' : '' }}>
                                         <span>{{ $label }}</span>
                                     </label>
                                 </th>
@@ -99,7 +104,7 @@
 
                                 @foreach ($columns as $key => $label)
                                     <td class="p-2 border column-{{ $key }}"
-                                        style="{{ in_array($key, ['last_name', 'email', 'status']) ? '' : 'display:none;' }}">
+                                        style="{{ in_array($key, ['last_name', 'email', 'status','first_name','middle_name']) ? '' : 'display:none;' }}">
                                         @switch($key)
                                             @case('last_name')
                                                 {{ $record->user->last_name ?? '—' }}
@@ -146,25 +151,26 @@
                                             @case('gender')
                                                 {{ $record->user->gender ?? '—' }}
                                                 @break
-                                            @case('status')
-    @php
-        $recordStatus = $type === 'scholar' ? ($record->status ?? '') : ($record->status ?? '');
-        $statusClass = match($recordStatus) {
-            'approved' => 'bg-green-100 text-green-800',
-            'rejected' => 'bg-red-100 text-red-800',
-            'pending' => 'bg-yellow-100 text-yellow-800',
-            'document_verification' => 'bg-purple-100 text-purple-800',
-            'for_interview' => 'bg-blue-100 text-blue-800',
-            'good_standing' => 'bg-green-200 text-green-900',
-            'graduated_ext', 'on_extension' => 'bg-blue-200 text-blue-900',
-            'non_compliance', 'no_report', 'withdrawn', 'terminated' => 'bg-red-200 text-red-900',
-            default => 'bg-gray-100 text-gray-800',
-        };
-    @endphp
-    <span class="px-2 py-1 rounded text-xs font-semibold capitalize {{ $statusClass }}">
-        {{ str_replace('_', ' ', $recordStatus) }}
-    </span>
-    @break
+     @case('status')
+@php
+    $recordStatus = $type === 'scholar' ? ($record->status ?? '') : ($record->status ?? '');
+    $statusClass = match($recordStatus) {
+    '', null => 'bg-gray-200 text-gray-600 italic', // 👈 catches missing statuses
+    'qualifiers', 'gs_on_track' => 'bg-green-200 text-green-900',
+    'not_availing' => 'bg-gray-300 text-gray-800',
+    'deferred', 'pending', 'leave_of_absence', 'on_ext_complete_fa' => 'bg-yellow-200 text-yellow-900',
+    'graduated_on_time', 'graduated_ext', 'on_ext_with_fa', 'on_ext_for_monitoring', 'for_interview' => 'bg-blue-200 text-blue-900',
+    'document_verification' => 'bg-purple-200 text-purple-900',
+    'non_compliance', 'terminated', 'withdrawn', 'rejected', 'no_report', 'suspended' => 'bg-red-200 text-red-900',
+    'approved', 'good_standing' => 'bg-green-200 text-green-900',
+    default => 'bg-gray-100 text-gray-800',
+};
+
+@endphp
+<span class="px-2 py-1 rounded text-xs font-semibold capitalize {{ $statusClass }} backdrop-blur-sm bg-white/30 border border-white/20">
+    {{ str_replace('_', ' ', $recordStatus) }}
+</span>
+@break
 
                                         @endswitch
                                     </td>
@@ -182,13 +188,15 @@
             </div>
         </div>
 
-        <!-- Submit Button -->
-        <div class="mt-4">
-            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm">
-                📄 Download Selected Records
-            </button>
-        </div>
-    </form>
+         <!-- Submit Button -->
+    <div class="mt-4">
+        <button type="submit"
+    class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm transition shadow-md font-semibold flex items-center gap-2">
+    📄 <span>Download Selected Records</span>
+</button>
+
+    </div>
+</form>
 
     <!-- Toggle All Checkboxes & Column Toggle Script -->
     <script>

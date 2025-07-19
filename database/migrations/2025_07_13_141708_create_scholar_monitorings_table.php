@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->string('degree_type');
             $table->string('status_code');
             $table->integer('total')->default(0);
-            // Optional: $table->timestamps(); — if you want to track created_at/updated_at
+            $table->timestamps();
         });
     }
 

@@ -8,6 +8,7 @@ use App\Models\ApplicationForm;
 use App\Models\Scholar;
 use App\Models\Evaluation;
 use App\Models\ScholarMonitoring;
+use App\Exports\ApplicantsExport;
 
 
 class ReportController extends Controller
@@ -104,10 +105,15 @@ class ReportController extends Controller
             ->with('success', 'Evaluation sheet saved successfully!');
     }
 
-    public function applicants()
-    {
-        return view('admin.reports.applicants');
-    }
+   public function applicants()
+{
+    $applicants = \App\Models\User::whereHas('role', function ($query) {
+        $query->where('role_name', 'applicant');
+    })->take(10)->get();
+
+    return view('admin.reports.applicants', compact('applicants'));
+}
+
 
 
 public function monitoring()

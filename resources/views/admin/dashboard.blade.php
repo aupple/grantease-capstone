@@ -18,7 +18,7 @@
 <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
     <!-- Total Applications -->
     <div class="relative bg-white/60 backdrop-blur-md p-5 rounded-xl text-center shadow-sm border border-white/30 hover:shadow-md transition-shadow overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-br from-blue-100 to-transparent opacity-30 rounded-xl pointer-events-none"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-transparent opacity-60 rounded-x1 pointer-events-none"></div>
         <div class="relative z-10">
             <div class="flex items-center justify-center mb-2">
                 <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -33,7 +33,7 @@
 
     <!-- Pending -->
     <div class="relative bg-white/60 backdrop-blur-md p-5 rounded-xl text-center shadow-sm border border-white/30 hover:shadow-md transition-shadow overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-br from-yellow-100 to-transparent opacity-30 rounded-xl pointer-events-none"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-yellow-500 to-transparent opacity-60 rounded-xl pointer-events-none"></div>
         <div class="relative z-10">
             <div class="flex items-center justify-center mb-2">
                 <svg class="w-6 h-6 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -48,7 +48,7 @@
 
     <!-- Approved -->
     <div class="relative bg-white/60 backdrop-blur-md p-5 rounded-xl text-center shadow-sm border border-white/30 hover:shadow-md transition-shadow overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-br from-green-100 to-transparent opacity-30 rounded-xl pointer-events-none"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-transparent opacity-60 rounded-xl pointer-events-none"></div>
         <div class="relative z-10">
             <div class="flex items-center justify-center mb-2">
                 <svg class="w-6 h-6 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -63,7 +63,7 @@
 
     <!-- Rejected -->
     <div class="relative bg-white/60 backdrop-blur-md p-5 rounded-xl text-center shadow-sm border border-white/30 hover:shadow-md transition-shadow overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-br from-red-100 to-transparent opacity-30 rounded-xl pointer-events-none"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-red-500 to-transparent opacity-60 rounded-xl pointer-events-none"></div>
         <div class="relative z-10">
             <div class="flex items-center justify-center mb-2">
                 <svg class="w-6 h-6 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -93,8 +93,8 @@
             </div>
             <div class="flex items-center gap-2">
                 <input type="text" placeholder="Search applications..." class="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <button class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                    Export
+                <button class="px-4 py-2 text-sm bg-blue-900 text-white rounded-lg hover:bg-blue-500 transition-colors">
+                    Search
                 </button>
             </div>
         </div>
@@ -148,7 +148,7 @@
 <!-- ✅ Right Column: Pie Chart & Legend (1/3 width, clean design) -->
 <div class="bg-white/30 backdrop-blur-md border border-white/30 shadow-lg rounded-2xl p-6 ring-1 ring-white/20">
 
-    <h4 class="text-lg font-semibold text-gray-800 mb-4 text-center">Application Status</h4>
+    <h4 class="text-lg font-bold text-gray-800 mb-4 text-center">Scholars Status</h4>
 
     <!-- 📊 Doughnut Chart -->
     <div class="flex justify-center mb-5">
