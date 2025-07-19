@@ -7,6 +7,8 @@
 
     <div class="py-6">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+            <form method="POST" action="{{ route('applicant.application.store') }}" class="bg-white p-6 rounded shadow">
+                @csrf
             <!-- Beautiful Circular Step Indicators -->
             <div class="flex justify-between items-center mb-8 relative">
                 <!-- Progress Bar Background -->
@@ -36,24 +38,30 @@
                 <!-- Step 4 -->
                 <div class="step-indicator flex flex-col items-center z-10" onclick="goToStep(4)" data-step="4">
                     <div class="w-10 h-10 rounded-full bg-gray-200 border-4 border-gray-100 flex items-center justify-center text-gray-600 font-bold mb-2 transition-all duration-300">4</div>
-                    <span class="text-xs font-medium text-gray-500">Employment</span>
+                    <span class="text-xs font-medium text-gray-500">Grad Intent</span>
                 </div>
 
                 <!-- Step 5 -->
                 <div class="step-indicator flex flex-col items-center z-10" onclick="goToStep(5)" data-step="5">
                     <div class="w-10 h-10 rounded-full bg-gray-200 border-4 border-gray-100 flex items-center justify-center text-gray-600 font-bold mb-2 transition-all duration-300">5</div>
-                    <span class="text-xs font-medium text-gray-500">R&D</span>
+                    <span class="text-xs font-medium text-gray-500">Employment</span>
                 </div>
 
                 <!-- Step 6 -->
                 <div class="step-indicator flex flex-col items-center z-10" onclick="goToStep(6)" data-step="6">
                     <div class="w-10 h-10 rounded-full bg-gray-200 border-4 border-gray-100 flex items-center justify-center text-gray-600 font-bold mb-2 transition-all duration-300">6</div>
-                    <span class="text-xs font-medium text-gray-500">Upload Docs</span>
+                    <span class="text-xs font-medium text-gray-500">R&D</span>
                 </div>
 
                 <!-- Step 7 -->
                 <div class="step-indicator flex flex-col items-center z-10" onclick="goToStep(7)" data-step="7">
                     <div class="w-10 h-10 rounded-full bg-gray-200 border-4 border-gray-100 flex items-center justify-center text-gray-600 font-bold mb-2 transition-all duration-300">7</div>
+                    <span class="text-xs font-medium text-gray-500">Upload Docs</span>
+                </div>
+
+                <!-- Step 8 -->
+                <div class="step-indicator flex flex-col items-center z-10" onclick="goToStep(8)" data-step="8">
+                    <div class="w-10 h-10 rounded-full bg-gray-200 border-4 border-gray-100 flex items-center justify-center text-gray-600 font-bold mb-2 transition-all duration-300">8</div>
                     <span class="text-xs font-medium text-gray-500">Declaration</span>
                 </div>
             </div>
@@ -191,11 +199,11 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         <div>
-                            <label for="father_name" class="block text-sm font-medium text-gray-700">Father’s Name</label>
+                            <label for="father_name" class="block text-sm font-medium text-gray-700">Father's Name</label>
                             <input type="text" name="father_name" id="father_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
                         </div>
                         <div>
-                            <label for="mother_name" class="block text-sm font-medium text-gray-700">Mother’s Name</label>
+                            <label for="mother_name" class="block text-sm font-medium text-gray-700">Mother's Name</label>
                             <input type="text" name="mother_name" id="mother_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
                         </div>
                     </div>
@@ -329,12 +337,127 @@
 
                     <div class="flex justify-between mt-8">
                         <button type="button" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400" onclick="prevStep(2)">Back</button>
-                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="validateAndNext(3)">Next: Employment</button>
+                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="validateAndNext(3)">Next: Grad Intent</button>
                     </div>
                 </div>
 
-                <!-- Step 4: Employment Information -->
+                <!-- Step 4: Graduate Scholarship Intentions Data -->
                 <div class="step bg-white p-6 rounded-lg shadow-sm hidden" id="step4">
+                    <h4 class="text-lg font-semibold mb-3">III. GRADUATE SCHOLARSHIP INTENTIONS DATA</h4>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Notes:<br>
+                        1. An applicant for a graduate program should elect to go to another university if he/she earned his/her 1st (BS) and/or 2nd (MS) degrees from the same university to avoid inbreeding.
+                        <br>
+                        2. A faculty-applicant for a graduate program should elect to go to any of the member universities of the ASTHRDP National Science Consortium, or the ERDT Consortium, or CBPSME National Consortium in Graduate Science and Mathematics Education, or in a foreign university with good track record and/or recognized higher education/institution in the specialized field in S&T to be pursued.
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">STRAND CATEGORY</label>
+                            <div class="space-y-2">
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="strand_category" value="STRAND 1" class="form-radio" required>
+                                    <span class="ml-2 text-sm text-gray-700">STRAND 1</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="strand_category" value="STRAND 2" class="form-radio">
+                                    <span class="ml-2 text-sm text-gray-700">STRAND 2</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="strand2_fields" class="mb-6 hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">TYPE OF APPLICANT (for STRAND 2 only)</label>
+                            <div class="space-y-2">
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="applicant_type" value="Student" class="form-radio">
+                                    <span class="ml-2 text-sm text-gray-700">Student</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="applicant_type" value="Faculty" class="form-radio">
+                                    <span class="ml-2 text-sm text-gray-700">Faculty</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">TYPE OF SCHOLARSHIP APPLIED FOR</label>
+                        <div class="space-y-2">
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" name="scholarship_type[]" value="MS" class="form-checkbox">
+                                <span class="ml-2 text-sm text-gray-700">MS</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" name="scholarship_type[]" value="PhD" class="form-checkbox">
+                                <span class="ml-2 text-sm text-gray-700">PhD</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">New Applicant</label>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="new_applicant_university" class="block text-sm font-medium text-gray-700">a. University where you applied/intend to enrol for graduate studies</label>
+                                <input type="text" name="new_applicant_university" id="new_applicant_university" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="new_applicant_course" class="block text-sm font-medium text-gray-700">b. Course/Degree</label>
+                                <input type="text" name="new_applicant_course" id="new_applicant_course" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Lateral Applicant</label>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="lateral_university_enrolled" class="block text-sm font-medium text-gray-700">a. University enrolled in</label>
+                                <input type="text" name="lateral_university_enrolled" id="lateral_university_enrolled" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="lateral_course_degree" class="block text-sm font-medium text-gray-700">b. Course/Degree</label>
+                                <input type="text" name="lateral_course_degree" id="lateral_course_degree" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="lateral_units_earned" class="block text-sm font-medium text-gray-700">c. Number of units earned</label>
+                                <input type="number" name="lateral_units_earned" id="lateral_units_earned" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="lateral_remaining_units" class="block text-sm font-medium text-gray-700">d. No. of remaining units/sems</label>
+                                <input type="text" name="lateral_remaining_units" id="lateral_remaining_units" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            </div>
+                            <div class="flex items-center">
+                                <label class="block text-sm font-medium text-gray-700 mr-4">e. Has your research topic been approved by the panel?</label>
+                                <label class="inline-flex items-center mr-4">
+                                    <input type="radio" name="research_topic_approved" value="YES" class="form-radio">
+                                    <span class="ml-2 text-sm text-gray-700">YES</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="research_topic_approved" value="NO" class="form-radio">
+                                    <span class="ml-2 text-sm text-gray-700">NO</span>
+                                </label>
+                            </div>
+                            <div>
+                                <label for="research_title" class="block text-sm font-medium text-gray-700">Title:</label>
+                                <input type="text" name="research_title" id="research_title" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="last_enrollment_date" class="block text-sm font-medium text-gray-700">Date of last enrolment in thesis/dissertation course:</label>
+                                <input type="date" name="last_enrollment_date" id="last_enrollment_date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between mt-8">
+                        <button type="button" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400" onclick="prevStep(3)">Back</button>
+                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="validateAndNext(4)">Next: Employment</button>
+                    </div>
+                </div>
+
+                <!-- Step 5: Employment Information -->
+                <div class="step bg-white p-6 rounded-lg shadow-sm hidden" id="step5">
                     <h4 class="text-lg font-semibold mb-3">IV. CAREER/EMPLOYMENT INFORMATION</h4>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">a. Present Employment Status</label>
@@ -450,13 +573,13 @@
                     </div>
 
                     <div class="flex justify-between mt-8">
-                        <button type="button" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400" onclick="prevStep(3)">Back</button>
-                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="validateAndNext(4)">Next: R&D / Pubs / Awards</button>
+                        <button type="button" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400" onclick="prevStep(4)">Back</button>
+                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="validateAndNext(5)">Next: R&D / Pubs / Awards</button>
                     </div>
                 </div>
 
-                <!-- Step 5: Research, Publications, Awards -->
-                <div class="step bg-white p-6 rounded-lg shadow-sm hidden" id="step5">
+                <!-- Step 6: Research, Publications, Awards -->
+                <div class="step bg-white p-6 rounded-lg shadow-sm hidden" id="step6">
                     <!-- V. RESEARCH AND DEVELOPMENT INVOLVEMENT (last five years) -->
                     <h4 class="text-lg font-semibold mb-3">V. RESEARCH AND DEVELOPMENT INVOLVEMENT (last five years)</h4>
                     <p class="text-sm text-gray-600 mb-2">Use additional sheet if necessary.</p>
@@ -524,86 +647,86 @@
                     <button type="button" id="add_award" class="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600">Add More Award</button>
 
                     <div class="flex justify-between mt-8">
-                        <button type="button" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400" onclick="prevStep(4)">Back</button>
-                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="validateAndNext(5)">Next: Upload Docs</button>
+                        <button type="button" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400" onclick="prevStep(5)">Back</button>
+                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="validateAndNext(6)">Next: Upload Docs</button>
                     </div>
                 </div>
 
-                <!-- Step 6: Upload Documents -->
-                <div class="step bg-white p-6 rounded-lg shadow-sm hidden" id="step6">
+                <!-- Step 7: Upload Documents -->
+                <div class="step bg-white p-6 rounded-lg shadow-sm hidden" id="step7">
                     <h4 class="text-lg font-semibold mb-3 mt-6">Upload Required Documents (PDF only)</h4>
                     <div class="mb-6 space-y-4 border p-4 rounded-md bg-gray-50">
                         <div>
                             <label for="birth_certificate_pdf" class="block text-sm font-medium text-gray-700">Birth Certificate (Photocopy)</label>
-                            <input type="file" name="birth_certificate_pdf" id="birth_certificate_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
+                            <input type="file" name="birth_certificate_pdf" id="birth_certificate_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
                         </div>
                         <div>
                             <label for="transcript_of_record_pdf" class="block text-sm font-medium text-gray-700">Certified True Copy of the Official Transcript of Record</label>
-                            <input type="file" name="transcript_of_record_pdf" id="transcript_of_record_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
+                            <input type="file" name="transcript_of_record_pdf" id="transcript_of_record_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
                         </div>
                         <div>
                             <label for="endorsement_1_pdf" class="block text-sm font-medium text-gray-700">Endorsement 1 (former professor in college for MS applicant/former professor in the MS program for PhD applicant)</label>
-                            <input type="file" name="endorsement_1_pdf" id="endorsement_1_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
+                            <input type="file" name="endorsement_1_pdf" id="endorsement_1_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
                         </div>
                         <div>
                             <label for="endorsement_2_pdf" class="block text-sm font-medium text-gray-700">Endorsement 2 (former professor in college for MS applicant/former professor in the MS program for PhD applicant)</label>
-                            <input type="file" name="endorsement_2_pdf" id="endorsement_2_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
+                            <input type="file" name="endorsement_2_pdf" id="endorsement_2_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
                         </div>
 
                         <p class="font-semibold mt-4">If Employed:</p>
                         <div>
                             <label for="recommendation_head_agency_pdf" class="block text-sm font-medium text-gray-700">Recommendation from Head of Agency</label>
-                            <input type="file" name="recommendation_head_agency_pdf" id="recommendation_head_agency_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <input type="file" name="recommendation_head_agency_pdf" id="recommendation_head_agency_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                         </div>
                         <div>
                             <label for="form_2a_pdf" class="block text-sm font-medium text-gray-700">Form 2A – Certificate of Employment and Permit to Study</label>
-                            <input type="file" name="form_2a_pdf" id="form_2a_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <input type="file" name="form_2a_pdf" id="form_2a_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                         </div>
                         <div>
                             <label for="form_2b_pdf" class="block text-sm font-medium text-gray-700">Form 2B – Certificate of DepEd Employment and Permit to Study (for DepEd employees only)</label>
-                            <input type="file" name="form_2b_pdf" id="form_2b_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <input type="file" name="form_2b_pdf" id="form_2b_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                         </div>
 
                         <div>
                             <label for="form_a_research_plans_pdf" class="block text-sm font-medium text-gray-700">Form A – Research Plans</label>
-                            <input type="file" name="form_a_research_plans_pdf" id="form_a_research_plans_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
+                            <input type="file" name="form_a_research_plans_pdf" id="form_a_research_plans_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
                         </div>
                         <div>
                             <label for="form_b_career_plans_pdf" class="block text-sm font-medium text-gray-700">Form B – Career Plans</label>
-                            <input type="file" name="form_b_career_plans_pdf" id="form_b_career_plans_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
+                            <input type="file" name="form_b_career_plans_pdf" id="form_b_career_plans_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
                         </div>
                         <div>
                             <label for="form_c_health_status_pdf" class="block text-sm font-medium text-gray-700">Form C – Certification of Health Status</label>
-                            <input type="file" name="form_c_health_status_pdf" id="form_c_health_status_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
+                            <input type="file" name="form_c_health_status_pdf" id="form_c_health_status_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
                         </div>
                         <div>
                             <label for="nbi_clearance_pdf" class="block text-sm font-medium text-gray-700">Valid NBI Clearance</label>
-                            <input type="file" name="nbi_clearance_pdf" id="nbi_clearance_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
+                            <input type="file" name="nbi_clearance_pdf" id="nbi_clearance_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
                         </div>
                         <div>
                             <label for="letter_of_admission_pdf" class="block text-sm font-medium text-gray-700">Letter of Admission with Regular status from the Program Head of the accepting institution; should include the evaluation sheet</label>
-                            <input type="file" name="letter_of_admission_pdf" id="letter_of_admission_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
+                            <input type="file" name="letter_of_admission_pdf" id="letter_of_admission_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
                         </div>
                         <div>
                             <label for="approved_program_of_study_pdf" class="block text-sm font-medium text-gray-700">Approved Program of Study</label>
-                            <input type="file" name="approved_program_of_study_pdf" id="approved_program_of_study_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
+                            <input type="file" name="approved_program_of_study_pdf" id="approved_program_of_study_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
                         </div>
 
                         <p class="font-semibold mt-4">Additional Requirements for Lateral Applicants:</p>
                         <div>
                             <label for="lateral_certification_pdf" class="block text-sm font-medium text-gray-700">Certification from the university indicating the following: number of graduate units required in the program, number of graduate units already earned with corresponding grades</label>
-                            <input type="file" name="lateral_certification_pdf" id="lateral_certification_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <input type="file" name="lateral_certification_pdf" id="lateral_certification_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                         </div>
                     </div>
 
                     <div class="flex justify-between mt-8">
-                        <button type="button" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400" onclick="prevStep(5)">Back</button>
-                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="validateAndNext(6)">Next: Declaration</button>
+                        <button type="button" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400" onclick="prevStep(6)">Back</button>
+                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="validateAndNext(7)">Next: Declaration</button>
                     </div>
                 </div>
 
-                <!-- Step 7: Truthfulness of Data and Data Privacy -->
-                <div class="step bg-white p-6 rounded-lg shadow-sm hidden" id="step7">
+                <!-- Step 8: Truthfulness of Data and Data Privacy -->
+                <div class="step bg-white p-6 rounded-lg shadow-sm hidden" id="step8">
                     <h4 class="text-lg font-semibold mb-3 mt-6">VIII. TRUTHFULNESS OF DATA AND DATA PRIVACY</h4>
                     <div class="mb-6 text-sm text-gray-700 border p-4 rounded-md bg-gray-50">
                         <p class="mb-2">I hereby certify that all information given above are true and correct to the best of my knowledge. Any misinformation or withholding of information will automatically disqualify me from the program, Project Science and Technology Regional Alliance of Universities for National Development (STRAND). I am willing to refund all the financial benefits received plus appropriate interest if such misinformation is discovered.</p>
@@ -627,7 +750,7 @@
                     </div>
 
                     <div class="flex justify-between mt-8">
-                        <button type="button" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400" onclick="prevStep(6)">Back</button>
+                        <button type="button" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400" onclick="prevStep(7)">Back</button>
                         <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                             Submit Application
                         </button>
@@ -642,11 +765,12 @@
             currentStep = 1;
             updateStepIndicator();
             attachEmploymentStatusListener();
-            attachDynamicFieldListeners(); // Attach listeners for R&D, Pubs, Awards
+            attachDynamicFieldListeners();
+            attachStrandCategoryListener();
         });
 
         let currentStep = 1;
-        const totalSteps = 7;
+        const totalSteps = 8;
 
         function validateCurrentStep(step) {
             const currentStepElement = document.getElementById(`step${step}`);
@@ -673,13 +797,12 @@
                     }
                 } else if (input.value.trim() === '') {
                     isValid = false;
-                    input.reportValidity(); // Show browser's validation message
+                    input.reportValidity();
                 }
             });
 
-            // Specific validation for employment fields if visible
             const employmentStatus = document.querySelector('input[name="employment_status"]:checked');
-            if (step === 4 && employmentStatus) {
+            if (step === 5 && employmentStatus) {
                 if (employmentStatus.value === 'Permanent' || employmentStatus.value === 'Contractual' || employmentStatus.value === 'Probationary') {
                     const employedFields = document.getElementById('employed_fields');
                     if (!employedFields.classList.contains('hidden')) {
@@ -711,7 +834,7 @@
         function validateAndNext(step) {
             if (validateCurrentStep(currentStep)) {
                 document.getElementById(`step${currentStep}`).classList.add('hidden');
-                currentStep = step + 1; // Move to the next step
+                currentStep = step + 1;
                 document.getElementById(`step${currentStep}`).classList.remove('hidden');
                 updateStepIndicator();
             } else {
@@ -720,7 +843,6 @@
         }
 
         function nextStep(step) {
-            // This function is now primarily for internal use after validation
             document.getElementById(`step${currentStep}`).classList.add('hidden');
             currentStep = step;
             document.getElementById(`step${currentStep}`).classList.remove('hidden');
@@ -735,15 +857,9 @@
         }
 
         function goToStep(step) {
-            // Allow going back freely, but going forward requires validation
             if (step < currentStep) {
                 prevStep(step);
             } else if (step > currentStep) {
-                // For simplicity, allowing direct jump forward.
-                // In a real app, you'd validate previous steps before allowing this.
-                // For now, we'll just call nextStep, which will be handled by validateAndNext
-                // if triggered by a button. If triggered by step indicator, it will just move.
-                // A more robust solution would involve validating all steps up to the target.
                 nextStep(step);
             }
         }
@@ -781,7 +897,6 @@
 
             employmentStatusRadios.forEach(radio => {
                 radio.addEventListener('change', function() {
-                    // Remove required attributes from all employment-related fields first
                     employedFields.querySelectorAll('input').forEach(input => input.removeAttribute('required'));
                     selfEmployedFields.querySelectorAll('input').forEach(input => input.removeAttribute('required'));
 
@@ -790,19 +905,29 @@
 
                     if (this.value === 'Permanent' || this.value === 'Contractual' || this.value === 'Probationary') {
                         employedFields.classList.remove('hidden');
-                        // Add required attributes to fields in the "employed" section
                         employedFields.querySelectorAll('input').forEach(input => input.setAttribute('required', 'required'));
                     } else if (this.value === 'Self-employed') {
                         selfEmployedFields.classList.remove('hidden');
-                        // Add required attributes to fields in the "self-employed" section
                         selfEmployedFields.querySelectorAll('input').forEach(input => input.setAttribute('required', 'required'));
                     }
                 });
             });
         }
 
+        function attachStrandCategoryListener() {
+            document.querySelectorAll('input[name="strand_category"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const strand2Fields = document.getElementById('strand2_fields');
+                    if (this.value === 'STRAND 2') {
+                        strand2Fields.classList.remove('hidden');
+                    } else {
+                        strand2Fields.classList.add('hidden');
+                    }
+                });
+            });
+        }
+
         function attachDynamicFieldListeners() {
-            // Dynamic fields for R&D Involvement
             let rdInvolvementCount = 1;
             document.getElementById('add_rd_involvement').addEventListener('click', function() {
                 rdInvolvementCount++;
@@ -830,7 +955,6 @@
                 container.appendChild(newItem);
             });
 
-            // Dynamic fields for Publications
             let publicationCount = 1;
             document.getElementById('add_publication').addEventListener('click', function() {
                 publicationCount++;
