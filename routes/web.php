@@ -59,7 +59,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/reports/applicants', [ReportController::class, 'applicants'])->name('admin.reports.applicants');
     Route::get('/admin/reports/monitoring', [ReportController::class, 'monitoring'])->name('admin.reports.monitoring');
     Route::post('/admin/reports/monitoring/save', [ReportController::class, 'saveMonitoring'])->name('admin.reports.monitoring.save');
-    Route::get('/admin/reports/monitoring/download', [ReportController::class, 'downloadMonitoring'])->name('admin.reports.monitoring.download');
+    Route::get('/admin/reports/monitoring/download', [ReportController::class, 'downloadMonitoring'])
+        ->name('admin.reports.monitoring.download');
+    Route::post('/admin/reports/applicants/save', [ReportController::class, 'saveApplicants'])->name('admin.reports.applicants.save');
 
     // Scholars list (from AdminController)
     Route::get('/admin/scholars', [AdminController::class, 'viewScholars'])->name('admin.scholars');
