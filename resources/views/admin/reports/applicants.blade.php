@@ -5,43 +5,44 @@
     @csrf
 
     <!-- Scrollable + Compact Table Container -->
-    <div class="border border-white/20 rounded-2xl bg-white/20 backdrop-blur-md shadow p-4 overflow-hidden">
-        <div class="overflow-x-auto max-w-full">
-            <div class="w-[3000px] min-w-[1200px] overflow-y-auto max-h-[500px]">
-                <table class="table-auto w-full text-xs text-left border border-gray-300" id="applicants-table">
-                    <thead class="bg-gray-100 sticky top-0 z-10">
-                        <tr>
-                            <th class="p-1 border border-gray-300">#</th>
-                            <th class="p-1 border border-gray-300">Last Name</th>
-                            <th class="p-1 border border-gray-300">First Name</th>
-                            <th class="p-1 border border-gray-300">Middle Name</th>
-                            <th class="p-1 border border-gray-300">Suffix</th>
-                            <th class="p-1 border border-gray-300">Street</th>
-                            <th class="p-1 border border-gray-300">Village</th>
-                            <th class="p-1 border border-gray-300">Town</th>
-                            <th class="p-1 border border-gray-300">Province</th>
-                            <th class="p-1 border border-gray-300">Zipcode</th>
-                            <th class="p-1 border border-gray-300">District</th>
-                            <th class="p-1 border border-gray-300">Region</th>
-                            <th class="p-1 border border-gray-300">Email</th>
-                            <th class="p-1 border border-gray-300">Birthday</th>
-                            <th class="p-1 border border-gray-300">Contact No.</th>
-                            <th class="p-1 border border-gray-300">Gender</th>
-                            <th class="p-1 border border-gray-300">Course Completed</th>
-                            <th class="p-1 border border-gray-300">University Graduated</th>
-                            <th class="p-1 border border-gray-300">Entry Type</th>
-                            <th class="p-1 border border-gray-300">Level</th>
-                            <th class="p-1 border border-gray-300">Intended Degree</th>
-                            <th class="p-1 border border-gray-300">Intended University</th>
-                            <th class="p-1 border border-gray-300">Thesis Title</th>
-                            <th class="p-1 border border-gray-300">Units Required</th>
-                            <th class="p-1 border border-gray-300">Units Earned Prior</th>
-                            <th class="p-1 border border-gray-300">Percent Load Prior</th>
-                            <th class="p-1 border border-gray-300">Scholarship Duration</th>
-                            <th class="p-1 border border-gray-300">Remarks</th>
-                            <th class="p-1 border border-gray-300">Action</th>
-                        </tr>
-                    </thead>
+            <div class="border border-white/20 rounded-2xl bg-white/20 backdrop-blur-md shadow-lg p-4 w-full overflow-auto max-h-[500px]">
+    <!-- Scroll Container -->
+    <div class="min-w-[700px] max-w-[1100px] w-full mx-auto">
+            <table class="table-auto w-full text-[11px] text-left border border-gray-300 bg-white" id="applicants-table">
+                <thead class="bg-gray-100 sticky top-0 z-10">
+                    <tr class="text-[10px] text-gray-700 uppercase tracking-wider">
+                        <!-- Column Headers here -->
+                        <th class="p-2 border">#</th>
+                        <th class="p-2 border">Last Name</th>
+                        <th class="p-2 border">First Name</th>
+                        <th class="p-2 border">Middle Name</th>
+                        <th class="p-2 border">Suffix</th>
+                        <th class="p-2 border">Street</th>
+                        <th class="p-2 border">Village</th>
+                        <th class="p-2 border">Town</th>
+                        <th class="p-2 border">Province</th>
+                        <th class="p-2 border">Zipcode</th>
+                        <th class="p-2 border">District</th>
+                        <th class="p-2 border">Region</th>
+                        <th class="p-2 border">Email</th>
+                        <th class="p-2 border">Birthday</th>
+                        <th class="p-2 border">Contact No.</th>
+                        <th class="p-2 border">Gender</th>
+                        <th class="p-2 border">Course</th>
+                        <th class="p-2 border">University</th>
+                        <th class="p-2 border">Entry</th>
+                        <th class="p-2 border">Level</th>
+                        <th class="p-2 border">Degree</th>
+                        <th class="p-2 border">Intended Univ</th>
+                        <th class="p-2 border">Thesis</th>
+                        <th class="p-2 border">Units Req</th>
+                        <th class="p-2 border">Units Earned</th>
+                        <th class="p-2 border">% Load</th>
+                        <th class="p-2 border">Duration</th>
+                        <th class="p-2 border">Remarks</th>
+                        <th class="p-2 border">🗑</th>
+                    </tr>
+                </thead>
                     <tbody>
                         @foreach ($applicants as $i => $a)
                             <tr>
