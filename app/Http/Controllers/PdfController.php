@@ -4,54 +4,73 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\ApplicationForm;
+use App\Models\Evaluation;
 
 class PdfController extends Controller
 {
-    public function healthCertificate()
+ 
+   public function scoreSheet()
     {
-        $pdf = Pdf::loadView('pdf.health-certificate'); // make sure this view exists
-        return $pdf->download('health-certificate.pdf');
-    }
+        $userId = auth()->user()->user_id;
+        $applicant = ApplicationForm::with('user')->where('user_id', $userId)->firstOrFail();
+        $evaluation = Evaluation::where('application_form_id', $applicant->application_form_id)->first();
 
-    public function scoreSheet()
-    {
-        $pdf = Pdf::loadView('pdf.score-sheet');
-        return $pdf->download('score-sheet.pdf');
+        $pdf = Pdf::loadView('applicant.pdf.score_sheet', compact('applicant', 'evaluation'));
+        return $pdf->download('Score_Sheet.pdf');
     }
 
     public function recommendationForm()
     {
-        $pdf = Pdf::loadView('pdf.recommendation-form');
-        return $pdf->download('recommendation-form.pdf');
+        $userId = auth()->user()->user_id;
+        $applicant = ApplicationForm::with('user')->where('user_id', $userId)->firstOrFail();
+
+        $pdf = Pdf::loadView('applicant.pdf.recommendation_form', compact('applicant'));
+        return $pdf->download('Recommendation_Form.pdf');
     }
 
     public function researchPlans()
     {
-        $pdf = Pdf::loadView('pdf.research-plans');
-        return $pdf->download('research-plans.pdf');
+        $userId = auth()->user()->user_id;
+        $applicant = ApplicationForm::with('user')->where('user_id', $userId)->firstOrFail();
+
+        $pdf = Pdf::loadView('applicant.pdf.research_plans', compact('applicant'));
+        return $pdf->download('Research_Plans.pdf');
     }
 
     public function careerPlans()
     {
-        $pdf = Pdf::loadView('pdf.career-plans');
-        return $pdf->download('career-plans.pdf');
+        $userId = auth()->user()->user_id;
+        $applicant = ApplicationForm::with('user')->where('user_id', $userId)->firstOrFail();
+
+        $pdf = Pdf::loadView('applicant.pdf.career_plans', compact('applicant'));
+        return $pdf->download('Career_Plans.pdf');
     }
 
     public function certificationEmployment()
     {
-        $pdf = Pdf::loadView('pdf.certification-employment');
-        return $pdf->download('certification-employment.pdf');
+        $userId = auth()->user()->user_id;
+        $applicant = ApplicationForm::with('user')->where('user_id', $userId)->firstOrFail();
+
+        $pdf = Pdf::loadView('applicant.pdf.certification_employment', compact('applicant'));
+        return $pdf->download('Certification_of_Employment.pdf');
     }
 
     public function certificationDepEd()
     {
-        $pdf = Pdf::loadView('pdf.certification-deped');
-        return $pdf->download('certification-deped.pdf');
+        $userId = auth()->user()->user_id;
+        $applicant = ApplicationForm::with('user')->where('user_id', $userId)->firstOrFail();
+
+        $pdf = Pdf::loadView('applicant.pdf.certification_deped', compact('applicant'));
+        return $pdf->download('Certification_of_DepEd_Employment.pdf');
     }
 
     public function certificationHealthStatus()
     {
-        $pdf = Pdf::loadView('pdf.certification-health-status');
-        return $pdf->download('certification-health-status.pdf');
+        $userId = auth()->user()->user_id;
+        $applicant = ApplicationForm::with('user')->where('user_id', $userId)->firstOrFail();
+
+        $pdf = Pdf::loadView('applicant.pdf.certification_health_status', compact('applicant'));
+        return $pdf->download('Certification_of_Health_Status.pdf');
     }
 }
