@@ -87,7 +87,7 @@
 
             <!-- ✅ Top Navbar with Profile Dropdown -->
             <header class="bg-white shadow px-4 py-3 flex justify-between items-center">
-                <div class="text-lg font-semibold text-gray-700">
+                <div class="text-lg font-bold text-gray-700">
                     Admin Panel
                 </div>
 
