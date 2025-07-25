@@ -9,6 +9,7 @@
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             <form method="POST" action="{{ route('applicant.application.store') }}" class="bg-white p-6 rounded shadow">
                 @csrf
+                
             <!-- Beautiful Circular Step Indicators -->
             <div class="flex justify-between items-center mb-8 relative">
                 <!-- Progress Bar Background -->
