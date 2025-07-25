@@ -19,8 +19,9 @@
 
         <!-- Branding OUTSIDE the box -->
         <div class="text-center mb-6">
-            <h1 class="text-4xl font-bold text-blue-900">GrantEase</h1>
-            <p class="text-sm text-gray-500 mt-1">Scholarship Management System</p>
+    <img src="{{ asset('images/logo.png') }}" alt="GrantEase Logo" class="mx-auto w-[450px]">
+    <p class="text-sm font-semibold text-gray-500 mt-1">Scholarship Management System</p>
+
 
             <div class="mt-3">
                 @if (request()->routeIs('register'))
@@ -28,7 +29,7 @@
                      <p class="text-sm text-gray-500 mt-1">Start your scholarship journey today</p>
                 @else
                     <h1 class="text-2xl font-bold text-black">Sign in to your account</h1>
-                    <p class="text-sm text-gray-500 mt-1">Access your scholarship</p>
+                    <p class="text-sm font-semibold text-gray-500 mt-1">Access your scholarship</p>
                 @endif
             </div>
         </div>

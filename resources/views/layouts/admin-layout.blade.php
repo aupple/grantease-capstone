@@ -14,9 +14,10 @@
       <!-- ✅ Sidebar -->
 <aside class="w-64 bg-white shadow-md hidden md:block">
     <!-- GrantEase Admin Logo Box -->
-    <div class="bg-[#0a1f44] text-white border-b border-[#081a38] px-6 py-3 flex items-center justify-center text-2xl font-bold">
-        GrantEase 
-    </div>
+   <div class="bg-gray-50 px-1 py-1 flex items-center justify-center h-20 border-b border-gray-200">
+    <img src="{{ asset('images/logo.png') }}" alt="GrantEase Logo" class="max-h-full max-w-full object-contain">
+</div>
+
 
     <!-- Sidebar Navigation -->
     <nav class="p-6 space-y-4 text-sm bg-[#0a1f44] text-white h-full">
