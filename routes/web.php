@@ -7,6 +7,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ApplicationFormController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\AdminProfileController;
+use App\Http\Controllers\PdfController;
+
 
 Route::redirect('/', '/login');
 
@@ -50,36 +52,45 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin/applications/{id}/approve', [AdminController::class, 'approveApplication'])->name('admin.applications.approve');
     Route::post('/admin/applications/{id}/reject', [AdminController::class, 'rejectApplication'])->name('admin.applications.reject');
     Route::post('/admin/applications/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.applications.update-status');
-     Route::get('/admin/reports/pdf', [AdminController::class, 'downloadReportPdf'])->name('admin.reports.pdf');
+    Route::get('/admin/reports/pdf', [AdminController::class, 'downloadReportPdf'])->name('admin.reports.pdf');
 
     // Admin Reports & Scholars
     Route::get('/admin/reports', [ReportController::class, 'index'])->name('admin.reports.index');
     Route::post('/admin/reports/export-selected', [ReportController::class, 'exportSelected'])->name('admin.reports.export-selected');
     Route::get('/admin/reports/applicants', [ReportController::class, 'applicants'])->name('admin.reports.applicants');
+    Route::post('/admin/reports/applicants/save', [ReportController::class, 'saveApplicants'])->name('admin.reports.applicants.save');
     Route::get('/admin/reports/monitoring', [ReportController::class, 'monitoring'])->name('admin.reports.monitoring');
     Route::post('/admin/reports/monitoring/save', [ReportController::class, 'saveMonitoring'])->name('admin.reports.monitoring.save');
     Route::get('/admin/reports/monitoring/download', [ReportController::class, 'downloadMonitoring'])
-    ->name('admin.reports.monitoring.download');
-    Route::post('/admin/reports/applicants/save', [ReportController::class, 'saveApplicants'])->name('admin.reports.applicants.save');
-
-
-
-
-
+        ->name('admin.reports.monitoring.download');
 
     // Scholars list (from AdminController)
     Route::get('/admin/scholars', [AdminController::class, 'viewScholars'])->name('admin.scholars');
 
     // Profile Management for applicants
-Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-// Profile Management for admin
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/profile/edit', [AdminProfileController::class, 'edit'])->name('profile.edit');
-    Route::put('/profile/update', [AdminProfileController::class, 'update'])->name('profile.update');
-});
+    // Profile Management for admin
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/profile/edit', [AdminProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile/update', [AdminProfileController::class, 'update'])->name('profile.update');
+    });
+
+    // ✅ Applicant PDF Routes
+    Route::prefix('applicant')->name('applicant.')->group(function () {
+        Route::prefix('pdf')->name('pdf.')->group(function () {
+            Route::get('/health-certificate', [PdfController::class, 'healthCertificate'])->name('health_certificate');
+            Route::get('/score-sheet', [PdfController::class, 'scoreSheet'])->name('score_sheet');
+            Route::get('/recommendation-form', [PdfController::class, 'recommendationForm'])->name('recommendation_form');
+            Route::get('/research-plans', [PdfController::class, 'researchPlans'])->name('research_plans');
+            Route::get('/career-plans', [PdfController::class, 'careerPlans'])->name('career_plans');
+            Route::get('/certification-employment', [PdfController::class, 'certificationEmployment'])->name('certification_employment');
+            Route::get('/certification-deped', [PdfController::class, 'certificationDepEd'])->name('certification_deped');
+            Route::get('/certification-health-status', [PdfController::class, 'certificationHealthStatus'])->name('certification_health_status');
+        });
+    });
 
 });
 // Breeze auth routes

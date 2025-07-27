@@ -187,5 +187,26 @@ public function downloadMonitoring()
     return redirect()->back()->with('success', 'Monitoring data saved!');
 }
 
+public function saveApplicants(Request $request)
+{
+    $applicants = $request->input('applicants', []);
+
+    foreach ($applicants as $data) {
+        // Optional: Check if there's an 'id' field to update existing
+        if (!empty($data['id'])) {
+            $applicant = \App\Models\User::find($data['id']);
+            if ($applicant) {
+                $applicant->update($data);
+            }
+        } else {
+            // Create new applicant (optional logic)
+            \App\Models\User::create($data);
+        }
+    }
+
+    return back()->with('success', 'Applicants saved successfully.');
+}
+
+
 
 }

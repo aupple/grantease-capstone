@@ -2,10 +2,9 @@
 
     @section('content')
     <div class="mb-6">
-        <h1 class="text-2xl font-bold mb-6">Reports & Monitoring</h1>
+        <h1 class="text-2xl font-bold mb-6">📊 Reports & Monitoring</h1>
 
-       <!-- Report Grid -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
     @php
         $reportCards = [
             [
@@ -33,7 +32,6 @@
     @endforeach
 </div>
 
-
     <!-- FILTER DROPDOWN FORM -->
     <form action="{{ route('admin.reports.index') }}" method="GET" class="mb-4">
         <label class="block mb-1 text-sm font-medium text-gray-700">Filter by Type:</label>
@@ -49,10 +47,8 @@
         <input type="hidden" name="type" value="{{ $type }}">
 
         <!-- SCROLLABLE TABLE -->
-    <div class="border border-white/20 rounded-2xl bg-white/20 backdrop-blur-md shadow-lg p-4 w-full overflow-hidden">
-     <div class="overflow-x-auto bg-white/30 backdrop-blur-sm border border-white/10 shadow rounded-2xl max-w-full">
-
-
+        <div class="border border-white/20 rounded-2xl bg-white/20 backdrop-blur-md shadow-lg p-4 w-full overflow-auto max-h-[500px]">
+    <div class="min-w-[700px] max-w-[1100px] w-full mx-auto">
                 <table class="table-auto w-full text-sm text-left" id="export-table">
                     <thead class="bg-gray-100">
                         <tr>
@@ -167,7 +163,7 @@
 };
 
 @endphp
-<span class="px-2 py-1 rounded text-xs font-semibold capitalize {{ $statusClass }} backdrop-blur-sm bg-white/30 border border-white/20">
+<span class="px-2 py-1 rounded text-xs font-semibold capitalize {{ $statusClass }}">
     {{ str_replace('_', ' ', $recordStatus) }}
 </span>
 @break
@@ -188,15 +184,13 @@
             </div>
         </div>
 
-         <!-- Submit Button -->
-    <div class="mt-4">
-        <button type="submit"
-    class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm transition shadow-md font-semibold flex items-center gap-2">
-    📄 <span>Download Selected Records</span>
-</button>
-
-    </div>
-</form>
+        <!-- Submit Button -->
+        <div class="mt-4">
+            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm">
+                📄 Download Selected Records
+            </button>
+        </div>
+    </form>
 
     <!-- Toggle All Checkboxes & Column Toggle Script -->
     <script>
