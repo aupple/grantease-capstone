@@ -1,4 +1,5 @@
 <x-guest-layout>
+    
     <!-- Session Status -->
     <x-auth-session-status class="mb-3" :status="session('status')" />
 
@@ -40,7 +41,7 @@
 
 <!-- Full-width Login Button -->
 <div class="mt-4">
-    <x-primary-button class="w-full justify-center bg-blue-600 hover:bg-blue-700 text-white border-none">
+    <x-primary-button class="w-full justify-center text-white border-none" style="background-color: #1e33a3;">
     {{ __('Log in') }}
 </x-primary-button>
 

@@ -69,12 +69,12 @@
 </aside>
 
         <!-- ✅ Main Content Area -->
-        <div class="flex-1 flex flex-col">
+        <div class="flex-1 flex flex-col bg-cover bg-center bg-no-repeat" style="background-image: url('/images/bg.png');">
 
             <!-- ✅ Top Bar -->
-            <div class="bg-white shadow border-b border-gray-200 px-6 py-5 flex justify-between items-center">
+            <div class="bg-[#ffbf00] shadow border-b border-gray-200 px-6 py-5 flex justify-between items-center">
                 <!-- Left: Page Title -->
-                <h1 class="text-1.5xl font-bold text-gray-600">
+                <h1 class="text-1.5xl font-bold text - white">
                     {{ $headerTitle ?? 'University of Science and Technology of Southern Philippines' }}
                 </h1>
 

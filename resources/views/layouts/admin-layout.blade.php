@@ -87,10 +87,8 @@
         <main class="flex-1">
 
             <!-- ✅ Top Navbar with Profile Dropdown -->
-            <header class="bg-white shadow px-4 py-3 flex justify-between items-center">
-                <div class="text-lg font-bold text-gray-700">
-                    Admin Panel
-                </div>
+            <header class="bg-[#ffbf00] text-white shadow px-4 py-3 flex justify-between items-center">
+                <div class="text-lg font-bold text-gray-700">Admin Panel</div>
 
                 <div class="relative">
                     <button onclick="toggleDropdown()" class="flex items-center space-x-2 focus:outline-none">
