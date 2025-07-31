@@ -7,11 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void {
         Schema::table('application_forms', function (Blueprint $table) {
-            //$table->string('bs_field')->nullable();
-           // $table->string('bs_school')->nullable();
-           // $table->string('bs_scholarship')->nullable();
-           // $table->string('bs_remarks')->nullable();
-
+            // ✅ Only MS and PhD fields are active
             $table->string('ms_field')->nullable();
             $table->string('ms_school')->nullable();
             $table->string('ms_scholarship')->nullable();
@@ -40,8 +36,8 @@ return new class extends Migration {
 
     public function down(): void {
         Schema::table('application_forms', function (Blueprint $table) {
+            // ✅ Removed bs_* fields that are not part of the up() method
             $table->dropColumn([
-                'bs_field', 'bs_school', 'bs_scholarship', 'bs_remarks',
                 'ms_field', 'ms_school', 'ms_scholarship', 'ms_remarks',
                 'phd_field', 'phd_school', 'phd_scholarship', 'phd_remarks',
                 'strand_category', 'strand_type', 'scholarship_type',
