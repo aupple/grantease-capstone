@@ -69,7 +69,7 @@
 </aside>
 
         <!-- ✅ Main Content Area -->
-        <div class="flex-1 flex flex-col bg-cover bg-center bg-no-repeat" style="background-image: url('/images/bg.png');">
+        <div class="flex-1 flex flex-col">
 
             <!-- ✅ Top Bar -->
             <div class="bg-[#ffbf00] shadow border-b border-gray-200 px-6 py-5 flex justify-between items-center">
