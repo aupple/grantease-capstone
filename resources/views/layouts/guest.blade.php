@@ -17,27 +17,31 @@
 <body class="font-sans text-gray-900 antialiased">
     <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-cover bg-center bg-no-repeat" style="background-image: url('/images/school.jpg');">
 
-        <!-- Branding OUTSIDE the box -->
-        <div class="text-center mb-6">
-    <img src="{{ asset('images/logo.png') }}" alt="GrantEase Logo" class="mx-auto w-[450px]">
-    <p class="text-sm font-semibold text-gray-500 mt-1">Scholarship Management System</p>
+        <!-- GLASSMORPHISM WRAPPER -->
+        <div class="bg-gray-200/50 backdrop-blur-sm rounded-xl shadow-lg px-8 py-6 w-full sm:max-w-xl text-center">
 
+            <!-- Logo and Branding -->
+            <div class="mb-4">
+                <img src="{{ asset('images/logo.png') }}" alt="GrantEase Logo" class="mx-auto w-[450px]">
+                <p class="text-sm font-semibold text-black mt-1">Scholarship Management System</p>
 
-            <div class="mt-3">
-                @if (request()->routeIs('register'))
-                    <h1 class="text-2xl font-bold text-blue">Create an account</h1>
-                     <p class="text-sm text-gray-500 mt-1">Start your scholarship journey today</p>
-                @else
-                    <h1 class="text-2xl font-bold text-black">Sign in to your account</h1>
-                    <p class="text-sm font-semibold text-gray-500 mt-1">Access your scholarship</p>
-                @endif
+                <div class="mt-3">
+                    @if (request()->routeIs('register'))
+                        <h1 class="text-2xl font-bold text-blue-800">Create an account</h1>
+                        <p class="text-sm text-black mt-1">Start your scholarship journey today</p>
+                    @else
+                        <h1 class="text-2xl font-bold text-black">Sign in to your account</h1>
+                        <p class="text-sm font-semibold text-black mt-1">Access your scholarship</p>
+                    @endif
+                </div>
             </div>
-        </div>
 
-        <!-- White Form Box -->
-        <div class="w-full sm:max-w-md mt-1 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
-            {{ $slot }}
+            <!-- Form Slot -->
+            <div class="w-full sm:max-w-md mx-auto mt-4 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
+                {{ $slot }}
+            </div>
         </div>
     </div>
 </body>
+
 </html>
