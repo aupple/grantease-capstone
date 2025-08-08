@@ -98,11 +98,11 @@
 
 
                     <!-- ✅ Dropdown -->
-                    <div id="dropdown" class="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg hidden">
-                        <a href="{{ route('admin.profile.edit') }}" class="block px-4 py-2 text-sm hover:bg-gray-100">Edit Profile</a>
+                    <div id="dropdown" class="absolute right-0 mt-2 w-48 bg-gray-400 border rounded shadow-lg hidden">
+                        <a href="{{ route('admin.profile.edit') }}" class="block px-4 py-2 text-sm hover:bg-gray-500">Edit Profile</a>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100">Logout</button>
+                            <button type="submit" class="w-full text-left px-4 py-2 text-sm hover:bg-gray-600">Logout</button>
                         </form>
                     </div>
                 </div>
