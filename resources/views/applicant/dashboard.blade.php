@@ -8,20 +8,6 @@
     <!-- ✅ Normal background only -->
     <div class="py-6 px-4 sm:px-6 lg:px-8 min-h-screen bg-gray-100">
 
-        <!-- ✅ Success Message -->
-        @if(session('success'))
-    <div 
-        x-data="{ show: true }" 
-        x-show="show" 
-        x-init="setTimeout(() => show = false, 4000)" 
-        x-transition 
-        class="fixed top-5 right-5 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg"
-    >
-        {{ session('success') }}
-    </div>
-@endif
-
-
         <!-- 💠 Keep Glassmorphism ONLY for the Welcome Box -->
         <div class="max-w-7xl mx-auto">
             <div class="backdrop-blur-xl bg-white/30 border border-white/20 shadow-lg rounded-2xl p-8">

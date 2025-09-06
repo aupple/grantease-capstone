@@ -5,257 +5,231 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ApplicationForm;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ApplicationFormController extends Controller
 {
-    // ✅ Show the application form
-    public function create(Request $request)
+    /**
+     * Show the application form for applicants.
+     */
+    public function create()
     {
-        $program = $request->input('program'); // "DOST" or "CHED"
-        return view('applicant.application-form', compact('program'));
+        return view('applicant.application-form');
     }
 
-    // ✅ View the logged-in applicant's submitted applications
-    public function viewMyApplication()
+    /**
+     * Store a newly created application form in storage.
+     */
+    public function store(Request $request)
     {
-        $applications = ApplicationForm::where('user_id', Auth::id())->latest()->get();
-        return view('applicant.my-application', compact('applications'));
+        $validated = $request->validate([
+            // Basic info
+            'last_name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'academic_year' => 'nullable|string|max:255',
+            'school_term' => 'nullable|string|max:255',
+            'application_no' => 'nullable|string|max:255',
+
+            // Contact / personal details
+            'birthdate' => 'nullable|date',
+            'gender' => 'nullable|string|max:20',
+            'civil_status' => 'nullable|string|max:50',
+            'address' => 'nullable|string|max:500',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:50',
+
+            // Academic background
+            'bs_field' => 'nullable|string|max:255',
+            'bs_university' => 'nullable|string|max:255',
+            'bs_scholarship_type' => 'nullable|string|max:255',
+            'bs_scholarship_others' => 'nullable|string|max:255',
+            'bs_remarks' => 'nullable|string|max:500',
+
+            // Graduate intent
+            'grad_field' => 'nullable|string|max:255',
+            'grad_university' => 'nullable|string|max:255',
+            'grad_plan' => 'nullable|string|max:255',
+
+            // Employment
+            'employer_name' => 'nullable|string|max:255',
+            'employer_address' => 'nullable|string|max:500',
+            'position' => 'nullable|string|max:255',
+            'employment_status' => 'nullable|string|max:255',
+
+            // Research & plans
+            'research_title' => 'nullable|string|max:500',
+            'career_plan' => 'nullable|string|max:500',
+
+            // File uploads
+            'passport_picture' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:4096',
+            'form_137' => 'nullable|file|mimes:pdf|max:4096',
+            'certificate_of_employment' => 'nullable|file|mimes:pdf|max:4096',
+            'certificate_of_purpose' => 'nullable|file|mimes:pdf|max:4096',
+
+            'birth_certificate_pdf' => 'nullable|file|mimes:pdf|max:4096',
+            'transcript_of_record_pdf' => 'nullable|file|mimes:pdf|max:4096',
+            'endorsement_1_pdf' => 'nullable|file|mimes:pdf|max:4096',
+            'endorsement_2_pdf' => 'nullable|file|mimes:pdf|max:4096',
+            'recommendation_head_agency_pdf' => 'nullable|file|mimes:pdf|max:4096',
+            'form_2a_pdf' => 'nullable|file|mimes:pdf|max:4096',
+            'form_2b_pdf' => 'nullable|file|mimes:pdf|max:4096',
+            'form_a_research_plans_pdf' => 'nullable|file|mimes:pdf|max:4096',
+            'form_b_career_plans_pdf' => 'nullable|file|mimes:pdf|max:4096',
+            'form_c_health_status_pdf' => 'nullable|file|mimes:pdf|max:4096',
+            'nbi_clearance_pdf' => 'nullable|file|mimes:pdf|max:4096',
+            'letter_of_admission_pdf' => 'nullable|file|mimes:pdf|max:4096',
+            'approved_program_of_study_pdf' => 'nullable|file|mimes:pdf|max:4096',
+            'lateral_certification_pdf' => 'nullable|file|mimes:pdf|max:4096',
+
+            // Declaration
+            'terms_and_conditions_agreed' => 'nullable|boolean',
+            'applicant_signature' => 'nullable|string|max:255',
+            'declaration_date' => 'nullable|date',
+        ]);
+
+        $application = new ApplicationForm();
+        $application->user_id = Auth::id();
+        $application->status = 'pending';
+        $application->submitted_at = now();
+
+        // Fill non-file fields
+        $application->fill(collect($validated)->except([
+            'passport_picture',
+            'form_137',
+            'certificate_of_employment',
+            'certificate_of_purpose',
+            'birth_certificate_pdf',
+            'transcript_of_record_pdf',
+            'endorsement_1_pdf',
+            'endorsement_2_pdf',
+            'recommendation_head_agency_pdf',
+            'form_2a_pdf',
+            'form_2b_pdf',
+            'form_a_research_plans_pdf',
+            'form_b_career_plans_pdf',
+            'form_c_health_status_pdf',
+            'nbi_clearance_pdf',
+            'letter_of_admission_pdf',
+            'approved_program_of_study_pdf',
+            'lateral_certification_pdf',
+        ])->toArray());
+
+        // File uploads
+        $fileFields = [
+            'passport_picture',
+            'form_137',
+            'certificate_of_employment',
+            'certificate_of_purpose',
+            'birth_certificate_pdf',
+            'transcript_of_record_pdf',
+            'endorsement_1_pdf',
+            'endorsement_2_pdf',
+            'recommendation_head_agency_pdf',
+            'form_2a_pdf',
+            'form_2b_pdf',
+            'form_a_research_plans_pdf',
+            'form_b_career_plans_pdf',
+            'form_c_health_status_pdf',
+            'nbi_clearance_pdf',
+            'letter_of_admission_pdf',
+            'approved_program_of_study_pdf',
+            'lateral_certification_pdf',
+        ];
+
+        foreach ($fileFields as $field) {
+            if ($request->hasFile($field)) {
+                $path = $request->file($field)->store("uploads/application_forms", "public");
+                $application->$field = $path;
+            }
+        }
+
+        $application->save();
+
+        return redirect()->route('dashboard')
+            ->with('success', 'Application form submitted successfully.');
     }
 
-    // ✅ Show edit form for "submitted" applications
-    public function edit($id)
-    {
-        $application = ApplicationForm::where('id', $id)
-            ->where('user_id', Auth::id())
-            ->where('status', 'submitted') // updated from 'pending'
-            ->firstOrFail();
-
-        return view('applicant.application-edit', compact('application'));
-    }
-
-    // ✅ Handle update of "submitted" applications
+    /**
+     * Update an existing application form.
+     */
     public function update(Request $request, $id)
 {
-    $application = ApplicationForm::where('id', $id)
-        ->where('user_id', Auth::id())
-        ->where('status', 'submitted') // Only editable if still submitted
-        ->firstOrFail();
+    $application = ApplicationForm::findOrFail($id);
 
-    // ✅ Validate input
+    // Ensure only the owner can update
+    if ($application->user_id !== Auth::id()) {
+        abort(403, 'Unauthorized action.');
+    }
+
+    // ✅ Validate input (add more rules depending on your form fields)
     $validated = $request->validate([
-        'program' => 'required|string',
-        'school' => 'required|string',
-        'year_level' => 'required|string',
-        'reason' => 'required|string',
-
-        // Personal info
-        'permanent_address' => 'nullable|string',
-        'zip_code' => 'nullable|string',
-        'region' => 'nullable|string',
-        'district' => 'nullable|string',
-        'passport_no' => 'nullable|string',
-        'current_address' => 'nullable|string',
-        'civil_status' => 'nullable|string',
-        'birthdate' => 'nullable|date',
-        'age' => 'nullable|string',
-        'sex' => 'nullable|string',
-        'father_name' => 'nullable|string',
-        'mother_name' => 'nullable|string',
-        'phone_number' => 'nullable|string',
-
-        // Academic info
-        'bs_field' => 'nullable|string',
-        'bs_school' => 'nullable|string',
-        'bs_scholarship' => 'nullable|string',
-        'bs_remarks' => 'nullable|string',
-        'ms_field' => 'nullable|string',
-        'ms_school' => 'nullable|string',
-        'ms_scholarship' => 'nullable|string',
-        'ms_remarks' => 'nullable|string',
-        'phd_field' => 'nullable|string',
-        'phd_school' => 'nullable|string',
-        'phd_scholarship' => 'nullable|string',
-        'phd_remarks' => 'nullable|string',
-        'strand_category' => 'nullable|string',
-        'strand_type' => 'nullable|string',
-        'scholarship_type' => 'nullable|string',
-        'new_university' => 'nullable|string',
-        'new_course' => 'nullable|string',
-        'lateral_university' => 'nullable|string',
-        'lateral_course' => 'nullable|string',
-        'units_earned' => 'nullable|string',
-        'units_remaining' => 'nullable|string',
-        'research_approved' => 'nullable|string',
-        'research_title' => 'nullable|string',
-        'last_thesis_date' => 'nullable|string',
-
-        // Employment
-        'employment_status' => 'nullable|string',
-        'position' => 'nullable|string',
-        'length_of_service' => 'nullable|string',
-        'company_name' => 'nullable|string',
-        'company_address' => 'nullable|string',
-        'company_email' => 'nullable|string',
-        'company_website' => 'nullable|string',
-        'company_phone' => 'nullable|string',
-        'company_fax' => 'nullable|string',
-        'business_name' => 'nullable|string',
-        'business_address' => 'nullable|string',
-        'business_email' => 'nullable|string',
-        'business_type' => 'nullable|string',
-        'years_operation' => 'nullable|string',
-        'research_plans' => 'nullable|string',
-        'career_plans' => 'nullable|string',
-        'rnd_involvement' => 'nullable|string',
-
-        // Arrays
-        'publications' => 'nullable|array',
-        'awards' => 'nullable|array',
-
-        // File uploads
-        'passport_picture' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-        'form137' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-        'cert_employment' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-        'cert_purpose' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        'program' => 'required|string|max:255',
+        'school' => 'required|string|max:255',
+        'year_level' => 'required|string|max:50',
+        'reason' => 'nullable|string|max:1000',
+        // file fields
+        'passport_picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        'form137' => 'nullable|mimes:pdf,jpg,jpeg,png|max:4096',
+        'certificate_employment' => 'nullable|mimes:pdf,jpg,jpeg,png|max:4096',
+        'certificate_purpose' => 'nullable|mimes:pdf,jpg,jpeg,png|max:4096',
     ]);
 
-    // ✅ Prepare data
-    $data = $validated;
-    $data['publications'] = json_encode($request->input('publications'));
-    $data['awards'] = json_encode($request->input('awards'));
+    // ✅ Update normal fields
+    $application->program = $validated['program'];
+    $application->school = $validated['school'];
+    $application->year_level = $validated['year_level'];
+    $application->reason = $validated['reason'] ?? $application->reason;
 
-    // ✅ Handle file re-uploads
+    // ✅ Handle file uploads (optional replacement)
     if ($request->hasFile('passport_picture')) {
-        $data['passport_picture'] = $request->file('passport_picture')->store('passport_pictures', 'public');
+        $application->passport_picture = $request->file('passport_picture')->store('uploads/passport', 'public');
     }
+
     if ($request->hasFile('form137')) {
-        $data['form137'] = $request->file('form137')->store('form137_files', 'public');
-    }
-    if ($request->hasFile('cert_employment')) {
-        $data['cert_employment'] = $request->file('cert_employment')->store('cert_employment_files', 'public');
-    }
-    if ($request->hasFile('cert_purpose')) {
-        $data['cert_purpose'] = $request->file('cert_purpose')->store('cert_purpose_files', 'public');
+        $application->form137 = $request->file('form137')->store('uploads/form137', 'public');
     }
 
-    // ✅ Update record
-    $application->update($data);
+    if ($request->hasFile('certificate_employment')) {
+        $application->certificate_employment = $request->file('certificate_employment')->store('uploads/employment', 'public');
+    }
 
-    return redirect()->route('applicant.dashboard')
-        ->with('success', 'Application updated successfully!');
+    if ($request->hasFile('certificate_purpose')) {
+        $application->certificate_purpose = $request->file('certificate_purpose')->store('uploads/purpose', 'public');
+    }
+
+    // ✅ Keep status "pending" after edit
+    $application->status = 'pending';
+
+    // Save changes
+    $application->save();
+
+    return redirect()->route('applicant.myApplication')
+        ->with('success', 'Your application has been updated and set to Pending.');
 }
 
+    /**
+     * Show all applications submitted by the logged-in user.
+     */
+    public function viewMyApplication()
+    {
+        // Get all applications for this user
+        $applications = auth()->user()->applicationForms()->latest()->get();
 
-    // ✅ Handle new application submission
-public function store(Request $request)
+        return view('applicant.my-application', compact('applications'));
+        
+    }
+    public function edit($id)
 {
-    // ✅ Validate all fields
-    $validated = $request->validate([
-        // Required basics
-        'program' => 'required|string',
-        'school' => 'required|string',
-        'year_level' => 'required|string',
-        'reason' => 'required|string',
+    $application = ApplicationForm::findOrFail($id);
 
-        // Personal info
-        'permanent_address' => 'nullable|string',
-        'zip_code' => 'nullable|string',
-        'region' => 'nullable|string',
-        'district' => 'nullable|string',
-        'passport_no' => 'nullable|string',
-        'current_address' => 'nullable|string',
-        'civil_status' => 'nullable|string',
-        'birthdate' => 'nullable|date',
-        'age' => 'nullable|string',
-        'sex' => 'nullable|string',
-        'father_name' => 'nullable|string',
-        'mother_name' => 'nullable|string',
-        'phone_number' => 'nullable|string',
-
-        // Academic info
-        'bs_field' => 'nullable|string',
-        'bs_school' => 'nullable|string',
-        'bs_scholarship' => 'nullable|string',
-        'bs_remarks' => 'nullable|string',
-        'ms_field' => 'nullable|string',
-        'ms_school' => 'nullable|string',
-        'ms_scholarship' => 'nullable|string',
-        'ms_remarks' => 'nullable|string',
-        'phd_field' => 'nullable|string',
-        'phd_school' => 'nullable|string',
-        'phd_scholarship' => 'nullable|string',
-        'phd_remarks' => 'nullable|string',
-        'strand_category' => 'nullable|string',
-        'strand_type' => 'nullable|string',
-        'scholarship_type' => 'nullable|string',
-        'new_university' => 'nullable|string',
-        'new_course' => 'nullable|string',
-        'lateral_university' => 'nullable|string',
-        'lateral_course' => 'nullable|string',
-        'units_earned' => 'nullable|string',
-        'units_remaining' => 'nullable|string',
-        'research_approved' => 'nullable|string',
-        'research_title' => 'nullable|string',
-        'last_thesis_date' => 'nullable|string',
-
-        // Employment & R&D
-        'employment_status' => 'nullable|string',
-        'position' => 'nullable|string',
-        'length_of_service' => 'nullable|string',
-        'company_name' => 'nullable|string',
-        'company_address' => 'nullable|string',
-        'company_email' => 'nullable|string',
-        'company_website' => 'nullable|string',
-        'company_phone' => 'nullable|string',
-        'company_fax' => 'nullable|string',
-        'business_name' => 'nullable|string',
-        'business_address' => 'nullable|string',
-        'business_email' => 'nullable|string',
-        'business_type' => 'nullable|string',
-        'years_operation' => 'nullable|string',
-        'research_plans' => 'nullable|string',
-        'career_plans' => 'nullable|string',
-        'rnd_involvement' => 'nullable|string',
-
-        // Array fields
-        'publications' => 'nullable|array',
-        'awards' => 'nullable|array',
-
-        // File uploads
-        'passport_picture' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-        'form137' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-        'cert_employment' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-        'cert_purpose' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-    ]);
-
-    // ✅ Start building application data
-    $data = $validated;
-    $data['user_id'] = Auth::id();
-    $data['status'] = 'pending';
-    $data['submitted_at'] = now();
-
-    // ✅ Encode arrays (convert to JSON for DB)
-    $data['publications'] = json_encode($request->input('publications'));
-    $data['awards'] = json_encode($request->input('awards'));
-
-    // ✅ File uploads
-    if ($request->hasFile('passport_picture')) {
-        $data['passport_picture'] = $request->file('passport_picture')->store('passport_pictures', 'public');
-    }
-    if ($request->hasFile('form137')) {
-        $data['form137'] = $request->file('form137')->store('form137_files', 'public');
-    }
-    if ($request->hasFile('cert_employment')) {
-        $data['cert_employment'] = $request->file('cert_employment')->store('cert_employment_files', 'public');
-    }
-    if ($request->hasFile('cert_purpose')) {
-        $data['cert_purpose'] = $request->file('cert_purpose')->store('cert_purpose_files', 'public');
+    // Optional: make sure the logged-in user owns this application
+    if ($application->user_id !== Auth::id()) {
+        abort(403, 'Unauthorized action.');
     }
 
-    // ✅ Save the application
-    ApplicationForm::create($data);
-
-    return redirect()->route('applicant.dashboard')->with('success', 'Application submitted successfully!');
+    return view('applicant.application-edit', compact('application'));
 }
 
+    
 }
