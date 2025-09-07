@@ -30,80 +30,83 @@
     <!-- LEFT SIDE -->
     <div x-data="{ sectionIndex: 0 }" class="col-span-2 space-y-6">
 
-        <!-- Personal Information -->
-        <div x-show="sectionIndex === 0" class="transition-all duration-300 bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6">
-            <div class="flex items-center gap-2 mb-6">
-                <svg class="w-6 h-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A10.97 10.97 0 0112 15c2.45 0 4.712.755 6.559 2.028M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <h3 class="text-xl font-bold  text-[#1e33a3]">Personal Information</h3>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 text-sm text-gray-800">
-            
-                <div>
-                    <p class="font-semibold text-gray-600">Full Name</p>
-                    <p class="font-semibold">{{ $application->user->full_name ?? $application->user->first_name . ' ' . $application->user->last_name }}</p>
-                </div>
-               <div>
-                   <p class="font-semibold text-gray-600">Email</p>
-                   <p class="font-semibold">{{ $application->user->email }}</p>
-               </div>
-               <div>
-                   <p class="font-semibold text-gray-600">Phone</p>
-                   <p class="font-semibold">{{ $application->phone_number ?? 'N/A' }}</p>
-               </div>
-               <div>
-                   <p class="font-semibold text-gray-600">Sex</p>
-                   <p class="font-semibold">{{ $application->sex ?? 'N/A' }}</p>
-               </div>
-               <div>
-                   <p class="font-semibold text-gray-600">Birthdate</p>
-                   <p class="font-semibold">{{ $application->birthdate ?? 'N/A' }}</p>
-               </div>
-               <div>
-                   <p class="font-semibold text-gray-600">Age</p>
-                   <p class="font-semibold">{{ $application->age ?? 'N/A' }}</p>
-               </div>
-               <div>
-                   <p class="font-semibold text-gray-600">Civil Status</p>
-                   <p class="font-semibold">{{ $application->civil_status ?? 'N/A' }}</p>
-               </div>
-               <div class="md:col-span-2">
-                   <p class="font-semibold text-gray-600">Permanent Address</p>
-                   <p class="font-semibold">{{ $application->permanent_address ?? 'N/A' }}</p>
-               </div>
-               <div class="md:col-span-2">
-                   <p class="font-semibold text-gray-600">Current Address</p>
-                   <p class="font-semibold">{{ $application->current_address ?? 'N/A' }}</p>
-               </div>
-               <div>
-                   <p class="font-semibold text-gray-600">Region</p>
-                   <p class="font-semibold">{{ $application->region ?? 'N/A' }}</p>
-               </div>
-               <div>
-                   <p class="font-semibold text-gray-600">District</p>
-                   <p class="font-semibold">{{ $application->district ?? 'N/A' }}</p>
-               </div>
-               <div>
-                   <p class="font-semibold text-gray-600ium">Zip Code</p>
-                   <p class="font-semibold">{{ $application->zip_code ?? 'N/A' }}</p>
-               </div>
-               <div>
-                   <p class="font-semibold text-gray-600">Passport No.</p>
-                   <p class="font-semibold">{{ $application->passport_no ?? 'N/A' }}</p>
-               </div>
-               <div>
-                   <p class="font-semibold text-gray-600">Father's Name</p>
-                   <p class="font-semibold">{{ $application->father_name ?? 'N/A' }}</p>
-               </div>
-               <div>
-                   <p class="font-semibold text-gray-600">Mother's Name</p>
-                   <p class="font-semibold">{{ $application->mother_name ?? 'N/A' }}</p>
-               </div>
+       <!-- Personal Information -->
+<div x-show="sectionIndex === 0" class="transition-all duration-300 bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6">
+    <div class="flex items-center gap-2 mb-6">
+        <svg class="w-6 h-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A10.97 10.97 0 0112 15c2.45 0 4.712.755 6.559 2.028M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        <h3 class="text-xl font-bold text-[#1e33a3]">Personal Information</h3>
+    </div>
 
-            </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 text-sm text-gray-800">
+        
+        <div>
+            <p class="font-semibold text-gray-600">Full Name</p>
+            <p class="font-semibold">
+                {{ $application->user->full_name ?? $application->user->first_name . ' ' . $application->user->last_name }}
+            </p>
         </div>
- 
+        <div>
+            <p class="font-semibold text-gray-600">Email</p>
+            <p class="font-semibold">{{ $application->user->email ?? 'N/A' }}</p>
+        </div>
+        <div>
+            <p class="font-semibold text-gray-600">Phone</p>
+            <p class="font-semibold">{{ $application->phone ?? 'N/A' }}</p>
+        </div>
+        <div>
+            <p class="font-semibold text-gray-600">Sex</p>
+            <p class="font-semibold">{{ $application->gender ?? 'N/A' }}</p>
+        </div>
+        <div>
+            <p class="font-semibold text-gray-600">Birthdate</p>
+            <p class="font-semibold">{{ $application->birthdate ?? 'N/A' }}</p>
+        </div>
+        <div>
+            <p class="font-semibold text-gray-600">Age</p>
+            <p class="font-semibold">{{ $application->age ?? 'N/A' }}</p>
+        </div>
+        <div>
+            <p class="font-semibold text-gray-600">Civil Status</p>
+            <p class="font-semibold">{{ $application->civil_status ?? 'N/A' }}</p>
+        </div>
+        <div class="md:col-span-2">
+            <p class="font-semibold text-gray-600">Permanent Address</p>
+            <p class="font-semibold">{{ $application->permanent_address ?? 'N/A' }}</p>
+        </div>
+        <div class="md:col-span-2">
+            <p class="font-semibold text-gray-600">Current Address</p>
+            <p class="font-semibold">{{ $application->current_address ?? 'N/A' }}</p>
+        </div>
+        <div>
+            <p class="font-semibold text-gray-600">Region</p>
+            <p class="font-semibold">{{ $application->region ?? 'N/A' }}</p>
+        </div>
+        <div>
+            <p class="font-semibold text-gray-600">District</p>
+            <p class="font-semibold">{{ $application->district ?? 'N/A' }}</p>
+        </div>
+        <div>
+            <p class="font-semibold text-gray-600">Zip Code</p>
+            <p class="font-semibold">{{ $application->zip_code ?? 'N/A' }}</p>
+        </div>
+        <div>
+            <p class="font-semibold text-gray-600">Passport No.</p>
+            <p class="font-semibold">{{ $application->passport_no ?? 'N/A' }}</p>
+        </div>
+        <div>
+            <p class="font-semibold text-gray-600">Father's Name</p>
+            <p class="font-semibold">{{ $application->father_name ?? 'N/A' }}</p>
+        </div>
+        <div>
+            <p class="font-semibold text-gray-600">Mother's Name</p>
+            <p class="font-semibold">{{ $application->mother_name ?? 'N/A' }}</p>
+        </div>
+
+    </div>
+</div>
+
 
         <!-- Academic Background -->
         <div x-show="sectionIndex === 1" class="transition-all duration-300 bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6">

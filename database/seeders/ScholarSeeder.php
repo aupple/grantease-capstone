@@ -36,8 +36,8 @@ class ScholarSeeder extends Seeder
             $application = ApplicationForm::create([
                 'user_id' => $user->user_id,
                 'program' => fake()->randomElement(['DOST', 'CHED']),
-                'school' => 'Test University',
-                'year_level' => '2nd Year',
+                'bs_university' => 'Test University',
+                'academic_year' => '2nd Year',
                 'reason' => 'For Testing',
                 'status' => 'approved',
                 'submitted_at' => now()->subDays(rand(2, 7)),

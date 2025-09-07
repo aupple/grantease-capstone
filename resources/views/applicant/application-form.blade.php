@@ -7,10 +7,10 @@
 
     <div class="py-6">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <form method="POST" action="{{ route('applicant.application.store') }}" 
-      enctype="multipart/form-data" 
+            <form method="POST" action="{{ route('applicant.application.store') }}" enctype="multipart/form-data" 
       class="bg-white p-6 rounded shadow">
     @csrf
+    <input type="hidden" name="program" value="{{ $program }}">
 
             <!-- Beautiful Circular Step Indicators -->
             <div class="flex justify-between items-center mb-8 relative">

@@ -119,12 +119,11 @@
                             <p class="text-sm text-gray-700">For students pursuing Science, Tech, Engineering, Math</p>
                             <p class="text-xs text-gray-600 mt-1">Deadline: June 30, 2023</p>
                         </div>
-                        <form method="GET" action="{{ route('applicant.application.create') }}">
-                            <input type="hidden" name="program" value="DOST">
-                            <button class="bg-white text-blue-800 font-medium px-4 py-2 rounded-md hover:bg-gray-100 transition">
-                                Apply Now
-                            </button>
-                        </form>
+                        <a href="{{ route('applicant.application.create', ['program' => 'DOST']) }}"
+   class="bg-white text-blue-800 font-medium px-4 py-2 rounded-md hover:bg-gray-100 transition">
+   Apply Now
+</a>
+
                     </div>
 
                     <!-- ✅ CHED -->
@@ -136,12 +135,11 @@
                             <p class="text-sm text-gray-700">For academically qualified students with financial needs</p>
                             <p class="text-xs text-gray-600 mt-1">Deadline: July 15, 2023</p>
                         </div>
-                        <form method="GET" action="{{ route('applicant.application.create') }}">
-                            <input type="hidden" name="program" value="CHED">
-                            <button class="bg-white text-blue-800 font-medium px-4 py-2 rounded-md hover:bg-gray-100 transition">
-                                Apply Now
-                            </button>
-                        </form>
+                        <a href="{{ route('applicant.application.create', ['program' => 'CHED']) }}"
+   class="bg-white text-blue-800 font-medium px-4 py-2 rounded-md hover:bg-gray-100 transition">
+   Apply Now
+</a>
+
                     </div>
                 </div> <!-- End Glassmorphism Box -->
             </div>

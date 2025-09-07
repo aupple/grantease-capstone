@@ -12,9 +12,15 @@ class ApplicationFormController extends Controller
     /**
      * Show the application form for applicants.
      */
-    public function create()
+    public function create($program)
     {
-        return view('applicant.application-form');
+        // Validate program
+        if (!in_array($program, ['DOST', 'CHED'])) {
+            abort(404); // If invalid program, show 404
+        }
+
+        // Pass the program to your Blade view
+        return view('applicant.application-form', compact('program'));
     }
 
     /**
@@ -30,6 +36,7 @@ class ApplicationFormController extends Controller
             'academic_year' => 'nullable|string|max:255',
             'school_term' => 'nullable|string|max:255',
             'application_no' => 'nullable|string|max:255',
+            'program' => 'required|string|in:DOST,CHED',
 
             // Contact / personal details
             'birthdate' => 'nullable|date',
@@ -63,9 +70,9 @@ class ApplicationFormController extends Controller
 
             // File uploads
             'passport_picture' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:4096',
-            'form_137' => 'nullable|file|mimes:pdf|max:4096',
-            'certificate_of_employment' => 'nullable|file|mimes:pdf|max:4096',
-            'certificate_of_purpose' => 'nullable|file|mimes:pdf|max:4096',
+            'form137' => 'nullable|file|mimes:pdf|max:4096',
+            'cert_employment' => 'nullable|file|mimes:pdf|max:4096',
+            'cert_purpose' => 'nullable|file|mimes:pdf|max:4096',
 
             'birth_certificate_pdf' => 'nullable|file|mimes:pdf|max:4096',
             'transcript_of_record_pdf' => 'nullable|file|mimes:pdf|max:4096',
@@ -90,15 +97,16 @@ class ApplicationFormController extends Controller
 
         $application = new ApplicationForm();
         $application->user_id = Auth::id();
+        $application->program = $request->program;
         $application->status = 'pending';
         $application->submitted_at = now();
 
         // Fill non-file fields
         $application->fill(collect($validated)->except([
             'passport_picture',
-            'form_137',
-            'certificate_of_employment',
-            'certificate_of_purpose',
+            'form137',
+            'cert_employment',
+            'cert_purpose',
             'birth_certificate_pdf',
             'transcript_of_record_pdf',
             'endorsement_1_pdf',
@@ -118,9 +126,9 @@ class ApplicationFormController extends Controller
         // File uploads
         $fileFields = [
             'passport_picture',
-            'form_137',
-            'certificate_of_employment',
-            'certificate_of_purpose',
+            'form137',
+            'cert_employment',
+            'cert_purpose',
             'birth_certificate_pdf',
             'transcript_of_record_pdf',
             'endorsement_1_pdf',
@@ -154,82 +162,74 @@ class ApplicationFormController extends Controller
      * Update an existing application form.
      */
     public function update(Request $request, $id)
-{
-    $application = ApplicationForm::findOrFail($id);
+    {
+        $application = ApplicationForm::findOrFail($id);
 
-    // Ensure only the owner can update
-    if ($application->user_id !== Auth::id()) {
-        abort(403, 'Unauthorized action.');
+        // Ensure only the owner can update
+        if ($application->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $validated = $request->validate([
+            'program' => 'required|string|max:255',
+            'school' => 'required|string|max:255',
+            'year_level' => 'required|string|max:50',
+            'reason' => 'nullable|string|max:1000',
+            // file fields
+            'passport_picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'form137' => 'nullable|mimes:pdf,jpg,jpeg,png|max:4096',
+            'cert_employment' => 'nullable|mimes:pdf,jpg,jpeg,png|max:4096',
+            'cert_purpose' => 'nullable|mimes:pdf,jpg,jpeg,png|max:4096',
+        ]);
+
+        // Update normal fields
+        $application->program = $validated['program'];
+        $application->school = $validated['school'];
+        $application->year_level = $validated['year_level'];
+        $application->reason = $validated['reason'] ?? $application->reason;
+
+        // Handle file uploads (optional replacement)
+        if ($request->hasFile('passport_picture')) {
+            $application->passport_picture = $request->file('passport_picture')->store('uploads/passport', 'public');
+        }
+
+        if ($request->hasFile('form137')) {
+            $application->form137 = $request->file('form137')->store('uploads/form137', 'public');
+        }
+
+        if ($request->hasFile('cert_employment')) {
+            $application->cert_employment = $request->file('cert_employment')->store('uploads/employment', 'public');
+        }
+
+        if ($request->hasFile('cert_purpose')) {
+            $application->cert_purpose = $request->file('cert_purpose')->store('uploads/purpose', 'public');
+        }
+
+        // Keep status "pending" after edit
+        $application->status = 'pending';
+        $application->save();
+
+        return redirect()->route('applicant.myApplication')
+            ->with('success', 'Your application has been updated and set to Pending.');
     }
-
-    // ✅ Validate input (add more rules depending on your form fields)
-    $validated = $request->validate([
-        'program' => 'required|string|max:255',
-        'school' => 'required|string|max:255',
-        'year_level' => 'required|string|max:50',
-        'reason' => 'nullable|string|max:1000',
-        // file fields
-        'passport_picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        'form137' => 'nullable|mimes:pdf,jpg,jpeg,png|max:4096',
-        'certificate_employment' => 'nullable|mimes:pdf,jpg,jpeg,png|max:4096',
-        'certificate_purpose' => 'nullable|mimes:pdf,jpg,jpeg,png|max:4096',
-    ]);
-
-    // ✅ Update normal fields
-    $application->program = $validated['program'];
-    $application->school = $validated['school'];
-    $application->year_level = $validated['year_level'];
-    $application->reason = $validated['reason'] ?? $application->reason;
-
-    // ✅ Handle file uploads (optional replacement)
-    if ($request->hasFile('passport_picture')) {
-        $application->passport_picture = $request->file('passport_picture')->store('uploads/passport', 'public');
-    }
-
-    if ($request->hasFile('form137')) {
-        $application->form137 = $request->file('form137')->store('uploads/form137', 'public');
-    }
-
-    if ($request->hasFile('certificate_employment')) {
-        $application->certificate_employment = $request->file('certificate_employment')->store('uploads/employment', 'public');
-    }
-
-    if ($request->hasFile('certificate_purpose')) {
-        $application->certificate_purpose = $request->file('certificate_purpose')->store('uploads/purpose', 'public');
-    }
-
-    // ✅ Keep status "pending" after edit
-    $application->status = 'pending';
-
-    // Save changes
-    $application->save();
-
-    return redirect()->route('applicant.myApplication')
-        ->with('success', 'Your application has been updated and set to Pending.');
-}
 
     /**
      * Show all applications submitted by the logged-in user.
      */
     public function viewMyApplication()
     {
-        // Get all applications for this user
         $applications = auth()->user()->applicationForms()->latest()->get();
-
         return view('applicant.my-application', compact('applications'));
-        
     }
+
     public function edit($id)
-{
-    $application = ApplicationForm::findOrFail($id);
+    {
+        $application = ApplicationForm::findOrFail($id);
 
-    // Optional: make sure the logged-in user owns this application
-    if ($application->user_id !== Auth::id()) {
-        abort(403, 'Unauthorized action.');
+        if ($application->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return view('applicant.application-edit', compact('application'));
     }
-
-    return view('applicant.application-edit', compact('application'));
-}
-
-    
 }
