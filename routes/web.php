@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\PdfController;
 
+
 Route::redirect('/', '/login');
 
 // ✅ Handle form submission (POST)
@@ -57,6 +58,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/reports', [ReportController::class, 'index'])->name('admin.reports.index');
     Route::post('/admin/reports/export-selected', [ReportController::class, 'exportSelected'])->name('admin.reports.export-selected');
     Route::get('/admin/reports/applicants', [ReportController::class, 'applicants'])->name('admin.reports.applicants');
+    Route::post('/admin/reports/applicants/save', [ReportController::class, 'saveApplicants'])->name('admin.reports.applicants.save');
     Route::get('/admin/reports/monitoring', [ReportController::class, 'monitoring'])->name('admin.reports.monitoring');
     Route::post('/admin/reports/monitoring/save', [ReportController::class, 'saveMonitoring'])->name('admin.reports.monitoring.save');
     Route::get('/admin/reports/monitoring/download', [ReportController::class, 'downloadMonitoring'])
