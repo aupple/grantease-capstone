@@ -53,6 +53,16 @@
             Scholars
         </a>
 
+                <!-- Rejected -->
+        <a href="{{ route('admin.rejected.index') }}"
+   class="flex items-center gap-2 font-medium hover:bg-blue-700 p-2 rounded {{ request()->routeIs('admin.rejected.index') ? 'bg-blue-800' : '' }}">
+    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2"
+        viewBox="0 0 24 24">
+        <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Rejected
+</a>
+
         <!-- Reports -->
         <a href="{{ route('admin.reports.index') }}"
            class="flex items-center gap-2 font-medium hover:bg-blue-700 p-2 rounded {{ request()->routeIs('admin.reports.index') ? 'bg-blue-800' : '' }}">
