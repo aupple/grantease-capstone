@@ -19,7 +19,7 @@ Route::post('/register', [RegisteredUserController::class, 'store'])->name('regi
 Route::middleware(['auth'])->group(function () {
 
     // ✅ Applicant Routes
-    Route::get('/applicant/application', [ApplicationFormController::class, 'create'])->name('applicant.application.create');
+    Route::get('/applicant/application/{program}', [ApplicationFormController::class, 'create'])->name('applicant.application.create');
     Route::post('/applicant/application', [ApplicationFormController::class, 'store'])->name('applicant.application.store');
 
     Route::get('/applicant/dashboard', function () {

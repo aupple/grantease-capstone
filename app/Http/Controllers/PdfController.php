@@ -3,56 +3,74 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf; // Correct PDF facade
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\ApplicationForm;
+use App\Models\Evaluation;
 
 class PdfController extends Controller
 {
-    public function healthCertificate()
+ 
+   public function scoreSheet()
     {
-        return $this->generatePdf('applicant.pdf.health_certificate', 'health_certificate.pdf');
-    }
+        $userId = auth()->user()->user_id;
+        $applicant = ApplicationForm::with('user')->where('user_id', $userId)->firstOrFail();
+        $evaluation = Evaluation::where('application_form_id', $applicant->application_form_id)->first();
 
-    public function scoreSheet()
-    {
-        return $this->generatePdf('applicant.pdf.score_sheet', 'score_sheet.pdf');
+        $pdf = Pdf::loadView('applicant.pdf.score_sheet', compact('applicant', 'evaluation'));
+        return $pdf->download('Score_Sheet.pdf');
     }
 
     public function recommendationForm()
     {
-        return $this->generatePdf('applicant.pdf.recommendation_form', 'recommendation_form.pdf');
+        $userId = auth()->user()->user_id;
+        $applicant = ApplicationForm::with('user')->where('user_id', $userId)->firstOrFail();
+
+        $pdf = Pdf::loadView('applicant.pdf.recommendation_form', compact('applicant'));
+        return $pdf->download('Recommendation_Form.pdf');
     }
 
     public function researchPlans()
     {
-        return $this->generatePdf('applicant.pdf.research_plans', 'research_plans.pdf');
+        $userId = auth()->user()->user_id;
+        $applicant = ApplicationForm::with('user')->where('user_id', $userId)->firstOrFail();
+
+        $pdf = Pdf::loadView('applicant.pdf.research_plans', compact('applicant'));
+        return $pdf->download('Research_Plans.pdf');
     }
 
     public function careerPlans()
     {
-        return $this->generatePdf('applicant.pdf.career_plans', 'career_plans.pdf');
+        $userId = auth()->user()->user_id;
+        $applicant = ApplicationForm::with('user')->where('user_id', $userId)->firstOrFail();
+
+        $pdf = Pdf::loadView('applicant.pdf.career_plans', compact('applicant'));
+        return $pdf->download('Career_Plans.pdf');
     }
 
     public function certificationEmployment()
     {
-        return $this->generatePdf('applicant.pdf.certification_employment', 'certification_employment.pdf');
+        $userId = auth()->user()->user_id;
+        $applicant = ApplicationForm::with('user')->where('user_id', $userId)->firstOrFail();
+
+        $pdf = Pdf::loadView('applicant.pdf.certification_employment', compact('applicant'));
+        return $pdf->download('Certification_of_Employment.pdf');
     }
 
     public function certificationDepEd()
     {
-        return $this->generatePdf('applicant.pdf.certification_deped', 'certification_deped.pdf');
+        $userId = auth()->user()->user_id;
+        $applicant = ApplicationForm::with('user')->where('user_id', $userId)->firstOrFail();
+
+        $pdf = Pdf::loadView('applicant.pdf.certification_deped', compact('applicant'));
+        return $pdf->download('Certification_of_DepEd_Employment.pdf');
     }
 
     public function certificationHealthStatus()
     {
-        return $this->generatePdf('applicant.pdf.certification_health_status', 'certification_health_status.pdf');
-    }
+        $userId = auth()->user()->user_id;
+        $applicant = ApplicationForm::with('user')->where('user_id', $userId)->firstOrFail();
 
-    /**
-     * Helper method to generate a PDF.
-     */
-    private function generatePdf(string $view, string $filename)
-    {
-        $pdf = Pdf::loadView($view);
-        return $pdf->download($filename);
+        $pdf = Pdf::loadView('applicant.pdf.certification_health_status', compact('applicant'));
+        return $pdf->download('Certification_of_Health_Status.pdf');
     }
 }

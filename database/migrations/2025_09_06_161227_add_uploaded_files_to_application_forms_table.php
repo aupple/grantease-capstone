@@ -12,9 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('application_forms', function (Blueprint $table) {
-    $table->timestamp('submitted_at')->nullable()->after('reason');
-});
-
+            //
+        });
     }
 
     /**

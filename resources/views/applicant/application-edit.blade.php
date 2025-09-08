@@ -6,9 +6,10 @@
     <div class="py-10 bg-gray-50 min-h-screen">
         <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white p-8 rounded-xl shadow-lg">
-                <form method="POST" action="{{ route('applicant.application.update', ['id' => $application->id]) }}">
-                    @csrf
-                    @method('PATCH')
+                <form method="POST" action="{{ route('applicant.application.update', ['id' => $application->application_form_id]) }}" enctype="multipart/form-data">
+    @csrf
+    @method('PATCH')
+
 
                     <!-- Program (Read-only) -->
                     <div class="mb-5">

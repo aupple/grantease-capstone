@@ -7,8 +7,11 @@
 
     <div class="py-6">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <form method="POST" action="{{ route('applicant.application.store') }}" class="bg-white p-6 rounded shadow">
-                @csrf
+            <form method="POST" action="{{ route('applicant.application.store') }}" enctype="multipart/form-data" 
+      class="bg-white p-6 rounded shadow">
+    @csrf
+    <input type="hidden" name="program" value="{{ $program }}">
+
             <!-- Beautiful Circular Step Indicators -->
             <div class="flex justify-between items-center mb-8 relative">
                 <!-- Progress Bar Background -->
@@ -16,6 +19,12 @@
                     <!-- Progress Bar -->
                     <div id="progress-bar" class="h-full bg-blue-600 transition-all duration-500 ease-in-out" style="width: 0%;"></div>
                 </div>
+                @if(session('success'))
+    <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
+         class="mb-4 p-4 bg-green-100 text-green-800 border border-green-200 rounded-md">
+        {{ session('success') }}
+    </div>
+@endif
 
                 <!-- Step 1 -->
                 <div class="step-indicator active flex flex-col items-center z-10" onclick="goToStep(1)" data-step="1">
