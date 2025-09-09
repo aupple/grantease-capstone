@@ -13,19 +13,11 @@ use Illuminate\Support\Str;
 
 class AdminController extends Controller
 {
-    // ✅ Admin Dashboard
-   public function dashboard()
-{
-    $total_applicants = ApplicationForm::count();
-    $pending = ApplicationForm::where('status', 'pending')->count();
-    $approved = ApplicationForm::where('status', 'approved')->count();
-    $rejected = ApplicationForm::where('status', 'rejected')->count();
-
-    $rawStatuses = Scholar::select('status', DB::raw('count(*) as total'))
-        ->groupBy('status')
-        ->pluck('total', 'status');
-
-    $statusMap = [
+    /**
+     * Scholar status map (labels + optional codes if needed)
+     * Keys should match values stored in scholars.status
+     */
+    protected $scholarStatusMap = [
         'qualifiers' => ['label' => 'Qualifiers', 'code' => '1'],
         'not_availing' => ['label' => 'Not Availing', 'code' => '2'],
         'deferred' => ['label' => 'Deferred', 'code' => '3'],
@@ -43,72 +35,106 @@ class AdminController extends Controller
         'withdrawn' => ['label' => 'Withdrew', 'code' => '9'],
     ];
 
-    $scholarStatuses = collect($statusMap)->mapWithKeys(function ($info, $key) use ($rawStatuses) {
-        return [$info['label'] => $rawStatuses[$key] ?? 0];
-    });
+    /**
+     * Admin Dashboard
+     */
+    public function dashboard()
+    {
+        $total_applicants = ApplicationForm::count();
+        $pending = ApplicationForm::where('status', 'pending')->count();
+        $document_verification = ApplicationForm::where('status', 'document_verification')->count();
+        $for_interview = ApplicationForm::where('status', 'for_interview')->count();
+        $approved = ApplicationForm::where('status', 'approved')->count();
+        $rejected = ApplicationForm::where('status', 'rejected')->count();
 
-    return view('admin.dashboard', compact(
-        'total_applicants',
-        'pending',
-        'approved',
-        'rejected',
-        'scholarStatuses'
-    ));
-}
+        $recent_applicants = ApplicationForm::latest()->take(10)->get();
 
+        $rawStatuses = Scholar::select('status', DB::raw('count(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status');
 
+        $scholarStatuses = collect($this->scholarStatusMap)->mapWithKeys(function ($info, $key) use ($rawStatuses) {
+            return [$info['label'] => $rawStatuses[$key] ?? 0];
+        });
 
-public function viewApplications(Request $request)
-{
-    $status = $request->query('status');
-    $search = $request->query('search');
+        return view('admin.dashboard', compact(
+            'total_applicants',
+            'pending',
+            'document_verification',
+            'for_interview',
+            'approved',
+            'rejected',
+            'recent_applicants',
+            'scholarStatuses'
+        ));
+    }
 
-    $applications = ApplicationForm::with('user')
-        ->when($status, fn($query) => $query->where('status', $status))
-        ->when($search, function ($query, $search) {
-            $search = Str::lower($search);
-            $query->whereHas('user', function ($userQuery) use ($search) {
-                $userQuery->whereRaw('LOWER(first_name) LIKE ?', [$search . '%']);
-            });
-        })
-        ->latest()
-        ->paginate(10);
+    /**
+     * View / list applications
+     */
+    public function viewApplications(Request $request)
+    {
+        $status = $request->query('status');
+        $search = $request->query('search');
 
-    return view('admin.applications.index', compact('applications', 'status', 'search'));
-}
+        $applications = ApplicationForm::with('user')
+            ->when($status, fn($q) => $q->where('status', $status))
+            ->when($search, function ($query, $search) {
+                $search = Str::lower($search);
+                $query->whereHas('user', function ($userQuery) use ($search) {
+                    $userQuery->whereRaw('LOWER(first_name) LIKE ?', ["%{$search}%"])
+                        ->orWhereRaw('LOWER(last_name) LIKE ?', ["%{$search}%"])
+                        ->orWhereRaw('LOWER(email) LIKE ?', ["%{$search}%"]);
+                });
+            })
+            ->latest()
+            ->paginate(10);
 
+        return view('admin.applications.index', compact('applications', 'status', 'search'));
+    }
 
-    // ✅ View a specific application
+    /**
+     * View a specific application
+     */
     public function showApplication($id)
     {
         $application = ApplicationForm::with('user')->findOrFail($id);
         return view('admin.applications.show', compact('application'));
     }
 
-    // ✅ Approve application
+    /**
+     * Approve application
+     */
     public function approveApplication($id)
     {
         $application = ApplicationForm::with('user')->findOrFail($id);
+
         $application->status = 'approved';
         $application->remarks = null;
         $application->save();
 
-        // 🔁 Create scholar record if not exists
-        if (!Scholar::where('application_form_id', $application->application_form_id)->exists()) {
-            Scholar::create([
+        // ✅ FIX: use $application->id instead of $application->application_form_id
+        Scholar::firstOrCreate(
+            ['application_form_id' => $application->id],
+            [
                 'user_id' => $application->user_id,
-                'application_form_id' => $application->application_form_id,
                 'status' => 'good_standing',
                 'start_date' => now(),
-            ]);
-        }
+            ]
+        );
 
-        Mail::to($application->user->email)->send(new ApplicationStatusMail('approved'));
+        try {
+            Mail::to($application->user->email)->send(new ApplicationStatusMail('approved'));
+        } catch (\Throwable $e) {
+            // log error if needed
+        }
 
         return redirect()->route('admin.applications')->with('success', 'Application approved.');
     }
 
-    // ✅ Reject application
+    /**
+     * Reject application
+     */
     public function rejectApplication(Request $request, $id)
     {
         $request->validate([
@@ -120,12 +146,18 @@ public function viewApplications(Request $request)
         $application->remarks = $request->remarks;
         $application->save();
 
-        Mail::to($application->user->email)->send(new ApplicationStatusMail('rejected', $request->remarks));
+        try {
+            Mail::to($application->user->email)->send(new ApplicationStatusMail('rejected', $request->remarks));
+        } catch (\Throwable $e) {
+            // log if needed
+        }
 
         return redirect()->route('admin.applications')->with('success', 'Application rejected.');
     }
 
-    // ✅ Update status with optional remarks
+    /**
+     * Update status with optional remarks
+     */
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
@@ -138,76 +170,66 @@ public function viewApplications(Request $request)
         $application->remarks = $request->remarks;
         $application->save();
 
-        Mail::to($application->user->email)->send(new ApplicationStatusMail($request->status, $request->remarks));
+        try {
+            Mail::to($application->user->email)->send(new ApplicationStatusMail($request->status, $request->remarks));
+        } catch (\Throwable $e) {
+            // log if needed
+        }
 
         return redirect()->route('admin.applications.show', $id)
             ->with('success', 'Application status updated successfully!');
     }
 
-    // ✅ Reports Summary View
- public function reportSummary(Request $request)
-{
-    $total_applicants = ApplicationForm::count();
-    $pending = ApplicationForm::where('status', 'pending')->count();
-    $document_verification = ApplicationForm::where('status', 'document_verification')->count();
-    $for_interview = ApplicationForm::where('status', 'for_interview')->count();
-    $approved = ApplicationForm::where('status', 'approved')->count();
-    $rejected = ApplicationForm::where('status', 'rejected')->count();
+    /**
+     * Reports Summary
+     */
+    public function reportSummary(Request $request)
+    {
+        $total_applicants = ApplicationForm::count();
+        $pending = ApplicationForm::where('status', 'pending')->count();
+        $document_verification = ApplicationForm::where('status', 'document_verification')->count();
+        $for_interview = ApplicationForm::where('status', 'for_interview')->count();
+        $approved = ApplicationForm::where('status', 'approved')->count();
+        $rejected = ApplicationForm::where('status', 'rejected')->count();
 
-    $statusFilter = $request->query('status');
+        $statusFilter = $request->query('status');
 
-    $query = Scholar::with(['user', 'applicationForm'])
-        ->whereHas('applicationForm', function ($q) {
-            $q->where('status', 'approved');
+        $query = Scholar::with(['user', 'applicationForm'])
+            ->whereHas('applicationForm', function ($q) {
+                $q->where('status', 'approved');
+            });
+
+        if ($statusFilter) {
+            $query->where('status', $statusFilter);
+        }
+
+        $scholars = $query->latest()->paginate(10);
+
+        $rawStatuses = Scholar::select('status', DB::raw('count(*) as total'))
+            ->whereHas('applicationForm', fn($q) => $q->where('status', 'approved'))
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $scholarStatuses = collect($this->scholarStatusMap)->mapWithKeys(function ($info, $key) use ($rawStatuses) {
+            return [$info['label'] => $rawStatuses[$key] ?? 0];
         });
 
-    if ($statusFilter) {
-        $query->where('status', $statusFilter);
+        return view('admin.reports.index', compact(
+            'total_applicants',
+            'pending',
+            'document_verification',
+            'for_interview',
+            'approved',
+            'rejected',
+            'scholars',
+            'statusFilter',
+            'scholarStatuses'
+        ));
     }
 
-    $scholars = $query->latest()->paginate(10);
-
-    $rawStatuses = Scholar::select('status', DB::raw('count(*) as total'))
-        ->whereHas('applicationForm', fn($q) => $q->where('status', 'approved'))
-        ->groupBy('status')
-        ->pluck('total', 'status');
-
-    $statusMap = [
-        'qualifiers' => ['label' => 'Qualifiers', 'code' => '1'],
-        'not_availing' => ['label' => 'Not Availing', 'code' => '2'],
-        'deferred' => ['label' => 'Deferred', 'code' => '3'],
-        'graduated_on_time' => ['label' => 'Graduated on Time', 'code' => '4a'],
-        'graduated_ext' => ['label' => 'Graduated with Extension', 'code' => '4b'],
-        'on_ext_complete_fa' => ['label' => 'On Ext - Complete FA', 'code' => '5a'],
-        'on_ext_with_fa' => ['label' => 'On Ext - With FA', 'code' => '5b'],
-        'on_ext_for_monitoring' => ['label' => 'On Ext - For Monitoring', 'code' => '5c'],
-        'gs_on_track' => ['label' => 'GS - On Track', 'code' => '6a'],
-        'leave_of_absence' => ['label' => 'Leave of Absence', 'code' => '6b'],
-        'suspended' => ['label' => 'Suspended', 'code' => '6c'],
-        'no_report' => ['label' => 'No Report', 'code' => '6d'],
-        'non_compliance' => ['label' => 'Non-Compliance', 'code' => '7'],
-        'terminated' => ['label' => 'Terminated', 'code' => '8'],
-        'withdrawn' => ['label' => 'Withdrew', 'code' => '9'],
-    ];
-
-    $scholarStatuses = collect($statusMap)->mapWithKeys(function ($info, $key) use ($rawStatuses) {
-        return [$info['label'] => $rawStatuses[$key] ?? 0];
-    });
-
-    return view('admin.reports.index', compact(
-        'total_applicants',
-        'pending',
-        'document_verification',
-        'for_interview',
-        'approved',
-        'rejected',
-        'scholars',
-        'statusFilter',
-        'scholarStatuses'
-    ));
-}
-
-    // ✅ PDF Report Download
+    /**
+     * PDF Report Download
+     */
     public function downloadReportPdf()
     {
         $data = [
@@ -223,7 +245,34 @@ public function viewApplications(Request $request)
         return $pdf->download('application-report.pdf');
     }
 
-    // ✅ View approved scholars using scholars table
+       /**
+     * Rejected Applications
+     */
+    public function rejectedApplications()
+    {
+        $rejectedApplications = ApplicationForm::where('status', 'rejected')
+            ->with('user')
+            ->latest()
+            ->paginate(10);
+
+        return view('admin.rejected.index', compact('rejectedApplications'));
+    }
+
+    /**
+     * Show details of a single rejected application
+     */
+    public function showRejected($id)
+    {
+        $application = ApplicationForm::where('status', 'rejected')
+            ->with('user')
+            ->findOrFail($id);
+
+        return view('admin.rejected.show', compact('application'));
+    }
+
+    /**
+     * View approved scholars
+     */
     public function viewScholars()
     {
         $scholars = Scholar::with(['user', 'applicationForm'])

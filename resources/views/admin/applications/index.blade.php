@@ -12,15 +12,10 @@
     <!-- 🔍 Search + Filter -->
     <div class="flex flex-wrap gap-4 items-center justify-between bg-white/20 backdrop-blur-xl border border-white/20 shadow-md rounded-xl px-4 py-3">
         <form method="GET" action="{{ route('admin.applications') }}" class="flex items-center gap-2">
-            <div class="relative">
-                <input type="text"
-                    name="search"
-                    placeholder="Search applicants..."
-                    value="{{ request('search') }}"
-                    class="bg-white/10 backdrop-blur-md border border-white/20 text-sm rounded-md px-3 py-2 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300 transition" />
-            </div>
-            @if (request('status'))
-                <input type="hidden" name="status" value="{{ request('status') }}">
+            <input type="text" name="search" placeholder="Search applicants..." value="{{ $search }}"
+                class="bg-white/10 backdrop-blur-md border border-white/20 text-sm rounded-md px-3 py-2 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300 transition" />
+            @if($status)
+                <input type="hidden" name="status" value="{{ $status }}">
             @endif
             <button type="submit"
                 class="bg-blue-900 backdrop-blur-md text-white px-4 py-2 text-sm rounded-md shadow-md hover:bg-blue-600/80 transition font-semibold">
@@ -29,15 +24,15 @@
         </form>
 
         <form method="GET" action="{{ route('admin.applications') }}" class="flex items-center gap-2">
-            @if (request('search'))
-                <input type="hidden" name="search" value="{{ request('search') }}">
+            @if($search)
+                <input type="hidden" name="search" value="{{ $search }}">
             @endif
             <label for="status" class="font-semibold text-sm text-gray-700">Filter:</label>
             <select name="status" id="status" onchange="this.form.submit()"
                 class="bg-white/10 backdrop-blur-md border border-white/20 rounded-md text-sm px-3 py-2 shadow-sm focus:ring-2 focus:ring-blue-300 focus:outline-none transition text-gray-800">
-                <option value="" {{ is_null(request('status')) ? 'selected' : '' }}>All</option>
-                @foreach(['pending', 'approved', 'rejected'] as $s)
-                    <option value="{{ $s }}" {{ request('status') === $s ? 'selected' : '' }}>
+                <option value="" {{ is_null($status) ? 'selected' : '' }}>All</option>
+                @foreach(['pending', 'document_verification', 'for_interview', 'approved', 'rejected'] as $s)
+                    <option value="{{ $s }}" {{ $status === $s ? 'selected' : '' }}>
                         {{ ucfirst(str_replace('_', ' ', $s)) }}
                     </option>
                 @endforeach
@@ -69,17 +64,17 @@
                         </td>
                         <td class="p-3">
                             <div class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
-                                {{ $app->program }}
+                                {{ $app->program ?? '-'}}
                             </div>
                         </td>
                         <td class="p-3">
                             <div class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
-                                {{ $app->school }}
+                                {{ $app->bs_university ?? $app->grad_university ?? '-' }}
                             </div>
                         </td>
                         <td class="p-3">
                             <div class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
-                                {{ $app->year_level }}
+                               {{ $app->academic_year ?? '-' }}
                             </div>
                         </td>
                         <td class="p-3">
@@ -96,7 +91,7 @@
                         </td>
                         <td class="p-3">
                             <div class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
-                                {{ $app->submitted_at ?? $app->created_at->format('M d, Y') }}
+                               {{ $app->submitted_at ?? $app->created_at->format('M d, Y') }}
                             </div>
                         </td>
                         <td class="p-3">

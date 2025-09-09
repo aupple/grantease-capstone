@@ -14,9 +14,10 @@
       <!-- ✅ Sidebar -->
 <aside class="w-64 bg-white shadow-md hidden md:block">
     <!-- GrantEase Admin Logo Box -->
-    <div class="bg-[#0a1f44] text-white border-b border-[#081a38] px-6 py-3 flex items-center justify-center text-2xl font-bold">
-        GrantEase 
-    </div>
+   <div class="bg-gray-50 px-1 py-1 flex items-center justify-center h-20 border-b border-gray-200">
+    <img src="{{ asset('images/logo.png') }}" alt="GrantEase Logo" class="max-h-full max-w-full object-contain">
+</div>
+
 
     <!-- Sidebar Navigation -->
     <nav class="p-6 space-y-4 text-sm bg-[#0a1f44] text-white h-full">
@@ -52,6 +53,16 @@
             Scholars
         </a>
 
+                <!-- Rejected -->
+        <a href="{{ route('admin.rejected.index') }}"
+   class="flex items-center gap-2 font-medium hover:bg-blue-700 p-2 rounded {{ request()->routeIs('admin.rejected.index') ? 'bg-blue-800' : '' }}">
+    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2"
+        viewBox="0 0 24 24">
+        <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Rejected
+</a>
+
         <!-- Reports -->
         <a href="{{ route('admin.reports.index') }}"
            class="flex items-center gap-2 font-medium hover:bg-blue-700 p-2 rounded {{ request()->routeIs('admin.reports.index') ? 'bg-blue-800' : '' }}">
@@ -86,10 +97,8 @@
         <main class="flex-1">
 
             <!-- ✅ Top Navbar with Profile Dropdown -->
-            <header class="bg-white shadow px-4 py-3 flex justify-between items-center">
-                <div class="text-lg font-bold text-gray-700">
-                    Admin Panel
-                </div>
+            <header class="bg-[#ffbf00] text-white shadow px-4 py-3 flex justify-between items-center">
+                <div class="text-lg font-bold text-gray-700">Admin Panel</div>
 
                 <div class="relative">
                     <button onclick="toggleDropdown()" class="flex items-center space-x-2 focus:outline-none">
@@ -99,11 +108,11 @@
 
 
                     <!-- ✅ Dropdown -->
-                    <div id="dropdown" class="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg hidden">
-                        <a href="{{ route('admin.profile.edit') }}" class="block px-4 py-2 text-sm hover:bg-gray-100">Edit Profile</a>
+                    <div id="dropdown" class="absolute right-0 mt-2 w-48 bg-gray-400 border rounded shadow-lg hidden">
+                        <a href="{{ route('admin.profile.edit') }}" class="block px-4 py-2 text-sm hover:bg-gray-500">Edit Profile</a>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100">Logout</button>
+                            <button type="submit" class="w-full text-left px-4 py-2 text-sm hover:bg-gray-600">Logout</button>
                         </form>
                     </div>
                 </div>
