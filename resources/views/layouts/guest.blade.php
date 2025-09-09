@@ -15,33 +15,26 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans text-gray-900 antialiased">
-    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-cover bg-center bg-no-repeat" style="background-image: url('/images/school.jpg');">
+    <div class="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat" 
+         style="background-image: url('/images/school.jpg');">
 
-        <!-- GLASSMORPHISM WRAPPER -->
-        <div class="bg-gray-200/50 backdrop-blur-sm rounded-xl shadow-lg px-8 py-6 w-full sm:max-w-xl text-center">
+        <!-- GLASSMORPHISM BOX -->
+        <div class="w-full max-w-md bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-10 text-center border border-white/20">
+            
+            <!-- Dynamic Header -->
+            @if (request()->routeIs('login'))
+                <h1 class="text-4xl font-bold text-white drop-shadow-md">Welcome Back!</h1>
+            @elseif (request()->routeIs('register'))
+                <h1 class="text-4xl font-bold text-white drop-shadow-md">Create an account</h1>
+            @endif
 
-            <!-- Logo and Branding -->
-            <div class="mb-4">
-                <img src="{{ asset('images/logo.png') }}" alt="GrantEase Logo" class="mx-auto w-[450px]">
-                <p class="text-sm font-semibold text-black mt-1">Scholarship Management System</p>
-
-                <div class="mt-3">
-                    @if (request()->routeIs('register'))
-                        <h1 class="text-2xl font-bold text-blue-800">Create an account</h1>
-                        <p class="text-sm text-black mt-1">Start your scholarship journey today</p>
-                    @else
-                        <h1 class="text-2xl font-bold text-black">Sign in to your account</h1>
-                        <p class="text-sm font-semibold text-black mt-1">Access your scholarship</p>
-                    @endif
-                </div>
-            </div>
+            <p class="mt-2 text-white/90">Scholarship Management System</p>
 
             <!-- Form Slot -->
-            <div class="w-full sm:max-w-md mx-auto mt-4 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
+            <div class="mt-8 text-left">
                 {{ $slot }}
             </div>
         </div>
     </div>
 </body>
-
 </html>
