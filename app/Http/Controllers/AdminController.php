@@ -245,6 +245,31 @@ class AdminController extends Controller
         return $pdf->download('application-report.pdf');
     }
 
+       /**
+     * Rejected Applications
+     */
+    public function rejectedApplications()
+    {
+        $rejectedApplications = ApplicationForm::where('status', 'rejected')
+            ->with('user')
+            ->latest()
+            ->paginate(10);
+
+        return view('admin.rejected.index', compact('rejectedApplications'));
+    }
+
+    /**
+     * Show details of a single rejected application
+     */
+    public function showRejected($id)
+    {
+        $application = ApplicationForm::where('status', 'rejected')
+            ->with('user')
+            ->findOrFail($id);
+
+        return view('admin.rejected.show', compact('application'));
+    }
+
     /**
      * View approved scholars
      */

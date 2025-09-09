@@ -9,7 +9,6 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\PdfController;
 
-
 Route::redirect('/', '/login');
 
 // ✅ Handle form submission (POST)
@@ -18,68 +17,20 @@ Route::post('/register', [RegisteredUserController::class, 'store'])->name('regi
 // Protected routes
 Route::middleware(['auth'])->group(function () {
 
-    // ✅ Applicant Routes
-    Route::get('/applicant/application/{program}', [ApplicationFormController::class, 'create'])->name('applicant.application.create');
-    Route::post('/applicant/application', [ApplicationFormController::class, 'store'])->name('applicant.application.store');
-
-    Route::get('/applicant/dashboard', function () {
-        return view('applicant.dashboard');
-    })->name('applicant.dashboard');
-
-    Route::get('/applicant/my-application', [ApplicationFormController::class, 'viewMyApplication'])->name('applicant.application.view');
-    Route::get('/applicant/application/{id}/edit', [ApplicationFormController::class, 'edit'])->name('applicant.application.edit');
-    Route::patch('/applicant/application/{id}', [ApplicationFormController::class, 'update'])->name('applicant.application.update');
-
-    // ✅ Smarter role-based redirect
-    Route::get('/dashboard', function () {
-        $role = auth()->user()->role_id;
-
-        if ($role == 1) {
-            return redirect()->route('admin.dashboard');
-        } elseif ($role == 2) {
-            return redirect()->route('applicant.dashboard');
-        }
-
-        abort(403); // Unknown or unauthorized role
-    })->name('dashboard');
-
-    // Admin Dashboard
-    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-
-    // Admin Application Management
-    Route::get('/admin/applications', [AdminController::class, 'viewApplications'])->name('admin.applications');
-    Route::get('/admin/applications/{id}', [AdminController::class, 'showApplication'])->name('admin.applications.show');
-    Route::post('/admin/applications/{id}/approve', [AdminController::class, 'approveApplication'])->name('admin.applications.approve');
-    Route::post('/admin/applications/{id}/reject', [AdminController::class, 'rejectApplication'])->name('admin.applications.reject');
-    Route::post('/admin/applications/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.applications.update-status');
-    Route::get('/admin/reports/pdf', [AdminController::class, 'downloadReportPdf'])->name('admin.reports.pdf');
-
-    // Admin Reports & Scholars
-    Route::get('/admin/reports', [ReportController::class, 'index'])->name('admin.reports.index');
-    Route::post('/admin/reports/export-selected', [ReportController::class, 'exportSelected'])->name('admin.reports.export-selected');
-    Route::get('/admin/reports/applicants', [ReportController::class, 'applicants'])->name('admin.reports.applicants');
-    Route::post('/admin/reports/applicants/save', [ReportController::class, 'saveApplicants'])->name('admin.reports.applicants.save');
-    Route::get('/admin/reports/monitoring', [ReportController::class, 'monitoring'])->name('admin.reports.monitoring');
-    Route::post('/admin/reports/monitoring/save', [ReportController::class, 'saveMonitoring'])->name('admin.reports.monitoring.save');
-    Route::get('/admin/reports/monitoring/download', [ReportController::class, 'downloadMonitoring'])
-        ->name('admin.reports.monitoring.download');
-
-    // Scholars list (from AdminController)
-    Route::get('/admin/scholars', [AdminController::class, 'viewScholars'])->name('admin.scholars');
-
-    // Profile Management for applicants
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    // Profile Management for admin
-    Route::prefix('admin')->name('admin.')->group(function () {
-        Route::get('/profile/edit', [AdminProfileController::class, 'edit'])->name('profile.edit');
-        Route::put('/profile/update', [AdminProfileController::class, 'update'])->name('profile.update');
-    });
-
-    // ✅ Applicant PDF Routes
+    /**
+     * =======================
+     * Applicant Routes
+     * =======================
+     */
     Route::prefix('applicant')->name('applicant.')->group(function () {
+        Route::get('/application/{program}', [ApplicationFormController::class, 'create'])->name('application.create');
+        Route::post('/application', [ApplicationFormController::class, 'store'])->name('application.store');
+        Route::get('/dashboard', fn () => view('applicant.dashboard'))->name('dashboard');
+        Route::get('/my-application', [ApplicationFormController::class, 'viewMyApplication'])->name('application.view');
+        Route::get('/application/{id}/edit', [ApplicationFormController::class, 'edit'])->name('application.edit');
+        Route::patch('/application/{id}', [ApplicationFormController::class, 'update'])->name('application.update');
+
+        // Applicant PDF Routes
         Route::prefix('pdf')->name('pdf.')->group(function () {
             Route::get('/health-certificate', [PdfController::class, 'healthCertificate'])->name('health_certificate');
             Route::get('/score-sheet', [PdfController::class, 'scoreSheet'])->name('score_sheet');
@@ -92,6 +43,73 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
+    /**
+     * =======================
+     * Role-based redirect
+     * =======================
+     */
+    Route::get('/dashboard', function () {
+        $role = auth()->user()->role_id;
+
+        if ($role == 1) {
+            return redirect()->route('admin.dashboard');
+        } elseif ($role == 2) {
+            return redirect()->route('applicant.dashboard');
+        }
+
+        abort(403); // Unknown or unauthorized role
+    })->name('dashboard');
+
+    /**
+     * =======================
+     * Admin Routes
+     * =======================
+     */
+    Route::prefix('admin')->name('admin.')->group(function () {
+
+        // Dashboard
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+
+        // Applications
+        Route::get('/applications', [AdminController::class, 'viewApplications'])->name('applications');
+        Route::get('/applications/{id}', [AdminController::class, 'showApplication'])->name('applications.show');
+        Route::post('/applications/{id}/approve', [AdminController::class, 'approveApplication'])->name('applications.approve');
+        Route::post('/applications/{id}/reject', [AdminController::class, 'rejectApplication'])->name('applications.reject');
+        Route::post('/applications/{id}/status', [AdminController::class, 'updateStatus'])->name('applications.update-status');
+
+        // ✅ Rejected Applications
+        Route::prefix('rejected')->name('rejected.')->group(function () {
+            Route::get('/', [AdminController::class, 'rejectedApplications'])->name('index');
+            Route::get('/{id}', [AdminController::class, 'showRejected'])->name('show');
+     });
+
+         // Reports
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/pdf', [AdminController::class, 'downloadReportPdf'])->name('reports.pdf');
+        Route::post('/reports/export-selected', [ReportController::class, 'exportSelected'])->name('reports.export-selected');
+        Route::get('/reports/applicants', [ReportController::class, 'applicants'])->name('reports.applicants');
+        Route::post('/reports/applicants/save', [ReportController::class, 'saveApplicants'])->name('reports.applicants.save');
+        Route::get('/reports/monitoring', [ReportController::class, 'monitoring'])->name('reports.monitoring');
+        Route::post('/reports/monitoring/save', [ReportController::class, 'saveMonitoring'])->name('reports.monitoring.save');
+        Route::get('/reports/monitoring/download', [ReportController::class, 'downloadMonitoring'])->name('reports.monitoring.download');
+
+        // Scholars
+        Route::get('/scholars', [AdminController::class, 'viewScholars'])->name('scholars');
+
+        // Admin Profile
+        Route::get('/profile/edit', [AdminProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile/update', [AdminProfileController::class, 'update'])->name('profile.update');
+    });
+
+    /**
+     * =======================
+     * Profile Management for Applicants
+     * =======================
+     */
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
 // Breeze auth routes
 require __DIR__ . '/auth.php';
