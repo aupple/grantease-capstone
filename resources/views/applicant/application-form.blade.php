@@ -131,113 +131,150 @@
     </div>
 </div>
             <!-- Step 2: Personal Information -->
-                <div class="step bg-white p-6 rounded-lg shadow-sm hidden" id="step2">
-                    <h3 class="text-xl font-bold mb-4 border-b pb-2">Form 1. Information Sheet</h3>
-                    <h4 class="text-lg font-semibold mb-4">I. PERSONAL INFORMATION</h4>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        <div>
-                            <label for="last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
-                            <input type="text" name="last_name" id="last_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-                        </div>
-                        <div>
-                            <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>
-                            <input type="text" name="first_name" id="first_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-                        </div>
-                        <div>
-                            <label for="middle_name" class="block text-sm font-medium text-gray-700">Middle Name</label>
-                            <input type="text" name="middle_name" id="middle_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                        </div>
-                    </div>
+<div class="step bg-white p-6 rounded-lg shadow-sm hidden" id="step2">
+    <h3 class="text-xl font-bold mb-4 border-b pb-2">Form 1. Information Sheet</h3>
+    <h4 class="text-lg font-semibold mb-4">I. PERSONAL INFORMATION</h4>
+    
+    <!-- Name Fields -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div>
+            <label for="last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
+            <input type="text" name="last_name" id="last_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
+        </div>
+        <div>
+            <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>
+            <input type="text" name="first_name" id="first_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
+        </div>
+        <div>
+            <label for="middle_name" class="block text-sm font-medium text-gray-700">Middle Name</label>
+            <input type="text" name="middle_name" id="middle_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+        </div>
+    </div>
 
-                    <div class="mb-4">
-                        <label for="permanent_address" class="block text-sm font-medium text-gray-700">Permanent Address</label>
-                        <input type="text" name="permanent_address_no" id="permanent_address_no" placeholder="No." class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm mb-2" required>
-                        <input type="text" name="permanent_address_street" id="permanent_address_street" placeholder="Street" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm mb-2" required>
-                        <input type="text" name="permanent_address_barangay" id="permanent_address_barangay" placeholder="Barangay" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm mb-2" required>
-                        <input type="text" name="permanent_address_city" id="permanent_address_city" placeholder="City/Municipality" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm mb-2" required>
-                        <input type="text" name="permanent_address_province" id="permanent_address_province" placeholder="Province" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-                    </div>
+    <!-- Address Fields -->
+    <div class="mb-4">
+        <!-- Province -->
+        <div class="mb-4">
+    <label for="province_select" class="block text-sm font-medium text-gray-700">Province</label>
+    <select id="province_select" name="province" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+        <option value="">Select Province</option>
+    </select>
+</div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                        <div>
-                            <label for="zip_code" class="block text-sm font-medium text-gray-700">Zip Code</label>
-                            <input type="text" name="zip_code" id="zip_code" class="numeric-only mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-                        </div>
-                        <div>
-                            <label for="region" class="block text-sm font-medium text-gray-700">Region</label>
-                            <input type="text" name="region" id="region" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-                        </div>
-                        <div>
-                            <label for="district" class="block text-sm font-medium text-gray-700">District</label>
-                            <input type="text" name="district" id="district" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                        </div>
-                        <div>
-                            <label for="passport_no" class="block text-sm font-medium text-gray-700">Passport No.</label>
-                            <input type="text" name="passport_no" id="passport_no" class="numeric-only mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                        </div>
-                    </div>
+<div class="mb-4">
+    <label for="city_select" class="block text-sm font-medium text-gray-700">City / Municipality</label>
+    <select id="city_select" name="city" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+        <option value="">Select City / Municipality</option>
+    </select>
+</div>
 
-                    <div class="mb-4">
-                        <label for="email_address" class="block text-sm font-medium text-gray-700">E-mail Address</label>
-                        <input type="email" name="email_address" id="email_address" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-                    </div>
+<div class="mb-4">
+    <label for="barangay_select" class="block text-sm font-medium text-gray-700">Barangay</label>
+    <select id="barangay_select" name="barangay" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+        <option value="">Select Barangay</option>
+    </select>
+</div>
 
-                    <div class="mb-4">
-                        <label for="current_mailing_address" class="block text-sm font-medium text-gray-700">Current Mailing Address</label>
-                        <input type="text" name="current_mailing_address" id="current_mailing_address" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-                    </div>
+        <!-- Street & House No. -->
+        <label for="permanent_address_street" class="block text-sm font-medium text-gray-700 mt-2">Street</label>
+        <input type="text" name="permanent_address_street" id="permanent_address_street" placeholder="Street" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm mb-2" required>
 
-                    <div class="mb-4">
-                        <label for="telephone_nos" class="block text-sm font-medium text-gray-700">Telephone Nos. (Landline/Mobile)</label>
-                        <input type="text" name="telephone_nos" id="telephone_nos" class="numeric-only mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-                    </div>
+        <label for="permanent_address_no" class="block text-sm font-medium text-gray-700">House No.</label>
+        <input type="text" name="permanent_address_no" id="permanent_address_no" placeholder="No." class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
+    </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                        <div>
-                            <label for="civil_status" class="block text-sm font-medium text-gray-700">Civil Status</label>
-                            <select name="civil_status" id="civil_status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-                                <option value="">Select</option>
-                                <option value="Single">Single</option>
-                                <option value="Married">Married</option>
-                                <option value="Widowed">Widowed</option>
-                                <option value="Divorced">Divorced</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="date_of_birth" class="block text-sm font-medium text-gray-700">Date of Birth</label>
-                            <input type="date" name="date_of_birth" id="date_of_birth" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-                        </div>
-                        <div>
-                            <label for="age" class="block text-sm font-medium text-gray-700">Age</label>
-                            <input type="text" name="age" id="age" class="numeric-only mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm bg-gray-100" readonly required>
-                        </div>
-                        <div>
-                            <label for="sex" class="block text-sm font-medium text-gray-700">Sex</label>
-                            <select name="sex" id="sex" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-                                <option value="">Select</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                            </select>
-                        </div>
-                    </div>
+    <!-- Region, District, Zip, Passport -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+        <div>
+        <label for="region_select" class="block text-sm font-medium text-gray-700">Region</label>
+        <select id="region_select" name="region" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
+            <option value="">Select Region</option>
+        </select>
+    </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <div>
-                            <label for="father_name" class="block text-sm font-medium text-gray-700">Father's Name</label>
-                            <input type="text" name="father_name" id="father_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-                        </div>
-                        <div>
-                            <label for="mother_name" class="block text-sm font-medium text-gray-700">Mother's Name</label>
-                            <input type="text" name="mother_name" id="mother_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-                        </div>
-                    </div>
+    <div>
+        <label for="district_select" class="block text-sm font-medium text-gray-700">District</label>
+        <select id="district_select" name="district" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" disabled>
+            <option value="">Select District</option>
+        </select>
+    </div>
 
-                    <div class="flex justify-between mt-8">
-                        <button type="button" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400" onclick="prevStep(1)">Back</button>
-                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="validateAndNext(2)">Next: Education</button>
-                    </div>
-                </div>
+    <div>
+        <label for="zip_code" class="block text-sm font-medium text-gray-700">Zip Code</label>
+        <input type="text" name="zip_code" id="zip_code" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" readonly>
+    </div>
+        <div>
+            <label for="passport_no" class="block text-sm font-medium text-gray-700">Passport No.</label>
+            <input type="text" name="passport_no" id="passport_no" class="numeric-only mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+        </div>
+    </div>
+
+    <!-- Email & Mailing Address -->
+    <div class="mb-4">
+        <label for="email_address" class="block text-sm font-medium text-gray-700">E-mail Address</label>
+        <input type="email" name="email_address" id="email_address" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
+    </div>
+
+    <div class="mb-4">
+        <label for="current_mailing_address" class="block text-sm font-medium text-gray-700">Current Mailing Address</label>
+        <input type="text" name="current_mailing_address" id="current_mailing_address" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
+    </div>
+
+    <!-- Telephone -->
+    <div class="mb-4">
+        <label for="telephone_nos" class="block text-sm font-medium text-gray-700">Telephone Nos. (Landline/Mobile)</label>
+        <input type="text" name="telephone_nos" id="telephone_nos" class="numeric-only mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
+    </div>
+
+    <!-- Civil Status, DOB, Age, Sex -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+        <div>
+            <label for="civil_status" class="block text-sm font-medium text-gray-700">Civil Status</label>
+            <select name="civil_status" id="civil_status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
+                <option value="">Select</option>
+                <option value="Single">Single</option>
+                <option value="Married">Married</option>
+                <option value="Widowed">Widowed</option>
+                <option value="Divorced">Divorced</option>
+            </select>
+        </div>
+        <div>
+            <label for="date_of_birth" class="block text-sm font-medium text-gray-700">Date of Birth</label>
+            <input type="date" name="date_of_birth" id="date_of_birth" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
+        </div>
+        <div>
+            <label for="age" class="block text-sm font-medium text-gray-700">Age</label>
+            <input type="text" name="age" id="age" class="numeric-only mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm bg-gray-100" readonly required>
+        </div>
+        <div>
+            <label for="sex" class="block text-sm font-medium text-gray-700">Sex</label>
+            <select name="sex" id="sex" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
+                <option value="">Select</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Parents -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div>
+            <label for="father_name" class="block text-sm font-medium text-gray-700">Father's Name</label>
+            <input type="text" name="father_name" id="father_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
+        </div>
+        <div>
+            <label for="mother_name" class="block text-sm font-medium text-gray-700">Mother's Name</label>
+            <input type="text" name="mother_name" id="mother_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
+        </div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="flex justify-between mt-8">
+        <button type="button" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400" onclick="prevStep(1)">Back</button>
+        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="validateAndNext(2)">Next: Education</button>
+    </div>
+</div>
+
                 <!-- Step 3: Educational Background -->
                 <div class="step bg-white p-6 rounded-lg shadow-sm hidden" id="step3">
                     <h4 class="text-lg font-semibold mb-3">II. EDUCATIONAL BACKGROUND</h4>
@@ -1151,7 +1188,150 @@ document.getElementById("last_name")?.addEventListener("input", autoFillSignatur
             academicYearInput.value = `${startYear}-${endYear}`;
         }
     }
+    
 
-     
+document.addEventListener('DOMContentLoaded', function () {
+    const provinceSelect = document.getElementById('province_select');
+    const citySelect = document.getElementById('city_select');
+    const barangaySelect = document.getElementById('barangay_select');
+
+    // Load provinces
+    fetch('https://psgc.gitlab.io/api/provinces/')
+        .then(res => res.json())
+        .then(data => {
+            data.forEach(p => {
+                provinceSelect.add(new Option(p.name, p.code));
+            });
+        })
+        .catch(err => console.error('Error loading provinces:', err));
+
+    // Load cities when province changes
+    provinceSelect.addEventListener('change', function () {
+        const provCode = this.value;
+        citySelect.innerHTML = '<option value="">Select City / Municipality</option>';
+        barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+        if (!provCode) return;
+
+        fetch(`https://psgc.gitlab.io/api/provinces/${provCode}/cities-municipalities/`)
+            .then(res => res.json())
+            .then(data => {
+                data.forEach(c => {
+                    citySelect.add(new Option(c.name, c.code));
+                });
+            })
+            .catch(err => console.error('Error loading cities:', err));
+    });
+
+    // Load barangays when city changes
+    citySelect.addEventListener('change', function () {
+        const cityCode = this.value;
+        barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+        if (!cityCode) return;
+
+        fetch(`https://psgc.gitlab.io/api/cities-municipalities/${cityCode}/barangays/`)
+            .then(res => res.json())
+            .then(data => {
+                data.forEach(b => {
+                    barangaySelect.add(new Option(b.name, b.code));
+                });
+            })
+            .catch(err => console.error('Error loading barangays:', err));
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const regionSelect = document.getElementById('region_select');
+    const districtSelect = document.getElementById('district_select');
+    const zipInput = document.getElementById('zip_code');
+
+    // Static fallback zip codes per region (you can expand this list)
+    const regionZipFallback = {
+        "010000000": "2900", // Ilocos Region (Region I)
+        "020000000": "3500", // Cagayan Valley (Region II)
+        "030000000": "2000", // Central Luzon (Region III)
+        "040000000": "4000", // CALABARZON (Region IV-A)
+        "050000000": "4400", // Bicol Region (Region V)
+        "060000000": "5000", // Western Visayas (Region VI)
+        "070000000": "6000", // Central Visayas (Region VII)
+        "080000000": "6500", // Eastern Visayas (Region VIII)
+        "090000000": "7000", // Zamboanga Peninsula (Region IX)
+        "100000000": "9000", // Northern Mindanao (Region X)
+        "110000000": "8000", // Davao Region (Region XI)
+        "120000000": "9600", // SOCCSKSARGEN (Region XII)
+        "130000000": "1000", // NCR (Metro Manila)
+        "140000000": "2600", // CAR
+        "150000000": "9700", // BARMM
+        "160000000": "8600", // Caraga
+        "170000000": "5200"  // MIMAROPA (Region IV-B)
+    };
+
+    // Load regions
+    fetch('https://psgc.gitlab.io/api/regions/')
+        .then(res => res.json())
+        .then(data => {
+            data.forEach(r => {
+                regionSelect.add(new Option(r.name, r.code));
+            });
+        })
+        .catch(err => console.error('Error loading regions:', err));
+
+    // Handle region change
+    regionSelect.addEventListener('change', function () {
+        const regionCode = this.value;
+        districtSelect.innerHTML = '<option value="">Select District</option>';
+        zipInput.value = '';
+
+        if (!regionCode) {
+            districtSelect.disabled = true;
+            return;
+        }
+
+        // NCR (Region Code = 130000000)
+        if (regionCode === "130000000") {
+            districtSelect.disabled = false;
+
+            fetch(`https://psgc.gitlab.io/api/districts/`)
+                .then(res => res.json())
+                .then(data => {
+                    data.forEach(d => {
+                        districtSelect.add(new Option(d.name, d.code));
+                    });
+                })
+                .catch(err => console.error('Error loading districts:', err));
+        } else {
+            // Non-NCR regions → disable district select
+            districtSelect.disabled = true;
+
+            // Auto-fill zip code from PSGC (fallback to static map)
+            fetch(`https://psgc.gitlab.io/api/regions/${regionCode}/`)
+                .then(res => res.json())
+                .then(region => {
+                    zipInput.value = region.zipcode || regionZipFallback[regionCode] || "N/A";
+                })
+                .catch(err => {
+                    zipInput.value = regionZipFallback[regionCode] || "N/A";
+                    console.error('Error loading region zip:', err);
+                });
+        }
+    });
+
+    // Handle district change (only NCR)
+    districtSelect.addEventListener('change', function () {
+        const districtCode = this.value;
+        zipInput.value = '';
+
+        if (!districtCode) return;
+
+        fetch(`https://psgc.gitlab.io/api/districts/${districtCode}/`)
+            .then(res => res.json())
+            .then(district => {
+                zipInput.value = district.zipcode || "1000"; // default Manila zip
+            })
+            .catch(err => {
+                zipInput.value = "1000"; // fallback
+                console.error('Error loading district zip:', err);
+            });
+    });
+});
 </script>
 </x-app-layout>
