@@ -201,23 +201,23 @@
     <!-- Region, District, Zip, Passport -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
         <div>
-        <label for="region_select" class="block text-sm font-medium text-gray-700">Region</label>
-        <select id="region_select" name="region" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-            <option value="">Select Region</option>
-        </select>
-    </div>
-
-    <div>
-        <label for="district_select" class="block text-sm font-medium text-gray-700">District</label>
-        <select id="district_select" name="district" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-            <option value="">Select District</option>
-        </select>
-    </div>
-
-    <div>
-        <label for="zip_code" class="block text-sm font-medium text-gray-700">Zip Code</label>
-        <input type="text" name="zip_code" id="zip_code" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" readonly>
-    </div>
+    <label for="region_select" class="block text-sm font-medium text-gray-700">Region</label>
+    <input type="text" id="region_select" name="region" 
+        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm bg-gray-100" 
+        readonly required>
+</div>
+<div>
+    <label for="district_select" class="block text-sm font-medium text-gray-700">District</label>
+    <input type="text" id="district_select" name="district" 
+        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm bg-gray-100" 
+        readonly>
+</div>
+<div>
+    <label for="zip_code" class="block text-sm font-medium text-gray-700">Zip Code</label>
+    <input type="text" name="zip_code" id="zip_code" 
+        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm bg-gray-100" 
+        readonly>
+</div>
         <div>
             <label for="passport_no" class="block text-sm font-medium text-gray-700">Passport No.</label>
             <input type="text" name="passport_no" id="passport_no" class="numeric-only mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
@@ -1230,18 +1230,77 @@ document.addEventListener('DOMContentLoaded', function () {
     const provinceSelect = document.getElementById('province_select');
     const citySelect = document.getElementById('city_select');
     const barangaySelect = document.getElementById('barangay_select');
+    const regionInput = document.getElementById('region_select');   // should be readonly text
+    const districtInput = document.getElementById('district_select'); // readonly text
+    const zipInput = document.getElementById('zip_code');
 
-    // Load provinces
+    const regionZipFallback = {
+        "010000000": "2900", "020000000": "3500", "030000000": "2000",
+        "040000000": "4000", "050000000": "4400", "060000000": "5000",
+        "070000000": "6000", "080000000": "6500", "090000000": "7000",
+        "100000000": "9000", "110000000": "8000", "120000000": "9600",
+        "130000000": "1000", "140000000": "2600", "150000000": "9700",
+        "160000000": "8600", "170000000": "5200"
+    };
+
+    // 🔹 Utility: set Region + District + ZIP automatically
+    async function setLocation(level, code) {
+        try {
+            if (level === "provinces") {
+                let prov = await fetch(`https://psgc.gitlab.io/api/provinces/${code}/`).then(r => r.json());
+                let region = await fetch(`https://psgc.gitlab.io/api/regions/${prov.regionCode}/`).then(r => r.json());
+
+                // Region (based on province)
+                regionInput.value = region.name;
+                regionInput.dataset.code = region.code;
+
+                // District = Province name (default rule)
+                districtInput.value = prov.name;
+
+                // ZIP
+                zipInput.value = prov.zipcode || region.zipcode || regionZipFallback[region.code] || "";
+            }
+
+            if (level === "cities-municipalities") {
+                let city = await fetch(`https://psgc.gitlab.io/api/cities-municipalities/${code}/`).then(r => r.json());
+                let prov = await fetch(`https://psgc.gitlab.io/api/provinces/${city.provinceCode}/`).then(r => r.json());
+                let region = await fetch(`https://psgc.gitlab.io/api/regions/${prov.regionCode}/`).then(r => r.json());
+
+                regionInput.value = region.name;
+                regionInput.dataset.code = region.code;
+
+                // District = City name (or keep province if you prefer)
+                districtInput.value = city.name;
+
+                zipInput.value = city.zipcode || prov.zipcode || region.zipcode || regionZipFallback[region.code] || "";
+            }
+
+            if (level === "barangays") {
+                let brgy = await fetch(`https://psgc.gitlab.io/api/barangays/${code}/`).then(r => r.json());
+                let city = await fetch(`https://psgc.gitlab.io/api/cities-municipalities/${brgy.cityCode}/`).then(r => r.json());
+                let prov = await fetch(`https://psgc.gitlab.io/api/provinces/${city.provinceCode}/`).then(r => r.json());
+                let region = await fetch(`https://psgc.gitlab.io/api/regions/${prov.regionCode}/`).then(r => r.json());
+
+                regionInput.value = region.name;
+                regionInput.dataset.code = region.code;
+
+                // District = City name
+                districtInput.value = city.name;
+
+                zipInput.value = brgy.zipcode || city.zipcode || prov.zipcode || region.zipcode || regionZipFallback[region.code] || "";
+            }
+        } catch (err) {
+            console.error("Error setting location:", err);
+        }
+    }
+
+    // 🔹 Load provinces
     fetch('https://psgc.gitlab.io/api/provinces/')
         .then(res => res.json())
-        .then(data => {
-            data.forEach(p => {
-                provinceSelect.add(new Option(p.name, p.code));
-            });
-        })
+        .then(data => data.forEach(p => provinceSelect.add(new Option(p.name, p.code))))
         .catch(err => console.error('Error loading provinces:', err));
 
-    // Load cities when province changes
+    // 🔹 Province → City
     provinceSelect.addEventListener('change', function () {
         const provCode = this.value;
         citySelect.innerHTML = '<option value="">Select City / Municipality</option>';
@@ -1250,15 +1309,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         fetch(`https://psgc.gitlab.io/api/provinces/${provCode}/cities-municipalities/`)
             .then(res => res.json())
-            .then(data => {
-                data.forEach(c => {
-                    citySelect.add(new Option(c.name, c.code));
-                });
-            })
+            .then(data => data.forEach(c => citySelect.add(new Option(c.name, c.code))))
             .catch(err => console.error('Error loading cities:', err));
+
+        setLocation("provinces", provCode);
     });
 
-    // Load barangays when city changes
+    // 🔹 City → Barangay
     citySelect.addEventListener('change', function () {
         const cityCode = this.value;
         barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
@@ -1266,215 +1323,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         fetch(`https://psgc.gitlab.io/api/cities-municipalities/${cityCode}/barangays/`)
             .then(res => res.json())
-            .then(data => {
-                data.forEach(b => {
-                    barangaySelect.add(new Option(b.name, b.code));
-                });
-            })
+            .then(data => data.forEach(b => barangaySelect.add(new Option(b.name, b.code))))
             .catch(err => console.error('Error loading barangays:', err));
+
+        setLocation("cities-municipalities", cityCode);
     });
-});
 
-document.addEventListener('DOMContentLoaded', function () {
-    const regionSelect = document.getElementById('region_select');
-    const districtSelect = document.getElementById('district_select');
-    const zipInput = document.getElementById('zip_code');
-    const cityDistricts = {
-        "Cagayan de Oro City": {
-            "District 1": ["Balulang", "Carmen", "Consolacion", "Macabalan", "Kauswagan", "Bonbon", "Bayabas", "Bulua", "Iponan", "Patag", "Nazareth"],
-            "District 2": ["Lapasan", "Macasandig", "Camaman-an", "Gusa", "Tablon", "Agusan", "Puerto", "Bugo", "Tignapoloan", "Taglimao", "Baikingon"]
-        },
-        "Davao City": {
-            "District 1": ["Agdao", "Buhangin", "Lanang", "Pampanga", "Sasa", "San Antonio", "Centro"],
-            "District 2": ["Talomo", "Matina", "Bangkal", "Toril", "Mintal", "Ulas", "Catalunan Grande"],
-            "District 3": ["Calinan", "Baguio", "Marilog", "Paquibato", "Tugbok"]
-        },
-        "Zamboanga City": {
-            "District 1": ["Ayala", "Recodo", "Labuan", "Sinunuc", "San Roque", "San Ramon"],
-            "District 2": ["Tetuan", "Guiwan", "Putik", "Taluksangay", "Mercedes", "Culianan", "Boalan"]
-        },
-        "General Santos City": {
-            "Lone District": ["Apopong", "Bula", "Calumpang", "Fatima", "Lagao", "San Isidro", "Tinagacan", "Labangal"]
-        },
-        "Butuan City": {
-            "Lone District": ["Ampayon", "Bancasi", "San Vicente", "Ambago", "Pagatpatan", "Obrero", "Baan Riverside"]
-        },
-        "Iligan City": {
-            "Lone District": ["Bagong Silang", "Hinaplanon", "San Miguel", "Del Carmen", "Pala-o", "Sta. Elena"]
-        },
-        "Cotabato City": {
-            "Lone District": ["Bagua", "Rosary Heights", "Poblacion", "Mother Bagua", "Kalanganan", "Tamontaka"]
-        }
-    };
-
-    // Static fallback zip codes per region (you can expand this list)
-    const regionZipFallback = {
-        "010000000": "2900", // Ilocos Region (Region I)
-        "020000000": "3500", // Cagayan Valley (Region II)
-        "030000000": "2000", // Central Luzon (Region III)
-        "040000000": "4000", // CALABARZON (Region IV-A)
-        "050000000": "4400", // Bicol Region (Region V)
-        "060000000": "5000", // Western Visayas (Region VI)
-        "070000000": "6000", // Central Visayas (Region VII)
-        "080000000": "6500", // Eastern Visayas (Region VIII)
-        "090000000": "7000", // Zamboanga Peninsula (Region IX)
-        "100000000": "9000", // Northern Mindanao (Region X)
-        "110000000": "8000", // Davao Region (Region XI)
-        "120000000": "9600", // SOCCSKSARGEN (Region XII)
-        "130000000": "1000", // NCR (Metro Manila)
-        "140000000": "2600", // CAR
-        "150000000": "9700", // BARMM
-        "160000000": "8600", // Caraga
-        "170000000": "5200"  // MIMAROPA (Region IV-B)
-    };
-
-    // Load regions
-    fetch('https://psgc.gitlab.io/api/regions/')
-        .then(res => res.json())
-        .then(data => {
-            data.forEach(r => {
-                regionSelect.add(new Option(r.name, r.code));
-            });
-        })
-        .catch(err => console.error('Error loading regions:', err));
-
-  // Handle region change (replace the old regionSelect.addEventListener block)
-regionSelect.addEventListener('change', function () {
-    const regionCode = this.value;
-    districtSelect.innerHTML = '<option value="">Select District</option>';
-    zipInput.value = '';
-
-    if (!regionCode) {
-        districtSelect.disabled = true;
-        return;
-    }
-
-    // NCR - load official districts
-    if (regionCode === "130000000") {
-        districtSelect.disabled = false;
-        districtSelect.innerHTML = '<option value="">Select District</option>';
-
-        fetch(`https://psgc.gitlab.io/api/districts/`)
-            .then(res => res.json())
-            .then(data => {
-                data.forEach(d => districtSelect.add(new Option(d.name, d.code)));
-            })
-            .catch(err => {
-                console.error('Error loading districts:', err);
-                // keep district disabled on error
-                districtSelect.disabled = true;
-            });
-
-        // Try to set zip from region endpoint (if present) or fallback
-        fetch(`https://psgc.gitlab.io/api/regions/${regionCode}/`)
-            .then(res => res.json())
-            .then(region => {
-                zipInput.value = region.zipcode || regionZipFallback[regionCode] || '';
-            })
-            .catch(() => {
-                zipInput.value = regionZipFallback[regionCode] || '';
-            });
-
-    } else {
-        // Non-NCR: populate districtSelect with provinces (so field is never empty)
-        districtSelect.disabled = false;
-        districtSelect.innerHTML = '<option value="">Select District (Province)</option>';
-
-        fetch(`https://psgc.gitlab.io/api/regions/${regionCode}/provinces/`)
-            .then(res => res.json())
-            .then(provinces => {
-                if (Array.isArray(provinces) && provinces.length > 0) {
-                    provinces.forEach(p => districtSelect.add(new Option(p.name, p.code)));
-                } else {
-                    // fallback: use region name as single option
-                    fetch(`https://psgc.gitlab.io/api/regions/${regionCode}/`)
-                        .then(res => res.json())
-                        .then(region => districtSelect.add(new Option(region.name, region.code)))
-                        .catch(err => {
-                            console.error('Error loading region fallback:', err);
-                            districtSelect.add(new Option("Unknown District", ""));
-                        });
-                }
-            })
-            .catch(err => {
-                console.error('Error loading provinces:', err);
-                districtSelect.add(new Option("Unknown District", ""));
-            });
-
-        // For non-NCR, set ZIP from region data (preferred) or fallback map
-        fetch(`https://psgc.gitlab.io/api/regions/${regionCode}/`)
-            .then(res => res.json())
-            .then(region => {
-                zipInput.value = region.zipcode || regionZipFallback[regionCode] || '';
-            })
-            .catch(() => {
-                zipInput.value = regionZipFallback[regionCode] || '';
-            });
-    }
-});
-
-// Handle district change (replace the old districtSelect.addEventListener block)
-districtSelect.addEventListener('change', function () {
-    const selectedCode = this.value;
-    const regionCode = regionSelect.value;
-    zipInput.value = '';
-
-    if (!selectedCode) {
-        // nothing selected — keep region zip or fallback
-        zipInput.value = regionZipFallback[regionCode] || '';
-        return;
-    }
-
-    if (regionCode === "130000000") {
-        // NCR: selectedCode should be a district code → fetch district details
-        fetch(`https://psgc.gitlab.io/api/districts/${selectedCode}/`)
-            .then(res => {
-                if (!res.ok) throw new Error('District not found');
-                return res.json();
-            })
-            .then(district => {
-                zipInput.value = district.zipcode || regionZipFallback[regionCode] || '';
-            })
-            .catch(err => {
-                console.error('Error loading district zip:', err);
-                zipInput.value = regionZipFallback[regionCode] || '';
-            });
-    } else {
-        // Non-NCR: selectedCode is a province code (or region fallback). Try province API for zipcode,
-        // but if that fails use the region fallback (prevents wrong default 1000).
-        fetch(`https://psgc.gitlab.io/api/provinces/${selectedCode}/`)
-            .then(res => {
-                if (!res.ok) throw new Error('Province not found');
-                return res.json();
-            })
-            .then(province => {
-                // province.zipcode may not exist; fall back to region fallback
-                zipInput.value = province.zipcode || regionZipFallback[regionCode] || '';
-            })
-            .catch(err => {
-                console.error('Error loading province zip:', err);
-                zipInput.value = regionZipFallback[regionCode] || '';
-            });
-    }
-});
-
-
-    // Handle district change (only NCR)
-    districtSelect.addEventListener('change', function () {
-        const districtCode = this.value;
-        zipInput.value = '';
-
-        if (!districtCode) return;
-
-        fetch(`https://psgc.gitlab.io/api/districts/${districtCode}/`)
-            .then(res => res.json())
-            .then(district => {
-                zipInput.value = district.zipcode || "1000"; // default Manila zip
-            })
-            .catch(err => {
-                zipInput.value = "1000"; // fallback
-                console.error('Error loading district zip:', err);
-            });
+    // 🔹 Barangay → Finalize Location
+    barangaySelect.addEventListener('change', function () {
+        const brgyCode = this.value;
+        if (!brgyCode) return;
+        setLocation("barangays", brgyCode);
     });
 });
 </script>
