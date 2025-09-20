@@ -24,7 +24,7 @@ Route::middleware(['auth'])->group(function () {
      */
     Route::prefix('applicant')->name('applicant.')->group(function () {
         Route::get('/application/{program}', [ApplicationFormController::class, 'create'])->name('application.create');
-        Route::post('/application', [ApplicationFormController::class, 'store'])->name('application.store');
+        Route::post('/applicant/application', [ApplicationFormController::class, 'store'])->name('application.store');
         Route::get('/dashboard', fn () => view('applicant.dashboard'))->name('dashboard');
         Route::get('/my-application', [ApplicationFormController::class, 'viewMyApplication'])->name('application.view');
         Route::get('/application/{id}/edit', [ApplicationFormController::class, 'edit'])->name('application.edit');

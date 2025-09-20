@@ -25,7 +25,7 @@
                         <td class="p-3 text-red-600 font-semibold">{{ $application->updated_at->format('M d, Y') }}</td>
                         <td class="p-3">{{ $application->rejection_reason ?? 'No reason provided' }}</td>
                         <td class="p-3">
-                            <a href="{{ route('admin.rejected.show', $application->id) }}" 
+                            <a href="{{ route('admin.rejected.show', $application->application_form_id) }}" 
                                class="text-blue-600 hover:text-blue-800 underline">View</a>
                         </td>
                     </tr>

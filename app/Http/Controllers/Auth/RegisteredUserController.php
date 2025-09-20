@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 use Illuminate\Support\Str;
 
@@ -28,12 +29,20 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
+       $request->validate([
     'first_name' => ['required', 'string', 'max:255'],
     'middle_name' => ['nullable', 'string', 'max:255'],
     'last_name' => ['required', 'string', 'max:255'],
     'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
-    'password' => ['required', 'confirmed', Rules\Password::defaults()],
+    'password' => [
+        'required',
+        'confirmed',
+        Password::min(8)       // at least 8 characters
+            ->mixedCase()      // at least 1 uppercase + 1 lowercase
+            ->letters()        // must contain letters
+            ->numbers()        // must contain numbers
+            ->symbols(),       // must contain symbols
+    ],
 ]);
 
 

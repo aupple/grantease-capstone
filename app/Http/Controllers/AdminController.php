@@ -115,7 +115,7 @@ class AdminController extends Controller
 
         // ✅ FIX: use $application->id instead of $application->application_form_id
         Scholar::firstOrCreate(
-            ['application_form_id' => $application->id],
+            ['application_form_id' => $application->application_form_id],
             [
                 'user_id' => $application->user_id,
                 'status' => 'good_standing',

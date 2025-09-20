@@ -4,18 +4,24 @@
             Scholarship Application Form - STRAND
         </h2>
     </x-slot>
-
+ 
     <div class="py-6">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <form method="POST" action="{{ route('applicant.application.store') }}" class="bg-white p-6 rounded shadow">
-                @csrf
-                
-
+        <!-- Application Form -->
             <form method="POST" action="{{ route('applicant.application.store') }}" enctype="multipart/form-data" 
       class="bg-white p-6 rounded shadow">
     @csrf
+    
     <input type="hidden" name="program" value="{{ $program }}">
-
+     @if ($errors->any())
+        <div class="mb-4 p-4 bg-red-100 text-red-800 border border-red-200 rounded-md">
+            <ul class="list-disc pl-5">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
             <!-- Beautiful Circular Step Indicators -->
             <div class="flex justify-between items-center mb-8 relative">
                 <!-- Progress Bar Background -->
@@ -136,20 +142,29 @@
     <h4 class="text-lg font-semibold mb-4">I. PERSONAL INFORMATION</h4>
     
     <!-- Name Fields -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-        <div>
-            <label for="last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
-            <input type="text" name="last_name" id="last_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-        </div>
-        <div>
-            <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>
-            <input type="text" name="first_name" id="first_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-        </div>
-        <div>
-            <label for="middle_name" class="block text-sm font-medium text-gray-700">Middle Name</label>
-            <input type="text" name="middle_name" id="middle_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-        </div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+    <div>
+        <label for="last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
+        <input type="text" name="last_name" id="last_name"
+               value="{{ Auth::user()->last_name ?? '' }}"
+               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm bg-gray-100"
+               readonly required>
     </div>
+    <div>
+        <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>
+        <input type="text" name="first_name" id="first_name"
+               value="{{ Auth::user()->first_name ?? '' }}"
+               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm bg-gray-100"
+               readonly required>
+    </div>
+    <div>
+        <label for="middle_name" class="block text-sm font-medium text-gray-700">Middle Name</label>
+        <input type="text" name="middle_name" id="middle_name"
+               value="{{ Auth::user()->middle_name ?? '' }}"
+               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm bg-gray-100"
+               readonly>
+    </div>
+</div>
 
     <!-- Address Fields -->
     <div class="mb-4">
@@ -177,10 +192,10 @@
 
         <!-- Street & House No. -->
         <label for="permanent_address_street" class="block text-sm font-medium text-gray-700 mt-2">Street</label>
-        <input type="text" name="permanent_address_street" id="permanent_address_street" placeholder="Street" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm mb-2" required>
+        <input type="text" name="address_street" id="address_street" placeholder="Street" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm mb-2" required>
 
         <label for="permanent_address_no" class="block text-sm font-medium text-gray-700">House No.</label>
-        <input type="text" name="permanent_address_no" id="permanent_address_no" placeholder="No." class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
+        <input type="text" name="address_no" id="address_no" placeholder="No." class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
     </div>
 
     <!-- Region, District, Zip, Passport -->
@@ -194,7 +209,7 @@
 
     <div>
         <label for="district_select" class="block text-sm font-medium text-gray-700">District</label>
-        <select id="district_select" name="district" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" disabled>
+        <select id="district_select" name="district" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
             <option value="">Select District</option>
         </select>
     </div>
@@ -210,10 +225,13 @@
     </div>
 
     <!-- Email & Mailing Address -->
-    <div class="mb-4">
-        <label for="email_address" class="block text-sm font-medium text-gray-700">E-mail Address</label>
-        <input type="email" name="email_address" id="email_address" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-    </div>
+<div class="mb-4">
+    <label for="email_address" class="block text-sm font-medium text-gray-700">E-mail Address</label>
+    <input type="email" name="email_address" id="email_address"
+           value="{{ Auth::user()->email ?? '' }}"
+           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm bg-gray-100"
+           readonly required>
+</div>
 
     <div class="mb-4">
         <label for="current_mailing_address" class="block text-sm font-medium text-gray-700">Current Mailing Address</label>
@@ -276,132 +294,140 @@
 </div>
 
                 <!-- Step 3: Educational Background -->
-                <div class="step bg-white p-6 rounded-lg shadow-sm hidden" id="step3">
-                    <h4 class="text-lg font-semibold mb-3">II. EDUCATIONAL BACKGROUND</h4>
+<div class="step bg-white p-6 rounded-lg shadow-sm hidden" id="step3">
+    <h4 class="text-lg font-semibold mb-3">II. EDUCATIONAL BACKGROUND</h4>
 
-                    <!-- BS Degree -->
-                    <div class="mb-6">
-                        <p class="block text-sm font-medium text-gray-700 mb-2">BS Degree</p>
-                        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-2">
-                            <input type="text" name="bs_period" placeholder="PERIOD (Year Started – Year Ended)" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-                            <input type="text" name="bs_field" placeholder="FIELD" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-                            <input type="text" name="bs_university" placeholder="UNIVERSITY/SCHOOL" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
+    <!-- BS Degree -->
+    <div class="mb-6">
+        <p class="block text-sm font-medium text-gray-700 mb-2">BS Degree</p>
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-2">
+            <!-- Degree Name -->
+            <input type="text" name="bs_degree" placeholder="Degree" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm mb-2">
 
-                            <!-- Scholarship Section with Checkboxes -->
-                            <div class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm p-2 border">
-                                <span class="text-sm text-gray-700 font-medium">SCHOLARSHIP (if applicable)</span>
-                                <div class="mt-1 flex flex-col gap-1">
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" name="bs_scholarship_type[]" value="PSHS" class="form-checkbox">
-                                        <span class="ml-2 text-sm text-gray-700">PSHS</span>
-                                    </label>
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" name="bs_scholarship_type[]" value="RA 7687" class="form-checkbox">
-                                        <span class="ml-2 text-sm text-gray-700">RA 7687</span>
-                                    </label>
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" name="bs_scholarship_type[]" value="MERIT" class="form-checkbox">
-                                        <span class="ml-2 text-sm text-gray-700">MERIT</span>
-                                    </label>
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" name="bs_scholarship_type[]" value="RA 10612" class="form-checkbox">
-                                        <span class="ml-2 text-sm text-gray-700">RA 10612</span>
-                                    </label>
-                                    <label class="inline-flex items-center mt-1">
-                                        <span class="text-sm text-gray-700">OTHERS:</span>
-                                        <input type="text" name="bs_scholarship_others" class="ml-2 border-gray-300 rounded-md shadow-sm sm:text-sm w-32">
-                                    </label>
-                                </div>
-                            </div>
+            <input type="text" name="bs_period" placeholder="PERIOD (Year Started – Year Ended)" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
+            <input type="text" name="bs_field" placeholder="FIELD" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
+            <input type="text" name="bs_university" placeholder="UNIVERSITY/SCHOOL" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
 
-                            <input type="text" name="bs_remarks" placeholder="REMARKS" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                        </div>
-                    </div>
-
-                    <!-- MS Degree -->
-                    <div class="mb-6">
-                        <p class="block text-sm font-medium text-gray-700 mb-2">MS Degree</p>
-                        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-2">
-                            <input type="text" name="ms_period" placeholder="PERIOD (Year Started – Year Ended)" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                            <input type="text" name="ms_field" placeholder="FIELD" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                            <input type="text" name="ms_university" placeholder="UNIVERSITY/SCHOOL" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-
-                            <!-- Scholarship Section -->
-                            <div class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm p-2 border">
-                                <span class="text-sm text-gray-700 font-medium">SCHOLARSHIP (if applicable)</span>
-                                <div class="mt-1 flex flex-col gap-1">
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" name="ms_scholarship_type[]" value="NSDB/NSTA" class="form-checkbox">
-                                        <span class="ml-2 text-sm text-gray-700">NSDB/NSTA</span>
-                                    </label>
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" name="ms_scholarship_type[]" value="ASTHRDP" class="form-checkbox">
-                                        <span class="ml-2 text-sm text-gray-700">ASTHRDP</span>
-                                    </label>
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" name="ms_scholarship_type[]" value="ERDT" class="form-checkbox">
-                                        <span class="ml-2 text-sm text-gray-700">ERDT</span>
-                                    </label>
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" name="ms_scholarship_type[]" value="COUNCIL/SEI" class="form-checkbox">
-                                        <span class="ml-2 text-sm text-gray-700">COUNCIL/SEI</span>
-                                    </label>
-                                    <label class="inline-flex items-center mt-1">
-                                        <span class="text-sm text-gray-700">OTHERS:</span>
-                                        <input type="text" name="ms_scholarship_others" class="ml-2 border-gray-300 rounded-md shadow-sm sm:text-sm w-32">
-                                    </label>
-                                </div>
-                            </div>
-
-                            <input type="text" name="ms_remarks" placeholder="REMARKS" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                        </div>
-                    </div>
-
-                    <!-- PHD Degree -->
-                    <div class="mb-6">
-                        <p class="block text-sm font-medium text-gray-700 mb-2">PHD Degree</p>
-                        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-2">
-                            <input type="text" name="phd_period" placeholder="PERIOD (Year Started – Year Ended)" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                            <input type="text" name="phd_field" placeholder="FIELD" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                            <input type="text" name="phd_university" placeholder="UNIVERSITY/SCHOOL" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-
-                            <!-- Scholarship Section -->
-                            <div class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm p-2 border">
-                                <span class="text-sm text-gray-700 font-medium">SCHOLARSHIP (if applicable)</span>
-                                <div class="mt-1 flex flex-col gap-1">
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" name="phd_scholarship_type[]" value="NSDB/NSTA" class="form-checkbox">
-                                        <span class="ml-2 text-sm text-gray-700">NSDB/NSTA</span>
-                                    </label>
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" name="phd_scholarship_type[]" value="ASTHRDP" class="form-checkbox">
-                                        <span class="ml-2 text-sm text-gray-700">ASTHRDP</span>
-                                    </label>
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" name="phd_scholarship_type[]" value="ERDT" class="form-checkbox">
-                                        <span class="ml-2 text-sm text-gray-700">ERDT</span>
-                                    </label>
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" name="phd_scholarship_type[]" value="COUNCIL/SEI" class="form-checkbox">
-                                        <span class="ml-2 text-sm text-gray-700">COUNCIL/SEI</span>
-                                    </label>
-                                    <label class="inline-flex items-center mt-1">
-                                        <span class="text-sm text-gray-700">OTHERS:</span>
-                                        <input type="text" name="phd_scholarship_others" class="ml-2 border-gray-300 rounded-md shadow-sm sm:text-sm w-32">
-                                    </label>
-                                </div>
-                            </div>
-
-                            <input type="text" name="phd_remarks" placeholder="REMARKS" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between mt-8">
-                        <button type="button" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400" onclick="prevStep(2)">Back</button>
-                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="validateAndNext(3)">Next: Grad Intent</button>
-                    </div>
+            <!-- Scholarship Section with Checkboxes -->
+            <div class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm p-2 border">
+                <span class="text-sm text-gray-700 font-medium">SCHOLARSHIP (if applicable)</span>
+                <div class="mt-1 flex flex-col gap-1">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" name="bs_scholarship_type[]" value="PSHS" class="form-checkbox">
+                        <span class="ml-2 text-sm text-gray-700">PSHS</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" name="bs_scholarship_type[]" value="RA 7687" class="form-checkbox">
+                        <span class="ml-2 text-sm text-gray-700">RA 7687</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" name="bs_scholarship_type[]" value="MERIT" class="form-checkbox">
+                        <span class="ml-2 text-sm text-gray-700">MERIT</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" name="bs_scholarship_type[]" value="RA 10612" class="form-checkbox">
+                        <span class="ml-2 text-sm text-gray-700">RA 10612</span>
+                    </label>
+                    <label class="inline-flex items-center mt-1">
+                        <span class="text-sm text-gray-700">OTHERS:</span>
+                        <input type="text" name="bs_scholarship_others" class="ml-2 border-gray-300 rounded-md shadow-sm sm:text-sm w-32">
+                    </label>
                 </div>
+            </div>
 
+            <input type="text" name="bs_remarks" placeholder="REMARKS" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+        </div>
+    </div>
+
+    <!-- MS Degree -->
+    <div class="mb-6">
+        <p class="block text-sm font-medium text-gray-700 mb-2">MS Degree</p>
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-2">
+            <!-- Degree Name -->
+            <input type="text" name="ms_degree" placeholder="Degree" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm mb-2">
+
+            <input type="text" name="ms_period" placeholder="PERIOD (Year Started – Year Ended)" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+            <input type="text" name="ms_field" placeholder="FIELD" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+            <input type="text" name="ms_university" placeholder="UNIVERSITY/SCHOOL" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+
+            <!-- Scholarship Section -->
+            <div class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm p-2 border">
+                <span class="text-sm text-gray-700 font-medium">SCHOLARSHIP (if applicable)</span>
+                <div class="mt-1 flex flex-col gap-1">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" name="ms_scholarship_type[]" value="NSDB/NSTA" class="form-checkbox">
+                        <span class="ml-2 text-sm text-gray-700">NSDB/NSTA</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" name="ms_scholarship_type[]" value="ASTHRDP" class="form-checkbox">
+                        <span class="ml-2 text-sm text-gray-700">ASTHRDP</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" name="ms_scholarship_type[]" value="ERDT" class="form-checkbox">
+                        <span class="ml-2 text-sm text-gray-700">ERDT</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" name="ms_scholarship_type[]" value="COUNCIL/SEI" class="form-checkbox">
+                        <span class="ml-2 text-sm text-gray-700">COUNCIL/SEI</span>
+                    </label>
+                    <label class="inline-flex items-center mt-1">
+                        <span class="text-sm text-gray-700">OTHERS:</span>
+                        <input type="text" name="ms_scholarship_others" class="ml-2 border-gray-300 rounded-md shadow-sm sm:text-sm w-32">
+                    </label>
+                </div>
+            </div>
+
+            <input type="text" name="ms_remarks" placeholder="REMARKS" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+        </div>
+    </div>
+
+    <!-- PHD Degree -->
+    <div class="mb-6">
+        <p class="block text-sm font-medium text-gray-700 mb-2">PHD Degree</p>
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-2">
+            <!-- Degree Name -->
+            <input type="text" name="phd_degree" placeholder="Degree" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm mb-2">
+
+            <input type="text" name="phd_period" placeholder="PERIOD (Year Started – Year Ended)" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+            <input type="text" name="phd_field" placeholder="FIELD" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+            <input type="text" name="phd_university" placeholder="UNIVERSITY/SCHOOL" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+
+            <!-- Scholarship Section -->
+            <div class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm p-2 border">
+                <span class="text-sm text-gray-700 font-medium">SCHOLARSHIP (if applicable)</span>
+                <div class="mt-1 flex flex-col gap-1">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" name="phd_scholarship_type[]" value="NSDB/NSTA" class="form-checkbox">
+                        <span class="ml-2 text-sm text-gray-700">NSDB/NSTA</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" name="phd_scholarship_type[]" value="ASTHRDP" class="form-checkbox">
+                        <span class="ml-2 text-sm text-gray-700">ASTHRDP</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" name="phd_scholarship_type[]" value="ERDT" class="form-checkbox">
+                        <span class="ml-2 text-sm text-gray-700">ERDT</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" name="phd_scholarship_type[]" value="COUNCIL/SEI" class="form-checkbox">
+                        <span class="ml-2 text-sm text-gray-700">COUNCIL/SEI</span>
+                    </label>
+                    <label class="inline-flex items-center mt-1">
+                        <span class="text-sm text-gray-700">OTHERS:</span>
+                        <input type="text" name="phd_scholarship_others" class="ml-2 border-gray-300 rounded-md shadow-sm sm:text-sm w-32">
+                    </label>
+                </div>
+            </div>
+
+            <input type="text" name="phd_remarks" placeholder="REMARKS" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+        </div>
+    </div>
+
+    <div class="flex justify-between mt-8">
+        <button type="button" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400" onclick="prevStep(2)">Back</button>
+        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="validateAndNext(3)">Next: Grad Intent</button>
+    </div>
+</div>
                 <!-- Step 4: Graduate Scholarship Intentions Data -->
                 <div class="step bg-white p-6 rounded-lg shadow-sm hidden" id="step4">
                     <h4 class="text-lg font-semibold mb-3">III. GRADUATE SCHOLARSHIP INTENTIONS DATA</h4>
@@ -492,11 +518,11 @@
                             <div class="flex items-center">
                                 <label class="block text-sm font-medium text-gray-700 mr-4">e. Has your research topic been approved by the panel?</label>
                                 <label class="inline-flex items-center mr-4">
-                                    <input type="radio" name="research_topic_approved" value="YES" class="form-radio">
+                                    <input type="radio" name="research_topic_approved" value="1" class="form-radio">
                                     <span class="ml-2 text-sm text-gray-700">YES</span>
                                 </label>
                                 <label class="inline-flex items-center">
-                                    <input type="radio" name="research_topic_approved" value="NO" class="form-radio">
+                                    <input type="radio" name="research_topic_approved" value="0" class="form-radio">
                                     <span class="ml-2 text-sm text-gray-700">NO</span>
                                 </label>
                             </div>
@@ -517,74 +543,74 @@
                     </div>
                 </div>
 
-                <!-- Step 5: Employment Information -->
-                <div class="step bg-white p-6 rounded-lg shadow-sm hidden" id="step5">
-                    <h4 class="text-lg font-semibold mb-3">IV. CAREER/EMPLOYMENT INFORMATION</h4>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700">a. Present Employment Status</label>
-                        <div class="mt-1 flex flex-wrap gap-4">
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="employment_status" value="Permanent" class="form-radio" required>
-                                <span class="ml-2 text-sm text-gray-700">Permanent</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="employment_status" value="Contractual" class="form-radio">
-                                <span class="ml-2 text-sm text-gray-700">Contractual</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="employment_status" value="Probationary" class="form-radio">
-                                <span class="ml-2 text-sm text-gray-700">Probationary</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="employment_status" value="Self-employed" class="form-radio">
-                                <span class="ml-2 text-sm text-gray-700">Self-employed</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="employment_status" value="Unemployed" class="form-radio">
-                                <span class="ml-2 text-sm text-gray-700">Unemployed</span>
-                            </label>
+                    <!-- Step 5: Employment Information -->
+                    <div class="step bg-white p-6 rounded-lg shadow-sm hidden" id="step5">
+                        <h4 class="text-lg font-semibold mb-3">IV. CAREER/EMPLOYMENT INFORMATION</h4>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700">a. Present Employment Status</label>
+                            <div class="mt-1 flex flex-wrap gap-4">
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="employment_status" value="Permanent" class="form-radio" required>
+                                    <span class="ml-2 text-sm text-gray-700">Permanent</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="employment_status" value="Contractual" class="form-radio">
+                                    <span class="ml-2 text-sm text-gray-700">Contractual</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="employment_status" value="Probationary" class="form-radio">
+                                    <span class="ml-2 text-sm text-gray-700">Probationary</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="employment_status" value="Self-employed" class="form-radio">
+                                    <span class="ml-2 text-sm text-gray-700">Self-employed</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" name="employment_status" value="Unemployed" class="form-radio">
+                                    <span class="ml-2 text-sm text-gray-700">Unemployed</span>
+                                </label>
+                            </div>
                         </div>
-                    </div>
 
-                    <div id="employed_fields" class="mb-6 border p-4 rounded-md hidden">
-                        <p class="font-semibold mb-2">a.1 For those who are presently employed*</p>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
-                            <div>
-                                <label for="employed_position" class="block text-sm font-medium text-gray-700">Position</label>
-                                <input type="text" name="employed_position" id="employed_position" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                        <div id="employed_fields" class="mb-6 border p-4 rounded-md hidden">
+                            <p class="font-semibold mb-2">a.1 For those who are presently employed*</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                                <div>
+                                    <label for="employed_position" class="block text-sm font-medium text-gray-700">Position</label>
+                                    <input type="text" name="employed_position" id="employed_position" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                                </div>
+                                <div>
+                                    <label for="employed_length_of_service" class="block text-sm font-medium text-gray-700">Length of Service</label>
+                                    <input type="text" name="employed_length_of_service" id="employed_length_of_service" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <label for="employed_company_name" class="block text-sm font-medium text-gray-700">Name of Company/Office</label>
+                                <input type="text" name="employed_company_name" id="employed_company_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            </div>
+                            <div class="mb-2">
+                                <label for="employed_company_address" class="block text-sm font-medium text-gray-700">Address of Company/Office</label>
+                                <input type="text" name="employed_company_address" id="employed_company_address" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                                <div>
+                                    <label for="employed_email" class="block text-sm font-medium text-gray-700">Email</label>
+                                    <input type="email" name="employed_email" id="employed_email" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                                </div>
+                                <div>
+                                    <label for="employed_website" class="block text-sm font-medium text-gray-700">Website</label>
+                                    <input type="url" name="employed_website" id="employed_website" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                                </div>
+                                <div>
+                                    <label for="employed_telephone" class="block text-sm font-medium text-gray-700">Telephone No.</label>
+                                    <input type="text" name="employed_telephone" id="employed_telephone" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                                </div>
                             </div>
                             <div>
-                                <label for="employed_length_of_service" class="block text-sm font-medium text-gray-700">Length of Service</label>
-                                <input type="text" name="employed_length_of_service" id="employed_length_of_service" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                                <label for="employed_fax" class="block text-sm font-medium text-gray-700">Fax No.</label>
+                                <input type="text" name="employed_fax" id="employed_fax" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
                             </div>
-                        </div>
-                        <div class="mb-2">
-                            <label for="employed_company_name" class="block text-sm font-medium text-gray-700">Name of Company/Office</label>
-                            <input type="text" name="employed_company_name" id="employed_company_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                        </div>
-                        <div class="mb-2">
-                            <label for="employed_company_address" class="block text-sm font-medium text-gray-700">Address of Company/Office</label>
-                            <input type="text" name="employed_company_address" id="employed_company_address" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-                            <div>
-                                <label for="employed_email" class="block text-sm font-medium text-gray-700">Email</label>
-                                <input type="email" name="employed_email" id="employed_email" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                            </div>
-                            <div>
-                                <label for="employed_website" class="block text-sm font-medium text-gray-700">Website</label>
-                                <input type="url" name="employed_website" id="employed_website" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                            </div>
-                            <div>
-                                <label for="employed_telephone" class="block text-sm font-medium text-gray-700">Telephone No.</label>
-                                <input type="text" name="employed_telephone" id="employed_telephone" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                            </div>
-                        </div>
-                        <div>
-                            <label for="employed_fax" class="block text-sm font-medium text-gray-700">Fax No.</label>
-                            <input type="text" name="employed_fax" id="employed_fax" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                        </div>
-                        <p class="text-sm text-gray-600 mt-2">*Once accepted in the scholarship program, the scholar must obtain permission to go on a Leave of Absence (LOA) from his/her employer and become a full-time student. The scholar must submit a letter from his/her employer approving the LOA.</p>
+                            <p class="text-sm text-gray-600 mt-2">*Once accepted in the scholarship program, the scholar must obtain permission to go on a Leave of Absence (LOA) from his/her employer and become a full-time student. The scholar must submit a letter from his/her employer approving the LOA.</p>
                     </div>
 
                     <div id="self_employed_fields" class="mb-6 border p-4 rounded-md hidden">
@@ -712,122 +738,132 @@
                         <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="validateAndNext(6)">Next: Upload Docs</button>
                     </div>
                 </div>
+<!-- Step 7: Upload Documents -->
+<div class="step bg-white p-8 rounded-2xl shadow-md hidden" id="step7">
+    <h4 class="text-2xl font-semibold mb-6 text-gray-800 flex items-center gap-2">
+        📂 Upload Required Documents <span class="text-sm text-gray-500">(PDF only)</span>
+    </h4>
 
-                        <!-- Step 7: Upload Documents -->
-                <div class="step bg-white p-8 rounded-2xl shadow-md hidden" id="step7">
-                <h4 class="text-2xl font-semibold mb-6 text-gray-800 flex items-center gap-2">
-                    📂 Upload Required Documents <span class="text-sm text-gray-500">(PDF only)</span>
-                </h4>
-
-                <div class="space-y-6">
-                    <!-- Required Section -->
-                    <div class="bg-gray-50 p-6 rounded-xl shadow-sm">
-                    <h5 class="text-lg font-semibold mb-4 text-gray-700">Required Documents</h5>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        
-                        <!-- Birth Certificate -->
-                        <div>
-                        <label for="birth_certificate_pdf" class="block text-sm font-medium text-gray-700 mb-1">
-                            📑 Birth Certificate <span class="text-red-500">*</span>
-                        </label>
-                        <input type="file" id="birth_certificate_pdf" name="birth_certificate_pdf" accept="application/pdf"
-                            class="block w-full text-sm text-gray-500 border rounded-lg cursor-pointer 
-                                file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 
-                                file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 
-                                hover:file:bg-blue-100">
-                        </div>
-
-                        <!-- Transcript -->
-                        <div>
-                        <label for="transcript_of_record_pdf" class="block text-sm font-medium text-gray-700 mb-1">
-                            🎓 Transcript of Records <span class="text-red-500">*</span>
-                        </label>
-                        <input type="file" id="transcript_of_record_pdf" name="transcript_of_record_pdf" accept="application/pdf"
-                            class="block w-full text-sm text-gray-500 border rounded-lg cursor-pointer file:mr-4 file:py-2 
-                                file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold 
-                                file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        </div>
-
-                        <!-- Endorsements -->
-                        <div>
-                        <label for="endorsement_1_pdf" class="block text-sm font-medium text-gray-700 mb-1">
-                            📝 Endorsement 1 <span class="text-red-500">*</span>
-                        </label>
-                        <input type="file" id="endorsement_1_pdf" name="endorsement_1_pdf" accept="application/pdf"
-                            class="block w-full text-sm text-gray-500 border rounded-lg cursor-pointer file:mr-4 
-                                file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold 
-                                file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        </div>
-
-                        <div>
-                        <label for="endorsement_2_pdf" class="block text-sm font-medium text-gray-700 mb-1">
-                            📝 Endorsement 2 <span class="text-red-500">*</span>
-                        </label>
-                        <input type="file" id="endorsement_2_pdf" name="endorsement_2_pdf" accept="application/pdf"
-                            class="block w-full text-sm text-gray-500 border rounded-lg cursor-pointer file:mr-4 
-                                file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold 
-                                file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        </div>
-                    </div>
-                    </div>
-
-                    <!-- If Employed -->
-                    <div class="bg-gray-50 p-6 rounded-xl shadow-sm">
-                    <h5 class="text-lg font-semibold mb-4 text-gray-700">If Employed</h5>
-                    <div class="space-y-4">
-                        <div>
-                        <label for="recommendation_head_agency_pdf" class="block text-sm font-medium text-gray-700 mb-1">
-                            🏢 Recommendation from Head of Agency
-                        </label>
-                        <input type="file" id="recommendation_head_agency_pdf" name="recommendation_head_agency_pdf" accept="application/pdf"
-                            class="block w-full text-sm text-gray-500 border rounded-lg cursor-pointer file:mr-4 
-                                file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold 
-                                file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        </div>
-                        <div>
-                        <label for="form_2a_pdf" class="block text-sm font-medium text-gray-700 mb-1">
-                            📋 Form 2A – Certificate of Employment
-                        </label>
-                        <input type="file" id="form_2a_pdf" name="form_2a_pdf" accept="application/pdf"
-                            class="block w-full text-sm text-gray-500 border rounded-lg cursor-pointer file:mr-4 
-                                file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold 
-                                file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        </div>
-                    </div>
-                    </div>
-
-                    <!-- Additional -->
-                    <div class="bg-gray-50 p-6 rounded-xl shadow-sm">
-                    <h5 class="text-lg font-semibold mb-4 text-gray-700">Additional Requirements</h5>
-                    <div class="space-y-4">
-                        <div>
-                        <label for="form_a_research_plans_pdf" class="block text-sm font-medium text-gray-700 mb-1">
-                            📑 Form A – Research Plans <span class="text-red-500">*</span>
-                        </label>
-                        <input type="file" id="form_a_research_plans_pdf" name="form_a_research_plans_pdf" accept="application/pdf"
-                            class="block w-full text-sm text-gray-500 border rounded-lg cursor-pointer file:mr-4 
-                                file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold 
-                                file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        </div>
-                        <!-- Repeat same structure for Career Plans, Health Status, NBI, etc. -->
-                    </div>
-                    </div>
+    <div class="space-y-6">
+        <!-- Required Section -->
+        <div class="bg-gray-50 p-6 rounded-xl shadow-sm">
+            <h5 class="text-lg font-semibold mb-4 text-gray-700">Required Documents</h5>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="birth_certificate_pdf" class="block text-sm font-medium text-gray-700 mb-1">
+                        📑 Birth Certificate <span class="text-red-500">*</span>
+                    </label>
+                    <input type="file" id="birth_certificate_pdf" name="birth_certificate_pdf" accept="application/pdf" class="block w-full text-sm text-gray-500 border rounded-lg cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                 </div>
 
-                <!-- Navigation -->
-                <div class="flex justify-between mt-8">
-                    <button type="button" onclick="prevStep(6)"
-                    class="px-6 py-2 rounded-lg bg-gray-200 text-gray-800 font-medium hover:bg-gray-300 transition">
-                    ← Back
-                    </button>
-                    <button type="button" onclick="validateAndNext(7)"
-                    class="px-6 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition">
-                    Next: Declaration →
-                    </button>
-                </div>
+                <div>
+                    <label for="transcript_of_record_pdf" class="block text-sm font-medium text-gray-700 mb-1">
+                        🎓 Transcript of Records <span class="text-red-500">*</span>
+                    </label>
+                    <input type="file" id="transcript_of_record_pdf" name="transcript_of_record_pdf" accept="application/pdf" class="block w-full text-sm text-gray-500 border rounded-lg cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                 </div>
 
+                <div>
+                    <label for="endorsement_1_pdf" class="block text-sm font-medium text-gray-700 mb-1">
+                        📝 Endorsement 1 <span class="text-red-500">*</span>
+                    </label>
+                    <input type="file" id="endorsement_1_pdf" name="endorsement_1_pdf" accept="application/pdf" class="block w-full text-sm text-gray-500 border rounded-lg cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
 
+                <div>
+                    <label for="endorsement_2_pdf" class="block text-sm font-medium text-gray-700 mb-1">
+                        📝 Endorsement 2 <span class="text-red-500">*</span>
+                    </label>
+                    <input type="file" id="endorsement_2_pdf" name="endorsement_2_pdf" accept="application/pdf" class="block w-full text-sm text-gray-500 border rounded-lg cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+            </div>
+        </div>
+
+        <!-- If Employed -->
+        <div class="bg-gray-50 p-6 rounded-xl shadow-sm">
+            <h5 class="text-lg font-semibold mb-4 text-gray-700">If Employed</h5>
+            <div class="space-y-4">
+                <div>
+                    <label for="recommendation_head_agency_pdf" class="block text-sm font-medium text-gray-700 mb-1">
+                        🏢 Recommendation from Head of Agency
+                    </label>
+                    <input type="file" id="recommendation_head_agency_pdf" name="recommendation_head_agency_pdf" accept="application/pdf" class="block w-full text-sm text-gray-500 border rounded-lg cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+                <div>
+                    <label for="form_2a_pdf" class="block text-sm font-medium text-gray-700 mb-1">
+                        📋 Form 2A – Certificate of Employment
+                    </label>
+                    <input type="file" id="form_2a_pdf" name="form_2a_pdf" accept="application/pdf" class="block w-full text-sm text-gray-500 border rounded-lg cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+                <div>
+                    <label for="form_2b_pdf" class="block text-sm font-medium text-gray-700 mb-1">
+                        📋 Form 2B – Certificate of Employment (Optional)
+                    </label>
+                    <input type="file" id="form_2b_pdf" name="form_2b_pdf" accept="application/pdf" class="block w-full text-sm text-gray-500 border rounded-lg cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Requirements -->
+        <div class="bg-gray-50 p-6 rounded-xl shadow-sm">
+            <h5 class="text-lg font-semibold mb-4 text-gray-700">Additional Requirements</h5>
+            <div class="space-y-4">
+                <div>
+                    <label for="form_a_research_plans_pdf" class="block text-sm font-medium text-gray-700 mb-1">
+                        📑 Form A – Research Plans <span class="text-red-500">*</span>
+                    </label>
+                    <input type="file" id="form_a_research_plans_pdf" name="form_a_research_plans_pdf" accept="application/pdf" class="block w-full text-sm text-gray-500 border rounded-lg cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+                <div>
+                    <label for="form_b_career_plans_pdf" class="block text-sm font-medium text-gray-700 mb-1">
+                        📑 Form B – Career Plans <span class="text-red-500">*</span>
+                    </label>
+                    <input type="file" id="form_b_career_plans_pdf" name="form_b_career_plans_pdf" accept="application/pdf" class="block w-full text-sm text-gray-500 border rounded-lg cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+                <div>
+                    <label for="form_c_health_status_pdf" class="block text-sm font-medium text-gray-700 mb-1">
+                        📑 Form C – Health Status <span class="text-red-500">*</span>
+                    </label>
+                    <input type="file" id="form_c_health_status_pdf" name="form_c_health_status_pdf" accept="application/pdf" class="block w-full text-sm text-gray-500 border rounded-lg cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+                <div>
+                    <label for="nbi_clearance_pdf" class="block text-sm font-medium text-gray-700 mb-1">
+                        🛡️ NBI Clearance <span class="text-red-500">*</span>
+                    </label>
+                    <input type="file" id="nbi_clearance_pdf" name="nbi_clearance_pdf" accept="application/pdf" class="block w-full text-sm text-gray-500 border rounded-lg cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+                <div>
+                    <label for="letter_of_admission_pdf" class="block text-sm font-medium text-gray-700 mb-1">
+                        📝 Letter of Admission <span class="text-red-500">*</span>
+                    </label>
+                    <input type="file" id="letter_of_admission_pdf" name="letter_of_admission_pdf" accept="application/pdf" class="block w-full text-sm text-gray-500 border rounded-lg cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+                <div>
+                    <label for="approved_program_of_study_pdf" class="block text-sm font-medium text-gray-700 mb-1">
+                        📚 Approved Program of Study <span class="text-red-500">*</span>
+                    </label>
+                    <input type="file" id="approved_program_of_study_pdf" name="approved_program_of_study_pdf" accept="application/pdf" class="block w-full text-sm text-gray-500 border rounded-lg cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+                <div>
+                    <label for="lateral_certification_pdf" class="block text-sm font-medium text-gray-700 mb-1">
+                        📜 Lateral Certification <span class="text-red-500">*</span>
+                    </label>
+                    <input type="file" id="lateral_certification_pdf" name="lateral_certification_pdf" accept="application/pdf" class="block w-full text-sm text-gray-500 border rounded-lg cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="flex justify-between mt-8">
+        <button type="button" onclick="prevStep(6)" class="px-6 py-2 rounded-lg bg-gray-200 text-gray-800 font-medium hover:bg-gray-300 transition">
+            ← Back
+        </button>
+        <button type="button" onclick="validateAndNext(7)" class="px-6 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition">
+            Next: Declaration →
+        </button>
+    </div>
+</div>
                                     <!-- Step 8: Truthfulness of Data and Data Privacy -->
                     <div class="step bg-white p-6 rounded-lg shadow-sm hidden" id="step8">
                         <h4 class="text-lg font-semibold mb-3 mt-6">VIII. TRUTHFULNESS OF DATA AND DATA PRIVACY</h4>
@@ -1243,6 +1279,33 @@ document.addEventListener('DOMContentLoaded', function () {
     const regionSelect = document.getElementById('region_select');
     const districtSelect = document.getElementById('district_select');
     const zipInput = document.getElementById('zip_code');
+    const cityDistricts = {
+        "Cagayan de Oro City": {
+            "District 1": ["Balulang", "Carmen", "Consolacion", "Macabalan", "Kauswagan", "Bonbon", "Bayabas", "Bulua", "Iponan", "Patag", "Nazareth"],
+            "District 2": ["Lapasan", "Macasandig", "Camaman-an", "Gusa", "Tablon", "Agusan", "Puerto", "Bugo", "Tignapoloan", "Taglimao", "Baikingon"]
+        },
+        "Davao City": {
+            "District 1": ["Agdao", "Buhangin", "Lanang", "Pampanga", "Sasa", "San Antonio", "Centro"],
+            "District 2": ["Talomo", "Matina", "Bangkal", "Toril", "Mintal", "Ulas", "Catalunan Grande"],
+            "District 3": ["Calinan", "Baguio", "Marilog", "Paquibato", "Tugbok"]
+        },
+        "Zamboanga City": {
+            "District 1": ["Ayala", "Recodo", "Labuan", "Sinunuc", "San Roque", "San Ramon"],
+            "District 2": ["Tetuan", "Guiwan", "Putik", "Taluksangay", "Mercedes", "Culianan", "Boalan"]
+        },
+        "General Santos City": {
+            "Lone District": ["Apopong", "Bula", "Calumpang", "Fatima", "Lagao", "San Isidro", "Tinagacan", "Labangal"]
+        },
+        "Butuan City": {
+            "Lone District": ["Ampayon", "Bancasi", "San Vicente", "Ambago", "Pagatpatan", "Obrero", "Baan Riverside"]
+        },
+        "Iligan City": {
+            "Lone District": ["Bagong Silang", "Hinaplanon", "San Miguel", "Del Carmen", "Pala-o", "Sta. Elena"]
+        },
+        "Cotabato City": {
+            "Lone District": ["Bagua", "Rosary Heights", "Poblacion", "Mother Bagua", "Kalanganan", "Tamontaka"]
+        }
+    };
 
     // Static fallback zip codes per region (you can expand this list)
     const regionZipFallback = {
@@ -1275,45 +1338,126 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(err => console.error('Error loading regions:', err));
 
-    // Handle region change
-    regionSelect.addEventListener('change', function () {
-        const regionCode = this.value;
+  // Handle region change (replace the old regionSelect.addEventListener block)
+regionSelect.addEventListener('change', function () {
+    const regionCode = this.value;
+    districtSelect.innerHTML = '<option value="">Select District</option>';
+    zipInput.value = '';
+
+    if (!regionCode) {
+        districtSelect.disabled = true;
+        return;
+    }
+
+    // NCR - load official districts
+    if (regionCode === "130000000") {
+        districtSelect.disabled = false;
         districtSelect.innerHTML = '<option value="">Select District</option>';
-        zipInput.value = '';
 
-        if (!regionCode) {
-            districtSelect.disabled = true;
-            return;
-        }
+        fetch(`https://psgc.gitlab.io/api/districts/`)
+            .then(res => res.json())
+            .then(data => {
+                data.forEach(d => districtSelect.add(new Option(d.name, d.code)));
+            })
+            .catch(err => {
+                console.error('Error loading districts:', err);
+                // keep district disabled on error
+                districtSelect.disabled = true;
+            });
 
-        // NCR (Region Code = 130000000)
-        if (regionCode === "130000000") {
-            districtSelect.disabled = false;
+        // Try to set zip from region endpoint (if present) or fallback
+        fetch(`https://psgc.gitlab.io/api/regions/${regionCode}/`)
+            .then(res => res.json())
+            .then(region => {
+                zipInput.value = region.zipcode || regionZipFallback[regionCode] || '';
+            })
+            .catch(() => {
+                zipInput.value = regionZipFallback[regionCode] || '';
+            });
 
-            fetch(`https://psgc.gitlab.io/api/districts/`)
-                .then(res => res.json())
-                .then(data => {
-                    data.forEach(d => {
-                        districtSelect.add(new Option(d.name, d.code));
-                    });
-                })
-                .catch(err => console.error('Error loading districts:', err));
-        } else {
-            // Non-NCR regions → disable district select
-            districtSelect.disabled = true;
+    } else {
+        // Non-NCR: populate districtSelect with provinces (so field is never empty)
+        districtSelect.disabled = false;
+        districtSelect.innerHTML = '<option value="">Select District (Province)</option>';
 
-            // Auto-fill zip code from PSGC (fallback to static map)
-            fetch(`https://psgc.gitlab.io/api/regions/${regionCode}/`)
-                .then(res => res.json())
-                .then(region => {
-                    zipInput.value = region.zipcode || regionZipFallback[regionCode] || "N/A";
-                })
-                .catch(err => {
-                    zipInput.value = regionZipFallback[regionCode] || "N/A";
-                    console.error('Error loading region zip:', err);
-                });
-        }
-    });
+        fetch(`https://psgc.gitlab.io/api/regions/${regionCode}/provinces/`)
+            .then(res => res.json())
+            .then(provinces => {
+                if (Array.isArray(provinces) && provinces.length > 0) {
+                    provinces.forEach(p => districtSelect.add(new Option(p.name, p.code)));
+                } else {
+                    // fallback: use region name as single option
+                    fetch(`https://psgc.gitlab.io/api/regions/${regionCode}/`)
+                        .then(res => res.json())
+                        .then(region => districtSelect.add(new Option(region.name, region.code)))
+                        .catch(err => {
+                            console.error('Error loading region fallback:', err);
+                            districtSelect.add(new Option("Unknown District", ""));
+                        });
+                }
+            })
+            .catch(err => {
+                console.error('Error loading provinces:', err);
+                districtSelect.add(new Option("Unknown District", ""));
+            });
+
+        // For non-NCR, set ZIP from region data (preferred) or fallback map
+        fetch(`https://psgc.gitlab.io/api/regions/${regionCode}/`)
+            .then(res => res.json())
+            .then(region => {
+                zipInput.value = region.zipcode || regionZipFallback[regionCode] || '';
+            })
+            .catch(() => {
+                zipInput.value = regionZipFallback[regionCode] || '';
+            });
+    }
+});
+
+// Handle district change (replace the old districtSelect.addEventListener block)
+districtSelect.addEventListener('change', function () {
+    const selectedCode = this.value;
+    const regionCode = regionSelect.value;
+    zipInput.value = '';
+
+    if (!selectedCode) {
+        // nothing selected — keep region zip or fallback
+        zipInput.value = regionZipFallback[regionCode] || '';
+        return;
+    }
+
+    if (regionCode === "130000000") {
+        // NCR: selectedCode should be a district code → fetch district details
+        fetch(`https://psgc.gitlab.io/api/districts/${selectedCode}/`)
+            .then(res => {
+                if (!res.ok) throw new Error('District not found');
+                return res.json();
+            })
+            .then(district => {
+                zipInput.value = district.zipcode || regionZipFallback[regionCode] || '';
+            })
+            .catch(err => {
+                console.error('Error loading district zip:', err);
+                zipInput.value = regionZipFallback[regionCode] || '';
+            });
+    } else {
+        // Non-NCR: selectedCode is a province code (or region fallback). Try province API for zipcode,
+        // but if that fails use the region fallback (prevents wrong default 1000).
+        fetch(`https://psgc.gitlab.io/api/provinces/${selectedCode}/`)
+            .then(res => {
+                if (!res.ok) throw new Error('Province not found');
+                return res.json();
+            })
+            .then(province => {
+                // province.zipcode may not exist; fall back to region fallback
+                zipInput.value = province.zipcode || regionZipFallback[regionCode] || '';
+            })
+            .catch(err => {
+                console.error('Error loading province zip:', err);
+                zipInput.value = regionZipFallback[regionCode] || '';
+            });
+    }
+});
+
 
     // Handle district change (only NCR)
     districtSelect.addEventListener('change', function () {
