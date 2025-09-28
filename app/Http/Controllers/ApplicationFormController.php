@@ -30,7 +30,7 @@ class ApplicationFormController extends Controller
     $user = Auth::user();
 
     // Get all applications for this user
-    $applications = ApplicationForm::where('user_id', $user->id)->get();
+    $applications = ApplicationForm::where('user_id', $user->user_id)->get();
 
     return view('applicant.my-application', compact('applications'));
 }
@@ -149,6 +149,8 @@ public function store(Request $request)
         'letter_of_admission_pdf' => 'nullable|file|mimes:pdf|max:20480',
         'approved_program_of_study_pdf' => 'nullable|file|mimes:pdf|max:20480',
         'lateral_certification_pdf' => 'nullable|file|mimes:pdf|max:20480',
+        'evaluation_sheet_pdf' => 'nullable|file|mimes:pdf|max:20480', // ✅ added
+        'scoresheet_pdf' => 'nullable|file|mimes:pdf|max:20480',       // ✅ added
 
         // Step 8: Declaration
         'terms_and_conditions_agreed' => 'accepted',
@@ -160,7 +162,7 @@ public function store(Request $request)
 $application = new ApplicationForm();
 
 // Set default values
-$application->user_id = Auth::id();
+$application->user_id = Auth::user()->user_id;
 $application->program = $request->program;
 $application->status = 'pending';
 $application->submitted_at = now();
@@ -209,6 +211,8 @@ $fileFields = [
     'letter_of_admission_pdf',
     'approved_program_of_study_pdf',
     'lateral_certification_pdf',
+    'evaluation_sheet_pdf',  // ✅ added
+    'scoresheet_pdf',        // ✅ added
 ];
 
 foreach ($fileFields as $field) {

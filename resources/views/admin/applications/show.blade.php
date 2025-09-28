@@ -313,41 +313,98 @@ if (! function_exists('getLocationName')) {
 
 
         <!-- Employment -->
-<div x-show="sectionIndex === 2" class="transition-all duration-300 bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6">
+<div x-show="sectionIndex === 2" 
+     class="transition-all duration-300 bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6">
+
     <div class="flex items-center gap-2 mb-6">
-        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 7V6a2 2 0 012-2h2a2 2 0 012 2v1h4V6a2 2 0 012-2h2a2 2 0 012 2v1m0 0v10a2 2 0 01-2 2H6a2 2 0 01-2-2V7h16z" />
+        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 11c0-1.657-1.343-3-3-3H7a3 3 0 00-3 3v5h12v-5z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 13v6M8 13v6m4-6v6" />
         </svg>
         <h3 class="text-xl font-bold text-[#1e33a3]">Employment</h3>
-    </div>      
+    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 text-sm text-gray-800">
-        @foreach ([
-            'Employment Status' => 'employment_status',
-            'Position' => 'position',
-            'Length of Service' => 'length_of_service',
-            'Company Name' => 'company_name',
-            'Company Address' => 'company_address',
-            'Company Email' => 'company_email',
-            'Company Website' => 'company_website',
-            'Company Phone' => 'company_phone',
-            'Company Fax' => 'company_fax',
-            'Business Name' => 'business_name',
-            'Business Address' => 'business_address',
-            'Business Email' => 'business_email',
-            'Business Type' => 'business_type',
-            'Years of Operation' => 'years_operation',
-        ] as $label => $field)
+    <!-- Employment Status -->
+    <div class="mb-4">
+        <p class="font-semibold text-gray-600">Employment Status</p>
+        <p class="font-semibold">{{ $application->employment_status ?? 'N/A' }}</p>
+    </div>
+
+    @if($application->employment_status === 'Permanent' || 
+        $application->employment_status === 'Contractual' || 
+        $application->employment_status === 'Probationary')
+
+        <!-- Company-related fields -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 text-sm text-gray-800">
             <div>
-                <p class="font-semibold text-gray-600">{{ $label }}</p>
-                <p class="font-semibold">
-                    {{ is_array($application->$field) ? implode(', ', $application->$field) : ($application->$field ?? 'N/A') }}
-                </p>
+                <p class="font-semibold text-gray-600">Position</p>
+                <p class="font-semibold">{{ $application->position ?? 'N/A' }}</p>
             </div>
-        @endforeach
-    </div> 
+            <div>
+                <p class="font-semibold text-gray-600">Length of Service</p>
+                <p class="font-semibold">{{ $application->length_of_service ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <p class="font-semibold text-gray-600">Company Name</p>
+                <p class="font-semibold">{{ $application->company_name ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <p class="font-semibold text-gray-600">Company Address</p>
+                <p class="font-semibold">{{ $application->company_address ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <p class="font-semibold text-gray-600">Company Email</p>
+                <p class="font-semibold">{{ $application->company_email ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <p class="font-semibold text-gray-600">Company Website</p>
+                <p class="font-semibold">{{ $application->company_website ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <p class="font-semibold text-gray-600">Company Phone</p>
+                <p class="font-semibold">{{ $application->company_phone ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <p class="font-semibold text-gray-600">Company Fax</p>
+                <p class="font-semibold">{{ $application->company_fax ?? 'N/A' }}</p>
+            </div>
+        </div>
+
+    @elseif($application->employment_status === 'Self-employed')
+
+        <!-- Business-related fields -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 text-sm text-gray-800">
+            <div>
+                <p class="font-semibold text-gray-600">Business Name</p>
+                <p class="font-semibold">{{ $application->business_name ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <p class="font-semibold text-gray-600">Business Address</p>
+                <p class="font-semibold">{{ $application->business_address ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <p class="font-semibold text-gray-600">Business Email</p>
+                <p class="font-semibold">{{ $application->business_email ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <p class="font-semibold text-gray-600">Business Type</p>
+                <p class="font-semibold">{{ $application->business_type ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <p class="font-semibold text-gray-600">Years of Operation</p>
+                <p class="font-semibold">{{ $application->years_of_operation ?? 'N/A' }}</p>
+            </div>
+        </div>
+
+    @elseif($application->employment_status === 'Unemployed')
+
+        <!-- Just show unemployed -->
+        <p class="text-gray-600 italic">No employment or business information provided.</p>
+
+    @endif
 </div>
-        <!-- End of Employment -->
+
 
        <!-- Future Plans -->
 <div x-show="sectionIndex === 3" class="transition-all duration-300 bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6">
@@ -409,8 +466,9 @@ if (! function_exists('getLocationName')) {
 <!-- End of Future Plans -->
 
 
-     <!-- Declaration / Data Privacy -->
-<div x-show="sectionIndex === 4" class="transition-all duration-300 bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6">
+   <!-- Declaration / Data Privacy -->
+<div x-show="sectionIndex === 4" 
+     class="transition-all duration-300 bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6">
     <div class="flex items-center gap-2 mb-6">
         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
@@ -419,36 +477,22 @@ if (! function_exists('getLocationName')) {
     </div>
 
     <div class="text-sm text-gray-800 space-y-4">
-        @php
-            $declarationText = is_array($application->declaration_text) ? implode(', ', $application->declaration_text) : ($application->declaration_text ?? 'N/A');
-        @endphp
-        <div>
-            <p class="font-semibold text-gray-600">Declaration:</p>
-            <p>{{ $declarationText }}</p>
-        </div>
-
-        <div>
-            <p class="font-semibold text-gray-600">Applicant Signature:</p>
-            @if($application->applicant_signature)
-                <img src="{{ asset('storage/' . $application->applicant_signature) }}" alt="Signature" class="h-24">
-            @else
-                <p class="text-gray-400">No signature submitted</p>
-            @endif
-        </div>
-
-        <div>
-            <p class="font-semibold text-gray-600">Date of Submission:</p>
-            <p>{{ $application->declaration_date ?? 'N/A' }}</p>
-        </div>
-
         <div>
             <p class="font-semibold text-gray-600">Agreement to Terms & Privacy Policy:</p>
             <p>{{ $application->terms_and_conditions_agreed ? 'Agreed' : 'Not Agreed' }}</p>
         </div>
+
+        <div>
+            <p class="font-semibold text-gray-600">Applicant Signature (Printed Name):</p>
+            <p>{{ $application->applicant_signature ?? 'N/A' }}</p>
+        </div>
+
+        <div>
+            <p class="font-semibold text-gray-600">Date of Declaration:</p>
+            <p>{{ $application->declaration_date ?? 'N/A' }}</p>
+        </div>
     </div>
 </div>
-
-        <!-- End of Sections -->
 
         <!-- Navigation -->
         <div class="flex justify-between items-center px-6">
@@ -468,7 +512,7 @@ if (! function_exists('getLocationName')) {
     <!-- RIGHT SIDE -->
     <div class="col-span-1 space-y-6">
 
-      <!-- 📑 Documents -->
+     <!-- 📑 Documents -->
 <div class="bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6">
     <h3 class="text-lg font-bold mb-4">Documents</h3>
 
@@ -477,108 +521,99 @@ if (! function_exists('getLocationName')) {
             'Evaluation Sheet' => $application->evaluation_file_path ?? null,
             'Scoresheet' => $application->scoresheet_file_path ?? null,
             'Passport Picture' => $application->passport_picture ?? null,
-            'Form 137' => $application->form137 ?? null,
-            'Certificate of Employment' => $application->cert_employment ?? null,
-            'Certificate of Purpose' => $application->cert_purpose ?? null,
+            'Birth Certificate' => $application->birth_certificate_pdf ?? null,
+            'Transcript of Record' => $application->transcript_of_record_pdf ?? null,
+            'Endorsement Letter 1' => $application->endorsement_1_pdf ?? null,
+            'Endorsement Letter 2' => $application->endorsement_2_pdf ?? null,
+            'Recommendation of Head of Agency' => $application->recommendation_head_agency_pdf ?? null,
+            'Form 2A - Certificate of Employment' => $application->form_2a_pdf ?? null,
+            'Form 2B - Optional Employment Cert.' => $application->form_2b_pdf ?? null,
+            'Form A - Research Plans' => $application->form_a_research_plans_pdf ?? null,
+            'Form B - Career Plans' => $application->form_b_career_plans_pdf ?? null,
+            'Form C - Health Status' => $application->form_c_health_status_pdf ?? null,
+            'NBI Clearance' => $application->nbi_clearance_pdf ?? null,
+            'Letter of Admission' => $application->letter_of_admission_pdf ?? null,
+            'Approved Program of Study' => $application->approved_program_of_study_pdf ?? null,
+            'Lateral Certification' => $application->lateral_certification_pdf ?? null,
         ];
 
-        /**
-         * Return a usable public URL for a stored file.
-         * Accepts string filename, JSON array, Collection, or object (tries to pick first path).
-         */
         if (! function_exists('getFileUrlFromValue')) {
-            function getFileUrlFromValue($file)
-            {
-                if (! $file) {
-                    return null;
-                }
+            function getFileUrlFromValue($file) {
+                if (! $file) return null;
 
-                // Collection => first value or to array
                 if ($file instanceof \Illuminate\Support\Collection) {
                     $file = $file->first();
                 }
 
-                // JSON string that encodes an array or single value
                 if (is_string($file)) {
                     $decoded = json_decode($file, true);
                     if (json_last_error() === JSON_ERROR_NONE) {
-                        // decoded could be array or string
                         $file = is_array($decoded) ? (count($decoded) ? $decoded[0] : null) : $decoded;
                     }
-                    // otherwise it's a simple string filename - keep it
                 }
 
-                // If $file is an array take the first item (common for multiple uploads)
                 if (is_array($file)) {
                     $file = count($file) ? $file[0] : null;
                 }
 
-                // If it's an object, try common properties
                 if (is_object($file)) {
-                    // try common attributes
-                    if (isset($file->path)) {
-                        $file = $file->path;
-                    } elseif (isset($file->filename)) {
-                        $file = $file->filename;
-                    } else {
-                        // give up and convert to string
-                        $file = json_encode($file);
-                    }
+                    if (isset($file->path)) $file = $file->path;
+                    elseif (isset($file->filename)) $file = $file->filename;
+                    else $file = json_encode($file);
                 }
 
-                if (! $file) {
-                    return null;
-                }
+                if (! $file) return null;
 
-                // Normalize and build URL. If it already starts with 'storage/' use it directly.
                 if (\Illuminate\Support\Str::startsWith($file, 'storage/')) {
                     return asset($file);
                 }
 
-                // Sometimes the file might already have a leading slash
                 return asset('storage/' . ltrim($file, '/'));
             }
         }
     @endphp
 
+    <!-- 👇 scrollable container -->
+    <div class="max-h-80 overflow-y-auto pr-2 space-y-4">
     @foreach ($documents as $label => $file)
-        <div class="mb-4">
-            <div class="flex justify-between items-center gap-4">
-                <div class="flex items-center gap-3">
-                    <p class="text-sm font-medium">{{ $label }}</p>
+        @php $url = getFileUrlFromValue($file); @endphp
+        <div class="flex items-center justify-between border-b border-gray-200 pb-2">
+            <!-- Label -->
+            <p class="text-sm font-medium w-1/2">{{ $label }}</p>
 
-                    @php $url = getFileUrlFromValue($file); @endphp
+            <!-- View File / Status -->
+            <div class="w-1/4 text-center">
+                @if ($url)
+                    <a href="{{ $url }}" target="_blank" class="text-blue-600 hover:underline text-sm font-semibold">View File</a>
+                @elseif ($file)
+                    <span class="text-sm text-gray-500">Unreadable</span>
+                @else
+                    <span class="text-sm text-gray-400">No file</span>
+                @endif
+            </div>
 
-                    @if ($url)
-                        <a href="{{ $url }}" target="_blank" class="text-blue-600 hover:underline text-sm font-semibold">View File</a>
-                    @elseif ($file)
-                        {{-- file value exists but we couldn't build a url --}}
-                        <span class="text-sm text-gray-500">File stored (unreadable)</span>
-                    @else
-                        <span class="text-sm text-gray-400">No file submitted</span>
-                    @endif
-                </div>
-
-                <div>
-                    @if ($file && $url)
-                        <label class="inline-flex items-center text-sm cursor-pointer">
-                            <input type="checkbox" class="peer hidden checkbox-tracker">
-                            <div class="w-2.5 h-2.5 rounded-full border border-gray-400 peer-checked:bg-green-500 peer-checked:border-green-500 transition"></div>
-                            <span class="ml-2 text-xs text-gray-600 peer-checked:text-green-600 font-semibold">Verified</span>
-                        </label>
-                    @else
-                        <label class="inline-flex items-center text-sm opacity-50 cursor-not-allowed">
-                            <input type="checkbox" disabled class="hidden">
-                            <div class="w-2.5 h-2.5 rounded-full border border-gray-300 bg-gray-200"></div>
-                            <span class="ml-2 text-xs text-gray-400 font-semibold">No file</span>
-                        </label>
-                    @endif
-                </div>
+            <!-- Checkbox -->
+            <div class="w-1/4 text-right">
+                @if ($file && $url)
+                    <label class="inline-flex items-center text-sm cursor-pointer">
+                        <input type="checkbox" class="peer hidden checkbox-tracker">
+                        <div class="w-2.5 h-2.5 rounded-full border border-gray-400 peer-checked:bg-green-500 peer-checked:border-green-500 transition"></div>
+                        <span class="ml-2 text-xs text-gray-600 peer-checked:text-green-600 font-semibold">Verified</span>
+                    </label>
+                @else
+                    <label class="inline-flex items-center text-sm opacity-50 cursor-not-allowed">
+                        <input type="checkbox" disabled class="hidden">
+                        <div class="w-2.5 h-2.5 rounded-full border border-gray-300 bg-gray-200"></div>
+                        <span class="ml-2 text-xs text-gray-400 font-semibold">No file</span>
+                    </label>
+                @endif
             </div>
         </div>
     @endforeach
 </div>
+</div>
 <!-- End of Documents -->
+
 
         
         <!-- Application Info -->
