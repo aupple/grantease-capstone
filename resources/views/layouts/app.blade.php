@@ -78,15 +78,37 @@
                     {{ $headerTitle ?? 'University of Science and Technology of Southern Philippines' }}
                 </h1>
 
-                <!-- Right: Profile Icon -->
-               <!-- Right: Profile Icon -->
-<a href="{{ route('profile.edit') }}" class="text-gray-600 hover:text-blue-600" title="Edit Profile">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M5.121 17.804A8.966 8.966 0 0112 15c2.485 0 4.735 1.015 6.379 2.646M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-    </svg>
-</a>
+ <!-- Right: Notification + Profile -->
+<div class="flex items-center gap-6">
+    <!-- 🔔 Notification Bell -->
+    <a href="{{ route('notifications.index') }}" class="relative text-gray-600 hover:text-blue-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 
+                     6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 
+                     6.165 6 8.388 6 11v3.159c0 .538-.214 
+                     1.055-.595 1.436L4 17h5m6 0v1a3 3 
+                     0 11-6 0v-1m6 0H9"/>
+        </svg>
 
+        <!-- 🔴 Notification Count -->
+        @if(auth()->user()->unreadNotifications->count() > 0)
+            <span class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full px-1.5 py-0.5">
+                {{ auth()->user()->unreadNotifications->count() }}
+            </span>
+        @endif
+    </a>
+
+    <!-- 👤 Profile Icon -->
+    <a href="{{ route('profile.edit') }}" class="text-gray-600 hover:text-blue-600" title="Edit Profile">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M5.121 17.804A8.966 8.966 0 0112 15c2.485 
+                     0 4.735 1.015 6.379 2.646M15 11a3 
+                     3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+    </a>
+</div>
             </div>
 
             <!-- ✅ Page Content -->

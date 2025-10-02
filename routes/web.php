@@ -8,6 +8,8 @@ use App\Http\Controllers\ApplicationFormController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\PdfController;
+use App\Http\Controllers\NotificationController;
+
 
 Route::redirect('/', '/login');
 
@@ -100,6 +102,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/profile/edit', [AdminProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile/update', [AdminProfileController::class, 'update'])->name('profile.update');
     });
+        /**
+     * =======================
+     * Notifications
+     * =======================
+     */
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/{id}/redirect', [NotificationController::class, 'redirect'])->name('notifications.redirect');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
 
     /**
      * =======================

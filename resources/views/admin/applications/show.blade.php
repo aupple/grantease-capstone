@@ -480,6 +480,7 @@ if (! function_exists('getLocationName')) {
             'Form 137' => $application->form137 ?? null,
             'Certificate of Employment' => $application->cert_employment ?? null,
             'Certificate of Purpose' => $application->cert_purpose ?? null,
+            'Birth Certificate' => $application->birth_certificate ?? null,
         ];
 
         /**
@@ -575,6 +576,17 @@ if (! function_exists('getLocationName')) {
                     @endif
                 </div>
             </div>
+
+            <!-- ✅ Remarks form for each document -->
+            <form action="{{ route('admin.applications.update-status', $application->application_form_id) }}" method="POST" class="flex items-center gap-2 mt-2">
+                @csrf
+                <input type="hidden" name="document_name" value="{{ $label }}">
+                <strong class="text-xs">Remarks:</strong>
+                <input type="text" name="document_remarks" class="text-xs border px-2 py-1 rounded w-56" placeholder="Type remarks for {{ $label }}...">
+                <button type="submit" class="text-xs text-white bg-blue-500 hover:bg-blue-600 px-2 py-1 rounded transition">Send</button>
+            
+                
+            </form>
         </div>
     @endforeach
 </div>
@@ -600,10 +612,13 @@ if (! function_exists('getLocationName')) {
 
             <form action="{{ route('admin.applications.update-status', $application->application_form_id) }}" method="POST" class="flex items-center gap-2">
                 @csrf
+                <input type="hidden" name="document_name" value="{{ $label }}">
                 <strong class="text-sm">Remarks:</strong>
-                <input type="text" name="remarks" class="text-xs border px-3 py-1 rounded w-64" placeholder="Type your message here..." value="{{ $application->remarks }}">
+                <input type="text" name="document_remarks" class="text-xs border px-3 py-1 rounded w-64" placeholder="Type your message here...">
                 <button type="submit" class="text-xs text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded transition">Send</button>
             </form>
+
+
         </div>
 
         <!-- ✅ Quick Actions -->
