@@ -481,6 +481,20 @@ if (! function_exists('getLocationName')) {
             'Certificate of Employment' => $application->cert_employment ?? null,
             'Certificate of Purpose' => $application->cert_purpose ?? null,
             'Birth Certificate' => $application->birth_certificate ?? null,
+            'E-Signature' => $application->applicant_signature,
+            'Transcript of Records' => $application->transcript_of_record_pdf,
+            'Endorsement 1' => $application->endorsement_1_pdf,
+            'Endorsement 2' => $application->endorsement_2_pdf,
+            'Recommendation from Head of Agency' => $application->recommendation_head_agency_pdf,
+            'Form 2A – Certificate of Employment' => $application->form_2a_pdf,
+            'Form 2B – Certificate of Employment (Optional)' => $application->form_2b_pdf,
+            'Form A – Research Plans' => $application->form_a_research_plans_pdf,
+            'Form B – Career Plans' => $application->form_b_career_plans_pdf,
+            'Form C – Health Status' => $application->form_c_health_status_pdf,
+            'NBI Clearance' => $application->nbi_clearance_pdf,
+            'Letter of Admission' => $application->letter_of_admission_pdf,
+            'Approved Program of Study' => $application->approved_program_of_study_pdf,
+            'Lateral Certification' => $application->lateral_certification_pdf,
         ];
 
         /**
@@ -542,6 +556,7 @@ if (! function_exists('getLocationName')) {
         }
     @endphp
 
+    <div class="max-h-[500px] overflow-y-auto border rounded-lg bg-gray-50 p-3">
     @foreach ($documents as $label => $file)
         <div class="mb-4">
             <div class="flex justify-between items-center gap-4">
@@ -578,17 +593,23 @@ if (! function_exists('getLocationName')) {
             </div>
 
             <!-- ✅ Remarks form for each document -->
-            <form action="{{ route('admin.applications.update-status', $application->application_form_id) }}" method="POST" class="flex items-center gap-2 mt-2">
+            <form action="{{ route('admin.applications.update-status', $application->application_form_id) }}" 
+                  method="POST" class="flex items-center gap-2 mt-2">
                 @csrf
                 <input type="hidden" name="document_name" value="{{ $label }}">
                 <strong class="text-xs">Remarks:</strong>
-                <input type="text" name="document_remarks" class="text-xs border px-2 py-1 rounded w-56" placeholder="Type remarks for {{ $label }}...">
-                <button type="submit" class="text-xs text-white bg-blue-500 hover:bg-blue-600 px-2 py-1 rounded transition">Send</button>
-            
-                
+                <input type="text" name="remarks" 
+                   class="text-xs border px-2 py-1 rounded w-56" 
+                   placeholder="Type remarks for {{ $label }}...">
+                <button type="submit" 
+                    class="text-xs text-white bg-blue-500 hover:bg-blue-600 px-2 py-1 rounded transition">
+                Send
+                </button>
             </form>
         </div>
     @endforeach
+    </div>
+
 </div>
 <!-- End of Documents -->
 
@@ -614,7 +635,7 @@ if (! function_exists('getLocationName')) {
                 @csrf
                 <input type="hidden" name="document_name" value="{{ $label }}">
                 <strong class="text-sm">Remarks:</strong>
-                <input type="text" name="document_remarks" class="text-xs border px-3 py-1 rounded w-64" placeholder="Type your message here...">
+                <input type="text" name="remarks" class="text-xs border px-3 py-1 rounded w-64" placeholder="Type your message here...">
                 <button type="submit" class="text-xs text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded transition">Send</button>
             </form>
 
