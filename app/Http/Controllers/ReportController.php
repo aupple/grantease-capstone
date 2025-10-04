@@ -118,9 +118,19 @@ class ReportController extends Controller
 
 public function monitoring()
 {
-    $grouped = ScholarMonitoring::all()->groupBy('degree_type');
-    return view('admin.reports.monitoring', compact('grouped'));
+    // All monitoring records (with linked scholar + user)
+    $monitorings = ScholarMonitoring::with('scholar.user')->get();
+
+    // Grouping used by the summary grid (degree_type => collection)
+    $grouped = $monitorings->groupBy('degree_type');
+
+    // All scholars (for the top "Monitoring of Scholars" table)
+    $scholars = Scholar::with(['user', 'applicationForm', 'monitorings'])->get();
+
+    return view('admin.reports.monitoring', compact('monitorings', 'grouped', 'scholars'));
 }
+
+
 
 public function downloadMonitoring()
 {

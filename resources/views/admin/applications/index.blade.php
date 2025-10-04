@@ -31,7 +31,7 @@
             <select name="status" id="status" onchange="this.form.submit()"
                 class="bg-white/10 backdrop-blur-md border border-white/20 rounded-md text-sm px-3 py-2 shadow-sm focus:ring-2 focus:ring-blue-300 focus:outline-none transition text-gray-800">
                 <option value="" {{ is_null($status) ? 'selected' : '' }}>All</option>
-                @foreach(['pending', 'document_verification', 'for_interview', 'approved', 'rejected'] as $s)
+                @foreach(['pending', 'approved', 'rejected'] as $s)
                     <option value="{{ $s }}" {{ $status === $s ? 'selected' : '' }}>
                         {{ ucfirst(str_replace('_', ' ', $s)) }}
                     </option>

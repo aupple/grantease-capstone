@@ -106,9 +106,9 @@
                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm 
                 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
                 <option value="">Select Term</option>
-                <option value="First">First Semester/Term</option>
-                <option value="Second">Second Semester/Term</option>
-                <option value="Third">Third Semester/Term</option>
+ <option value="1st Semester">1st Semester</option>
+    <option value="2nd Semester">2nd Semester</option>
+    <option value="3rd Semester">3rd Semester</option>
             </select>
         </div>
     </div>
@@ -421,6 +421,15 @@
 
             <input type="text" name="phd_remarks" placeholder="REMARKS" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
         </div>
+    </div>
+    <div class="mb-6">
+        <label for="reason_applying" class="block text-sm font-medium text-gray-700 mb-2">
+            Reason for Applying
+        </label>
+        <textarea name="reason_applying" id="reason_applying" rows="4"
+            class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm"
+            placeholder="Explain your reason for applying for this scholarship..."
+            required></textarea>
     </div>
 
     <div class="flex justify-between mt-8">

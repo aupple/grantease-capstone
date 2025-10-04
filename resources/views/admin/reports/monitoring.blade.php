@@ -36,11 +36,59 @@
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-800">📊 Scholar Monitoring Report</h1>
     </div>
-
+    {{-- ========================= --}}
+   {{-- 1. SCHOLAR LIST (From Scholars Table) --}}
+    {{-- ========================= --}}
+    <h2 class="text-2xl font-bold mb-4">Individual Scholar List</h2>
+<div class="overflow-x-auto bg-white shadow rounded-lg p-4 mb-10">
+    <table class="min-w-full text-sm text-left border border-gray-300">
+        <thead class="bg-gray-100">
+            <tr>
+                <th class="px-3 py-2 border">No.</th>
+                <th class="px-3 py-2 border">Last Name</th>
+                <th class="px-3 py-2 border">First Name</th>
+                <th class="px-3 py-2 border">Middle Name</th>
+                <th class="px-3 py-2 border">Level</th>
+                <th class="px-3 py-2 border">Course</th>
+                <th class="px-3 py-2 border">School</th>
+                <th class="px-3 py-2 border">New / Lateral</th>
+                <th class="px-3 py-2 border">Part-Time / Full-Time</th>
+                <th class="px-3 py-2 border">Scholarship Duration</th>
+                <th class="px-3 py-2 border">Date Started</th>
+                <th class="px-3 py-2 border">Expected Completion</th>
+                <th class="px-3 py-2 border">Status</th>
+                <th class="px-3 py-2 border">Remarks</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($scholars as $index => $scholar)
+                <tr class="hover:bg-gray-50">
+                    <td class="px-3 py-2 border">{{ $index+1 }}</td>
+                    <td class="px-3 py-2 border">{{ $scholar->last_name }}</td>
+                    <td class="px-3 py-2 border">{{ $scholar->first_name }}</td>
+                    <td class="px-3 py-2 border">{{ $scholar->middle_name }}</td>
+                    <td class="px-3 py-2 border">{{ $scholar->level }}</td>
+                    <td class="px-3 py-2 border">{{ $scholar->course }}</td>
+                    <td class="px-3 py-2 border">{{ $scholar->school }}</td>
+                    <td class="px-3 py-2 border">{{ $scholar->new_or_lateral }}</td>
+                    <td class="px-3 py-2 border">{{ $scholar->full_or_part_time }}</td>
+                    <td class="px-3 py-2 border">{{ $scholar->scholarship_duration }}</td>
+                    <td class="px-3 py-2 border">{{ $scholar->date_started }}</td>
+                    <td class="px-3 py-2 border">{{ $scholar->expected_completion }}</td>
+                    <td class="px-3 py-2 border">{{ $scholar->status_code }}</td>
+                    <td class="px-3 py-2 border">{{ $scholar->remarks }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+    {{-- ========================= --}}
+    {{-- 2. NEW EXCEL-LIKE TABLE (Client Expected) --}}
+    {{-- ========================= --}}
     <form action="{{ route('admin.reports.monitoring.save') }}" method="POST">
         @csrf
 
-        <div class="overflow-x-auto bg-white rounded-xl shadow-md border border-gray-200">
+        <div class="overflow-x-auto bg-white rounded-xl shadow-md border border-gray-200 mb-10">
             <table class="min-w-full text-xs text-center border-collapse">
                 <thead class="text-xs text-center font-semibold text-gray-900">
                     <tr>
@@ -116,7 +164,7 @@
             </table>
         </div>
 
-        <div class="mt-6 flex justify-between items-center no-print">
+        <div class="mt-6 flex justify-between items-center no-print mb-10">
             <a href="{{ route('admin.reports.monitoring.download') }}"
                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow text-sm font-semibold">
                Download PDF
@@ -128,5 +176,4 @@
             </button>
         </div>
     </form>
-</div>
 @endsection

@@ -258,12 +258,12 @@ if (! function_exists('getLocationName')) {
             <p class="font-semibold">{{ is_array($application->program) ? implode(', ', $application->program) : ($application->program ?? 'N/A') }}</p>
         </div>
         <div>
-            <p class="font-semibold text-gray-600">School</p>
-            <p class="font-semibold">{{ is_array($application->school) ? implode(', ', $application->school) : ($application->school ?? 'N/A') }}</p>
+            <p class="font-semibold text-gray-600">School Term</p>
+            <p class="font-semibold">{{ is_array($application->school_term) ? implode(', ', $application->school_term) : ($application->school_term ?? 'N/A') }}</p>
         </div>
         <div>
             <p class="font-semibold text-gray-600">Year Level</p>
-            <p class="font-semibold">{{ is_array($application->year_level) ? implode(', ', $application->year_level) : ($application->year_level ?? 'N/A') }}</p>
+            <p class="font-semibold">{{ is_array($application->academic_year) ? implode(', ', $application->academic_year) : ($application->academic_year ?? 'N/A') }}</p>
         </div>
         <div class="md:col-span-2">
             <p class="font-semibold text-gray-600">Reason for Applying</p>
@@ -275,44 +275,46 @@ if (! function_exists('getLocationName')) {
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 text-sm text-gray-800">
         @foreach ([
-            'BS Field' => 'bs_field',
-            'BS School' => 'bs_school',
-            'BS Scholarship' => 'bs_scholarship',
-            'BS Remarks' => 'bs_remarks',
-            'MS Field' => 'ms_field',
-            'MS School' => 'ms_school',
-            'MS Scholarship' => 'ms_scholarship',
-            'MS Remarks' => 'ms_remarks',
-            'PhD Field' => 'phd_field',
-            'PhD School' => 'phd_school',
-            'PhD Scholarship' => 'phd_scholarship',
-            'PhD Remarks' => 'phd_remarks',
-            'Strand Category' => 'strand_category',
-            'Strand Type' => 'strand_type',
-            'Scholarship Type' => 'scholarship_type',
-            'New University' => 'new_university',
-            'New Course' => 'new_course',
-            'Lateral University' => 'lateral_university',
-            'Lateral Course' => 'lateral_course',
-            'Units Earned' => 'units_earned',
-            'Units Remaining' => 'units_remaining',
-            'Research Title' => 'research_title',
-            'Research Approved' => 'research_approved',
-            'Last Thesis Date' => 'last_thesis_date'
-        ] as $label => $field)
-            <div>
-                <p class="font-semibold text-gray-600">{{ $label }}</p>
-                <p class="font-semibold">
-                    {{ is_array($application->$field) ? implode(', ', $application->$field) : ($application->$field ?? 'N/A') }}
-                </p>
-            </div>
-        @endforeach
+    'BS Field' => 'bs_field',
+    'BS School' => 'bs_school',
+    'BS Scholarship' => 'bs_scholarship',
+    'BS Remarks' => 'bs_remarks',
+    'MS Field' => 'ms_field',
+    'MS School' => 'ms_school',
+    'MS Scholarship' => 'ms_scholarship',
+    'MS Remarks' => 'ms_remarks',
+    'PhD Field' => 'phd_field',
+    'PhD School' => 'phd_school',
+    'PhD Scholarship' => 'phd_scholarship',
+    'PhD Remarks' => 'phd_remarks',
+    'Strand Category' => 'strand_category',
+    'Strand Type' => 'strand_type',
+    'Scholarship Type' => 'scholarship_type',
+    'New University' => 'new_university',
+    'New Course' => 'new_course',
+    'Lateral University' => 'lateral_university',
+    'Lateral Course' => 'lateral_course',
+    'Units Earned' => 'units_earned',
+    'Units Remaining' => 'units_remaining',
+    'Research Title' => 'research_title',
+    'Research Approved' => 'research_approved',
+    'Last Thesis Date' => 'last_thesis_date'
+] as $label => $field)
+    @if(!empty($application->$field))
+        <div>
+            <p class="font-semibold text-gray-600">{{ $label }}</p>
+            <p class="font-semibold">
+                {{ is_array($application->$field) ? implode(', ', $application->$field) : $application->$field }}
+            </p>
+        </div>
+    @endif
+@endforeach
     </div>
 </div>
-        <!-- End of Personal Information -->
+        <!-- End of Academic background -->
 
 
-        <!-- Employment -->
+       <!-- Employment -->
 <div x-show="sectionIndex === 2" 
      class="transition-all duration-300 bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6">
 
@@ -331,78 +333,90 @@ if (! function_exists('getLocationName')) {
         <p class="font-semibold">{{ $application->employment_status ?? 'N/A' }}</p>
     </div>
 
-    @if($application->employment_status === 'Permanent' || 
-        $application->employment_status === 'Contractual' || 
-        $application->employment_status === 'Probationary')
-
+    @if(in_array($application->employment_status, ['Permanent','Contractual','Probationary']))
         <!-- Company-related fields -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 text-sm text-gray-800">
             <div>
                 <p class="font-semibold text-gray-600">Position</p>
-                <p class="font-semibold">{{ $application->position ?? 'N/A' }}</p>
+                <p class="font-semibold">{{ $application->employed_position ?? 'N/A' }}</p>
             </div>
             <div>
                 <p class="font-semibold text-gray-600">Length of Service</p>
-                <p class="font-semibold">{{ $application->length_of_service ?? 'N/A' }}</p>
+                <p class="font-semibold">{{ $application->employed_length_of_service ?? 'N/A' }}</p>
             </div>
             <div>
                 <p class="font-semibold text-gray-600">Company Name</p>
-                <p class="font-semibold">{{ $application->company_name ?? 'N/A' }}</p>
+                <p class="font-semibold">{{ $application->employed_company_name ?? 'N/A' }}</p>
             </div>
             <div>
                 <p class="font-semibold text-gray-600">Company Address</p>
-                <p class="font-semibold">{{ $application->company_address ?? 'N/A' }}</p>
+                <p class="font-semibold">{{ $application->employed_company_address ?? 'N/A' }}</p>
             </div>
             <div>
                 <p class="font-semibold text-gray-600">Company Email</p>
-                <p class="font-semibold">{{ $application->company_email ?? 'N/A' }}</p>
+                <p class="font-semibold">{{ $application->employed_email ?? 'N/A' }}</p>
             </div>
             <div>
                 <p class="font-semibold text-gray-600">Company Website</p>
-                <p class="font-semibold">{{ $application->company_website ?? 'N/A' }}</p>
+                <p class="font-semibold">{{ $application->employed_website ?? 'N/A' }}</p>
             </div>
             <div>
-                <p class="font-semibold text-gray-600">Company Phone</p>
-                <p class="font-semibold">{{ $application->company_phone ?? 'N/A' }}</p>
+                <p class="font-semibold text-gray-600">Company Telephone</p>
+                <p class="font-semibold">{{ $application->employed_telephone ?? 'N/A' }}</p>
             </div>
             <div>
                 <p class="font-semibold text-gray-600">Company Fax</p>
-                <p class="font-semibold">{{ $application->company_fax ?? 'N/A' }}</p>
+                <p class="font-semibold">{{ $application->employed_fax ?? 'N/A' }}</p>
             </div>
         </div>
 
     @elseif($application->employment_status === 'Self-employed')
-
         <!-- Business-related fields -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 text-sm text-gray-800">
             <div>
                 <p class="font-semibold text-gray-600">Business Name</p>
-                <p class="font-semibold">{{ $application->business_name ?? 'N/A' }}</p>
+                <p class="font-semibold">{{ $application->self_employed_business_name ?? 'N/A' }}</p>
             </div>
             <div>
                 <p class="font-semibold text-gray-600">Business Address</p>
-                <p class="font-semibold">{{ $application->business_address ?? 'N/A' }}</p>
+                <p class="font-semibold">{{ $application->self_employed_address ?? 'N/A' }}</p>
             </div>
             <div>
-                <p class="font-semibold text-gray-600">Business Email</p>
-                <p class="font-semibold">{{ $application->business_email ?? 'N/A' }}</p>
+                <p class="font-semibold text-gray-600">Business Email/Website</p>
+                <p class="font-semibold">{{ $application->self_employed_email_website ?? 'N/A' }}</p>
             </div>
             <div>
-                <p class="font-semibold text-gray-600">Business Type</p>
-                <p class="font-semibold">{{ $application->business_type ?? 'N/A' }}</p>
+                <p class="font-semibold text-gray-600">Business Telephone</p>
+                <p class="font-semibold">{{ $application->self_employed_telephone ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <p class="font-semibold text-gray-600">Business Fax</p>
+                <p class="font-semibold">{{ $application->self_employed_fax ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <p class="font-semibold text-gray-600">Type of Business</p>
+                <p class="font-semibold">{{ $application->self_employed_type_of_business ?? 'N/A' }}</p>
             </div>
             <div>
                 <p class="font-semibold text-gray-600">Years of Operation</p>
-                <p class="font-semibold">{{ $application->years_of_operation ?? 'N/A' }}</p>
+                <p class="font-semibold">{{ $application->self_employed_years_of_operation ?? 'N/A' }}</p>
             </div>
         </div>
 
     @elseif($application->employment_status === 'Unemployed')
-
         <!-- Just show unemployed -->
         <p class="text-gray-600 italic">No employment or business information provided.</p>
-
     @endif
+
+    <!-- Always show research and career plans -->
+    <div class="mt-6">
+        <p class="font-semibold text-gray-600">Research Plans Summary</p>
+        <p class="font-semibold">{{ $application->research_plans ?? 'N/A' }}</p>
+    </div>
+    <div class="mt-4">
+        <p class="font-semibold text-gray-600">Career Plans Summary</p>
+        <p class="font-semibold">{{ $application->career_plans ?? 'N/A' }}</p>
+    </div>
 </div>
 
 

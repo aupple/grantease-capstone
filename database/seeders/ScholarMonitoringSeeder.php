@@ -17,11 +17,26 @@ class ScholarMonitoringSeeder extends Seeder
             foreach ($years as $year) {
                 foreach ($statusCodes as $code) {
                     ScholarMonitoring::create([
-                        'degree_type' => $degree,
-                        'year_awarded' => $year,
-                        'status_code' => $code,
-                        'total' => rand(1, 5),
-                    ]);
+    'scholar_id' => $scholar->id,
+    'last_name' => fake()->lastName(),
+    'first_name' => fake()->firstName(),
+    'middle_name' => fake()->lastName(),
+    'level' => fake()->randomElement(['MS','PhD']),
+    'course' => 'Computer Science',
+    'school' => 'Test University',
+    'new_or_lateral' => fake()->randomElement(['NEW','LATERAL']),
+    'enrollment_type' => fake()->randomElement(['FULL TIME','PART TIME']),
+    'scholarship_duration' => '2 years',
+    'date_started' => now()->subYear()->format('Y-m-d'),
+    'expected_completion' => now()->addYear()->format('Y-m-d'),
+    'year_awarded' => 2024,
+    'degree_type' => 'Masters',
+    'status_code' => '3',
+    'total' => 1,
+    'status' => 'active',
+    'remarks' => 'Seeder test data',
+]);
+
                 }
             }
         }

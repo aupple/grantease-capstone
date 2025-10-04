@@ -95,6 +95,16 @@ Route::middleware(['auth'])->group(function () {
 
         // Scholars
         Route::get('/scholars', [AdminController::class, 'viewScholars'])->name('scholars');
+        // Scholar Monitoring
+Route::prefix('monitoring')->name('monitoring.')->group(function () {
+    Route::get('/', [App\Http\Controllers\ScholarMonitoringController::class, 'index'])->name('index');
+    Route::get('/{scholar}/create', [App\Http\Controllers\ScholarMonitoringController::class, 'create'])->name('create');
+    Route::post('/{scholar}', [App\Http\Controllers\ScholarMonitoringController::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [App\Http\Controllers\ScholarMonitoringController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [App\Http\Controllers\ScholarMonitoringController::class, 'update'])->name('update');
+    Route::delete('/{id}', [App\Http\Controllers\ScholarMonitoringController::class, 'destroy'])->name('destroy');
+});
+
 
         // Admin Profile
         Route::get('/profile/edit', [AdminProfileController::class, 'edit'])->name('profile.edit');
