@@ -32,6 +32,6 @@ class ScholarMonitoring extends Model
 
     public function scholar()
     {
-         return $this->belongsTo(Scholar::class, 'scholar_id', 'scholar_id');
+         return $this->belongsTo(Scholar::class, 'scholar_id', 'id');
     }
 }

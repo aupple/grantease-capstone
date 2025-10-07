@@ -157,6 +157,7 @@ public function store(Request $request)
         'applicant_signature' => 'nullable|string|max:150',
         'declaration_date' => 'nullable|date',
     ]);
+    
 
         // Create new ApplicationForm instance
 $application = new ApplicationForm();

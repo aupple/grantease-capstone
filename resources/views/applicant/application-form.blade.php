@@ -422,15 +422,6 @@
             <input type="text" name="phd_remarks" placeholder="REMARKS" class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
         </div>
     </div>
-    <div class="mb-6">
-        <label for="reason_applying" class="block text-sm font-medium text-gray-700 mb-2">
-            Reason for Applying
-        </label>
-        <textarea name="reason_applying" id="reason_applying" rows="4"
-            class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm"
-            placeholder="Explain your reason for applying for this scholarship..."
-            required></textarea>
-    </div>
 
     <div class="flex justify-between mt-8">
         <button type="button" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400" onclick="prevStep(2)">Back</button>

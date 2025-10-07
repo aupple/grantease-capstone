@@ -3,42 +3,55 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Models\Scholar;
 use App\Models\ScholarMonitoring;
 
 class ScholarMonitoringSeeder extends Seeder
 {
     public function run(): void
     {
-        $degrees = ['Bachelors', 'Masters', 'Doctorate'];
-        $years = range(2023, now()->year);
-        $statusCodes = [1, 2, 3, '4a', '4b', '5a', '5b', '5c', '6a', '6b', '6c', '6d', 7, 8, 9, 10];
+        $degrees = ['Masters', 'Doctoral'];
+        $levels = ['MS', 'PhD'];
+        $statusCodes = ['ENR', 'GRD', 'LVW', 'DIS', 'END', 'RET']; // official DOST codes
+        $enrollmentTypes = ['FULL TIME', 'PART TIME'];
+        $newOrLateral = ['NEW', 'LATERAL'];
+        $schools = ['USTP', 'UP Diliman', 'Ateneo de Manila University', 'De La Salle University', 'Mindanao State University'];
+        $courses = ['Computer Science', 'Engineering', 'Biology', 'Mathematics'];
 
-        foreach ($degrees as $degree) {
-            foreach ($years as $year) {
-                foreach ($statusCodes as $code) {
-                    ScholarMonitoring::create([
-    'scholar_id' => $scholar->id,
-    'last_name' => fake()->lastName(),
-    'first_name' => fake()->firstName(),
-    'middle_name' => fake()->lastName(),
-    'level' => fake()->randomElement(['MS','PhD']),
-    'course' => 'Computer Science',
-    'school' => 'Test University',
-    'new_or_lateral' => fake()->randomElement(['NEW','LATERAL']),
-    'enrollment_type' => fake()->randomElement(['FULL TIME','PART TIME']),
-    'scholarship_duration' => '2 years',
-    'date_started' => now()->subYear()->format('Y-m-d'),
-    'expected_completion' => now()->addYear()->format('Y-m-d'),
-    'year_awarded' => 2024,
-    'degree_type' => 'Masters',
-    'status_code' => '3',
-    'total' => 1,
-    'status' => 'active',
-    'remarks' => 'Seeder test data',
-]);
+        $scholars = Scholar::all();
 
-                }
-            }
+        if ($scholars->isEmpty()) {
+            $this->command->warn('⚠️ No scholars found. Run ScholarSeeder first.');
+            return;
         }
+
+        foreach ($scholars as $scholar) {
+            ScholarMonitoring::create([
+                'scholar_id' => $scholar->id,
+                'last_name' => fake()->lastName(),
+                'first_name' => fake()->firstName(),
+                'middle_name' => fake()->lastName(),
+
+                'level' => fake()->randomElement($levels),
+                'course' => fake()->randomElement($courses),
+                'school' => fake()->randomElement($schools),
+
+                'new_or_lateral' => fake()->randomElement($newOrLateral),
+                'enrollment_type' => fake()->randomElement($enrollmentTypes),
+                'scholarship_duration' => fake()->randomElement(['2 years', '3 years', '4 years']),
+                'date_started' => fake()->dateTimeBetween('-3 years', '-1 years')->format('Y-m-d'),
+                'expected_completion' => fake()->dateTimeBetween('now', '+2 years')->format('Y-m-d'),
+
+                'year_awarded' => fake()->numberBetween(2020, 2025),
+                'degree_type' => fake()->randomElement($degrees),
+                'status_code' => fake()->randomElement($statusCodes),
+                'total' => fake()->numberBetween(1, 10),
+
+                'status' => ucfirst(strtolower(fake()->randomElement(['Active', 'Graduated', 'Discontinued', 'On Leave']))),
+                'remarks' => 'Auto-generated for report testing.',
+            ]);
+        }
+
+        $this->command->info('✅ ScholarMonitoringSeeder completed successfully.');
     }
 }

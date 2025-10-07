@@ -1,234 +1,196 @@
 @extends('layouts.admin-layout')
 
 @section('content')
-@php
-    $type = request('type', $type ?? 'applicant');
-@endphp
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+            List of All Applicants
+        </h1>
+    </div>
 
-<h2 class="text-3xl font-bold text-black-700 mb-4">List of all applicants</h2>
-
-<!-- FILTER DROPDOWN FORM -->
-<form action="{{ route('admin.reports.applicants') }}" method="GET" class="mb-4">
-    <label class="block mb-1 text-sm font-medium text-gray-700">Filter by Type:</label>
-    <select name="type" class="w-full max-w-xl bg-white/30 backdrop-blur-sm border border-white/20 shadow p-2 rounded" onchange="this.form.submit()">
-        <option value="applicant" {{ ($type === 'applicant') ? 'selected' : '' }}>Applicants</option>
-        <option value="scholar" {{ ($type === 'scholar') ? 'selected' : '' }}>Scholars</option>
-    </select>
-</form>
-
-<!-- EXPORT SELECTED RECORDS FORM: Wrap table and checkboxes -->
-<form action="{{ route('admin.reports.export-selected') }}" method="POST" class="mb-6">
-    @csrf
-    <input type="hidden" name="type" value="{{ $type }}">
-
-     <div class="border border-white/20 rounded-2xl bg-white/20 backdrop-blur-md shadow-lg p-4 w-full overflow-auto max-h-[700px]">
-    <div class="min-w-[800px] max-w-[1150px] w-full mx-auto">
-                <table class="table-auto w-full text-sm text-left" id="export-table">
-                @php
-                    $columns = [
-                        'no' => 'No.',
-                        'last_name' => 'Last Name',
-                        'first_name' => 'First Name',
-                        'middle_name' => 'Middle Name',
-                        'suffix' => 'Suffix',
-                        'street' => 'Street',
-                        'village' => 'Village',
-                        'town' => 'Town',
-                        'province' => 'Province',
-                        'zipcode' => 'Zipcode',
-                        'district' => 'District',
-                        'region' => 'Region',
-                        'email' => 'Email Address',
-                        'birthday' => 'Birthday',
-                        'contact_number' => 'Contact No.',
-                        'gender' => 'Gender',
-                        'course_completed' => 'Course Completed',
-                        'university_graduated' => 'University Graduated',
-                        'entry' => 'Entry',
-                        'level' => 'Level',
-                        'intended_degree' => 'Intended Masters/Doctoral Degree',
-                        'university' => 'University',
-                        'thesis_title' => 'Thesis/Dissertation Title',
-                        'units_already' => 'Number of Units Already Earned Prior to Scholarship Award',
-                        'percent_load_completed' => '% of Required Load Completed Prior to Scholarship Award',
-                        'duration' => 'Duration of Scholarship',
-                        'remarks' => 'Remarks'
-                    ];
-                @endphp
-
-                <table id="export-table" class="table-auto text-sm text-left whitespace-nowrap min-w-[1400px] border-collapse">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="p-2 border">
-                                <label class="flex items-center space-x-2">
-                                    <input type="checkbox" onclick="toggleAll(this)">
-                                    <span>Select</span>
-                                </label>
-                            </th>
-
-                            @foreach ($columns as $key => $label)
-                                <th class="p-1 border text-xs">
-    <label class="flex items-center space-x-1">
-        <input type="checkbox" class="column-toggle w-3 h-3" data-column="{{ $key }}">
-        <span>{{ $label }}</span>
-    </label>
-</th>
-
-                            @endforeach
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($applicants as $applicant)
-                            <tr class="hover:bg-gray-50">
-                                <td class="p-2 border">
-                                    <input type="checkbox" name="selected[]" value="{{ $applicant->id }}">
-                                </td>
-
-                                @foreach ($columns as $key => $label)
-                                    <td class="p-2 border column-{{ $key }}"
-                                        style="{{ in_array($key, ['last_name', 'email', 'status','first_name','middle_name']) ? '' : 'display:none;' }}">
-                                        @switch($key)
-                                            @case('no')
-                                                {{ $loop->parent->iteration }}
-                                                @break
-                                            @case('last_name')
-                                                {{ $applicant->user->last_name ?? $applicant->last_name ?? '—' }}
-                                                @break
-                                            @case('first_name')
-                                                {{ $applicant->user->first_name ?? $applicant->first_name ?? '—' }}
-                                                @break
-                                            @case('middle_name')
-                                                {{ $applicant->user->middle_name ?? $applicant->middle_name ?? '—' }}
-                                                @break
-                                            @case('suffix')
-                                                {{ $applicant->user->suffix ?? $applicant->suffix ?? '—' }}
-                                                @break
-                                            @case('street')
-                                                {{ $applicant->user->street ?? $applicant->street ?? '—' }}
-                                                @break
-                                            @case('village')
-                                                {{ $applicant->user->village ?? $applicant->village ?? '—' }}
-                                                @break
-                                            @case('town')
-                                                {{ $applicant->user->town ?? $applicant->town ?? '—' }}
-                                                @break
-                                            @case('province')
-                                                {{ $applicant->user->province ?? $applicant->province ?? '—' }}
-                                                @break
-                                            @case('zipcode')
-                                                {{ $applicant->user->zipcode ?? $applicant->zipcode ?? '—' }}
-                                                @break
-                                            @case('district')
-                                                {{ $applicant->user->district ?? $applicant->district ?? '—' }}
-                                                @break
-                                            @case('region')
-                                                {{ $applicant->user->region ?? $applicant->region ?? '—' }}
-                                                @break
-                                            @case('email')
-                                                {{ $applicant->user->email ?? $applicant->email ?? '—' }}
-                                                @break
-                                            @case('birthday')
-                                                {{ optional($applicant->user)->birthday ?? $applicant->birthday ?? '—' }}
-                                                @break
-                                            @case('contact_number')
-                                                {{ $applicant->user->contact_number ?? $applicant->contact_number ?? '—' }}
-                                                @break
-                                            @case('gender')
-                                                {{ $applicant->user->gender ?? $applicant->gender ?? '—' }}
-                                                @break
-                                            @case('course_completed')
-                                                {{ $applicant->user->course_completed ?? $applicant->course_completed ?? $applicant->course ?? '—' }}
-                                                @break
-                                            @case('university_graduated')
-                                                {{ $applicant->user->university ?? $applicant->university_graduated ?? $applicant->university ?? '—' }}
-                                                @break
-                                            @case('entry')
-                                                {{ $applicant->entry ?? $applicant->application_entry ?? '—' }}
-                                                @break
-                                            @case('level')
-                                                {{ $applicant->level ?? '—' }}
-                                                @break
-                                            @case('intended_degree')
-                                                {{ $applicant->intended_degree ?? $applicant->intended_masters_or_doctoral ?? '—' }}
-                                                @break
-                                            @case('university')
-                                                {{ $applicant->university ?? '—' }}
-                                                @break
-                                            @case('thesis_title')
-                                                {{ $applicant->thesis_title ?? $applicant->dissertation_title ?? '—' }}
-                                                @break
-                                            @case('units_already')
-                                                {{ $applicant->units_already ?? $applicant->number_of_units_already ?? '—' }}
-                                                @break
-                                            @case('percent_load_completed')
-                                                {{ $applicant->percent_load_completed ?? $applicant->percent_required_load ?? '—' }}
-                                                @break
-                                            @case('duration')
-                                                {{ $applicant->duration ?? '—' }}
-                                                @break
-                                            @case('remarks')
-                                                {{ $applicant->remarks ?? '—' }}
-                                                @break
-                                            @case('status')
-                                                @php
-                                                    $recordStatus = $applicant->status ?? $applicant->application_status ?? '';
-                                                    $statusClass = match($recordStatus) {
-                                                        '', null => 'bg-gray-200 text-gray-600 italic',
-                                                        'qualifiers', 'gs_on_track' => 'bg-green-200 text-green-900',
-                                                        'not_availing' => 'bg-gray-300 text-gray-800',
-                                                        'deferred', 'pending', 'leave_of_absence', 'on_ext_complete_fa' => 'bg-yellow-200 text-yellow-900',
-                                                        'graduated_on_time', 'graduated_ext', 'on_ext_with_fa', 'on_ext_for_monitoring', 'for_interview' => 'bg-blue-200 text-blue-900',
-                                                        'document_verification' => 'bg-purple-200 text-purple-900',
-                                                        'non_compliance', 'terminated', 'withdrawn', 'rejected', 'no_report', 'suspended' => 'bg-red-200 text-red-900',
-                                                        'approved', 'good_standing' => 'bg-green-200 text-green-900',
-                                                        default => 'bg-gray-100 text-gray-800',
-                                                    };
-                                                @endphp
-                                                <span class="px-2 py-1 rounded text-xs font-semibold capitalize {{ $statusClass }}">
-                                                    {{ $recordStatus ? str_replace('_', ' ', $recordStatus) : '—' }}
-                                                </span>
-                                                @break
-                                            @default
-                                                {{ $applicant->{$key} ?? '—' }}
-                                        @endswitch
-                                    </td>
-                                @endforeach
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="{{ count($columns) + 1 }}" class="text-center p-4 text-gray-500">
-                                    No applicants available.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+    <!-- Filter Card -->
+    <div class="bg-white/30 backdrop-blur-lg shadow-md border border-white/20 rounded-2xl p-6">
+        <form method="GET" action="{{ route('admin.reports.applicants') }}" class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <!-- Academic Year -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Academic Year</label>
+                <select name="academic_year"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">All</option>
+                    @foreach (['2024-2025', '2025-2026'] as $year)
+                        <option value="{{ $year }}" {{ $academicYear == $year ? 'selected' : '' }}>{{ $year }}</option>
+                    @endforeach
+                </select>
             </div>
-        </div>
 
-        <!-- Submit Button -->
-        <div class="mt-4">
-            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm">
-                📄 Download Selected Records
-            </button>
+            <!-- School Term -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">School Term</label>
+                <select name="school_term"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">All</option>
+                    @foreach (['1st Semester', '2nd Semester'] as $term)
+                        <option value="{{ $term }}" {{ $schoolTerm == $term ? 'selected' : '' }}>{{ $term }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex items-end gap-2">
+                <button type="submit"
+                        class=" bg-blue-600 font-medium text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow-md">
+                    Filter
+                </button>
+                <button id="printBtn" type="button"
+                        class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg shadow-md hover:bg-green-700 transition">
+                    Print
+                </button>
+                <button id="resetCols" type="button"
+                        class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg shadow-md hover:bg-gray-600 transition">
+                    Undo Columns
+                </button>
+            </div>
+        </form>
+    </div>
+
+
+    <!-- Column Controls Card -->
+    <div class="bg-white/30 backdrop-blur-lg shadow-md border border-white/20 rounded-2xl p-5">
+        <h2 class="text-sm font-semibold text-gray-700 mb-3">Select Fields</h2>
+        <div class="flex flex-wrap gap-4">
+            @foreach ([
+                'no' => 'No.', 'last_name' => 'Last Name', 'first_name' => 'First Name', 'middle_name' => 'Middle Name',
+                'suffix' => 'Suffix', 'street' => 'Street', 'village' => 'Village', 'town' => 'Town', 'province' => 'Province',
+                'zipcode' => 'Zipcode', 'district' => 'District', 'region' => 'Region', 'email' => 'Email', 'bday' => 'Birthday',
+                'contact_no' => 'Contact No.', 'gender' => 'Gender', 'course_completed' => 'Course Completed',
+                'university_graduated' => 'University Graduated', 'entry' => 'Entry', 'level' => 'Level',
+                'intended_degree' => 'Intended Degree', 'university' => 'University', 'thesis_title' => 'Thesis/Dissertation Title',
+                'units_required' => 'Units Required', 'units_earned' => 'Units Earned', 'percent_completed' => '% Completed',
+                'duration' => 'Duration', 'remarks' => 'Remarks'
+            ] as $col => $label)
+                <label class="flex items-center text-sm text-gray-800">
+                    <input type="checkbox" class="col-toggle mr-1 accent-blue-600" data-col="{{ $col }}" checked>
+                    {{ $label }}
+                </label>
+            @endforeach
         </div>
     </div>
-</form>
 
-<!-- Toggle All Checkboxes & Column Toggle Script -->
+    <!-- Table Section (Unchanged) -->
+    <div class="border border-white/20 rounded-2xl bg-white/20 backdrop-blur-md shadow-lg p-4 w-full overflow-auto max-h-[500px]">
+        <div class="min-w-[700px] max-w-[1200px] w-full mx-auto">
+            <table class="table-auto w-full text-xs text-left border border-gray-300 bg-white" id="applicants-table">
+                <thead class="bg-gray-100 sticky top-0 z-10">
+                    <tr>
+                        @foreach ([
+                            'no' => 'No.', 'last_name' => 'Last Name', 'first_name' => 'First Name', 'middle_name' => 'Middle Name',
+                            'suffix' => 'Suffix', 'street' => 'Street', 'village' => 'Village', 'town' => 'Town', 'province' => 'Province',
+                            'zipcode' => 'Zipcode', 'district' => 'District', 'region' => 'Region', 'email' => 'Email', 'bday' => 'Birthday',
+                            'contact_no' => 'Contact No.', 'gender' => 'Gender', 'course_completed' => 'Course Completed',
+                            'university_graduated' => 'University Graduated', 'entry' => 'Entry', 'level' => 'Level',
+                            'intended_degree' => 'Intended Degree', 'university' => 'University', 'thesis_title' => 'Thesis/Dissertation Title',
+                            'units_required' => 'Units Required', 'units_earned' => 'Units Earned', 'percent_completed' => '% Completed',
+                            'duration' => 'Duration', 'remarks' => 'Remarks'
+                        ] as $col => $label)
+                            <th data-col="{{ $col }}" class="border px-1 py-1 text-left whitespace-nowrap">{{ $label }}</th>
+                        @endforeach
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($applicants as $index => $a)
+                        <tr class="border-t hover:bg-gray-50">
+                            <td data-col="no" class="border px-2 py-1 text-center">{{ $index + 1 }}</td>
+                            <td data-col="last_name" class="border px-2 py-1">{{ $a->last_name }}</td>
+                            <td data-col="first_name" class="border px-2 py-1">{{ $a->first_name }}</td>
+                            <td data-col="middle_name" class="border px-2 py-1">{{ $a->middle_name }}</td>
+                            <td data-col="suffix" class="border px-2 py-1">{{ $a->suffix }}</td>
+                            <td data-col="street" class="border px-2 py-1">{{ $a->street }}</td>
+                            <td data-col="village" class="border px-2 py-1">{{ $a->village }}</td>
+                            <td data-col="town" class="border px-2 py-1">{{ $a->town }}</td>
+                            <td data-col="province" class="border px-2 py-1">{{ $a->province }}</td>
+                            <td data-col="zipcode" class="border px-2 py-1">{{ $a->zipcode }}</td>
+                            <td data-col="district" class="border px-2 py-1">{{ $a->district }}</td>
+                            <td data-col="region" class="border px-2 py-1">{{ $a->region }}</td>
+                            <td data-col="email" class="border px-2 py-1">{{ $a->email }}</td>
+                            <td data-col="bday" class="border px-2 py-1">{{ $a->bday }}</td>
+                            <td data-col="contact_no" class="border px-2 py-1">{{ $a->contact_no }}</td>
+                            <td data-col="gender" class="border px-2 py-1">{{ strtoupper($a->gender) }}</td>
+                            <td data-col="course_completed" class="border px-2 py-1">{{ $a->course_completed }}</td>
+                            <td data-col="university_graduated" class="border px-2 py-1">{{ $a->university_graduated }}</td>
+                            <td data-col="entry" class="border px-2 py-1">{{ ucfirst($a->entry) }}</td>
+                            <td data-col="level" class="border px-2 py-1">{{ strtoupper($a->level) }}</td>
+                            <td data-col="intended_degree" class="border px-2 py-1">{{ $a->intended_degree }}</td>
+                            <td data-col="university" class="border px-2 py-1">{{ $a->university }}</td>
+                            <td data-col="thesis_title" class="border px-2 py-1">{{ $a->thesis_title }}</td>
+                            <td data-col="units_required" class="border px-2 py-1 text-center">{{ $a->units_required }}</td>
+                            <td data-col="units_earned" class="border px-2 py-1 text-center">{{ $a->units_earned }}</td>
+                            <td data-col="percent_completed" class="border px-2 py-1 text-center">{{ $a->percent_completed }}</td>
+                            <td data-col="duration" class="border px-2 py-1">{{ $a->duration }}</td>
+                            <td data-col="remarks" class="border px-2 py-1">{{ $a->remarks }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Column toggle + print logic -->
 <script>
-    function toggleAll(source) {
-        const checkboxes = document.querySelectorAll('input[name="selected[]"]');
-        checkboxes.forEach(box => box.checked = source.checked);
-    }
+    (function() {
+        const colToggles = document.querySelectorAll('.col-toggle');
+        const table = document.getElementById('applicants-table');
+        const printBtn = document.getElementById('printBtn');
+        const resetBtn = document.getElementById('resetCols');
+        const STORAGE_KEY = 'applicants_cols_v1';
 
-    document.querySelectorAll('.column-toggle').forEach(checkbox => {
-        checkbox.addEventListener('change', () => {
-            const columnClass = 'column-' + checkbox.dataset.column;
-            document.querySelectorAll('.' + columnClass).forEach(cell => {
-                cell.style.display = checkbox.checked ? '' : 'none';
+        const defaultCols = Array.from(colToggles).map(cb => cb.dataset.col);
+        let saved = localStorage.getItem(STORAGE_KEY);
+        let visibleCols = saved ? JSON.parse(saved) : defaultCols.slice();
+
+        function initCheckboxes() {
+            colToggles.forEach(cb => {
+                const col = cb.dataset.col;
+                cb.checked = visibleCols.includes(col);
+            });
+        }
+
+        function applyColumnVisibility() {
+            table.querySelectorAll('[data-col]').forEach(el => {
+                const col = el.dataset.col;
+                el.classList.toggle('hidden', !visibleCols.includes(col));
+            });
+        }
+
+        function savePrefs() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(visibleCols));
+        }
+
+        colToggles.forEach(cb => {
+            cb.addEventListener('change', function() {
+                const col = this.dataset.col;
+                if (this.checked) visibleCols.push(col);
+                else visibleCols = visibleCols.filter(c => c !== col);
+                applyColumnVisibility();
+                savePrefs();
             });
         });
-    });
+
+        resetBtn.addEventListener('click', function() {
+            visibleCols = defaultCols.slice();
+            initCheckboxes();
+            applyColumnVisibility();
+            savePrefs();
+        });
+
+        printBtn.addEventListener('click', function() {
+            savePrefs();
+            window.open("{{ route('admin.reports.applicants.print') }}?academic_year={{ $academicYear }}&school_term={{ $schoolTerm }}", '_blank');
+        });
+
+        initCheckboxes();
+        applyColumnVisibility();
+    })();
 </script>
 @endsection

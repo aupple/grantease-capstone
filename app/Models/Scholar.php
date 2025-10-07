@@ -30,7 +30,7 @@ class Scholar extends Model
     }
     public function monitorings()
     {
-        return $this->hasMany(ScholarMonitoring::class, 'scholar_id');
+        return $this->hasMany(ScholarMonitoring::class, 'scholar_id', 'id');
     }
     
     

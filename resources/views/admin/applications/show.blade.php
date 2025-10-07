@@ -532,8 +532,6 @@ if (! function_exists('getLocationName')) {
 
     @php
         $documents = [
-            'Evaluation Sheet' => $application->evaluation_file_path ?? null,
-            'Scoresheet' => $application->scoresheet_file_path ?? null,
             'Passport Picture' => $application->passport_picture ?? null,
             'Birth Certificate' => $application->birth_certificate_pdf ?? null,
             'Transcript of Record' => $application->transcript_of_record_pdf ?? null,
