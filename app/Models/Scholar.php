@@ -28,4 +28,10 @@ class Scholar extends Model
     {
         return $this->belongsTo(ApplicationForm::class, 'application_form_id', 'application_form_id');
     }
+    public function monitorings()
+    {
+        return $this->hasMany(ScholarMonitoring::class, 'scholar_id', 'id');
+    }
+    
+    
 }

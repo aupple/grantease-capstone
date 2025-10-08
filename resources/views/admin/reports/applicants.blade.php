@@ -1,180 +1,196 @@
 @extends('layouts.admin-layout')
 
 @section('content')
-<form action="{{ route('admin.reports.applicants.save') }}" method="POST">
-    @csrf
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+            List of All Applicants
+        </h1>
+    </div>
 
-    <h2 class="text-3xl font-bold text-black-700 mb-4">List of all applicants</h2>
+    <!-- Filter Card -->
+    <div class="bg-white/30 backdrop-blur-lg shadow-md border border-white/20 rounded-2xl p-6">
+        <form method="GET" action="{{ route('admin.reports.applicants') }}" class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <!-- Academic Year -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Academic Year</label>
+                <select name="academic_year"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">All</option>
+                    @foreach (['2024-2025', '2025-2026'] as $year)
+                        <option value="{{ $year }}" {{ $academicYear == $year ? 'selected' : '' }}>{{ $year }}</option>
+                    @endforeach
+                </select>
+            </div>
 
+            <!-- School Term -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">School Term</label>
+                <select name="school_term"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">All</option>
+                    @foreach (['1st Semester', '2nd Semester'] as $term)
+                        <option value="{{ $term }}" {{ $schoolTerm == $term ? 'selected' : '' }}>{{ $term }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex items-end gap-2">
+                <button type="submit"
+                        class=" bg-blue-600 font-medium text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow-md">
+                    Filter
+                </button>
+                <button id="printBtn" type="button"
+                        class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg shadow-md hover:bg-green-700 transition">
+                    Print
+                </button>
+                <button id="resetCols" type="button"
+                        class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg shadow-md hover:bg-gray-600 transition">
+                    Undo Columns
+                </button>
+            </div>
+        </form>
+    </div>
+
+
+    <!-- Column Controls Card -->
+    <div class="bg-white/30 backdrop-blur-lg shadow-md border border-white/20 rounded-2xl p-5">
+        <h2 class="text-sm font-semibold text-gray-700 mb-3">Select Fields</h2>
+        <div class="flex flex-wrap gap-4">
+            @foreach ([
+                'no' => 'No.', 'last_name' => 'Last Name', 'first_name' => 'First Name', 'middle_name' => 'Middle Name',
+                'suffix' => 'Suffix', 'street' => 'Street', 'village' => 'Village', 'town' => 'Town', 'province' => 'Province',
+                'zipcode' => 'Zipcode', 'district' => 'District', 'region' => 'Region', 'email' => 'Email', 'bday' => 'Birthday',
+                'contact_no' => 'Contact No.', 'gender' => 'Gender', 'course_completed' => 'Course Completed',
+                'university_graduated' => 'University Graduated', 'entry' => 'Entry', 'level' => 'Level',
+                'intended_degree' => 'Intended Degree', 'university' => 'University', 'thesis_title' => 'Thesis/Dissertation Title',
+                'units_required' => 'Units Required', 'units_earned' => 'Units Earned', 'percent_completed' => '% Completed',
+                'duration' => 'Duration', 'remarks' => 'Remarks'
+            ] as $col => $label)
+                <label class="flex items-center text-sm text-gray-800">
+                    <input type="checkbox" class="col-toggle mr-1 accent-blue-600" data-col="{{ $col }}" checked>
+                    {{ $label }}
+                </label>
+            @endforeach
+        </div>
+    </div>
+
+    <!-- Table Section (Unchanged) -->
     <div class="border border-white/20 rounded-2xl bg-white/20 backdrop-blur-md shadow-lg p-4 w-full overflow-auto max-h-[500px]">
-        <div class="min-w-[700px] max-w-[1100px] w-full mx-auto">
+        <div class="min-w-[700px] max-w-[1200px] w-full mx-auto">
             <table class="table-auto w-full text-xs text-left border border-gray-300 bg-white" id="applicants-table">
                 <thead class="bg-gray-100 sticky top-0 z-10">
-                    <tr class="text-xs text-gray-700 uppercase tracking-wider">
-                        <th class="p-2 border">#</th>
-                        <th class="p-2 border">Last Name</th>
-                        <th class="p-2 border">First Name</th>
-                        <th class="p-2 border">Middle Name</th>
-                        <th class="p-2 border">Suffix</th>
-                        <th class="p-2 border">Street</th>
-                        <th class="p-2 border">Village</th>
-                        <th class="p-2 border">Town</th>
-                        <th class="p-2 border">Province</th>
-                        <th class="p-2 border">Zipcode</th>
-                        <th class="p-2 border">District</th>
-                        <th class="p-2 border">Region</th>
-                        <th class="p-2 border">Email</th>
-                        <th class="p-2 border">Birthday</th>
-                        <th class="p-2 border">Contact No.</th>
-                        <th class="p-2 border">Gender</th>
-                        <th class="p-2 border">Course</th>
-                        <th class="p-2 border">University</th>
-                        <th class="p-2 border">Entry</th>
-                        <th class="p-2 border">Level</th>
-                        <th class="p-2 border">Degree</th>
-                        <th class="p-2 border">Intended Univ</th>
-                        <th class="p-2 border">Thesis</th>
-                        <th class="p-2 border">Units Req</th>
-                        <th class="p-2 border">Units Earned</th>
-                        <th class="p-2 border">% Load</th>
-                        <th class="p-2 border">Duration</th>
-                        <th class="p-2 border">Remarks</th>
-                        <th class="p-2 border">🗑</th>
+                    <tr>
+                        @foreach ([
+                            'no' => 'No.', 'last_name' => 'Last Name', 'first_name' => 'First Name', 'middle_name' => 'Middle Name',
+                            'suffix' => 'Suffix', 'street' => 'Street', 'village' => 'Village', 'town' => 'Town', 'province' => 'Province',
+                            'zipcode' => 'Zipcode', 'district' => 'District', 'region' => 'Region', 'email' => 'Email', 'bday' => 'Birthday',
+                            'contact_no' => 'Contact No.', 'gender' => 'Gender', 'course_completed' => 'Course Completed',
+                            'university_graduated' => 'University Graduated', 'entry' => 'Entry', 'level' => 'Level',
+                            'intended_degree' => 'Intended Degree', 'university' => 'University', 'thesis_title' => 'Thesis/Dissertation Title',
+                            'units_required' => 'Units Required', 'units_earned' => 'Units Earned', 'percent_completed' => '% Completed',
+                            'duration' => 'Duration', 'remarks' => 'Remarks'
+                        ] as $col => $label)
+                            <th data-col="{{ $col }}" class="border px-1 py-1 text-left whitespace-nowrap">{{ $label }}</th>
+                        @endforeach
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($applicants as $i => $a)
-                        <tr class="{{ $i % 2 == 0 ? 'bg-gray-50' : 'bg-white' }}">
-                            <td class="p-1 border border-gray-300 text-center">{{ $i + 1 }}</td>
-                            <td class="p-1 border border-gray-300"><input type="text" aria-label="Last Name" name="applicants[{{ $i }}][last_name]" placeholder="Last Name" value="{{ $a->last_name }}"></td>
-                            <td class="p-1 border border-gray-300"><input type="text" aria-label="First Name" name="applicants[{{ $i }}][first_name]" placeholder="First Name" value="{{ $a->first_name }}"></td>
-                            <td class="p-1 border border-gray-300"><input type="text" aria-label="Middle Name" name="applicants[{{ $i }}][middle_name]" placeholder="Middle Name" value="{{ $a->middle_name }}"></td>
-                            <td class="p-1 border border-gray-300"><input type="text" aria-label="Suffix" name="applicants[{{ $i }}][suffix]" placeholder="Suffix" value="{{ $a->suffix }}"></td>
-                            <td class="p-1 border border-gray-300"><input type="text" aria-label="Street" name="applicants[{{ $i }}][street]" placeholder="Street" value="{{ $a->street }}"></td>
-                            <td class="p-1 border border-gray-300"><input type="text" aria-label="Village" name="applicants[{{ $i }}][village]" placeholder="Village" value="{{ $a->village }}"></td>
-                            <td class="p-1 border border-gray-300"><input type="text" aria-label="Town" name="applicants[{{ $i }}][town]" placeholder="Town" value="{{ $a->town }}"></td>
-                            <td class="p-1 border border-gray-300"><input type="text" aria-label="Province" name="applicants[{{ $i }}][province]" placeholder="Province" value="{{ $a->province }}"></td>
-                            <td class="p-1 border border-gray-300"><input type="number" aria-label="Zipcode" name="applicants[{{ $i }}][zipcode]" placeholder="Zipcode" value="{{ $a->zipcode }}"></td>
-                            <td class="p-1 border border-gray-300"><input type="text" aria-label="District" name="applicants[{{ $i }}][district]" placeholder="District" value="{{ $a->district }}"></td>
-                            <td class="p-1 border border-gray-300"><input type="text" aria-label="Region" name="applicants[{{ $i }}][region]" placeholder="Region" value="{{ $a->region }}"></td>
-                            <td class="p-1 border border-gray-300"><input type="email" aria-label="Email" name="applicants[{{ $i }}][email]" placeholder="Email" value="{{ $a->email }}"></td>
-                            <td class="p-1 border border-gray-300"><input type="date" aria-label="Birthday" name="applicants[{{ $i }}][birthday]" value="{{ $a->birthday }}"></td>
-                            <td class="p-1 border border-gray-300"><input type="tel" aria-label="Contact No." name="applicants[{{ $i }}][contact_number]" placeholder="Contact No." value="{{ $a->contact_number }}"></td>
-                            <td class="p-1 border border-gray-300">
-                                <select name="applicants[{{ $i }}][gender]" aria-label="Gender">
-                                    <option value="" disabled>Select Gender</option>
-                                    <option value="Male" {{ $a->gender == 'Male' ? 'selected' : '' }}>Male</option>
-                                    <option value="Female" {{ $a->gender == 'Female' ? 'selected' : '' }}>Female</option>
-                                    <option value="Other" {{ $a->gender == 'Other' ? 'selected' : '' }}>Other</option>
-                                </select>
-                            </td>
-                            <td class="p-1 border border-gray-300"><input type="text" aria-label="Course Completed" name="applicants[{{ $i }}][course_completed]" placeholder="Course" value="{{ $a->course_completed }}"></td>
-                            <td class="p-1 border border-gray-300"><input type="text" aria-label="University Graduated" name="applicants[{{ $i }}][university_graduated]" placeholder="University" value="{{ $a->university_graduated }}"></td>
-                            <td class="p-1 border border-gray-300">
-                                <select name="applicants[{{ $i }}][entry_type]" aria-label="Entry Type">
-                                    <option value="new" {{ $a->entry_type == 'new' ? 'selected' : '' }}>New</option>
-                                    <option value="lateral" {{ $a->entry_type == 'lateral' ? 'selected' : '' }}>Lateral</option>
-                                </select>
-                            </td>
-                            <td class="p-1 border border-gray-300">
-                                <select name="applicants[{{ $i }}][level]" aria-label="Level">
-                                    <option value="MS" {{ $a->level == 'MS' ? 'selected' : '' }}>MS</option>
-                                    <option value="PHD" {{ $a->level == 'PHD' ? 'selected' : '' }}>PhD</option>
-                                </select>
-                            </td>
-                            <td class="p-1 border border-gray-300"><input type="text" aria-label="Intended Degree" name="applicants[{{ $i }}][intended_degree]" placeholder="Degree" value="{{ $a->intended_degree }}"></td>
-                            <td class="p-1 border border-gray-300"><input type="text" aria-label="Intended University" name="applicants[{{ $i }}][intended_university]" placeholder="Intended University" value="{{ $a->intended_university }}"></td>
-                            <td class="p-1 border border-gray-300"><textarea aria-label="Thesis Title" name="applicants[{{ $i }}][thesis_title]" placeholder="Thesis Title">{{ $a->thesis_title }}</textarea></td>
-                            <td class="p-1 border border-gray-300"><input type="number" aria-label="Units Required" name="applicants[{{ $i }}][units_required]" placeholder="Units Required" value="{{ $a->units_required }}"></td>
-                            <td class="p-1 border border-gray-300"><input type="number" aria-label="Units Earned Prior" name="applicants[{{ $i }}][units_earned_prior]" placeholder="Units Earned" value="{{ $a->units_earned_prior }}"></td>
-                            <td class="p-1 border border-gray-300"><input type="text" aria-label="Percent Load Prior" name="applicants[{{ $i }}][percent_load_prior]" placeholder="% Load" value="{{ $a->percent_load_prior }}"></td>
-                            <td class="p-1 border border-gray-300"><input type="text" aria-label="Scholarship Duration" name="applicants[{{ $i }}][scholarship_duration]" placeholder="Duration" value="{{ $a->scholarship_duration }}"></td>
-                            <td class="p-1 border border-gray-300"><textarea aria-label="Remarks" name="applicants[{{ $i }}][remarks]" placeholder="Remarks">{{ $a->remarks }}</textarea></td>
-                            <td class="p-1 border border-gray-300 text-center">
-                                <button type="button" onclick="removeRow(this)" class="text-red-600 hover:underline" title="Delete Row">🗑️</button>
-                            </td>
+                    @foreach ($applicants as $index => $a)
+                        <tr class="border-t hover:bg-gray-50">
+                            <td data-col="no" class="border px-2 py-1 text-center">{{ $index + 1 }}</td>
+                            <td data-col="last_name" class="border px-2 py-1">{{ $a->last_name }}</td>
+                            <td data-col="first_name" class="border px-2 py-1">{{ $a->first_name }}</td>
+                            <td data-col="middle_name" class="border px-2 py-1">{{ $a->middle_name }}</td>
+                            <td data-col="suffix" class="border px-2 py-1">{{ $a->suffix }}</td>
+                            <td data-col="street" class="border px-2 py-1">{{ $a->street }}</td>
+                            <td data-col="village" class="border px-2 py-1">{{ $a->village }}</td>
+                            <td data-col="town" class="border px-2 py-1">{{ $a->town }}</td>
+                            <td data-col="province" class="border px-2 py-1">{{ $a->province }}</td>
+                            <td data-col="zipcode" class="border px-2 py-1">{{ $a->zipcode }}</td>
+                            <td data-col="district" class="border px-2 py-1">{{ $a->district }}</td>
+                            <td data-col="region" class="border px-2 py-1">{{ $a->region }}</td>
+                            <td data-col="email" class="border px-2 py-1">{{ $a->email }}</td>
+                            <td data-col="bday" class="border px-2 py-1">{{ $a->bday }}</td>
+                            <td data-col="contact_no" class="border px-2 py-1">{{ $a->contact_no }}</td>
+                            <td data-col="gender" class="border px-2 py-1">{{ strtoupper($a->gender) }}</td>
+                            <td data-col="course_completed" class="border px-2 py-1">{{ $a->course_completed }}</td>
+                            <td data-col="university_graduated" class="border px-2 py-1">{{ $a->university_graduated }}</td>
+                            <td data-col="entry" class="border px-2 py-1">{{ ucfirst($a->entry) }}</td>
+                            <td data-col="level" class="border px-2 py-1">{{ strtoupper($a->level) }}</td>
+                            <td data-col="intended_degree" class="border px-2 py-1">{{ $a->intended_degree }}</td>
+                            <td data-col="university" class="border px-2 py-1">{{ $a->university }}</td>
+                            <td data-col="thesis_title" class="border px-2 py-1">{{ $a->thesis_title }}</td>
+                            <td data-col="units_required" class="border px-2 py-1 text-center">{{ $a->units_required }}</td>
+                            <td data-col="units_earned" class="border px-2 py-1 text-center">{{ $a->units_earned }}</td>
+                            <td data-col="percent_completed" class="border px-2 py-1 text-center">{{ $a->percent_completed }}</td>
+                            <td data-col="duration" class="border px-2 py-1">{{ $a->duration }}</td>
+                            <td data-col="remarks" class="border px-2 py-1">{{ $a->remarks }}</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
     </div>
+</div>
 
-    <div class="mt-4 flex gap-4">
-        <button type="button" onclick="addRow()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm" title="Add a new applicant row">
-            <span aria-hidden="true">➕</span> Add Row
-        </button>
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm" title="Save all changes">
-            <span aria-hidden="true">💾</span> Save All Changes
-        </button>
-    </div>
-</form>
-
+<!-- Column toggle + print logic -->
 <script>
-    let index = {{ count($applicants) }};
+    (function() {
+        const colToggles = document.querySelectorAll('.col-toggle');
+        const table = document.getElementById('applicants-table');
+        const printBtn = document.getElementById('printBtn');
+        const resetBtn = document.getElementById('resetCols');
+        const STORAGE_KEY = 'applicants_cols_v1';
 
-    function addRow() {
-        const table = document.querySelector("#applicants-table tbody");
-        const row = document.createElement("tr");
-        row.className = index % 2 === 0 ? "bg-gray-50" : "bg-white";
-        row.innerHTML = `
-            <td class="p-1 border border-gray-300 text-center">${index + 1}</td>
-            <td class="p-1 border border-gray-300"><input type="text" aria-label="Last Name" name="applicants[${index}][last_name]" placeholder="Last Name"></td>
-            <td class="p-1 border border-gray-300"><input type="text" aria-label="First Name" name="applicants[${index}][first_name]" placeholder="First Name"></td>
-            <td class="p-1 border border-gray-300"><input type="text" aria-label="Middle Name" name="applicants[${index}][middle_name]" placeholder="Middle Name"></td>
-            <td class="p-1 border border-gray-300"><input type="text" aria-label="Suffix" name="applicants[${index}][suffix]" placeholder="Suffix"></td>
-            <td class="p-1 border border-gray-300"><input type="text" aria-label="Street" name="applicants[${index}][street]" placeholder="Street"></td>
-            <td class="p-1 border border-gray-300"><input type="text" aria-label="Village" name="applicants[${index}][village]" placeholder="Village"></td>
-            <td class="p-1 border border-gray-300"><input type="text" aria-label="Town" name="applicants[${index}][town]" placeholder="Town"></td>
-            <td class="p-1 border border-gray-300"><input type="text" aria-label="Province" name="applicants[${index}][province]" placeholder="Province"></td>
-            <td class="p-1 border border-gray-300"><input type="number" aria-label="Zipcode" name="applicants[${index}][zipcode]" placeholder="Zipcode"></td>
-            <td class="p-1 border border-gray-300"><input type="text" aria-label="District" name="applicants[${index}][district]" placeholder="District"></td>
-            <td class="p-1 border border-gray-300"><input type="text" aria-label="Region" name="applicants[${index}][region]" placeholder="Region"></td>
-            <td class="p-1 border border-gray-300"><input type="email" aria-label="Email" name="applicants[${index}][email]" placeholder="Email"></td>
-            <td class="p-1 border border-gray-300"><input type="date" aria-label="Birthday" name="applicants[${index}][birthday]"></td>
-            <td class="p-1 border border-gray-300"><input type="tel" aria-label="Contact No." name="applicants[${index}][contact_number]" placeholder="Contact No."></td>
-            <td class="p-1 border border-gray-300">
-                <select name="applicants[${index}][gender]" aria-label="Gender">
-                    <option value="" disabled selected>Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                </select>
-            </td>
-            <td class="p-1 border border-gray-300"><input type="text" aria-label="Course Completed" name="applicants[${index}][course_completed]" placeholder="Course"></td>
-            <td class="p-1 border border-gray-300"><input type="text" aria-label="University Graduated" name="applicants[${index}][university_graduated]" placeholder="University"></td>
-            <td class="p-1 border border-gray-300">
-                <select name="applicants[${index}][entry_type]" aria-label="Entry Type">
-                    <option value="new">New</option>
-                    <option value="lateral">Lateral</option>
-                </select>
-            </td>
-            <td class="p-1 border border-gray-300">
-                <select name="applicants[${index}][level]" aria-label="Level">
-                    <option value="MS">MS</option>
-                    <option value="PHD">PhD</option>
-                </select>
-            </td>
-            <td class="p-1 border border-gray-300"><input type="text" aria-label="Intended Degree" name="applicants[${index}][intended_degree]" placeholder="Degree"></td>
-            <td class="p-1 border border-gray-300"><input type="text" aria-label="Intended University" name="applicants[${index}][intended_university]" placeholder="Intended University"></td>
-            <td class="p-1 border border-gray-300"><textarea aria-label="Thesis Title" name="applicants[${index}][thesis_title]" placeholder="Thesis Title"></textarea></td>
-            <td class="p-1 border border-gray-300"><input type="number" aria-label="Units Required" name="applicants[${index}][units_required]" placeholder="Units Required"></td>
-            <td class="p-1 border border-gray-300"><input type="number" aria-label="Units Earned Prior" name="applicants[${index}][units_earned_prior]" placeholder="Units Earned"></td>
-            <td class="p-1 border border-gray-300"><input type="text" aria-label="Percent Load Prior" name="applicants[${index}][percent_load_prior]" placeholder="% Load"></td>
-            <td class="p-1 border border-gray-300"><input type="text" aria-label="Scholarship Duration" name="applicants[${index}][scholarship_duration]" placeholder="Duration"></td>
-            <td class="p-1 border border-gray-300"><textarea aria-label="Remarks" name="applicants[${index}][remarks]" placeholder="Remarks"></textarea></td>
-            <td class="p-1 border border-gray-300 text-center">
-                <button type="button" onclick="removeRow(this)" class="text-red-600 hover:underline" title="Delete Row">🗑️</button>
-            </td>
-        `;
-        table.appendChild(row);
-        index++;
-    }
+        const defaultCols = Array.from(colToggles).map(cb => cb.dataset.col);
+        let saved = localStorage.getItem(STORAGE_KEY);
+        let visibleCols = saved ? JSON.parse(saved) : defaultCols.slice();
 
-    function removeRow(button) {
-        if (confirm('Are you sure you want to delete this row?')) {
-            button.closest("tr").remove();
+        function initCheckboxes() {
+            colToggles.forEach(cb => {
+                const col = cb.dataset.col;
+                cb.checked = visibleCols.includes(col);
+            });
         }
-    }
+
+        function applyColumnVisibility() {
+            table.querySelectorAll('[data-col]').forEach(el => {
+                const col = el.dataset.col;
+                el.classList.toggle('hidden', !visibleCols.includes(col));
+            });
+        }
+
+        function savePrefs() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(visibleCols));
+        }
+
+        colToggles.forEach(cb => {
+            cb.addEventListener('change', function() {
+                const col = this.dataset.col;
+                if (this.checked) visibleCols.push(col);
+                else visibleCols = visibleCols.filter(c => c !== col);
+                applyColumnVisibility();
+                savePrefs();
+            });
+        });
+
+        resetBtn.addEventListener('click', function() {
+            visibleCols = defaultCols.slice();
+            initCheckboxes();
+            applyColumnVisibility();
+            savePrefs();
+        });
+
+        printBtn.addEventListener('click', function() {
+            savePrefs();
+            window.open("{{ route('admin.reports.applicants.print') }}?academic_year={{ $academicYear }}&school_term={{ $schoolTerm }}", '_blank');
+        });
+
+        initCheckboxes();
+        applyColumnVisibility();
+    })();
 </script>
 @endsection

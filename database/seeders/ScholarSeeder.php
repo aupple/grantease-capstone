@@ -44,12 +44,12 @@ class ScholarSeeder extends Seeder
             ]);
 
             Scholar::create([
-                'user_id' => $user->user_id,
-                'application_form_id' => $application->application_form_id,
-                'status' => $status,
-                'start_date' => now()->subMonths(6),
-                'end_date' => now()->addMonths(6),
-            ]);
+    'user_id' => $user->user_id,
+    'application_form_id' => $application->application_form_id,
+    'status' => $status,
+    'start_date' => now()->subMonths(6),
+    'end_date' => now()->addMonths(6),
+             ]);
         }
     }
 }

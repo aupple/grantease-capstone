@@ -84,17 +84,30 @@ Route::middleware(['auth'])->group(function () {
      });
 
          // Reports
-        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
-        Route::get('/reports/pdf', [AdminController::class, 'downloadReportPdf'])->name('reports.pdf');
-        Route::post('/reports/export-selected', [ReportController::class, 'exportSelected'])->name('reports.export-selected');
-        Route::get('/reports/applicants', [ReportController::class, 'applicants'])->name('reports.applicants');
-        Route::post('/reports/applicants/save', [ReportController::class, 'saveApplicants'])->name('reports.applicants.save');
-        Route::get('/reports/monitoring', [ReportController::class, 'monitoring'])->name('reports.monitoring');
-        Route::post('/reports/monitoring/save', [ReportController::class, 'saveMonitoring'])->name('reports.monitoring.save');
-        Route::get('/reports/monitoring/download', [ReportController::class, 'downloadMonitoring'])->name('reports.monitoring.download');
+Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+Route::get('/reports/pdf', [AdminController::class, 'downloadReportPdf'])->name('reports.pdf');
+Route::post('/reports/export-selected', [ReportController::class, 'exportSelected'])->name('reports.export-selected');
+Route::get('/reports/applicants', [ReportController::class, 'applicants'])->name('reports.applicants');
+Route::post('/reports/applicants/save', [ReportController::class, 'saveApplicants'])->name('reports.applicants.save');
+Route::get('/reports/applicants/print', [ReportController::class, 'printAllApplicants'])->name('reports.applicants.print'); // 👈 added here
+Route::get('/reports/monitoring', [ReportController::class, 'monitoring'])->name('reports.monitoring');
+Route::post('/reports/monitoring/save', [ReportController::class, 'saveMonitoring'])->name('reports.monitoring.save');
+Route::get('/reports/monitoring/download', [ReportController::class, 'downloadMonitoring'])->name('reports.monitoring.download');
+Route::get('/reports/monitoring/print', [ReportController::class, 'printMonitoring'])->name('reports.monitoring.print');
+
 
         // Scholars
         Route::get('/scholars', [AdminController::class, 'viewScholars'])->name('scholars');
+        // Scholar Monitoring
+Route::prefix('monitoring')->name('monitoring.')->group(function () {
+    Route::get('/', [App\Http\Controllers\ScholarMonitoringController::class, 'index'])->name('index');
+    Route::get('/{scholar}/create', [App\Http\Controllers\ScholarMonitoringController::class, 'create'])->name('create');
+    Route::post('/{scholar}', [App\Http\Controllers\ScholarMonitoringController::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [App\Http\Controllers\ScholarMonitoringController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [App\Http\Controllers\ScholarMonitoringController::class, 'update'])->name('update');
+    Route::delete('/{id}', [App\Http\Controllers\ScholarMonitoringController::class, 'destroy'])->name('destroy');
+});
+
 
         // Admin Profile
         Route::get('/profile/edit', [AdminProfileController::class, 'edit'])->name('profile.edit');
