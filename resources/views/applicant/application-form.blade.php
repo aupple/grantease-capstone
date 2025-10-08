@@ -208,9 +208,10 @@
 </div>
 <div>
     <label for="district_select" class="block text-sm font-medium text-gray-700">District</label>
-    <input type="text" id="district_select" name="district" 
-        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm bg-gray-100" 
-        readonly>
+    <select id="district_select" name="district"
+        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm bg-white">
+        <option value="">Optional (Select District if applicable)</option>
+    </select>
 </div>
 <div>
     <label for="zip_code" class="block text-sm font-medium text-gray-700">Zip Code</label>
@@ -1225,14 +1226,66 @@ document.getElementById("last_name")?.addEventListener("input", autoFillSignatur
         }
     }
     
-
 document.addEventListener('DOMContentLoaded', function () {
     const provinceSelect = document.getElementById('province_select');
     const citySelect = document.getElementById('city_select');
     const barangaySelect = document.getElementById('barangay_select');
-    const regionInput = document.getElementById('region_select');   // should be readonly text
-    const districtInput = document.getElementById('district_select'); // readonly text
+    const regionInput = document.getElementById('region_select');   // readonly
+    const districtSelect = document.getElementById('district_select'); // dropdown now
     const zipInput = document.getElementById('zip_code');
+
+    // 🔹 Cities that have multiple districts (user must pick)
+    const cityDistricts = {
+    // Mindanao
+    "City of Cagayan de Oro": ["District 1", "District 2"],
+    "City of Davao": ["District 1", "District 2", "District 3"],
+    "Zamboanga City": ["District 1", "District 2"],
+    "City of Cotabato": ["District 1"],
+
+    // Visayas
+    "Cebu City": ["North District", "South District"],
+    "City of Mandaue": ["Lone District"],
+    "City of Lapu-Lapu": ["Lone District"],
+    "Iloilo City": ["Lone District"],
+    "Bacolod City": ["Lone District"],
+    "Tacloban City": ["Lone District"],
+    "Ormoc City": ["Lone District"],
+
+    // NCR (Metro Manila) — multiple districts
+    "Quezon City": ["District 1", "District 2", "District 3", "District 4", "District 5", "District 6"],
+    "City of Manila": ["District 1", "District 2", "District 3", "District 4", "District 5", "District 6"],
+    "Caloocan City": ["District 1", "District 2"],
+    "City of Pasig": ["Lone District"],
+    "City of Makati": ["District 1", "District 2"],
+    "City of Marikina": ["District 1", "District 2"],
+    "City of Mandaluyong": ["Lone District"],
+    "City of Taguig": ["District 1", "District 2"],
+    "City of Pasay": ["Lone District"],
+    "City of Valenzuela": ["District 1", "District 2"],
+    "City of Malabon": ["Lone District"],
+    "City of Navotas": ["Lone District"],
+    "City of Muntinlupa": ["Lone District"],
+    "City of Parañaque": ["District 1", "District 2"],
+    "City of Las Piñas": ["Lone District"],
+    "City of San Juan": ["Lone District"],
+    "City of Mandaluyong": ["Lone District"],
+    "City of Pateros": ["Lone District"],
+
+    // Luzon (outside NCR)
+    "Baguio City": ["Lone District"],
+    "Dagupan City": ["Lone District"],
+    "Angeles City": ["Lone District"],
+    "Olongapo City": ["Lone District"],
+    "Lucena City": ["Lone District"],
+    "Batangas City": ["Lone District"],
+    "Lipa City": ["Lone District"],
+    "Cavite City": ["Lone District"],
+    "City of Trece Martires": ["Lone District"],
+    "City of Imus": ["Lone District"],
+    "City of Dasmariñas": ["Lone District"],
+    "Puerto Princesa City": ["Lone District"]
+};
+
 
     const regionZipFallback = {
         "010000000": "2900", "020000000": "3500", "030000000": "2000",
@@ -1243,6 +1296,16 @@ document.addEventListener('DOMContentLoaded', function () {
         "160000000": "8600", "170000000": "5200"
     };
 
+    // 🔹 Utility: populate district dropdown
+    function populateDistricts(cityName) {
+        districtSelect.innerHTML = '<option value="">Optional (Select District if applicable)</option>';
+        if (cityDistricts[cityName]) {
+            cityDistricts[cityName].forEach(d =>
+                districtSelect.add(new Option(d, d))
+            );
+        }
+    }
+
     // 🔹 Utility: set Region + District + ZIP automatically
     async function setLocation(level, code) {
         try {
@@ -1250,15 +1313,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 let prov = await fetch(`https://psgc.gitlab.io/api/provinces/${code}/`).then(r => r.json());
                 let region = await fetch(`https://psgc.gitlab.io/api/regions/${prov.regionCode}/`).then(r => r.json());
 
-                // Region (based on province)
                 regionInput.value = region.name;
                 regionInput.dataset.code = region.code;
 
-                // District = Province name (default rule)
-                districtInput.value = prov.name;
+                // reset district
+                populateDistricts(null);
 
-                // ZIP
-                zipInput.value = prov.zipcode || region.zipcode || regionZipFallback[region.code] || "";
+                zipInput.value = prov.zipcode || regionZipFallback[region.code] || "";
             }
 
             if (level === "cities-municipalities") {
@@ -1269,10 +1330,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 regionInput.value = region.name;
                 regionInput.dataset.code = region.code;
 
-                // District = City name (or keep province if you prefer)
-                districtInput.value = city.name;
+                // check if city has multiple districts
+                populateDistricts(city.name);
 
-                zipInput.value = city.zipcode || prov.zipcode || region.zipcode || regionZipFallback[region.code] || "";
+                zipInput.value = city.zipcode || prov.zipcode || regionZipFallback[region.code] || "";
             }
 
             if (level === "barangays") {
@@ -1284,10 +1345,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 regionInput.value = region.name;
                 regionInput.dataset.code = region.code;
 
-                // District = City name
-                districtInput.value = city.name;
+                // only repopulate if city has districts
+                populateDistricts(city.name);
 
-                zipInput.value = brgy.zipcode || city.zipcode || prov.zipcode || region.zipcode || regionZipFallback[region.code] || "";
+                zipInput.value = brgy.zipcode || city.zipcode || prov.zipcode || regionZipFallback[region.code] || "";
             }
         } catch (err) {
             console.error("Error setting location:", err);
@@ -1305,6 +1366,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const provCode = this.value;
         citySelect.innerHTML = '<option value="">Select City / Municipality</option>';
         barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+        populateDistricts(null);
         if (!provCode) return;
 
         fetch(`https://psgc.gitlab.io/api/provinces/${provCode}/cities-municipalities/`)
@@ -1319,6 +1381,7 @@ document.addEventListener('DOMContentLoaded', function () {
     citySelect.addEventListener('change', function () {
         const cityCode = this.value;
         barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+        populateDistricts(null);
         if (!cityCode) return;
 
         fetch(`https://psgc.gitlab.io/api/cities-municipalities/${cityCode}/barangays/`)
