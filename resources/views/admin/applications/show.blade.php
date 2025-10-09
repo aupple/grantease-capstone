@@ -194,22 +194,22 @@ if (! function_exists('getLocationName')) {
 
 <div>
     <p class="font-semibold text-gray-600">Street</p>
-    <p class="font-semibold">{{ $application->permanent_address_street ?? 'N/A' }}</p>
+    <p class="font-semibold">{{ $application->address_street ?? 'N/A' }}</p>
 </div>
 
 <div>
     <p class="font-semibold text-gray-600">House No.</p>
-    <p class="font-semibold">{{ $application->permanent_address_no ?? 'N/A' }}</p>
+    <p class="font-semibold">{{ $application->address_no ?? 'address_no' }}</p>
 </div>
 
 <div>
     <p class="font-semibold text-gray-600">Region</p>
-    <p class="font-semibold">{{ getLocationName($application->region, 'region') ?? 'N/A' }}</p>
+    <p class="font-semibold">{{ $application->region, 'region' ?? 'N/A' }}</p>
 </div>
 
 <div>
     <p class="font-semibold text-gray-600">District</p>
-    <p class="font-semibold">{{ $application->district ? getLocationName($application->district, 'district') : 'N/A' }}</p>
+    <p class="font-semibold">{{ $application->district, 'district' ?? 'N/A' }}</p>
 </div>
 
 
@@ -405,7 +405,7 @@ if (! function_exists('getLocationName')) {
 
     @elseif($application->employment_status === 'Unemployed')
         <!-- Just show unemployed -->
-        <p class="text-gray-600 italic">No employment or business information provided.</p>
+            <p class="text-gray-600 italic">The applicant is currently unemployed.</p>
     @endif
 
     <!-- Always show research and career plans -->

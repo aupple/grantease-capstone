@@ -1,6 +1,60 @@
 @extends('layouts.admin-layout')
 
 @section('content')
+
+@php
+if (! function_exists('formatValue')) {
+    function formatValue($value) {
+        if ($value instanceof \Illuminate\Support\Collection) $value = $value->toArray();
+        if (is_array($value)) return implode(', ', \Illuminate\Support\Arr::flatten($value)) ?: 'N/A';
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                return implode(', ', \Illuminate\Support\Arr::flatten($decoded)) ?: 'N/A';
+            }
+            return $value === '' ? 'N/A' : $value;
+        }
+        if (is_object($value)) return method_exists($value, '__toString') ? (string)$value : (json_encode($value) ?: 'N/A');
+        return $value ?: 'N/A';
+    }
+}
+
+if (! function_exists('getLocationName')) {
+    function getLocationName($code, $type = 'city') {
+        $jsonUrls = [
+            'province' => 'https://psgc.gitlab.io/api/provinces/',
+            'city' => 'https://psgc.gitlab.io/api/cities-municipalities/',
+            'barangay' => 'https://psgc.gitlab.io/api/barangays/',
+            'district' => 'https://psgc.gitlab.io/api/districts/',
+        ];
+
+        if (!isset($jsonUrls[$type])) return 'Unknown';
+        $cacheFile = storage_path("app/psgc_$type.json");
+        $data = file_exists($cacheFile) ? json_decode(file_get_contents($cacheFile), true) : null;
+
+        if (empty($data)) {
+            try {
+                $json = file_get_contents($jsonUrls[$type]);
+                $data = json_decode($json, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($data)) {
+                    file_put_contents($cacheFile, json_encode($data));
+                }
+            } catch (\Exception $e) {
+                return 'Unknown';
+            }
+        }
+
+        foreach ($data as $item) {
+            if (isset($item['code']) && $item['code'] == $code) {
+                return $item['name'];
+            }
+        }
+        return 'Unknown';
+    }
+}
+@endphp
+
+
 <div class="space-y-6">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
@@ -105,26 +159,26 @@
                             <td data-col="first_name" class="border px-2 py-1">{{ $a->first_name }}</td>
                             <td data-col="middle_name" class="border px-2 py-1">{{ $a->middle_name }}</td>
                             <td data-col="suffix" class="border px-2 py-1">{{ $a->suffix }}</td>
-                            <td data-col="street" class="border px-2 py-1">{{ $a->street }}</td>
-                            <td data-col="village" class="border px-2 py-1">{{ $a->village }}</td>
-                            <td data-col="town" class="border px-2 py-1">{{ $a->town }}</td>
-                            <td data-col="province" class="border px-2 py-1">{{ $a->province }}</td>
-                            <td data-col="zipcode" class="border px-2 py-1">{{ $a->zipcode }}</td>
+                            <td data-col="street" class="border px-2 py-1">{{ $a->address_street }}</td>
+                            <td data-col="village" class="border px-2 py-1">{{ getLocationName($a->barangay, 'barangay') }}</td>
+                            <td data-col="town" class="border px-2 py-1">{{ getLocationName($a->city, 'city') }}</td>
+                            <td data-col="province" class="border px-2 py-1">{{ getLocationName($a->province, 'province') }}</td>
+                            <td data-col="zipcode" class="border px-2 py-1">{{ $a->zip_code }}</td>
                             <td data-col="district" class="border px-2 py-1">{{ $a->district }}</td>
                             <td data-col="region" class="border px-2 py-1">{{ $a->region }}</td>
-                            <td data-col="email" class="border px-2 py-1">{{ $a->email }}</td>
-                            <td data-col="bday" class="border px-2 py-1">{{ $a->bday }}</td>
-                            <td data-col="contact_no" class="border px-2 py-1">{{ $a->contact_no }}</td>
-                            <td data-col="gender" class="border px-2 py-1">{{ strtoupper($a->gender) }}</td>
-                            <td data-col="course_completed" class="border px-2 py-1">{{ $a->course_completed }}</td>
-                            <td data-col="university_graduated" class="border px-2 py-1">{{ $a->university_graduated }}</td>
-                            <td data-col="entry" class="border px-2 py-1">{{ ucfirst($a->entry) }}</td>
-                            <td data-col="level" class="border px-2 py-1">{{ strtoupper($a->level) }}</td>
-                            <td data-col="intended_degree" class="border px-2 py-1">{{ $a->intended_degree }}</td>
+                            <td data-col="email" class="border px-2 py-1">{{ $a->email_address   }}</td>
+                            <td data-col="bday" class="border px-2 py-1">{{ $a->date_of_birth }}</td>
+                            <td data-col="contact_no" class="border px-2 py-1">{{ $a->telephone_nos }}</td>
+                            <td data-col="gender" class="border px-2 py-1">{{ strtoupper($a->sex) }}</td>
+                            <td data-col="course_completed" class="border px-2 py-1">{{ $a->bs_degree }}</td>
+                            <td data-col="university_graduated" class="border px-2 py-1">{{ $a->bs_university }}</td>
+                            <td data-col="entry" class="border px-2 py-1">{{ ucfirst($a->bs_period) }}</td>
+                            <td data-col="level" class="border px-2 py-1">{{ strtoupper($a->bs_field) }}</td>
+                            <td data-col="intended_degree" class="border px-2 py-1">{{ $a->ms_degree }}</td>
                             <td data-col="university" class="border px-2 py-1">{{ $a->university }}</td>
-                            <td data-col="thesis_title" class="border px-2 py-1">{{ $a->thesis_title }}</td>
-                            <td data-col="units_required" class="border px-2 py-1 text-center">{{ $a->units_required }}</td>
-                            <td data-col="units_earned" class="border px-2 py-1 text-center">{{ $a->units_earned }}</td>
+                            <td data-col="thesis_title" class="border px-2 py-1">{{ $a->research_title }}</td>
+                            <td data-col="units_required" class="border px-2 py-1 text-center">{{ $a->lateral_remaining_units }}</td>
+                            <td data-col="units_earned" class="border px-2 py-1 text-center">{{ $a->lateral_units_earned }}</td>
                             <td data-col="percent_completed" class="border px-2 py-1 text-center">{{ $a->percent_completed }}</td>
                             <td data-col="duration" class="border px-2 py-1">{{ $a->duration }}</td>
                             <td data-col="remarks" class="border px-2 py-1">{{ $a->remarks }}</td>

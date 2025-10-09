@@ -9,11 +9,17 @@ use App\Models\ScholarMonitoring;
 class ScholarMonitoringController extends Controller
 {
     // Show all monitoring records
-    public function index()
+   public function index()
 {
-    $monitorings = ScholarMonitoring::with('scholar.user')->get(); // include scholar + user
-    return view('admin.reports.monitoring', compact('monitorings'));
+    // Load monitoring records with scholar + user
+    $monitorings = ScholarMonitoring::with('scholar.user')->get();
+
+    // Load all scholars (for the top "Monitoring of Scholars" table)
+    $scholars = Scholar::with('user')->get();
+
+    return view('admin.reports.monitoring', compact('monitorings', 'scholars'));
 }
+
 
     // Show create form (optional)
     public function create($scholarId)
