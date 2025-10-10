@@ -56,7 +56,7 @@ th, td {
 <div class="header-section">
     <h2>UNIVERSITY OF SCIENCE AND TECHNOLOGY OF SOUTHERN PHILIPPINES</h2>
     <h3>DETAILED STATUS REPORT OF SCHOLARSHIP PROGRAM SCHOLARS<br>
-        AS OF THE END OF {{ strtoupper($semester) }} TERM AY {{ strtoupper($academicYear) }}
+        AS OF THE END OF {{ strtoupper($schoolTerm) }} TERM AY {{ strtoupper($academicYear) }}
     </h3>
     <p><strong>Scholarship Program:</strong> {{ strtoupper($program) }}</p>
 </div>

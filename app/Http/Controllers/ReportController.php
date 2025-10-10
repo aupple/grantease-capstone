@@ -17,40 +17,36 @@ class ReportController extends Controller
 {
     $type = $request->input('type', 'applicant');
 
-    // --- Base Data (for Applicant/Scholar Tabs) ---
     if ($type === 'scholar') {
-        $records = \App\Models\Scholar::with(['user', 'applicationForm'])
+        // ✅ Scholars tab – only scholars
+        $records = Scholar::with(['user', 'applicationForm'])
             ->whereHas('applicationForm', function ($q) {
                 $q->where('status', 'approved');
             })
             ->get();
     } else {
-        $records = \App\Models\ApplicationForm::with('user')
-            ->where('status', 'pending')
+        // ✅ Applicants tab – only applicants (excluding those already scholars)
+        $records = ApplicationForm::with('user')
+            ->whereDoesntHave('scholar') // prevent overlap with scholars
+            ->orderBy('last_name')
             ->get();
     }
 
-    // --- Monitoring Data (for Monitoring of All Scholars section) ---
-    $monitorings = \App\Models\ScholarMonitoring::with('scholar')->get();
-
-    // --- Summary for Pie Chart (by status_code) ---
-    $statusSummary = \App\Models\ScholarMonitoring::selectRaw('status_code, COUNT(*) as total')
+    // Monitoring + summaries
+    $monitorings = ScholarMonitoring::with('scholar')->get();
+    $statusSummary = ScholarMonitoring::selectRaw('status_code, COUNT(*) as total')
         ->groupBy('status_code')
         ->pluck('total', 'status_code');
-
-    // --- Scholars summary for reference ---
-    $scholars = \App\Models\Scholar::with('user')->get();
 
     return view('admin.reports.index', [
         'type' => $type,
         'records' => $records,
         'monitorings' => $monitorings,
         'statusSummary' => $statusSummary,
-        'scholars' => $scholars,
-        'total_applicants' => \App\Models\ApplicationForm::count(),
-        'approved' => \App\Models\ApplicationForm::where('status', 'approved')->count(),
-        'rejected' => \App\Models\ApplicationForm::where('status', 'rejected')->count(),
-        'pending' => \App\Models\ApplicationForm::where('status', 'pending')->count(),
+        'total_applicants' => ApplicationForm::count(),
+        'approved' => ApplicationForm::where('status', 'approved')->count(),
+        'rejected' => ApplicationForm::where('status', 'rejected')->count(),
+        'pending' => ApplicationForm::where('status', 'pending')->count(),
     ]);
 }
 
@@ -154,8 +150,10 @@ public function Applicants(Request $request)
     $academicYear = $request->input('academic_year');
     $schoolTerm   = $request->input('school_term');
 
-    // Base query
-    $query = \App\Models\ApplicationForm::query();
+  
+    // Base query — only real applicants that have filled out the form
+$query = \App\Models\ApplicationForm::whereNotNull('first_name');
+
 
     // Apply filters if selected
     if ($academicYear) {
@@ -203,10 +201,10 @@ public function downloadMonitoring()
 
 public function printMonitoring(Request $request)
 {
-    // Get filter parameters (Semester and AY)
-    $semester = $request->input('semester', '1st Semester');
+    // Get filter parameters (School Term and AY)
+    $schoolTerm = $request->input('school_term', '1st Semester');
     $academicYear = $request->input('academic_year', date('Y') . '-' . (date('Y') + 1));
-    $program = $request->input('program', 'DOST'); // 👈 added program filter
+    $program = $request->input('program', 'DOST');
 
     // Fetch grouped data
     $grouped = ScholarMonitoring::all()->groupBy('degree_type');
@@ -218,26 +216,40 @@ public function printMonitoring(Request $request)
                 $sub->where('program', $program);
             });
         })
+        // ✅ You can filter by academic year or school term if needed:
+        ->when($schoolTerm, function ($query) use ($schoolTerm) {
+            $query->whereHas('applicationForm', function ($sub) use ($schoolTerm) {
+                $sub->where('school_term', $schoolTerm);
+            });
+        })
+        ->when($academicYear, function ($query) use ($academicYear) {
+            $query->whereHas('applicationForm', function ($sub) use ($academicYear) {
+                $sub->where('academic_year', $academicYear);
+            });
+        })
         ->get();
 
     return view('admin.reports.monitoring-print', [
         'grouped' => $grouped,
         'scholars' => $scholars,
-        'semester' => $semester,
+        'schoolTerm' => $schoolTerm,
         'academicYear' => $academicYear,
         'program' => $program,
     ]);
 }
 
+
 public function printAllApplicants(Request $request)
 {
-    // read filters (if not provided, show all for convenience)
+    // Filters (optional)
     $academicYear = $request->input('academic_year', null);
-    $schoolTerm = $request->input('school_term', null);
+    $schoolTerm   = $request->input('school_term', null);
 
-    // Build query: filter by academic_year and school_term if provided
-    $query = ApplicationForm::query();
+    // ✅ Base query: Only applicants (exclude those who became scholars)
+    $query = ApplicationForm::with('user')
+        ->whereDoesntHave('scholar'); // prevent overlap with scholars
 
+    // ✅ Apply filters if provided
     if ($academicYear) {
         $query->where('academic_year', $academicYear);
     }
@@ -246,22 +258,23 @@ public function printAllApplicants(Request $request)
         $query->where('school_term', $schoolTerm);
     }
 
-    // Eager-load user relation if exists on the model
+    // ✅ Get filtered results ordered by name
     $applicants = $query->orderBy('last_name')->get();
 
-    // Get distinct values for dropdowns (so preview page can show what was selected)
+    // For dropdown filters (distinct options)
     $academicYears = ApplicationForm::select('academic_year')->distinct()->orderBy('academic_year', 'desc')->pluck('academic_year');
-    $schoolTerms = ApplicationForm::select('school_term')->distinct()->pluck('school_term');
+    $schoolTerms   = ApplicationForm::select('school_term')->distinct()->pluck('school_term');
 
-    // Pass to view
+    // ✅ Return to the printable view
     return view('admin.reports.all-applicants-print', [
-        'applicants'   => $applicants,
-        'academicYears' => $academicYears,
-        'schoolTerms'   => $schoolTerms,
-        'academicYear'  => $academicYear,
-        'schoolTerm'    => $schoolTerm,
+        'applicants'     => $applicants,
+        'academicYears'  => $academicYears,
+        'schoolTerms'    => $schoolTerms,
+        'academicYear'   => $academicYear,
+        'schoolTerm'     => $schoolTerm,
     ]);
 }
+
     public function scoresheets()
     {
         $applicants = ApplicationForm::with('user')->paginate(10);
@@ -323,15 +336,20 @@ public function saveApplicants(Request $request)
     $applicants = $request->input('applicants', []);
 
     foreach ($applicants as $data) {
-        // Optional: Check if there's an 'id' field to update existing
+        // Validate each applicant's data individually
+        $validated = \Validator::make($data, [
+            'address_no' => 'required|integer|min:1',
+            'age' => 'nullable|integer|min:1',
+            // add more validations as needed
+        ])->validate();
+
         if (!empty($data['id'])) {
             $applicant = \App\Models\User::find($data['id']);
             if ($applicant) {
-                $applicant->update($data);
+                $applicant->update($validated);
             }
         } else {
-            // Create new applicant (optional logic)
-            \App\Models\User::create($data);
+            \App\Models\User::create($validated);
         }
     }
 

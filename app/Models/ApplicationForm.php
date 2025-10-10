@@ -169,4 +169,10 @@ class ApplicationForm extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
+    
+    public function scholar()
+{
+    return $this->hasOne(Scholar::class, 'application_form_id', 'application_form_id');
+}
+
 }
