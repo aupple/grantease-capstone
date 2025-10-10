@@ -188,9 +188,7 @@ class AdminController extends Controller
                 ]
             );
         }
-    
-        return redirect()->route('admin.applications.show', $id)
-            ->with('success', 'Remark sent successfully!');
+
     }
 
     /**

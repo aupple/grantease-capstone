@@ -34,6 +34,12 @@ class ApplicationFormController extends Controller
 
     return view('applicant.my-application', compact('applications'));
 }
+ public function show($id)
+{
+    $application = ApplicationForm::with('user')->findOrFail($id);
+    return view('applicant.application.show', compact('application'));
+}
+
     /**
      * Store a newly created application form in storage.
 */
