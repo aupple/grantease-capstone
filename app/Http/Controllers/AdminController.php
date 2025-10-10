@@ -10,6 +10,8 @@ use App\Mail\ApplicationStatusMail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Models\ApplicationDocumentRemark;
+
 
 class AdminController extends Controller
 {
@@ -161,23 +163,32 @@ class AdminController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:pending,document_verification,for_interview,approved,rejected',
+            'status' => 'nullable|in:pending,document_verification,for_interview,approved,rejected',
             'remarks' => 'nullable|string',
+            'document_name' => 'nullable|string',
         ]);
-
+    
         $application = ApplicationForm::with('user')->findOrFail($id);
-        $application->status = $request->status;
-        $application->remarks = $request->remarks;
-        $application->save();
-
-        try {
-            Mail::to($application->user->email)->send(new ApplicationStatusMail($request->status, $request->remarks));
-        } catch (\Throwable $e) {
-            // log if needed
+    
+        // Update status if present
+        if ($request->filled('status')) {
+            $application->status = $request->status;
+            $application->save();
+        }
+    
+        // Save document-specific remark
+        if ($request->filled('remarks') && $request->filled('document_name')) {
+            ApplicationDocumentRemark::updateOrCreate(
+                [
+                    'application_form_id' => $id,
+                    'document_name' => $request->document_name,
+                ],
+                [
+                    'remark' => $request->remarks,
+                ]
+            );
         }
 
-        return redirect()->route('admin.applications.show', $id)
-            ->with('success', 'Application status updated successfully!');
     }
 
     /**

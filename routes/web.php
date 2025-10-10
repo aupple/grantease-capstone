@@ -24,13 +24,15 @@ Route::middleware(['auth'])->group(function () {
      * Applicant Routes
      * =======================
      */
+
     Route::prefix('applicant')->name('applicant.')->group(function () {
         Route::get('/application/{program}', [ApplicationFormController::class, 'create'])->name('application.create');
         Route::post('/applicant/application', [ApplicationFormController::class, 'store'])->name('application.store');
         Route::get('/dashboard', fn () => view('applicant.dashboard'))->name('dashboard');
-        Route::get('/my-application', [ApplicationFormController::class, 'viewMyApplication'])->name('application.view');
         Route::get('/application/{id}/edit', [ApplicationFormController::class, 'edit'])->name('application.edit');
         Route::patch('/application/{id}', [ApplicationFormController::class, 'update'])->name('application.update');
+        Route::get('/application/{id}', [ApplicationFormController::class, 'show'])->name('application.view');
+
 
         // Applicant PDF Routes
         Route::prefix('pdf')->name('pdf.')->group(function () {
@@ -78,6 +80,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/applications/{id}/approve', [AdminController::class, 'approveApplication'])->name('applications.approve');
         Route::post('/applications/{id}/reject', [AdminController::class, 'rejectApplication'])->name('applications.reject');
         Route::post('/applications/{id}/status', [AdminController::class, 'updateStatus'])->name('applications.update-status');
+        Route::get('/application/{id}', [ApplicationFormController::class, 'show'])->name('application.view');
+
+        
 
         // ✅ Rejected Applications
         Route::prefix('rejected')->name('rejected.')->group(function () {
