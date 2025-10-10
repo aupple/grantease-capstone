@@ -106,9 +106,9 @@
                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm 
                 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
                 <option value="">Select Term</option>
-                <option value="First">First Semester/Term</option>
-                <option value="Second">Second Semester/Term</option>
-                <option value="Third">Third Semester/Term</option>
+ <option value="1st Semester">1st Semester</option>
+    <option value="2nd Semester">2nd Semester</option>
+    <option value="3rd Semester">3rd Semester</option>
             </select>
         </div>
     </div>
@@ -194,9 +194,11 @@
         <label for="permanent_address_street" class="block text-sm font-medium text-gray-700 mt-2">Street</label>
         <input type="text" name="address_street" id="address_street" placeholder="Street" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm mb-2" required>
 
-        <label for="permanent_address_no" class="block text-sm font-medium text-gray-700">House No.</label>
-        <input type="text" name="address_no" id="address_no" placeholder="No." class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-    </div>
+        <label for="address_no" class="block text-sm font-medium text-gray-700">House No.</label>
+<input type="text" name="address_no" id="address_no" placeholder="No." 
+       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" 
+       required pattern="\d+" title="Please enter numbers only">
+
 
     <!-- Region, District, Zip, Passport -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">

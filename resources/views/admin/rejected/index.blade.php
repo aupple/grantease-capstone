@@ -12,7 +12,7 @@
                     <th class="p-3 text-left font-semibold">Email</th>
                     <th class="p-3 text-left font-semibold">Program</th>
                     <th class="p-3 text-left font-semibold">Rejected At</th>
-                    <th class="p-3 text-left font-semibold">Reason</th>
+                    <th class="p-3 text-left font-semibold">Remarks</th>
                     <th class="p-3 text-left font-semibold">Action</th>
                 </tr>
             </thead>

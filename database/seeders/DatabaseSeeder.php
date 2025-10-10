@@ -12,7 +12,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UserSeeder::class,
             ScholarSeeder::class,
-            //ScholarMonitoringSeeder::class,
+            ScholarMonitoringSeeder::class,
         ]);
     }
 }

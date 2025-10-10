@@ -21,6 +21,7 @@ class ApplicationForm extends Model
         'application_no',
         'passport_picture',
 
+
         // Step 2: Personal Information
         'last_name',
         'first_name',
@@ -130,6 +131,12 @@ class ApplicationForm extends Model
         'letter_of_admission_pdf',
         'approved_program_of_study_pdf',
         'lateral_certification_pdf',
+        'form137',
+        'cert_employment',
+        'cert_purpose',
+        'reason',
+        'program',
+        
 
         // Step 8: Declaration / Terms
         'terms_and_conditions_agreed',
@@ -162,4 +169,10 @@ class ApplicationForm extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
+    
+    public function scholar()
+{
+    return $this->hasOne(Scholar::class, 'application_form_id', 'application_form_id');
+}
+
 }
