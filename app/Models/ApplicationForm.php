@@ -115,6 +115,9 @@ class ApplicationForm extends Model
         'rnd_involvement',
         'publications',
         'awards',
+        'thesis_title',
+        'units_required',
+        'duration',
 
         // Step 7: Upload Documents
         'birth_certificate_pdf',

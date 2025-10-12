@@ -153,36 +153,54 @@ if (! function_exists('getLocationName')) {
                 </thead>
                 <tbody>
                     @foreach ($applicants as $index => $a)
-                        <tr class="border-t hover:bg-gray-50">
-                            <td data-col="no" class="border px-2 py-1 text-center">{{ $index + 1 }}</td>
-                            <td data-col="last_name" class="border px-2 py-1">{{ $a->last_name }}</td>
-                            <td data-col="first_name" class="border px-2 py-1">{{ $a->first_name }}</td>
-                            <td data-col="middle_name" class="border px-2 py-1">{{ $a->middle_name }}</td>
-                            <td data-col="suffix" class="border px-2 py-1">{{ $a->suffix }}</td>
-                            <td data-col="street" class="border px-2 py-1">{{ $a->address_street }}</td>
-                            <td data-col="village" class="border px-2 py-1">{{ getLocationName($a->barangay, 'barangay') }}</td>
-                            <td data-col="town" class="border px-2 py-1">{{ getLocationName($a->city, 'city') }}</td>
-                            <td data-col="province" class="border px-2 py-1">{{ getLocationName($a->province, 'province') }}</td>
-                            <td data-col="zipcode" class="border px-2 py-1">{{ $a->zip_code }}</td>
-                            <td data-col="district" class="border px-2 py-1">{{ $a->district }}</td>
-                            <td data-col="region" class="border px-2 py-1">{{ $a->region }}</td>
-                            <td data-col="email" class="border px-2 py-1">{{ $a->email_address   }}</td>
-                            <td data-col="bday" class="border px-2 py-1">{{ $a->date_of_birth }}</td>
-                            <td data-col="contact_no" class="border px-2 py-1">{{ $a->telephone_nos }}</td>
-                            <td data-col="gender" class="border px-2 py-1">{{ strtoupper($a->sex) }}</td>
-                            <td data-col="course_completed" class="border px-2 py-1">{{ $a->bs_degree }}</td>
-                            <td data-col="university_graduated" class="border px-2 py-1">{{ $a->bs_university }}</td>
-                            <td data-col="entry" class="border px-2 py-1">{{ ucfirst($a->bs_period) }}</td>
-                            <td data-col="level" class="border px-2 py-1">{{ strtoupper($a->bs_field) }}</td>
-                            <td data-col="intended_degree" class="border px-2 py-1">{{ $a->ms_degree }}</td>
-                            <td data-col="university" class="border px-2 py-1">{{ $a->university }}</td>
-                            <td data-col="thesis_title" class="border px-2 py-1">{{ $a->research_title }}</td>
-                            <td data-col="units_required" class="border px-2 py-1 text-center">{{ $a->lateral_remaining_units }}</td>
-                            <td data-col="units_earned" class="border px-2 py-1 text-center">{{ $a->lateral_units_earned }}</td>
-                            <td data-col="percent_completed" class="border px-2 py-1 text-center">{{ $a->percent_completed }}</td>
-                            <td data-col="duration" class="border px-2 py-1">{{ $a->duration }}</td>
-                            <td data-col="remarks" class="border px-2 py-1">{{ $a->remarks }}</td>
-                        </tr>
+                       <tr class="border-t hover:bg-gray-50">
+    <td data-col="no" class="border px-2 py-1 text-center">{{ $index + 1 }}</td>
+    <td data-col="last_name" class="border px-2 py-1">{{ $a->last_name }}</td>
+    <td data-col="first_name" class="border px-2 py-1">{{ $a->first_name }}</td>
+    <td data-col="middle_name" class="border px-2 py-1">{{ $a->middle_name }}</td>
+    <td data-col="suffix" class="border px-2 py-1">{{ $a->suffix }}</td>
+    <td data-col="street" class="border px-2 py-1">{{ $a->address_street }}</td>
+    <td data-col="village" class="border px-2 py-1">{{ getLocationName($a->barangay, 'barangay') }}</td>
+    <td data-col="town" class="border px-2 py-1">{{ getLocationName($a->city, 'city') }}</td>
+    <td data-col="province" class="border px-2 py-1">{{ getLocationName($a->province, 'province') }}</td>
+    <td data-col="zipcode" class="border px-2 py-1">{{ $a->zip_code }}</td>
+    <td data-col="district" class="border px-2 py-1">{{ $a->district }}</td>
+    <td data-col="region" class="border px-2 py-1">{{ $a->region }}</td>
+    <td data-col="email" class="border px-2 py-1">{{ $a->email_address }}</td>
+    <td data-col="bday" class="border px-2 py-1">{{ $a->date_of_birth }}</td>
+    <td data-col="contact_no" class="border px-2 py-1">{{ $a->telephone_nos }}</td>
+    <td data-col="gender" class="border px-2 py-1">{{ strtoupper($a->sex) }}</td>
+    <td data-col="course_completed" class="border px-2 py-1">{{ $a->bs_degree }}</td>
+    <td data-col="university_graduated" class="border px-2 py-1">{{ $a->bs_university }}</td>
+    <td data-col="entry" class="border px-2 py-1">{{ ucfirst($a->new_applicant_university) }}</td>
+    <td data-col="level" class="border px-2 py-1">{{ strtoupper($a->bs_field) }}</td>
+    <td data-col="intended_degree" class="border px-2 py-1">{{ $a->ms_degree }}</td>
+    <td data-col="university" class="border px-2 py-1">{{ $a->university }}</td>
+
+    <!-- Editable fields -->
+    <td data-col="thesis_title">
+        <span class="display-text">{{ $a->thesis_title ?? '' }}</span>
+        <input type="text" class="edit-input hidden border px-1 py-1 w-full" value="{{ $a->thesis_title ?? '' }}" data-id="{{ $a->application_form_id }}">
+    </td>
+    <td data-col="units_required" class="text-center">
+        <span class="display-text">{{ $a->units_required ?? '' }}</span>
+        <input type="number" class="edit-input hidden border px-1 py-1 w-full text-center" value="{{ $a->units_required ?? '' }}" data-id="{{ $a->application_form_id }}">
+    </td>
+    <td data-col="units_earned" class="border px-2 py-1 text-center">{{ $a->lateral_units_earned }}</td>
+    <td data-col="percent_completed" class="border px-2 py-1 text-center">{{ $a->percent_completed }}</td>
+    <td data-col="duration">
+        <span class="display-text">{{ $a->duration ?? '' }}</span>
+        <input type="text" class="edit-input hidden border px-1 py-1 w-full" value="{{ $a->duration ?? '' }}" data-id="{{ $a->application_form_id }}">
+    </td>
+    <td data-col="remarks" class="border px-2 py-1">{{ $a->remarks }}</td>
+
+    <!-- Edit/Save buttons -->
+    <td class="text-center">
+        <button class="edit-btn bg-blue-500 text-white px-2 py-1 rounded text-xs">Edit</button>
+        <button class="save-btn hidden bg-green-500 text-white px-2 py-1 rounded text-xs">Save</button>
+    </td>
+</tr>
+
                     @endforeach
                 </tbody>
             </table>
@@ -239,12 +257,75 @@ if (! function_exists('getLocationName')) {
         });
 
         printBtn.addEventListener('click', function() {
-            savePrefs();
-            window.open("{{ route('admin.reports.applicants.print') }}?academic_year={{ $academicYear }}&school_term={{ $schoolTerm }}", '_blank');
-        });
+    savePrefs();
+
+    // Get selected columns from visibleCols
+    const colsParam = encodeURIComponent(JSON.stringify(visibleCols));
+
+    const url = "{{ route('admin.reports.applicants.print') }}" +
+                "?academic_year={{ $academicYear }}&school_term={{ $schoolTerm }}" +
+                "&cols=" + colsParam;
+
+    window.open(url, '_blank');
+});
+
+
 
         initCheckboxes();
         applyColumnVisibility();
     })();
+
+document.querySelectorAll('tr').forEach(row => {
+    const editBtn = row.querySelector('.edit-btn');
+    const saveBtn = row.querySelector('.save-btn');
+
+    if (!editBtn || !saveBtn) return;
+
+    editBtn.addEventListener('click', () => {
+        row.querySelectorAll('.display-text').forEach(span => span.classList.add('hidden'));
+        row.querySelectorAll('.edit-input').forEach(input => input.classList.remove('hidden'));
+        editBtn.classList.add('hidden');
+        saveBtn.classList.remove('hidden');
+    });
+
+    saveBtn.addEventListener('click', () => {
+        const thesis = row.querySelector('[data-col="thesis_title"] .edit-input').value.trim();
+        const units = row.querySelector('[data-col="units_required"] .edit-input').value.trim();
+        const duration = row.querySelector('[data-col="duration"] .edit-input').value.trim();
+        const id = row.querySelector('[data-col="thesis_title"] .edit-input').dataset.id;
+
+        fetch("{{ route('admin.reports.applicants.update-field') }}", {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+    },
+    body: JSON.stringify([
+        { id, field: 'thesis_title', value: thesis },
+        { id, field: 'units_required', value: units },
+        { id, field: 'duration', value: duration },
+    ])
+})
+.then(res => res.json())
+
+        .then(data => {
+            if (data.success) {
+                row.querySelector('[data-col="thesis_title"] .display-text').textContent = thesis;
+                row.querySelector('[data-col="units_required"] .display-text').textContent = units;
+                row.querySelector('[data-col="duration"] .display-text').textContent = duration;
+
+                row.querySelectorAll('.display-text').forEach(span => span.classList.remove('hidden'));
+                row.querySelectorAll('.edit-input').forEach(input => input.classList.add('hidden'));
+                editBtn.classList.remove('hidden');
+                saveBtn.classList.add('hidden');
+            } else {
+                alert('Failed to save.');
+            }
+        })
+        .catch(err => { console.error(err); alert('Error saving data'); });
+    });
+});
+
 </script>
 @endsection

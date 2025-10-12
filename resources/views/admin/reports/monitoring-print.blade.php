@@ -4,8 +4,8 @@
 <style>
 @media print {
     @page {
-        size: A4 landscape;
-        margin: 1cm;
+        size: Legal landscape;
+        margin: 20cm;
     }
     .no-print {
         display: none !important;

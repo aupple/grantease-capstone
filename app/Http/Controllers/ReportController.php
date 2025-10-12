@@ -241,39 +241,42 @@ public function printMonitoring(Request $request)
 
 public function printAllApplicants(Request $request)
 {
-    // Filters (optional)
     $academicYear = $request->input('academic_year', null);
     $schoolTerm   = $request->input('school_term', null);
+    $selectedCols = $request->input('cols') ? json_decode($request->input('cols'), true) : [];
 
-    // ✅ Base query: Only applicants (exclude those who became scholars)
-    $query = ApplicationForm::with('user')
-        ->whereDoesntHave('scholar'); // prevent overlap with scholars
+    $query = ApplicationForm::with('user')->whereDoesntHave('scholar');
 
-    // ✅ Apply filters if provided
-    if ($academicYear) {
-        $query->where('academic_year', $academicYear);
-    }
+    if ($academicYear) $query->where('academic_year', $academicYear);
+    if ($schoolTerm) $query->where('school_term', $schoolTerm);
 
-    if ($schoolTerm) {
-        $query->where('school_term', $schoolTerm);
-    }
-
-    // ✅ Get filtered results ordered by name
     $applicants = $query->orderBy('last_name')->get();
 
-    // For dropdown filters (distinct options)
-    $academicYears = ApplicationForm::select('academic_year')->distinct()->orderBy('academic_year', 'desc')->pluck('academic_year');
-    $schoolTerms   = ApplicationForm::select('school_term')->distinct()->pluck('school_term');
-
-    // ✅ Return to the printable view
     return view('admin.reports.all-applicants-print', [
-        'applicants'     => $applicants,
-        'academicYears'  => $academicYears,
-        'schoolTerms'    => $schoolTerms,
-        'academicYear'   => $academicYear,
-        'schoolTerm'     => $schoolTerm,
+        'applicants'    => $applicants,
+        'selectedCols'  => $selectedCols,
+        'academicYear'  => $academicYear,
+        'schoolTerm'    => $schoolTerm,
     ]);
 }
+
+
+public function updateField(Request $request)
+{
+    $data = $request->all(); // expects array of {id, field, value}
+
+    foreach ($data as $item) {
+        $applicant = ApplicationForm::find($item['id']);    
+        if ($applicant && in_array($item['field'], ['thesis_title','units_required','duration'])) {
+            $applicant->{$item['field']} = $item['value'];
+            $applicant->save();
+        }
+    }
+
+    return response()->json(['success' => true]);
+}
+
+
 
     public function scoresheets()
     {

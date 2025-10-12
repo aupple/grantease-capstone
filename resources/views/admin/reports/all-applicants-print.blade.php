@@ -4,38 +4,78 @@
     <meta charset="UTF-8">
     <title>List of Applicants</title>
     <style>
-        @page {
-            size: Legal landscape;
-            margin: 20px;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 10px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
-        th, td {
-            border: 1px solid #000;
-            padding: 3px 5px;
-            text-align: center;
-            word-wrap: break-word;
-        }
-        th {
-            background-color: #f0f0f0;
-            font-weight: bold;
-        }
-        h2, h3 {
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
-        .header {
-            margin-bottom: 15px;
-        }
-    </style>
+    @page { size: Legal landscape; margin: 20px; }
+    body { font-family: Arial, sans-serif; font-size: 10px; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    th, td { border: 1px solid #000; padding: 3px 5px; text-align: center; word-wrap: break-word; }
+    th { background-color: #f0f0f0; font-weight: bold; }
+    h2, h3 { text-align: center; margin: 0; padding: 0; }
+    .header { margin-bottom: 15px; }
+
+    /* ✅ Add this block */
+    .header {
+        text-align: center;
+        margin-bottom: 15px;
+        position: relative;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .logo img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .header-text {
+        text-align: center;
+        line-height: 1.4;
+    }
+
+    .header-text hr {
+        border: none;
+        border-top: 1px solid #555;
+        width: 250px;
+        margin: 5px auto;
+    }
+
+    .code {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        font-size: 10px;
+        border: 1px solid #000;
+        padding: 2px 5px;
+    }
+    .signatures {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 40px;
+    font-size: 10px;
+}
+
+.sig-section {
+    width: 45%;
+    text-align: center;
+}
+
+.sig-line {
+    margin: 30px auto 3px;
+    width: 80%;
+    border-bottom: 1px solid #000;
+}
+
+.sig-label {
+    font-size: 9px;
+    color: #000;
+}
+
+</style>
+
 </head>
 
 @php
@@ -95,80 +135,121 @@ if (! function_exists('getLocationName')) {
 }
 @endphp
 
-<body>
-    <div class="header">
-        <h2>DOST-SEI STRAND PROGRAM</h2>
-        <h3>List of Applicants</h3>
+<div class="header">
+    <div class="header-content">
+        <div class="logo">
+            <img src="{{ asset('images/Dost.png') }}" alt="DOST Logo">
+        </div>
+        <div class="header-text">
+            <p><strong>Department of Science and Technology</strong><br>
+            <span>SCIENCE EDUCATION INSTITUTE</span></p>
+            <hr>
+            <p><strong>Graduate Scholarship Program</strong></p>
+            <p><strong>REGISTRY OF POTENTIAL QUALIFIERS</strong></p>
+        </div>
     </div>
+    <div class="code">STD-2024A</div>
+</div>
 
     <table>
         <thead>
             <tr>
-                <th>No.</th>
-                <th>Last Name</th>
-                <th>First Name</th>
-                <th>Middle Name</th>
-                <th>Suffix</th>
-                <th>Street</th>
-                <th>Barangay</th>
-                <th>City/Town</th>
-                <th>Province</th>
-                <th>Zipcode</th>
-                <th>District</th>
-                <th>Region</th>
-                <th>Email Address</th>
-                <th>Birthday (YYYY-MM-DD)</th>
-                <th>Contact No.</th>
-                <th>Gender</th>
-                <th>Course Completed</th>
-                <th>University Graduated</th>
-                <th>Entry</th>
-                <th>Field</th>
-                <th>Intended Master’s/Doctoral Degree</th>
-                <th>University</th>
-                <th>Thesis/Dissertation Title</th>
-                <th>No. of Units Required</th>
-                <th>No. of Units Earned (Lateral)</th>
-                <th>% Load Completed (Lateral)</th>
-                <th>Duration of Scholarship</th>
-                <th>Remarks</th>
+                @php
+                    $allColumns = [
+                        'no' => 'No.',
+                        'last_name' => 'Last Name',
+                        'first_name' => 'First Name',
+                        'middle_name' => 'Middle Name',
+                        'suffix' => 'Suffix',
+                        'street' => 'Street',
+                        'barangay' => 'Barangay',
+                        'city' => 'City/Town',
+                        'province' => 'Province',
+                        'zipcode' => 'Zipcode',
+                        'district' => 'District',
+                        'region' => 'Region',
+                        'email' => 'Email Address',
+                        'birthday' => 'Birthday (YYYY-MM-DD)',
+                        'contact_no' => 'Contact No.',
+                        'gender' => 'Gender',
+                        'course_completed' => 'Course Completed',
+                        'university_graduated' => 'University Graduated',
+                        'entry' => 'Entry',
+                        'field' => 'Field',
+                        'intended_degree' => 'Intended Masters/Doctoral Degree',
+                        'university' => 'University',
+                        'thesis_title' => 'Thesis/Dissertation Title',
+                        'units_required' => 'No. of Units Required',
+                        'units_earned' => 'No. of Units Earned (Lateral)',
+                        'percent_load' => '% Load Completed (Lateral)',
+                        'duration' => 'Duration of Scholarship',
+                        'remarks' => 'Remarks'
+                    ];
+                @endphp
+
+                @foreach($allColumns as $key => $label)
+                    @if(in_array($key, $selectedCols))
+                        <th>{{ $label }}</th>
+                    @endif
+                @endforeach
             </tr>
         </thead>
+
         <tbody>
-            @php $no = 1; @endphp
-            @foreach($applicants as $app)
+            @foreach($applicants as $index => $a)
                 <tr>
-                    <td>{{ $no++ }}</td>
-                    <td>{{ formatValue($app->last_name) }}</td>
-                    <td>{{ formatValue($app->first_name) }}</td>
-                    <td>{{ formatValue($app->middle_name) }}</td>
-                    <td>{{ formatValue($app->suffix) }}</td>
-                    <td>{{ formatValue($app->address_street) }}</td>
-                    <td>{{ getLocationName($app->barangay, 'barangay') }}</td>
-                    <td>{{ getLocationName($app->city, 'city') }}</td>
-                    <td>{{ getLocationName($app->province, 'province') }}</td>
-                    <td>{{ formatValue($app->zip_code) }}</td>
-                    <td>{{ getLocationName($app->district, 'district') }}</td>
-                    <td>{{ formatValue($app->region) }}</td>
-                    <td>{{ formatValue($app->email_address) }}</td>
-                    <td>{{ formatValue($app->date_of_birth) }}</td>
-                    <td>{{ formatValue($app->telephone_nos) }}</td>
-                    <td>{{ strtoupper(formatValue($app->sex)) }}</td>
-                    <td>{{ formatValue($app->bs_degree) }}</td> 
-                    <td>{{ formatValue($app->bs_university) }}</td> 
-                    <td>{{ ucfirst(formatValue($app->entry)) }}</td>
-                    <td>{{ strtoupper(formatValue($app->bs_field)) }}</td> 
-                    <td>{{ formatValue($app->intended_degree) }}</td> 
-                    <td>{{ formatValue($app->university) }}</td>
-                    <td>{{ formatValue($app->research_title) }}</td>
-                    <td>{{ formatValue($app->units_required) }}</td>
-                    <td>{{ formatValue($app->units_earned) }}</td>
-                    <td>{{ formatValue($app->percent_load) }}</td>
-                    <td>{{ formatValue($app->duration) }}</td>
-                    <td>{{ formatValue($app->remarks) }}</td>
+                    @foreach($allColumns as $key => $label)
+                        @if(in_array($key, $selectedCols))
+                            <td>
+                                @switch($key)
+                                    @case('no') {{ $index + 1 }} @break
+                                    @case('last_name') {{ formatValue($a->last_name) }} @break
+                                    @case('first_name') {{ formatValue($a->first_name) }} @break
+                                    @case('middle_name') {{ formatValue($a->middle_name) }} @break
+                                    @case('suffix') {{ formatValue($a->suffix) }} @break
+                                    @case('street') {{ formatValue($a->address_street) }} @break
+                                    @case('barangay') {{ getLocationName($a->barangay, 'barangay') }} @break
+                                    @case('city') {{ getLocationName($a->city, 'city') }} @break
+                                    @case('province') {{ getLocationName($a->province, 'province') }} @break
+                                    @case('zipcode') {{ formatValue($a->zip_code) }} @break
+                                    @case('district') {{ formatValue($a->district) }} @break
+                                    @case('region') {{ formatValue($a->region) }} @break
+                                    @case('email') {{ formatValue($a->email_address) }} @break
+                                    @case('birthday') {{ formatValue($a->date_of_birth) }} @break
+                                    @case('contact_no') {{ formatValue($a->telephone_nos) }} @break
+                                    @case('gender') {{ strtoupper(formatValue($a->sex)) }} @break
+                                    @case('course_completed') {{ formatValue($a->bs_degree) }} @break
+                                    @case('university_graduated') {{ formatValue($a->bs_university) }} @break
+                                    @case('entry') {{ ucfirst(formatValue($a->new_applicant_university)) }} @break
+                                    @case('field') {{ strtoupper(formatValue($a->bs_field)) }} @break
+                                    @case('intended_degree') {{ formatValue($a->intended_degree) }} @break
+                                    @case('university') {{ formatValue($a->university) }} @break
+                                    @case('thesis_title') {{ formatValue($a->thesis_title) }} @break
+                                    @case('units_required') {{ formatValue($a->units_required) }} @break
+                                    @case('units_earned') {{ formatValue($a->lateral_units_earned) }} @break
+                                    @case('percent_load') {{ formatValue($a->percent_load) }} @break
+                                    @case('duration') {{ formatValue($a->duration) }} @break
+                                    @case('remarks') {{ formatValue($a->remarks) }} @break
+                                    @default N/A
+                                @endswitch
+                            </td>
+                        @endif
+                    @endforeach
                 </tr>
             @endforeach
         </tbody>
     </table>
+     <div class="signatures">
+        <div class="sig-section">
+            <p><strong>Prepared by:</strong></p>
+            <div class="sig-line"></div>
+            <p class="sig-label">Name and Signature of Project Staff</p>
+        </div>
+        <div class="sig-section">
+            <p><strong>Endorsed by:</strong></p>
+            <div class="sig-line"></div>
+            <p class="sig-label">Name and Signature of Project Leader</p>
+        </div>
+    </div>
 </body>
 </html>
