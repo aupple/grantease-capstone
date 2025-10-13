@@ -519,11 +519,12 @@
 </div>
 </div>
 
-                <!-- Step 4: Graduate Scholarship Intentions Data -->
+              <!-- Step 4: Graduate Scholarship Intentions Data -->
 <div class="step bg-white p-6 rounded-lg shadow-sm hidden" id="step4">
   <h3 class="text-xl font-bold mb-4 border-b pb-2">Form 3. Graduate Scholarship Intentions Data</h3>
   <h4 class="text-lg font-semibold text-blue-700 mb-3">III. GRADUATE SCHOLARSHIP INTENTIONS DATA</h4>
 
+  <!-- Notes -->
   <div class="text-sm text-gray-600 bg-gray-50 border rounded-md p-4 mb-6 leading-relaxed">
     <p class="mb-2">
       <strong>Notes:</strong><br>
@@ -581,8 +582,23 @@
     </div>
   </div>
 
+  <!-- Applicant Selection -->
+  <div class="mb-6">
+    <label class="block text-sm font-medium text-gray-700 mb-2">Select Applicant Type</label>
+    <div class="flex items-center space-x-6">
+      <label class="inline-flex items-center">
+        <input type="radio" name="applicant_status" value="new" class="form-radio">
+        <span class="ml-2 text-sm text-gray-700">New Applicant</span>
+      </label>
+      <label class="inline-flex items-center">
+        <input type="radio" name="applicant_status" value="lateral" class="form-radio">
+        <span class="ml-2 text-sm text-gray-700">Lateral Applicant</span>
+      </label>
+    </div>
+  </div>
+
   <!-- New Applicant Section -->
-  <div class="bg-gray-50 border rounded-md p-4 mb-6">
+  <div id="newApplicantSection" class="bg-gray-50 border rounded-md p-4 mb-6 hidden">
     <h5 class="text-md font-semibold text-gray-800 mb-3">New Applicant</h5>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
@@ -599,7 +615,7 @@
   </div>
 
   <!-- Lateral Applicant Section -->
-  <div class="bg-gray-50 border rounded-md p-4 mb-8">
+  <div id="lateralApplicantSection" class="bg-gray-50 border rounded-md p-4 mb-8 hidden">
     <h5 class="text-md font-semibold text-gray-800 mb-3">Lateral Applicant</h5>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
@@ -1130,6 +1146,7 @@ document.addEventListener('DOMContentLoaded', function() {
     attachIfEmployedListener(); 
     attachDegreeButtons();  
     attachLiveValidation(); // ✅ New live validation feedback
+    attachApplicantTypeToggle(); // ✅ New: New vs Lateral toggle handler
 });
 
 let currentStep = 1;
@@ -1399,6 +1416,24 @@ function attachIfEmployedListener() {
             });
         });
     }
+    // ✅ Function to handle "New Applicant" vs "Lateral Applicant" toggle
+function attachApplicantTypeToggle() {
+  const applicantRadios = document.querySelectorAll('input[name="applicant_status"]');
+  const newSection = document.getElementById('newApplicantSection');
+  const lateralSection = document.getElementById('lateralApplicantSection');
+
+  applicantRadios.forEach(radio => {
+    radio.addEventListener('change', function() {
+      if (this.value === 'new') {
+        newSection.classList.remove('hidden');
+        lateralSection.classList.add('hidden');
+      } else if (this.value === 'lateral') {
+        newSection.classList.add('hidden');
+        lateralSection.classList.remove('hidden');
+      }
+    });
+  });
+}
     function attachDegreeButtons() {
     const degreeButtonsContainer = document.getElementById("degree-buttons");
 
