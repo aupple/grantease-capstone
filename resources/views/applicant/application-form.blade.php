@@ -784,7 +784,7 @@
                     </div>
 
                     <div class="mb-4">
-                        <label for="research_plans" class="block text-sm font-medium text-gray-700">b. RESEARCH PLANS (Minimum 300 words)</label>
+                        <label for="research_plans" class="block text-sm font-medium text-gray-700">b. RESEARCH PLANS (Minimum of 300 words)</label>
                         <textarea name="research_plans" id="research_plans" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" placeholder="Briefly discuss your proposed research area/s." required></textarea>
                     </div>
 
