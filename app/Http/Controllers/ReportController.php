@@ -150,10 +150,9 @@ public function Applicants(Request $request)
     $academicYear = $request->input('academic_year');
     $schoolTerm   = $request->input('school_term');
 
-  
-    // Base query — only real applicants that have filled out the form
-$query = \App\Models\ApplicationForm::whereNotNull('first_name');
-
+    // Base query — only applicants that have filled out the form AND are NOT approved scholars
+    $query = \App\Models\ApplicationForm::whereNotNull('first_name')
+                ->whereDoesntHave('scholar'); // <-- exclude approved scholars
 
     // Apply filters if selected
     if ($academicYear) {
@@ -161,7 +160,10 @@ $query = \App\Models\ApplicationForm::whereNotNull('first_name');
     }
 
     if ($schoolTerm) {
-        $query->where('school_term', $schoolTerm);
+        $query->where(function ($q) use ($schoolTerm) {
+            $q->where('school_term', $schoolTerm)
+              ->orWhere('school_term', 'LIKE', "%{$schoolTerm}%");
+        });
     }
 
     // Retrieve applicants (sorted alphabetically)
@@ -174,20 +176,77 @@ $query = \App\Models\ApplicationForm::whereNotNull('first_name');
 }
 
 
-public function monitoring()
+
+
+public function monitoring(Request $request)
 {
-    // All monitoring records (with linked scholar + user)
-    $monitorings = ScholarMonitoring::with('scholar.user')->get();
+    $semester = $request->input('semester', null);
+    $academicYear = $request->input('academic_year', null);
 
-    // Grouping used by the summary grid (degree_type => collection)
-    $grouped = $monitorings->groupBy('degree_type');
+    // Fetch all approved scholars with optional filters
+    $scholars = Scholar::with('applicationForm')
+        ->whereHas('applicationForm', function($q) use ($semester, $academicYear) {
+            $q->where('status', 'approved');
 
-    // All scholars (for the top "Monitoring of Scholars" table)
-    $scholars = Scholar::with(['user', 'applicationForm', 'monitorings'])->get();
+            if ($semester) {
+                $q->where('school_term', $semester);
+            }
+            if ($academicYear) {
+                $q->where('academic_year', $academicYear);
+            }
+        })
+        ->get();
 
-    return view('admin.reports.monitoring', compact('monitorings', 'grouped', 'scholars'));
+    // Pass directly to the Blade
+    return view('admin.reports.monitoring', compact('scholars'));
 }
 
+
+
+public function showMonitoring()
+{
+    // Fetch all approved scholars
+    $scholars = Scholar::with(['user', 'applicationForm'])
+        ->whereHas('applicationForm', fn($q) => $q->where('status', 'approved'))
+        ->get();
+
+    return view('admin.reports.monitoring', compact('scholars'));
+}
+
+public function printMonitoring(Request $request)
+{
+    $schoolTerm = $request->input('school_term', null);
+    $academicYear = $request->input('academic_year', null);
+    $program = $request->input('program', null);
+
+    $scholars = Scholar::with(['user', 'applicationForm'])
+        ->whereHas('applicationForm', function ($q) use ($schoolTerm, $academicYear, $program) {
+            $q->where('status', 'approved');
+
+            if ($schoolTerm) $q->where('school_term', $schoolTerm);
+            if ($academicYear) $q->where('academic_year', $academicYear);
+            if ($program) $q->where('program', $program);
+        })
+        ->get();
+
+    return view('admin.reports.monitoring-print', compact('scholars', 'schoolTerm', 'academicYear', 'program'));
+}
+
+
+public function chedMonitoring() {
+    // CHED scholars only
+    $scholars = Scholar::with(['user','applicationForm','monitorings'])
+                        ->where('program', 'CHED')
+                        ->get();
+
+    $monitorings = ScholarMonitoring::with('scholar.user')
+                        ->whereIn('scholar_id', $scholars->pluck('id'))
+                        ->get();
+
+    $grouped = $monitorings->groupBy('degree_type');
+
+    return view('admin.reports.ched-monitoring', compact('monitorings','grouped','scholars'));
+}
 
 
 public function downloadMonitoring()
@@ -199,66 +258,36 @@ public function downloadMonitoring()
     return $pdf->download('Scholarship_Monitoring_Report.pdf');
 }
 
-public function printMonitoring(Request $request)
-{
-    // Get filter parameters (School Term and AY)
-    $schoolTerm = $request->input('school_term', '1st Semester');
-    $academicYear = $request->input('academic_year', date('Y') . '-' . (date('Y') + 1));
-    $program = $request->input('program', 'DOST');
-
-    // Fetch grouped data
-    $grouped = ScholarMonitoring::all()->groupBy('degree_type');
-
-    // ✅ Filter scholars by program (via applicationForm)
-    $scholars = Scholar::with(['user', 'applicationForm', 'monitorings'])
-        ->when($program, function ($query) use ($program) {
-            $query->whereHas('applicationForm', function ($sub) use ($program) {
-                $sub->where('program', $program);
-            });
-        })
-        // ✅ You can filter by academic year or school term if needed:
-        ->when($schoolTerm, function ($query) use ($schoolTerm) {
-            $query->whereHas('applicationForm', function ($sub) use ($schoolTerm) {
-                $sub->where('school_term', $schoolTerm);
-            });
-        })
-        ->when($academicYear, function ($query) use ($academicYear) {
-            $query->whereHas('applicationForm', function ($sub) use ($academicYear) {
-                $sub->where('academic_year', $academicYear);
-            });
-        })
-        ->get();
-
-    return view('admin.reports.monitoring-print', [
-        'grouped' => $grouped,
-        'scholars' => $scholars,
-        'schoolTerm' => $schoolTerm,
-        'academicYear' => $academicYear,
-        'program' => $program,
-    ]);
-}
 
 
-public function printAllApplicants(Request $request)
+public function printallApplicants(Request $request)
 {
     $academicYear = $request->input('academic_year', null);
     $schoolTerm   = $request->input('school_term', null);
-    $selectedCols = $request->input('cols') ? json_decode($request->input('cols'), true) : [];
+    $selectedCols = $request->input('cols') ? json_decode($request->input('cols'), true) : []; 
 
+    // Get applicants who are not yet scholars
     $query = ApplicationForm::with('user')->whereDoesntHave('scholar');
 
-    if ($academicYear) $query->where('academic_year', $academicYear);
-    if ($schoolTerm) $query->where('school_term', $schoolTerm);
+    if ($academicYear) {
+        $query->where('academic_year', $academicYear);
+    }
+
+    if ($schoolTerm) {
+        $query->where('school_term', $schoolTerm);
+    }
 
     $applicants = $query->orderBy('last_name')->get();
 
     return view('admin.reports.all-applicants-print', [
-        'applicants'    => $applicants,
-        'selectedCols'  => $selectedCols,
-        'academicYear'  => $academicYear,
-        'schoolTerm'    => $schoolTerm,
+        'applicants'   => $applicants,
+        'selectedCols' => $selectedCols,
+        'academicYear' => $academicYear,
+        'schoolTerm'   => $schoolTerm,
     ]);
 }
+
+
 
 
 public function updateField(Request $request)
@@ -267,7 +296,7 @@ public function updateField(Request $request)
 
     foreach ($data as $item) {
         $applicant = ApplicationForm::find($item['id']);    
-        if ($applicant && in_array($item['field'], ['thesis_title','units_required','duration'])) {
+        if ($applicant && in_array($item['field'], ['thesis_title','units_required','duration','intended_degree', 'reason'])) {
             $applicant->{$item['field']} = $item['value'];
             $applicant->save();
         }

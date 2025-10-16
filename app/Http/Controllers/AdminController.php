@@ -106,31 +106,34 @@ class AdminController extends Controller
      * Approve application
      */
     public function approveApplication($id)
-    {
-        $application = ApplicationForm::with('user')->findOrFail($id);
+{
+    $application = ApplicationForm::with('user')->findOrFail($id);
 
-        $application->status = 'approved';
-        $application->remarks = null;
-        $application->save();
+    // Update application status
+    $application->status = 'approved';
+    $application->remarks = null;
+    $application->save();
 
-        // ✅ FIX: use $application->id instead of $application->application_form_id
-        Scholar::firstOrCreate(
-            ['application_form_id' => $application->application_form_id],
-            [
-                'user_id' => $application->user_id,
-                'status' => 'good_standing',
-                'start_date' => now(),
-            ]
-        );
+    // ✅ FIX: Correct key reference
+    Scholar::firstOrCreate(
+        ['application_form_id' => $application->application_form_id], // Use the actual ApplicationForm ID
+        [
+            'user_id' => $application->user_id,
+            'status' => 'qualifiers',
+            'start_date' => now(),
+        ]
+    );
 
-        try {
-            Mail::to($application->user->email)->send(new ApplicationStatusMail('approved'));
-        } catch (\Throwable $e) {
-            // log error if needed
-        }
-
-        return redirect()->route('admin.applications')->with('success', 'Application approved.');
+    // Send email
+    try {
+        Mail::to($application->user->email)->send(new ApplicationStatusMail('approved'));
+    } catch (\Throwable $e) {
+        // Optional: log the email error
     }
+
+    return redirect()->route('admin.applications')->with('success', 'Application approved.');
+}
+
 
     /**
      * Reject application
@@ -158,27 +161,50 @@ class AdminController extends Controller
     /**
      * Update status with optional remarks
      */
-    public function updateStatus(Request $request, $id)
-    {
-        $request->validate([
-            'status' => 'required|in:pending,document_verification,for_interview,approved,rejected',
-            'remarks' => 'nullable|string',
-        ]);
+   public function updateStatus(Request $request, $id)
+{
+    $request->validate([
+        'status' => 'required|in:pending,document_verification,for_interview,approved,rejected',
+        'remarks' => 'nullable|string',
+    ]);
 
-        $application = ApplicationForm::with('user')->findOrFail($id);
-        $application->status = $request->status;
-        $application->remarks = $request->remarks;
-        $application->save();
+    $application = ApplicationForm::with('user')->findOrFail($id);
+    $application->status = $request->status;
+    $application->remarks = $request->remarks;
+    $application->save();
 
-        try {
-            Mail::to($application->user->email)->send(new ApplicationStatusMail($request->status, $request->remarks));
-        } catch (\Throwable $e) {
-            // log if needed
-        }
-
-        return redirect()->route('admin.applications.show', $id)
-            ->with('success', 'Application status updated successfully!');
+    // ✅ If approved, automatically create or update a scholar record
+    if ($request->status === 'approved') {
+        \App\Models\Scholar::updateOrCreate(
+            [
+                'user_id' => $application->user_id,
+                'application_form_id' => $application->application_form_id, // ✅ use the correct FK column
+            ],
+            [
+                'status' => 'qualifiers', // ✅ consistent with your scholar status labels
+                'start_date' => now(),
+                'end_date' => null,
+            ]
+        );
     }
+
+    // ✅ Remove scholar record if rejected
+    if ($request->status === 'rejected') {
+        \App\Models\Scholar::where('application_form_id', $application->application_form_id)->delete();
+    }
+
+    try {
+        Mail::to($application->user->email)->send(
+            new ApplicationStatusMail($request->status, $request->remarks)
+        );
+    } catch (\Throwable $e) {
+        // Optional: Log error if email fails
+    }
+
+    return redirect()->route('admin.applications.show', $id)
+        ->with('success', 'Application status updated successfully!');
+}
+
 
     /**
      * Reports Summary

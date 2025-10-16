@@ -53,7 +53,7 @@ class ApplicationForm extends Model
         'bs_scholarship_type',
         'bs_scholarship_others',
         'bs_remarks',
-
+        'intended_degree',
 
         'ms_degree',
         'ms_period',
@@ -159,6 +159,7 @@ class ApplicationForm extends Model
         'phd_scholarship_type' => 'array',
         'scholarship_type' => 'array',
         'rnd_involvement' => 'array',
+        'scholarship_duration' => 'array',
         'publications' => 'array',
         'awards' => 'array',
         'research_topic_approved' => 'boolean',

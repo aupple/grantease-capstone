@@ -72,23 +72,26 @@ if (! function_exists('getLocationName')) {
                 <select name="academic_year"
                     class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">All</option>
-                    @foreach (['2024-2025', '2025-2026'] as $year)
+                    @foreach (['2025-2026'] as $year)
                         <option value="{{ $year }}" {{ $academicYear == $year ? 'selected' : '' }}>{{ $year }}</option>
                     @endforeach
                 </select>
             </div>
 
             <!-- School Term -->
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">School Term</label>
-                <select name="school_term"
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">All</option>
-                    @foreach (['1st Semester', '2nd Semester'] as $term)
-                        <option value="{{ $term }}" {{ $schoolTerm == $term ? 'selected' : '' }}>{{ $term }}</option>
-                    @endforeach
-                </select>
-            </div>
+<div>
+    <label class="block text-sm font-semibold text-gray-700 mb-1">School Term</label>
+    <select name="school_term"
+        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option value="">All</option>
+        @foreach (['First', 'Second'] as $term)
+            <option value="{{ $term }}" {{ $schoolTerm == $term ? 'selected' : '' }}>
+                {{ $term }} Semester / Term
+            </option>
+        @endforeach
+    </select>
+</div>
+
 
             <!-- Buttons -->
             <div class="flex items-end gap-2">
@@ -115,7 +118,7 @@ if (! function_exists('getLocationName')) {
         <div class="flex flex-wrap gap-4">
             @foreach ([
                 'no' => 'No.', 'last_name' => 'Last Name', 'first_name' => 'First Name', 'middle_name' => 'Middle Name',
-                'suffix' => 'Suffix', 'street' => 'Street', 'village' => 'Village', 'town' => 'Town', 'province' => 'Province',
+                'suffix' => 'suffix', 'street' => 'Street', 'village' => 'Village', 'town' => 'Town', 'province' => 'Province',
                 'zipcode' => 'Zipcode', 'district' => 'District', 'region' => 'Region', 'email' => 'Email', 'bday' => 'Birthday',
                 'contact_no' => 'Contact No.', 'gender' => 'Gender', 'course_completed' => 'Course Completed',
                 'university_graduated' => 'University Graduated', 'entry' => 'Entry', 'level' => 'Level',
@@ -139,7 +142,7 @@ if (! function_exists('getLocationName')) {
                     <tr>
                         @foreach ([
                             'no' => 'No.', 'last_name' => 'Last Name', 'first_name' => 'First Name', 'middle_name' => 'Middle Name',
-                            'suffix' => 'Suffix', 'street' => 'Street', 'village' => 'Village', 'town' => 'Town', 'province' => 'Province',
+                            'suffix' => 'suffix', 'street' => 'Street', 'village' => 'Village', 'town' => 'Town', 'province' => 'Province',
                             'zipcode' => 'Zipcode', 'district' => 'District', 'region' => 'Region', 'email' => 'Email', 'bday' => 'Birthday',
                             'contact_no' => 'Contact No.', 'gender' => 'Gender', 'course_completed' => 'Course Completed',
                             'university_graduated' => 'University Graduated', 'entry' => 'Entry', 'level' => 'Level',
@@ -172,10 +175,12 @@ if (! function_exists('getLocationName')) {
     <td data-col="gender" class="border px-2 py-1">{{ strtoupper($a->sex) }}</td>
     <td data-col="course_completed" class="border px-2 py-1">{{ $a->bs_degree }}</td>
     <td data-col="university_graduated" class="border px-2 py-1">{{ $a->bs_university }}</td>
-    <td data-col="entry" class="border px-2 py-1">{{ ucfirst($a->new_applicant_university) }}</td>
-    <td data-col="level" class="border px-2 py-1">{{ strtoupper($a->bs_field) }}</td>
-    <td data-col="intended_degree" class="border px-2 py-1">{{ $a->ms_degree }}</td>
-    <td data-col="university" class="border px-2 py-1">{{ $a->university }}</td>
+    <td data-col="entry" class="border px-2 py-1">{{ ucfirst($a->applicant_status) }}</td>
+    <td data-col="level" class="border px-2 py-1">{{ strtoupper(implode(', ', $a->scholarship_type ?? [])) }}</td>
+    <td data-col="intended_degree" class="border px-2 py-1">
+    <span class="display-text">{{ $a->intended_degree ?? '' }}</span>
+    <input type="text" class="edit-input hidden border px-1 py-1 w-full" value="{{ $a->intended_degree ?? '' }}" data-id="{{ $a->application_form_id }}"></td>
+    <td data-col="university" class="border px-2 py-1">{{ $a->applicant_status === 'new' ? ($a->new_applicant_university ?? 'N/A') : ($a->lateral_university_enrolled ?? 'N/A') }}</td>
 
     <!-- Editable fields -->
     <td data-col="thesis_title">
@@ -183,16 +188,16 @@ if (! function_exists('getLocationName')) {
         <input type="text" class="edit-input hidden border px-1 py-1 w-full" value="{{ $a->thesis_title ?? '' }}" data-id="{{ $a->application_form_id }}">
     </td>
     <td data-col="units_required" class="text-center">
-        <span class="display-text">{{ $a->units_required ?? '' }}</span>
-        <input type="number" class="edit-input hidden border px-1 py-1 w-full text-center" value="{{ $a->units_required ?? '' }}" data-id="{{ $a->application_form_id }}">
-    </td>
+    <span class="display-text">{{ $a->units_required ?? '' }}</span><input type="number" class="edit-input hidden border px-1 py-1 w-full text-center" value="{{ $a->units_required ?? '' }}" data-id="{{ $a->application_form_id }}"></td>
     <td data-col="units_earned" class="border px-2 py-1 text-center">{{ $a->lateral_units_earned }}</td>
-    <td data-col="percent_completed" class="border px-2 py-1 text-center">{{ $a->percent_completed }}</td>
+    <td data-col="percent_completed" class="border px-2 py-1 text-center">{{ $a->lateral_units_earned }}</td>
+    
     <td data-col="duration">
-        <span class="display-text">{{ $a->duration ?? '' }}</span>
-        <input type="text" class="edit-input hidden border px-1 py-1 w-full" value="{{ $a->duration ?? '' }}" data-id="{{ $a->application_form_id }}">
-    </td>
-    <td data-col="remarks" class="border px-2 py-1">{{ $a->remarks }}</td>
+    <span class="display-text">{{ $a->duration ?? '' }}</span>  <input type="text" class="edit-input hidden border px-1 py-1 w-full" value="{{ $a->duration ?? '' }}" data-id="{{ $a->application_form_id }}"></td>
+    
+    <td data-col="remarks" class="border px-2 py-1">
+    <span class="display-text">{{ $a->remarks ?? '' }}</span><input type="text" class="edit-input hidden border px-1 py-1 w-full"value="{{ $a->remarks ?? '' }}"data-id="{{ $a->application_form_id }}"></td>
+
 
     <!-- Edit/Save buttons -->
     <td class="text-center">
@@ -292,6 +297,7 @@ document.querySelectorAll('tr').forEach(row => {
         const thesis = row.querySelector('[data-col="thesis_title"] .edit-input').value.trim();
         const units = row.querySelector('[data-col="units_required"] .edit-input').value.trim();
         const duration = row.querySelector('[data-col="duration"] .edit-input').value.trim();
+        const intended = row.querySelector('[data-col="intended_degree"] .edit-input')?.value.trim();
         const id = row.querySelector('[data-col="thesis_title"] .edit-input').dataset.id;
 
         fetch("{{ route('admin.reports.applicants.update-field') }}", {
@@ -305,6 +311,7 @@ document.querySelectorAll('tr').forEach(row => {
         { id, field: 'thesis_title', value: thesis },
         { id, field: 'units_required', value: units },
         { id, field: 'duration', value: duration },
+        { id, field: 'intended_degree', value: intended },
     ])
 })
 .then(res => res.json())
@@ -314,6 +321,7 @@ document.querySelectorAll('tr').forEach(row => {
                 row.querySelector('[data-col="thesis_title"] .display-text').textContent = thesis;
                 row.querySelector('[data-col="units_required"] .display-text').textContent = units;
                 row.querySelector('[data-col="duration"] .display-text').textContent = duration;
+                row.querySelector('[data-col="intended_degree"] .display-text').textContent = intended;
 
                 row.querySelectorAll('.display-text').forEach(span => span.classList.remove('hidden'));
                 row.querySelectorAll('.edit-input').forEach(input => input.classList.add('hidden'));

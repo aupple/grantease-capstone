@@ -168,6 +168,10 @@ $application->program = $request->program;
 $application->status = 'pending';
 $application->submitted_at = now();
 
+// Add these lines:
+$application->applicant_status = $request->applicant_status;
+$application->applicant_type = $request->applicant_type;
+
 // Fill all non-file fields safely using validated data
 $nonFileFields = collect($validated)->except([
     'passport_picture',

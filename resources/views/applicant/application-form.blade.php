@@ -168,11 +168,12 @@
     </div>
 
     <div>
-        <label for="suffix" class="text-sm font-medium text-gray-700">Suffix</label>
-        <input type="text" name="suffix" id="suffix"
-            value="{{ Auth::user()->suffix ?? 'N/A' }}"
-            class="mt-1 w-full border-gray-300 rounded-md shadow-sm text-sm bg-gray-100" readonly>
-    </div>
+    <label for="suffix" class="text-sm font-medium text-gray-700">Suffix</label>
+    <input type="text" name="suffix" id="suffix"
+        class="mt-1 w-full border-gray-300 rounded-md shadow-sm text-sm"
+        placeholder="e.g., Jr., Sr., III">
+</div>
+
 </div>
 <!-- 🏠 Address Section -->
 <h5 class="text-md font-semibold text-gray-800 mb-3">Permanent Address</h5>

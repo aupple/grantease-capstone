@@ -12,7 +12,6 @@
     h2, h3 { text-align: center; margin: 0; padding: 0; }
     .header { margin-bottom: 15px; }
 
-    /* ✅ Add this block */
     .header {
         text-align: center;
         margin-bottom: 15px;
@@ -175,7 +174,7 @@ if (! function_exists('getLocationName')) {
                         'course_completed' => 'Course Completed',
                         'university_graduated' => 'University Graduated',
                         'entry' => 'Entry',
-                        'field' => 'Field',
+                        'level' => 'Level',
                         'intended_degree' => 'Intended Masters/Doctoral Degree',
                         'university' => 'University',
                         'thesis_title' => 'Thesis/Dissertation Title',
@@ -220,10 +219,10 @@ if (! function_exists('getLocationName')) {
                                     @case('gender') {{ strtoupper(formatValue($a->sex)) }} @break
                                     @case('course_completed') {{ formatValue($a->bs_degree) }} @break
                                     @case('university_graduated') {{ formatValue($a->bs_university) }} @break
-                                    @case('entry') {{ ucfirst(formatValue($a->new_applicant_university)) }} @break
-                                    @case('field') {{ strtoupper(formatValue($a->bs_field)) }} @break
-                                    @case('intended_degree') {{ formatValue($a->intended_degree) }} @break
-                                    @case('university') {{ formatValue($a->university) }} @break
+                                    @case('entry') {{ ucfirst(formatValue($a->applicant_status)) }} @break
+                                    @case('level') {{ strtoupper(formatValue($a->scholarship_type)) }} @break
+                                    @case('intended_degree'){{ formatValue($a->intended_degree) }}@break
+                                    @case('university'){{ formatValue($a->applicant_status === 'new'? $a->new_applicant_university: $a->lateral_university_enrolled) }}@break
                                     @case('thesis_title') {{ formatValue($a->thesis_title) }} @break
                                     @case('units_required') {{ formatValue($a->units_required) }} @break
                                     @case('units_earned') {{ formatValue($a->lateral_units_earned) }} @break
@@ -251,5 +250,8 @@ if (! function_exists('getLocationName')) {
             <p class="sig-label">Name and Signature of Project Leader</p>
         </div>
     </div>
+    <script>
+    window.onload = () => window.print();
+</script>
 </body>
 </html>
