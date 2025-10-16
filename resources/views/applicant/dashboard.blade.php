@@ -43,65 +43,89 @@
 
                                 <!-- ✅ Application Status Train -->
                                 @php
-                                    $statuses = ['submitted', 'under review', 'approved', 'rejected'];
+                                    $statuses = ['submitted', 'pending', 'verdict'];
                                     $currentStatus = strtolower($latestApplication->status);
-                                    $currentIndex = array_search($currentStatus, $statuses);
+
+                                    if ($currentStatus === 'under review') {
+                                        $currentStatus = 'pending';
+                                    }
+
+                                    $currentIndex = match($currentStatus) {
+                                        'submitted' => 0,
+                                        'pending' => 1,
+                                        'approved', 'rejected', 'verdict' => 2,
+                                        default => 0,
+                                    };
                                 @endphp
 
                                 <div class="relative mt-6">
                                     <div class="flex justify-between items-center">
                                         @foreach ($statuses as $index => $status)
-                                            <div class="flex flex-col items-center relative w-full">
+                                            @php
+                                                $label = ($status === 'verdict' && in_array($currentStatus, ['approved', 'rejected']))
+                                                    ? $currentStatus
+                                                    : $status;
+                                            @endphp
 
-                                                <!-- Connector line -->
+                                            <div class="flex flex-col items-center relative w-full">
+                                                <!-- Connector Line -->
                                                 @if ($index < count($statuses) - 1)
-                                                    <div class="absolute top-4 left-1/2 w-full h-[2px] z-0 
+                                                    <div class="absolute top-4 left-1/2 w-full h-[2px] z-0
                                                         {{ $index < $currentIndex ? 'bg-blue-600' : 'bg-gray-300' }}">
                                                     </div>
                                                 @endif
 
-                                                <!-- Circle -->
-                                                <div class="relative z-10 w-8 h-8 flex items-center justify-center rounded-full
-                                                    @if($currentStatus == 'rejected' && $status == 'rejected')
-                                                        bg-red-600 text-white
-                                                    @elseif($index == $currentIndex)
-                                                        bg-blue-600 text-white animate-pulse
-                                                    @elseif($index < $currentIndex)
-                                                        bg-blue-600 text-white
+                                                <!-- Step Circle -->
+                                                <div class="relative z-10 w-8 h-8 flex items-center justify-center rounded-full text-white
+                                                    @if($label === 'rejected')
+                                                        bg-red-600
+                                                    @elseif($label === 'approved')
+                                                        bg-green-600
+                                                    @elseif($index <= $currentIndex)
+                                                        bg-blue-600
                                                     @else
                                                         bg-gray-300 text-gray-700
                                                     @endif">
-                                                    @if($currentStatus == 'rejected' && $status == 'rejected')
+                                                    @if($label === 'rejected')
                                                         ✖
+                                                    @elseif($label === 'approved')
+                                                        ✔
                                                     @else
                                                         {{ $index + 1 }}
                                                     @endif
                                                 </div>
 
-                                                <!-- Label -->
+                                                <!-- Step Label -->
                                                 <p class="text-xs mt-2 capitalize
-                                                    @if($currentStatus == 'rejected' && $status == 'rejected')
+                                                    @if($label === 'rejected')
                                                         text-red-600 font-semibold
+                                                    @elseif($label === 'approved')
+                                                        text-green-700 font-semibold
                                                     @elseif($index <= $currentIndex)
                                                         text-blue-700 font-medium
                                                     @else
                                                         text-gray-500
                                                     @endif">
-                                                    {{ $status }}
+                                                    {{ $label }}
                                                 </p>
                                             </div>
                                         @endforeach
                                     </div>
                                 </div>
 
-                                <a href="{{ route('applicant.application.view') }}" class="mt-4 inline-block text-sm text-blue-700 hover:underline">View Details</a>
+                                <div class="mt-5 text-right">
+                                    <a href="{{ route('applicant.application.view') }}" 
+                                       class="inline-block text-sm text-blue-700 hover:text-blue-900 font-medium transition">
+                                        View Details →
+                                    </a>
+                                </div>
                             </div>
                         @else
                             <p class="text-gray-500">Ready to start your scholarship journey?</p>
                         @endif
                     </div>
 
-                    <!-- Required Forms Dropdown -->
+                    <!-- ✅ Required Forms Dropdown (UNCHANGED) -->
                     <div class="bg-white border border-gray-200 shadow-md rounded-2xl p-6">
                         <h2 class="font-semibold text-gray-800 mb-4">Required Forms</h2>
                         <div class="relative">
