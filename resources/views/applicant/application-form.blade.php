@@ -168,12 +168,11 @@
     </div>
 
     <div>
-    <label for="suffix" class="text-sm font-medium text-gray-700">Suffix</label>
-    <input type="text" name="suffix" id="suffix"
-        class="mt-1 w-full border-gray-300 rounded-md shadow-sm text-sm"
-        placeholder="e.g., Jr., Sr., III">
-</div>
-
+        <label for="suffix" class="text-sm font-medium text-gray-700">Suffix</label>
+        <input type="text" name="suffix" id="suffix"
+            value="{{ Auth::user()->suffix ?? 'N/A' }}"
+            class="mt-1 w-full border-gray-300 rounded-md shadow-sm text-sm bg-gray-100" readonly>
+    </div>
 </div>
 <!-- 🏠 Address Section -->
 <h5 class="text-md font-semibold text-gray-800 mb-3">Permanent Address</h5>
@@ -678,127 +677,157 @@
 </div>
 
 
-                    <!-- Step 5: Employment Information -->
-                    <div class="step bg-white p-6 rounded-lg shadow-sm hidden" id="step5">
-                        <h4 class="text-lg font-semibold mb-3">IV. CAREER/EMPLOYMENT INFORMATION</h4>
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700">a. Present Employment Status</label>
-                            <div class="mt-1 flex flex-wrap gap-4">
-                                <label class="inline-flex items-center">
-                                    <input type="radio" name="employment_status" value="Permanent" class="form-radio" required>
-                                    <span class="ml-2 text-sm text-gray-700">Permanent</span>
-                                </label>
-                                <label class="inline-flex items-center">
-                                    <input type="radio" name="employment_status" value="Contractual" class="form-radio">
-                                    <span class="ml-2 text-sm text-gray-700">Contractual</span>
-                                </label>
-                                <label class="inline-flex items-center">
-                                    <input type="radio" name="employment_status" value="Probationary" class="form-radio">
-                                    <span class="ml-2 text-sm text-gray-700">Probationary</span>
-                                </label>
-                                <label class="inline-flex items-center">
-                                    <input type="radio" name="employment_status" value="Self-employed" class="form-radio">
-                                    <span class="ml-2 text-sm text-gray-700">Self-employed</span>
-                                </label>
-                                <label class="inline-flex items-center">
-                                    <input type="radio" name="employment_status" value="Unemployed" class="form-radio">
-                                    <span class="ml-2 text-sm text-gray-700">Unemployed</span>
-                                </label>
-                            </div>
-                        </div>
+                   <!-- Step 5: Employment Information -->
+<div class="step bg-white p-6 rounded-lg shadow-sm hidden" id="step5">
+    <h4 class="text-lg font-semibold mb-3">IV. CAREER/EMPLOYMENT INFORMATION</h4>
 
-                        <div id="employed_fields" class="mb-6 border p-4 rounded-md hidden">
-                            <p class="font-semibold mb-2">a.1 For those who are presently employed*</p>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
-                                <div>
-                                    <label for="employed_position" class="block text-sm font-medium text-gray-700">Position</label>
-                                    <input type="text" name="employed_position" id="employed_position" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                                </div>
-                                <div>
-                                    <label for="employed_length_of_service" class="block text-sm font-medium text-gray-700">Length of Service</label>
-                                    <input type="text" name="employed_length_of_service" id="employed_length_of_service" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                                </div>
-                            </div>
-                            <div class="mb-2">
-                                <label for="employed_company_name" class="block text-sm font-medium text-gray-700">Name of Company/Office</label>
-                                <input type="text" name="employed_company_name" id="employed_company_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                            </div>
-                            <div class="mb-2">
-                                <label for="employed_company_address" class="block text-sm font-medium text-gray-700">Address of Company/Office</label>
-                                <input type="text" name="employed_company_address" id="employed_company_address" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-                                <div>
-                                    <label for="employed_email" class="block text-sm font-medium text-gray-700">Email</label>
-                                    <input type="email" name="employed_email" id="employed_email" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                                </div>
-                                <div>
-                                    <label for="employed_website" class="block text-sm font-medium text-gray-700">Website</label>
-                                    <input type="url" name="employed_website" id="employed_website" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                                </div>
-                                <div>
-                                    <label for="employed_telephone" class="block text-sm font-medium text-gray-700">Telephone No.</label>
-                                    <input type="text" name="employed_telephone" id="employed_telephone" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                                </div>
-                            </div>
-                            <div>
-                                <label for="employed_fax" class="block text-sm font-medium text-gray-700">Fax No.</label>
-                                <input type="text" name="employed_fax" id="employed_fax" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                            </div>
-                            <p class="text-sm text-gray-600 mt-2">*Once accepted in the scholarship program, the scholar must obtain permission to go on a Leave of Absence (LOA) from his/her employer and become a full-time student. The scholar must submit a letter from his/her employer approving the LOA.</p>
-                    </div>
+    <!-- Employment Status -->
+    <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">a. Present Employment Status</label>
+        <div class="mt-1 flex flex-wrap gap-4">
+            <label class="inline-flex items-center">
+                <input type="radio" name="employment_status" value="Permanent" class="form-radio" required>
+                <span class="ml-2 text-sm text-gray-700">Permanent</span>
+            </label>
+            <label class="inline-flex items-center">
+                <input type="radio" name="employment_status" value="Contractual" class="form-radio">
+                <span class="ml-2 text-sm text-gray-700">Contractual</span>
+            </label>
+            <label class="inline-flex items-center">
+                <input type="radio" name="employment_status" value="Probationary" class="form-radio">
+                <span class="ml-2 text-sm text-gray-700">Probationary</span>
+            </label>
+            <label class="inline-flex items-center">
+                <input type="radio" name="employment_status" value="Self-employed" class="form-radio">
+                <span class="ml-2 text-sm text-gray-700">Self-employed</span>
+            </label>
+            <label class="inline-flex items-center">
+                <input type="radio" name="employment_status" value="Unemployed" class="form-radio">
+                <span class="ml-2 text-sm text-gray-700">Unemployed</span>
+            </label>
+        </div>
+    </div>
 
-                    <div id="self_employed_fields" class="mb-6 border p-4 rounded-md hidden">
-                        <p class="font-semibold mb-2">a.2 For those who are self-employed</p>
-                        <div class="mb-2">
-                            <label for="self_employed_business_name" class="block text-sm font-medium text-gray-700">Business Name</label>
-                            <input type="text" name="self_employed_business_name" id="self_employed_business_name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                        </div>
-                        <div class="mb-2">
-                            <label for="self_employed_address" class="block text-sm font-medium text-gray-700">Address</label>
-                            <input type="text" name="self_employed_address" id="self_employed_address" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
-                            <div>
-                                <label for="self_employed_email_website" class="block text-sm font-medium text-gray-700">Email/Website</label>
-                                <input type="text" name="self_employed_email_website" id="self_employed_email_website" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                            </div>
-                            <div>
-                                <label for="self_employed_telephone" class="block text-sm font-medium text-gray-700">Telephone No.</label>
-                                <input type="text" name="self_employed_telephone" id="self_employed_telephone" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="self_employed_fax" class="block text-sm font-medium text-gray-700">Fax No.</label>
-                                <input type="text" name="self_employed_fax" id="self_employed_fax" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                            </div>
-                            <div>
-                                <label for="self_employed_type_of_business" class="block text-sm font-medium text-gray-700">Type of Business</label>
-                                <input type="text" name="self_employed_type_of_business" id="self_employed_type_of_business" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                            </div>
-                        </div>
-                        <div>
-                            <label for="self_employed_years_of_operation" class="block text-sm font-medium text-gray-700">Years of Operation</label>
-                            <input type="text" name="self_employed_years_of_operation" id="self_employed_years_of_operation" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-                        </div>
-                    </div>
+    <!-- Employed Fields -->
+    <div id="employed_fields" class="mb-6 border p-4 rounded-md hidden">
+        <p class="font-semibold mb-2">a.1 For those who are presently employed*</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+            <div>
+                <label for="employed_position" class="block text-sm font-medium text-gray-700">Position</label>
+                <input type="text" name="employed_position" id="employed_position"
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+            </div>
+            <div>
+                <label for="employed_length_of_service" class="block text-sm font-medium text-gray-700">Length of Service</label>
+                <input type="text" name="employed_length_of_service" id="employed_length_of_service"
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+            </div>
+        </div>
+        <div class="mb-2">
+            <label for="employed_company_name" class="block text-sm font-medium text-gray-700">Name of Company/Office</label>
+            <input type="text" name="employed_company_name" id="employed_company_name"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+        </div>
+        <div class="mb-2">
+            <label for="employed_company_address" class="block text-sm font-medium text-gray-700">Address of Company/Office</label>
+            <input type="text" name="employed_company_address" id="employed_company_address"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+            <div>
+                <label for="employed_email" class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" name="employed_email" id="employed_email"
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+            </div>
+            <div>
+                <label for="employed_website" class="block text-sm font-medium text-gray-700">Website</label>
+                <input type="url" name="employed_website" id="employed_website"
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+            </div>
+            <div>
+                <label for="employed_telephone" class="block text-sm font-medium text-gray-700">Telephone No.</label>
+                <input type="text" name="employed_telephone" id="employed_telephone"
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+            </div>
+        </div>
+        <div>
+            <label for="employed_fax" class="block text-sm font-medium text-gray-700">Fax No.</label>
+            <input type="text" name="employed_fax" id="employed_fax"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+        </div>
+        <p class="text-sm text-gray-600 mt-2">
+            *Once accepted in the scholarship program, the scholar must obtain permission to go on a Leave of Absence (LOA) from his/her employer and become a full-time student. The scholar must submit a letter from his/her employer approving the LOA.
+        </p>
+    </div>
 
-                    <div class="mb-4">
-                        <label for="research_plans" class="block text-sm font-medium text-gray-700">b. RESEARCH PLANS (Minimum of 300 words)</label>
-                        <textarea name="research_plans" id="research_plans" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" placeholder="Briefly discuss your proposed research area/s." required></textarea>
-                    </div>
+    <!-- Self-Employed Fields -->
+    <div id="self_employed_fields" class="mb-6 border p-4 rounded-md hidden">
+        <p class="font-semibold mb-2">a.2 For those who are self-employed</p>
+        <div class="mb-2">
+            <label for="self_employed_business_name" class="block text-sm font-medium text-gray-700">Business Name</label>
+            <input type="text" name="self_employed_business_name" id="self_employed_business_name"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+        </div>
+        <div class="mb-2">
+            <label for="self_employed_address" class="block text-sm font-medium text-gray-700">Address</label>
+            <input type="text" name="self_employed_address" id="self_employed_address"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+            <div>
+                <label for="self_employed_email_website" class="block text-sm font-medium text-gray-700">Email/Website</label>
+                <input type="text" name="self_employed_email_website" id="self_employed_email_website"
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+            </div>
+            <div>
+                <label for="self_employed_telephone" class="block text-sm font-medium text-gray-700">Telephone No.</label>
+                <input type="text" name="self_employed_telephone" id="self_employed_telephone"
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="self_employed_fax" class="block text-sm font-medium text-gray-700">Fax No.</label>
+                <input type="text" name="self_employed_fax" id="self_employed_fax"
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+            </div>
+            <div>
+                <label for="self_employed_type_of_business" class="block text-sm font-medium text-gray-700">Type of Business</label>
+                <input type="text" name="self_employed_type_of_business" id="self_employed_type_of_business"
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+            </div>
+        </div>
+        <div>
+            <label for="self_employed_years_of_operation" class="block text-sm font-medium text-gray-700">Years of Operation</label>
+            <input type="text" name="self_employed_years_of_operation" id="self_employed_years_of_operation"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+        </div>
+    </div>
 
-                    <div class="mb-6">
-                        <label for="career_plans" class="block text-sm font-medium text-gray-700">c. CAREER PLANS (Minimum of 300 words)</label>
-                        <textarea name="career_plans" id="career_plans" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" placeholder="Discuss your future plans after graduation." required></textarea>
-                    </div>
+    <!-- Research Plans -->
+    <div class="mb-4">
+        <label for="research_plans" class="block text-sm font-medium text-gray-700">b. RESEARCH PLANS (Minimum 300 words)</label>
+        <textarea name="research_plans" id="research_plans" rows="4"
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm"
+            placeholder="Briefly discuss your proposed research area/s." required></textarea>
+    </div>
 
-                    <div class="flex justify-between mt-8">
-                        <button type="button" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400" onclick="prevStep(4)">Back</button>
-                        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700" onclick="validateAndNext(5)">Next: R&D / Pubs / Awards</button>
-                    </div>
-                </div>
+    <!-- Career Plans -->
+    <div class="mb-6">
+        <label for="career_plans" class="block text-sm font-medium text-gray-700">c. CAREER PLANS (Minimum of 300 words)</label>
+        <textarea name="career_plans" id="career_plans" rows="4"
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm"
+            placeholder="Discuss your future plans after graduation." required></textarea>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="flex justify-between mt-8">
+        <button type="button" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400"
+            onclick="prevStep(4)">Back</button>
+        <button type="button" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
+            onclick="validateAndNext(5)">Next: R&D / Pubs / Awards</button>
+    </div>
+</div>
 <!-- Step 6: Research, Publications, Awards -->
 <div class="step bg-white p-8 rounded-2xl shadow-md hidden" id="step6">
     <!-- V. Research and Development Involvement -->
@@ -1395,28 +1424,34 @@ function attachIfEmployedListener() {
         });
     }
     function attachEmploymentStatusListener() {
-        const employmentStatusRadios = document.querySelectorAll('input[name="employment_status"]');
-        const employedFields = document.getElementById('employed_fields');
-        const selfEmployedFields = document.getElementById('self_employed_fields');
+    const employmentRadios = document.querySelectorAll('input[name="employment_status"]');
+    const employedFields = document.getElementById('employed_fields');
+    const selfEmployedFields = document.getElementById('self_employed_fields');
 
-        employmentStatusRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                employedFields.querySelectorAll('input').forEach(input => input.removeAttribute('required'));
-                selfEmployedFields.querySelectorAll('input').forEach(input => input.removeAttribute('required'));
+    if (!employmentRadios.length || !employedFields || !selfEmployedFields) return;
 
-                employedFields.classList.add('hidden');
-                selfEmployedFields.classList.add('hidden');
+    employmentRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            // Hide all sections
+            employedFields.classList.add('hidden');
+            selfEmployedFields.classList.add('hidden');
 
-                if (this.value === 'Permanent' || this.value === 'Contractual' || this.value === 'Probationary') {
-                    employedFields.classList.remove('hidden');
-                    employedFields.querySelectorAll('input').forEach(input => input.setAttribute('required', 'required'));
-                } else if (this.value === 'Self-employed') {
-                    selfEmployedFields.classList.remove('hidden');
-                    selfEmployedFields.querySelectorAll('input').forEach(input => input.setAttribute('required', 'required'));
-                }
-            });
+            // Remove required from hidden inputs
+            employedFields.querySelectorAll('input, textarea, select').forEach(el => el.required = false);
+            selfEmployedFields.querySelectorAll('input, textarea, select').forEach(el => el.required = false);
+
+            // Show relevant section + set required
+            if (['Permanent', 'Contractual', 'Probationary'].includes(radio.value)) {
+                employedFields.classList.remove('hidden');
+                employedFields.querySelectorAll('input').forEach(el => el.required = true);
+            } else if (radio.value === 'Self-employed') {
+                selfEmployedFields.classList.remove('hidden');
+                selfEmployedFields.querySelectorAll('input').forEach(el => el.required = true);
+            }
+            // Unemployed → no extra fields shown
         });
-    }
+    });
+}
     // ✅ Function to handle "New Applicant" vs "Lateral Applicant" toggle
 function attachApplicantTypeToggle() {
   const applicantRadios = document.querySelectorAll('input[name="applicant_status"]');
