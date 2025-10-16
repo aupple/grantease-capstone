@@ -92,9 +92,11 @@ Route::post('/reports/applicants/save', [ReportController::class, 'saveApplicant
 Route::get('/reports/applicants/print', [ReportController::class, 'printAllApplicants'])->name('reports.applicants.print'); 
 Route::get('/reports/monitoring', [ReportController::class, 'monitoring'])->name('reports.monitoring');
 Route::post('/reports/monitoring/save', [ReportController::class, 'saveMonitoring'])->name('reports.monitoring.save');
+Route::post('/reports/applicants/update-field', [ReportController::class, 'updateField'])->name('reports.applicants.update-field');
 Route::get('/reports/monitoring/download', [ReportController::class, 'downloadMonitoring'])->name('reports.monitoring.download');
 Route::get('/reports/monitoring/print', [ReportController::class, 'printMonitoring'])->name('reports.monitoring.print');
-
+Route::get('/reports/ched-monitoring', [ReportController::class, 'chedmonitoring'])->name('reports.ched-monitoring');
+Route::get('/reports/monitoring/{id}', [ReportController::class, 'showMonitoring'])->name('reports.monitoring.show');
 
         // Scholars
         Route::get('/scholars', [AdminController::class, 'viewScholars'])->name('scholars');

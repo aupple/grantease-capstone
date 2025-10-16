@@ -34,4 +34,5 @@ class ScholarMonitoring extends Model
     {
          return $this->belongsTo(Scholar::class, 'scholar_id', 'id');
     }
+    
 }

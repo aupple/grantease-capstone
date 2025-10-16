@@ -265,10 +265,6 @@ if (! function_exists('getLocationName')) {
             <p class="font-semibold text-gray-600">Year Level</p>
             <p class="font-semibold">{{ is_array($application->academic_year) ? implode(', ', $application->academic_year) : ($application->academic_year ?? 'N/A') }}</p>
         </div>
-        <div class="md:col-span-2">
-            <p class="font-semibold text-gray-600">Reason for Applying</p>
-            <p class="font-semibold">{{ is_array($application->reason) ? implode(', ', $application->reason) : ($application->reason ?? 'N/A') }}</p>
-        </div>
     </div>
 
     <hr class="my-4 border-dashed">

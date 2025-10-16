@@ -1452,7 +1452,6 @@ function attachIfEmployedListener() {
         });
     });
 }
-
     // ✅ Function to handle "New Applicant" vs "Lateral Applicant" toggle
 function attachApplicantTypeToggle() {
   const applicantRadios = document.querySelectorAll('input[name="applicant_status"]');

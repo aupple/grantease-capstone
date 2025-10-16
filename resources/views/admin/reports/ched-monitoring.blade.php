@@ -25,69 +25,73 @@
     .col-hidden { display: none !important; }
 </style>
 
-<div class="space-y-6">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-        <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
-            Monitoring Scholars
-        </h1>
-    </div>
-
-    <!-- Filters & Actions Card -->
-    <div class="bg-white/30 backdrop-blur-lg shadow-md border border-white/20 rounded-2xl p-6">
-        <form id="filtersForm" method="GET" action="{{ route('admin.reports.monitoring') }}" class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            
-            <!-- Semester filter -->
+<div class="container mx-auto px-4 py-6">
+    <!-- Header & Controls card -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <div class="flex items-start justify-between">
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Semester</label>
-                <select name="semester"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="" {{ request('semester') == '' ? 'selected' : '' }}>All Semesters</option>
-                    <option value="1st" {{ request('semester') == '1st' ? 'selected' : '' }}>First Semester</option>
-                    <option value="2nd" {{ request('semester') == '2nd' ? 'selected' : '' }}>Second Semester</option>
-                </select>
+                <h1 class="text-2xl font-bold text-slate-800">Monitoring Scholars</h1>
+                <p class="text-sm text-slate-500 mt-1">View and print scholar monitoring report</p>
             </div>
 
-            <!-- Buttons -->
-            <div class="flex items-end gap-2">
-                <button type="submit"
-                        class="bg-blue-600 font-medium text-white text-sm px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition">
-                    Filter
-                </button>
-
-                <a href="{{ route('admin.reports.monitoring.print', ['semester' => request('semester', '')]) }}" 
-   target="_blank" 
-   rel="noopener"
-   class="bg-green-600 font-medium text-white text-sm px-4 py-2 rounded-lg shadow-md hover:bg-green-700 transition">
-    Print
+            <!-- Action buttons -->
+            <div class="no-print flex items-center gap-2">
+                <a href="{{ route('admin.reports.monitoring.print', [
+    'semester' => request('semester'),
+    'program' => request('program'),
+    'academic_year' => request('academic_year')
+]) }}"
+   target="_blank"
+   class="flex-1 bg-green-600 font-semibold text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow-md">
+   Preview Print
 </a>
 
+            </div>
+        </div>
 
-                <button type="button" id="resetCols"
-                        class="bg-red-600 font-medium text-white text-sm px-4 py-2 rounded-lg shadow-md hover:bg-red-700 transition">
-                    Reset Columns
+           <!-- Filter + Columns selection card -->
+<div class="mt-5 bg-slate-50 rounded-md p-4">
+    <form id="filtersForm" method="GET" action="{{ route('admin.reports.monitoring') }}" class="space-y-4">
+        <!-- Filters row -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Semester filter -->
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Semester</label>
+                <select name="semester" class="w-full rounded border-gray-300">
+                    <option value="" {{ request('semester') == '' ? 'selected' : '' }}>All Semesters</option>
+                    <option value="1st" {{ request('semester') == '1st' ? 'selected' : '' }}>1st Semester</option>
+                    <option value="2nd" {{ request('semester') == '2nd' ? 'selected' : '' }}>2nd Semester</option>
+                </select>
+            </div>
+            <!-- Filter Button -->
+            <div class="flex items-end">
+                <button type="submit"
+                    class="bg-blue-600 font-semibold text-white px-2 py-2 rounded-md hover:bg-blue-700 transition">
+                    Filter
                 </button>
             </div>
-        </form>
-    </div>
+        </div>
+
         <!-- Field Selection Section -->
-        <div class="bg-white/30 backdrop-blur-lg shadow-md border border-white/20 rounded-2xl p-5">
-        <h2 class="text-sm font-semibold text-gray-700 mb-3">Select Fields to Display</h2>
-        <div class="flex flex-wrap gap-4">
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="no" checked> <span class="ml-2">No.</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="last_name" checked> <span class="ml-2">Last Name</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="first_name" checked> <span class="ml-2">First name</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="middle_name" checked> <span class="ml-2">Middle Name</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="level" checked> <span class="ml-2">Level (MS/PhD)</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="course" checked> <span class="ml-2">Course</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="school" checked> <span class="ml-2">School</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="new_lateral" checked> <span class="ml-2">New/Lateral</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="pt_ft" checked> <span class="ml-2">Part-Time/Full-Time</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="duration" checked> <span class="ml-2">Scholarship Duration</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="date_started" checked> <span class="ml-2">Date Starded</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="expected_completion" checked> <span class="ml-2">Expected Completion</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="status" checked> <span class="ml-2">Status</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="remarks" checked> <span class="ml-2">Remarks</span></label>
+        <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">
+                Select Fields to Display
+            </label>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="no" checked> <span class="ml-2">NO.</span></label>
+                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="last_name" checked> <span class="ml-2">LAST NAME</span></label>
+                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="first_name" checked> <span class="ml-2">FIRST NAME</span></label>
+                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="middle_name" checked> <span class="ml-2">MIDDLE NAME</span></label>
+                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="level" checked> <span class="ml-2">LEVEL (MS/PhD)</span></label>
+                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="course" checked> <span class="ml-2">COURSE</span></label>
+                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="school" checked> <span class="ml-2">SCHOOL</span></label>
+                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="new_lateral" checked> <span class="ml-2">NEW / LATERAL</span></label>
+                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="pt_ft" checked> <span class="ml-2">PART-TIME / FULL-TIME</span></label>
+                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="duration" checked> <span class="ml-2">SCHOLARSHIP DURATION</span></label>
+                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="date_started" checked> <span class="ml-2">DATE STARTED</span></label>
+                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="expected_completion" checked> <span class="ml-2">EXPECTED COMPLETION</span></label>
+                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="status" checked> <span class="ml-2">STATUS</span></label>
+                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="remarks" checked> <span class="ml-2">REMARKS</span></label>
             </div>
         </div>
     </form>
@@ -125,36 +129,29 @@
                     </thead>
 
                     <tbody>
-   <tbody>
-@forelse($scholars as $index => $scholar)
-    <tr class="odd:bg-white even:bg-slate-50">
-        <td data-col="no" class="px-2 py-2 text-center border">{{ $index + 1 }}</td>
-        <td data-col="last_name" class="px-2 py-2 border">{{ $scholar->applicationForm->last_name }}</td>
-        <td data-col="first_name" class="px-2 py-2 border">{{ $scholar->applicationForm->first_name }}</td>
-        <td data-col="middle_name" class="px-2 py-2 border">{{ $scholar->applicationForm->middle_name }}</td>
-        <td data-col="level" class="px-2 py-2 text-center border">
-            {{ implode(', ', $scholar->applicationForm->scholarship_type ?? []) }}
-        </td>
-        <td data-col="course" class="px-2 py-2 border">{{ $scholar->applicationForm->new_applicant_course }}</td>
-        <td data-col="school" class="px-2 py-2 border">{{ $scholar->applicationForm->new_applicant_university }}</td>
-        <td data-col="new_lateral" class="px-2 py-2 text-center border"> {{ $scholar->applicationForm->applicant_status }} </td>
-        <td data-col="pt_ft" class="px-2 py-2 text-center border"> {{ $scholar->applicationForm->applicant_type }} </td>
-        <td data-col="duration" class="px-2 py-2 text-center border">
-            {{ implode(', ', $scholar->applicationForm->scholarship_duration ?? []) }}
-        </td>
-        <td data-col="date_started" class="px-2 py-2 text-center border">{{ $scholar->applicationForm->last_enrollment_date }}</td>
-        <td data-col="expected_completion" class="px-2 py-2 text-center border">{{ $scholar->applicationForm->declaration_date }}</td>
-        <td data-col="status" class="px-2 py-2 text-center border">{{ $scholar->applicationForm->status }}</td>
-        <td data-col="remarks" class="px-2 py-2 border">{{ $scholar->applicationForm->remarks }}</td>
-    </tr>
-@empty
-    <tr>
-        <td colspan="14" class="text-center p-6 text-slate-500">No approved scholars found.</td>
-    </tr>
-@endforelse
+    @forelse($monitorings as $index => $monitor)
+        <tr class="odd:bg-white even:bg-slate-50">
+            <td data-col="no" class="px-2 py-2 text-center border">{{ $index + 1 }}</td>
+            <td data-col="last_name" class="px-2 py-2 border">{{ $monitor->last_name }}</td>
+            <td data-col="first_name" class="px-2 py-2 border">{{ $monitor->first_name }}</td>
+            <td data-col="middle_name" class="px-2 py-2 border">{{ $monitor->middle_name }}</td>
+            <td data-col="level" class="px-2 py-2 text-center border">{{ $monitor->degree_type }}</td>
+            <td data-col="course" class="px-2 py-2 border">{{ $monitor->course }}</td>
+            <td data-col="school" class="px-2 py-2 border">{{ $monitor->school }}</td>
+            <td data-col="new_lateral" class="px-2 py-2 text-center border">{{ $monitor->new_or_lateral }}</td>
+            <td data-col="pt_ft" class="px-2 py-2 text-center border">{{ $monitor->enrollment_type }}</td>
+            <td data-col="duration" class="px-2 py-2 text-center border">{{ $monitor->scholarship_duration }}</td>
+            <td data-col="date_started" class="px-2 py-2 text-center border">{{ $monitor->date_started }}</td>
+            <td data-col="expected_completion" class="px-2 py-2 text-center border">{{ $monitor->expected_completion }}</td>
+            <td data-col="status" class="px-2 py-2 text-center border">{{ $monitor->status_code }}</td>
+            <td data-col="remarks" class="px-2 py-2 border">{{ $monitor->remarks }}</td>
+        </tr>
+    @empty
+        <tr>
+            <td colspan="14" class="text-center p-6 text-slate-500">No monitoring data found.</td>
+        </tr>
+    @endforelse
 </tbody>
-
-
 
                 </table>
 
