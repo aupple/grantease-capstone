@@ -114,11 +114,23 @@
                                 </div>
 
                                 <div class="mt-5 text-right">
-                                    <a href="{{ route('applicant.application.view') }}" 
-                                       class="inline-block text-sm text-blue-700 hover:text-blue-900 font-medium transition">
-                                        View Details →
-                                    </a>
+                                    @php
+                                        // Ensure we have the latest application for the logged-in user
+                                        $latestApplication = $latestApplication ?? \App\Models\ApplicationForm::where('user_id', auth()->id())->latest()->first();
+                                    @endphp
+
+                                    @if ($latestApplication)
+                                        <a href="{{ route('applicant.application.view', ['id' => $latestApplication->id]) }}" 
+                                            class="inline-block text-sm text-blue-700 hover:text-blue-900 font-medium transition">
+                                            View Details →
+                                        </a>
+                                    @else
+                                        <span class="inline-block text-sm text-gray-400 cursor-not-allowed">
+                                            No application details available
+                                        </span>
+                                    @endif
                                 </div>
+
                             </div>
                         @else
                             <p class="text-gray-500">Ready to start your scholarship journey?</p>
