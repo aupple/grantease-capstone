@@ -12,7 +12,7 @@ return new class extends Migration {
 
             // Step 0: Program info
             $table->string('program', 100)->nullable();
-            $table->text('reason')->nullable();
+            $table->string('reason', 50)->nullable();
 
             // Step 1: Basic Info
             $table->string('academic_year', 20)->nullable();
@@ -24,6 +24,7 @@ return new class extends Migration {
             $table->string('last_name', 100)->nullable();
             $table->string('first_name', 100)->nullable();
             $table->string('middle_name', 100)->nullable();
+            $table->string('suffix', 50)->nullable();
 
             $table->string('address_no', 50)->nullable();
             $table->string('address_street', 150)->nullable();
@@ -71,6 +72,7 @@ return new class extends Migration {
             $table->string('phd_remarks', 150)->nullable();
 
             // Step 4: Graduate Scholarship Intentions
+            $table->string('applicant_status', 50)->nullable();
             $table->string('strand_category', 50)->nullable();
             $table->string('applicant_type', 50)->nullable();
             $table->json('scholarship_type')->nullable();

@@ -11,7 +11,7 @@
             <p><span class="font-semibold">Email:</span> {{ $application->user->email }}</p>
             <p><span class="font-semibold">Program:</span> {{ $application->program ?? 'N/A' }}</p>
             <p><span class="font-semibold">Rejected At:</span> {{ $application->updated_at->format('M d, Y H:i') }}</p>
-            <p><span class="font-semibold">Reason:</span> {{ $application->rejection_reason ?? 'No reason provided' }}</p>
+            <p><span class="font-semibold">Reason:</span> {{ $application->rejection_reason ?? 'No remarks provided' }}</p>
         </div>
     </div>
 

@@ -17,21 +17,18 @@ class Scholar extends Model
         'end_date',
     ];
 
-    // ✅ Correct relationship with User using custom PK
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
 
-    // ✅ Correct relationship with ApplicationForm using custom PK
     public function applicationForm()
     {
         return $this->belongsTo(ApplicationForm::class, 'application_form_id', 'application_form_id');
     }
+
     public function monitorings()
     {
         return $this->hasMany(ScholarMonitoring::class, 'scholar_id', 'id');
     }
-    
-    
 }

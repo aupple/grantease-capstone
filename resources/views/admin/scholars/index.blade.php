@@ -13,7 +13,7 @@
                     <th class="p-3 text-left font-semibold">Email</th>
                     <th class="p-3 text-left font-semibold">Program</th>
                     <th class="p-3 text-left font-semibold">School</th>
-                    <th class="p-3 text-left font-semibold">Year Level</th>
+                    <th class="p-3 text-left font-semibold">Level</th>
                     <th class="p-3 text-left font-semibold">Submitted At</th>
                     <th class="p-3 text-left font-semibold">Approved At</th>
                     <th class="p-3 text-left font-semibold">Action</th>
@@ -39,12 +39,15 @@
                         </td>
                         <td class="p-3">
                             <div class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
-                                {{ $scholar->applicationForm->school ?? 'N/A' }}
+                                {{ $scholar->applicationForm->bs_university ?? 'N/A' }}
                             </div>
                         </td>
                         <td class="p-3">
                             <div class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
-                                {{ $scholar->applicationForm->year_level ?? 'N/A' }}
+                                {{ is_array($scholar->applicationForm->scholarship_type) 
+                                ? implode(', ', $scholar->applicationForm->scholarship_type) 
+                                : ($scholar->applicationForm->scholarship_type ?? 'N/A') }}
+
                             </div>
                         </td>
                         <td class="p-3">

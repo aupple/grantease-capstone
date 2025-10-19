@@ -29,25 +29,103 @@
                         @php
                             $latestApplication = auth()->user()->applicationForms()->latest()->first();
                         @endphp
+
                         @if ($latestApplication)
                             <div class="border rounded-xl p-4 bg-gray-100">
                                 <div class="flex justify-between items-center mb-2">
                                     <div>
                                         <p class="font-semibold">{{ $latestApplication->program }} Scholarship</p>
-                                        <p class="text-sm text-gray-500">Submitted on: {{ $latestApplication->created_at->format('F d, Y') }}</p>
+                                        <p class="text-sm text-gray-500">
+                                            Submitted on: {{ $latestApplication->created_at->format('F d, Y') }}
+                                        </p>
                                     </div>
-                                    <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-                                        {{ ucfirst($latestApplication->status) }}
-                                    </span>
                                 </div>
-                                <a href="{{ route('applicant.application.view') }}" class="mt-2 inline-block text-sm text-blue-700 hover:underline">View Details</a>
+
+                                <!-- ✅ Application Status Train -->
+                                @php
+                                    $statuses = ['submitted', 'pending', 'verdict'];
+                                    $currentStatus = strtolower($latestApplication->status);
+
+                                    if ($currentStatus === 'under review') {
+                                        $currentStatus = 'pending';
+                                    }
+
+                                    $currentIndex = match($currentStatus) {
+                                        'submitted' => 0,
+                                        'pending' => 1,
+                                        'approved', 'rejected', 'verdict' => 2,
+                                        default => 0,
+                                    };
+                                @endphp
+
+                                <div class="relative mt-6">
+                                    <div class="flex justify-between items-center">
+                                        @foreach ($statuses as $index => $status)
+                                            @php
+                                                $label = ($status === 'verdict' && in_array($currentStatus, ['approved', 'rejected']))
+                                                    ? $currentStatus
+                                                    : $status;
+                                            @endphp
+
+                                            <div class="flex flex-col items-center relative w-full">
+                                                <!-- Connector Line -->
+                                                @if ($index < count($statuses) - 1)
+                                                    <div class="absolute top-4 left-1/2 w-full h-[2px] z-0
+                                                        {{ $index < $currentIndex ? 'bg-blue-600' : 'bg-gray-300' }}">
+                                                    </div>
+                                                @endif
+
+                                                <!-- Step Circle -->
+                                                <div class="relative z-10 w-8 h-8 flex items-center justify-center rounded-full text-white
+                                                    @if($label === 'rejected')
+                                                        bg-red-600
+                                                    @elseif($label === 'approved')
+                                                        bg-green-600
+                                                    @elseif($index <= $currentIndex)
+                                                        bg-blue-600
+                                                    @else
+                                                        bg-gray-300 text-gray-700
+                                                    @endif">
+                                                    @if($label === 'rejected')
+                                                        ✖
+                                                    @elseif($label === 'approved')
+                                                        ✔
+                                                    @else
+                                                        {{ $index + 1 }}
+                                                    @endif
+                                                </div>
+
+                                                <!-- Step Label -->
+                                                <p class="text-xs mt-2 capitalize
+                                                    @if($label === 'rejected')
+                                                        text-red-600 font-semibold
+                                                    @elseif($label === 'approved')
+                                                        text-green-700 font-semibold
+                                                    @elseif($index <= $currentIndex)
+                                                        text-blue-700 font-medium
+                                                    @else
+                                                        text-gray-500
+                                                    @endif">
+                                                    {{ $label }}
+                                                </p>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <div class="mt-5 text-right">
+                                    <a href="{{ route('applicant.application.view') }}" 
+                                       class="inline-block text-sm text-blue-700 hover:text-blue-900 font-medium transition">
+                                        View Details →
+                                    </a>
+                                </div>
                             </div>
                         @else
                             <p class="text-gray-500">Ready to start your scholarship journey?</p>
                         @endif
                     </div>
 
-                    <!-- Required Forms Dropdown -->
+                    <!-- ✅ Required Forms Dropdown (UNCHANGED) -->
                     <div class="bg-white border border-gray-200 shadow-md rounded-2xl p-6">
                         <h2 class="font-semibold text-gray-800 mb-4">Required Forms</h2>
                         <div class="relative">
@@ -120,10 +198,9 @@
                             <p class="text-xs text-gray-600 mt-1">Deadline: June 30, 2023</p>
                         </div>
                         <a href="{{ route('applicant.application.create', ['program' => 'DOST']) }}"
-   class="bg-white text-blue-800 font-medium px-4 py-2 rounded-md hover:bg-gray-100 transition">
-   Apply Now
-</a>
-
+                            class="bg-white text-blue-800 font-medium px-4 py-2 rounded-md hover:bg-gray-100 transition">
+                            Apply Now
+                        </a>
                     </div>
 
                     <!-- ✅ CHED -->
@@ -136,10 +213,9 @@
                             <p class="text-xs text-gray-600 mt-1">Deadline: July 15, 2023</p>
                         </div>
                         <a href="{{ route('applicant.application.create', ['program' => 'CHED']) }}"
-   class="bg-white text-blue-800 font-medium px-4 py-2 rounded-md hover:bg-gray-100 transition">
-   Apply Now
-</a>
-
+                            class="bg-white text-blue-800 font-medium px-4 py-2 rounded-md hover:bg-gray-100 transition">
+                            Click here for CHED qualifier
+                        </a>
                     </div>
                 </div> <!-- End Glassmorphism Box -->
             </div>
@@ -152,16 +228,15 @@
             const dropdownMenu = document.getElementById('dropdownMenu');
             const dropdownIcon = document.getElementById('dropdownIcon');
             dropdownMenu.classList.toggle('hidden');
-            dropdownIcon.classList.toggle('transform', 'rotate-180'); // Rotate the icon when dropdown is open
+            dropdownIcon.classList.toggle('transform', 'rotate-180');
         });
 
-        // Close the dropdown if clicked outside
         window.addEventListener('click', function(event) {
             const dropdownMenu = document.getElementById('dropdownMenu');
             const dropdownButton = document.getElementById('dropdownButton');
             if (!event.target.closest('#dropdownButton') && !dropdownMenu.contains(event.target)) {
                 dropdownMenu.classList.add('hidden');
-                dropdownIcon.classList.remove('transform', 'rotate-180'); // Reset icon rotation
+                dropdownIcon.classList.remove('transform', 'rotate-180');
             }
         });
     </script>
