@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title></title>
@@ -38,7 +39,8 @@
             table-layout: fixed;
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #000;
             padding: 4px;
             text-align: center;
@@ -67,15 +69,18 @@
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
+
             @page {
                 margin: 15mm;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="title-section">
-        <h2>DETAILED STATUS REPORT OF SCHOLARSHIP PROGRAM SCHOLARS AS OF THE END OF {{ strtoupper($schoolTerm ?? '') }} AY {{ $academicYear ?? '2023-2024' }}</h2>
+        <h2>DETAILED STATUS REPORT OF SCHOLARSHIP PROGRAM SCHOLARS AS OF THE END OF {{ strtoupper($schoolTerm ?? '') }}
+            AY {{ $academicYear ?? '2023-2024' }}</h2>
         <div class="subtitle"><strong>Scholarship Program:</strong> {{ strtoupper($program ?? 'DOST') }}</div>
     </div>
 
@@ -99,29 +104,29 @@
             </tr>
         </thead>
         <tbody>
-@forelse ($scholars as $index => $scholar)
-    @php $form = $scholar->applicationForm; @endphp
-    <tr>
-        <td>{{ $index + 1 }}</td>
-        <td>{{ strtoupper($form->last_name ?? '') }}</td>
-        <td>{{ strtoupper($form->first_name ?? '') }}</td>
-        <td>{{ strtoupper($form->middle_name ?? '') }}</td>
-        <td>{{ strtoupper(implode(', ', $form->scholarship_type ?? [])) }}</td>
-        <td>{{ strtoupper($form->new_applicant_course ?? '') }}</td>
-        <td>{{ strtoupper($form->new_applicant_university ?? '') }}</td>
-        <td>{{ strtoupper($form->applicant_status ?? '') }}</td>
-        <td>{{ strtoupper($form->applicant_type ?? '') }}</td>
-        <td>{{ strtoupper(implode(', ', $form->scholarship_duration ?? [])) }}</td>
-        <td>{{ strtoupper($form->last_enrollment_date ?? '') }}</td>
-        <td>{{ strtoupper($form->declaration_date ?? '') }}</td>
-        <td>{{ strtoupper($form->status ?? '') }}</td>
-        <td>{{ strtoupper($form->remarks ?? '') }}</td>
-    </tr>
-@empty
-    <tr>
-        <td colspan="14" style="text-align:center;">No scholars found for this term/year.</td>
-    </tr>
-@endforelse
+            @forelse ($scholars as $index => $scholar)
+                @php $form = $scholar->applicationForm; @endphp
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ strtoupper($form->last_name ?? '') }}</td>
+                    <td>{{ strtoupper($form->first_name ?? '') }}</td>
+                    <td>{{ strtoupper($form->middle_name ?? '') }}</td>
+                    <td>{{ strtoupper(implode(', ', $form->scholarship_type ?? [])) }}</td>
+                    <td>{{ strtoupper($form->new_applicant_course ?? '') }}</td>
+                    <td>{{ strtoupper($form->new_applicant_university ?? '') }}</td>
+                    <td>{{ strtoupper($form->applicant_status ?? '') }}</td>
+                    <td>{{ strtoupper($form->applicant_type ?? '') }}</td>
+                    <td>{{ strtoupper(implode(', ', $form->scholarship_duration ?? [])) }}</td>
+                    <td>{{ strtoupper($form->last_enrollment_date ?? '') }}</td>
+                    <td>{{ strtoupper($form->declaration_date ?? '') }}</td>
+                    <td>{{ strtoupper($form->status ?? '') }}</td>
+                    <td>{{ strtoupper($form->remarks ?? '') }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="14" style="text-align:center;">No scholars found for this term/year.</td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 
@@ -136,4 +141,5 @@
         window.onload = () => window.print();
     </script>
 </body>
+
 </html>

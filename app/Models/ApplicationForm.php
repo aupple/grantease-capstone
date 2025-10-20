@@ -150,6 +150,7 @@ class ApplicationForm extends Model
         'status',
         'submitted_at',
         'remarks',
+        'remark',
     ];
 
     // Cast JSON fields and booleans properly
