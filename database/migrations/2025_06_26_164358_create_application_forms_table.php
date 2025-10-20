@@ -12,8 +12,7 @@ return new class extends Migration {
 
             // Step 0: Program info
             $table->string('program', 100)->nullable();
-            $table->string('reason', 50)->nullable();
-
+            
             // Step 1: Basic Info
             $table->string('academic_year', 20)->nullable();
             $table->string('school_term', 20)->nullable();

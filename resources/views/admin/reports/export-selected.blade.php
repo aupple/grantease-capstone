@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title>Exported {{ ucfirst($type) }} Records</title>
@@ -21,7 +22,8 @@
             margin-bottom: 10px;
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #ccc;
             padding: 6px;
             text-align: left;
@@ -38,6 +40,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="title">
         {{ strtoupper($type) }} RECORDS SUMMARY
@@ -66,7 +69,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($records as $index => $item)
+            @foreach ($records as $index => $item)
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $item->user?->last_name ?? '—' }}</td>
@@ -86,7 +89,7 @@
                     <td>{{ $item->user?->gender ?? '—' }}</td>
 
                     <td>
-                        @if($type === 'applicant')
+                        @if ($type === 'applicant')
                             {{ ucfirst($item->status) }}
                         @else
                             {{ ucfirst(str_replace('_', ' ', $item->status)) }}
@@ -101,4 +104,5 @@
         Generated on: {{ now()->format('F d, Y h:i A') }}
     </div>
 </body>
+
 </html>

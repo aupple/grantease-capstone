@@ -12,11 +12,12 @@ class ScholarMonitoringSeeder extends Seeder
     {
         $degrees = ['Masters', 'Doctoral'];
         $levels = ['MS', 'PhD'];
-        $statusCodes = ['ENR', 'GRD', 'LVW', 'DIS', 'END', 'RET']; // official DOST codes
+        $statusCodes = ['ENR', 'GRD', 'LVW', 'DIS', 'END', 'RET']; // DOST codes
         $enrollmentTypes = ['FULL TIME', 'PART TIME'];
         $newOrLateral = ['NEW', 'LATERAL'];
         $schools = ['USTP', 'UP Diliman', 'Ateneo de Manila University', 'De La Salle University', 'Mindanao State University'];
         $courses = ['Computer Science', 'Engineering', 'Biology', 'Mathematics'];
+        $applicantTypes = ['New', 'Old', 'Transfer', 'Continuing'];
 
         $scholars = Scholar::all();
 
@@ -49,9 +50,15 @@ class ScholarMonitoringSeeder extends Seeder
 
                 'status' => ucfirst(strtolower(fake()->randomElement(['Active', 'Graduated', 'Discontinued', 'On Leave']))),
                 'remarks' => 'Auto-generated for report testing.',
+
+                // 🆕 New fields
+                'new_applicant_course' => fake()->randomElement($courses),
+                'applicant_type' => fake()->randomElement($applicantTypes),
+                'declaration_date' => fake()->dateTimeBetween('-1 years', 'now')->format('Y-m-d'),
+                'remark' => fake()->sentence(6),
             ]);
         }
 
-        $this->command->info('✅ ScholarMonitoringSeeder completed successfully.');
+        $this->command->info('✅ ScholarMonitoringSeeder completed successfully with new fields.');
     }
 }
