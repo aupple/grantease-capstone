@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>List of Applicants</title>
+    <title>List of All Applicants Report</title>
     <style>
         @page {
             size: Legal landscape;
