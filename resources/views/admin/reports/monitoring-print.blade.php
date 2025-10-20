@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title></title>
+    <title>Scholar Monitoring Report</title>
     <style>
         @page {
             size: Legal landscape;
@@ -100,27 +100,31 @@
                 <th>DATE STARTED<br>(Month and Year)</th>
                 <th>EXPECTED COMPLETION<br>(Month and Year)</th>
                 <th>STATUS</th>
-                <th>REMARKS<br><span style="font-size:10px;">Graduation Date (MM-YYYY) / Others</span></th>
+                <th>REMARKS</th>
             </tr>
         </thead>
         <tbody>
             @forelse ($scholars as $index => $scholar)
-                @php $form = $scholar->applicationForm; @endphp
+                @php
+                    $form = $scholar->applicationForm;
+                    $monitoring = $scholar->monitorings()->latest()->first();
+                @endphp
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td>{{ strtoupper($form->last_name ?? '') }}</td>
                     <td>{{ strtoupper($form->first_name ?? '') }}</td>
                     <td>{{ strtoupper($form->middle_name ?? '') }}</td>
-                    <td>{{ strtoupper(implode(', ', $form->scholarship_type ?? [])) }}</td>
-                    <td>{{ strtoupper($form->new_applicant_course ?? '') }}</td>
-                    <td>{{ strtoupper($form->new_applicant_university ?? '') }}</td>
+                    <td>{{ strtoupper(is_array($form->scholarship_type) ? implode(', ', $form->scholarship_type) : $form->scholarship_type ?? '') }}
+                    </td>
+                    <td>{{ strtoupper($monitoring->course ?? '') }}</td>
+                    <td>{{ strtoupper($monitoring->school ?? '') }}</td>
                     <td>{{ strtoupper($form->applicant_status ?? '') }}</td>
-                    <td>{{ strtoupper($form->applicant_type ?? '') }}</td>
-                    <td>{{ strtoupper(implode(', ', $form->scholarship_duration ?? [])) }}</td>
-                    <td>{{ strtoupper($form->last_enrollment_date ?? '') }}</td>
-                    <td>{{ strtoupper($form->declaration_date ?? '') }}</td>
+                    <td>{{ strtoupper($monitoring->enrollment_type ?? '') }}</td>
+                    <td>{{ strtoupper($monitoring->scholarship_duration ?? '') }}</td>
+                    <td>{{ strtoupper($monitoring->date_started ?? '') }}</td>
+                    <td>{{ strtoupper($monitoring->expected_completion ?? '') }}</td>
                     <td>{{ strtoupper($form->status ?? '') }}</td>
-                    <td>{{ strtoupper($form->remarks ?? '') }}</td>
+                    <td>{{ strtoupper($monitoring->remarks ?? '') }}</td>
                 </tr>
             @empty
                 <tr>

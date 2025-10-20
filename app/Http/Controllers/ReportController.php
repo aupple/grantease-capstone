@@ -215,11 +215,11 @@ class ReportController extends Controller
 
     public function updateMonitoringField(Request $request)
     {
-        $data = $request->all(); // expects array of {id, field, value}
+        $data = $request->all(); // expects array of {id, scholar_id, field, value}
+        $createdIds = [];
 
         foreach ($data as $item) {
-            $monitoring = \App\Models\ScholarMonitoring::find($item['id']);
-            if ($monitoring && in_array($item['field'], [
+            if (!in_array($item['field'], [
                 'course',
                 'school',
                 'enrollment_type',
@@ -228,13 +228,41 @@ class ReportController extends Controller
                 'expected_completion',
                 'remarks'
             ])) {
-                $monitoring->{$item['field']} = $item['value'];
-                $monitoring->save();
+                continue;
             }
+
+            // ✅ Find existing record for this scholar
+            $monitoring = null;
+
+            if (!empty($item['id'])) {
+                $monitoring = \App\Models\ScholarMonitoring::find($item['id']);
+            }
+
+            if (!$monitoring) {
+                $monitoring = \App\Models\ScholarMonitoring::where('scholar_id', $item['scholar_id'])->first();
+            }
+
+            // ✅ Create only once if no record exists yet
+            if (!$monitoring) {
+                $monitoring = new \App\Models\ScholarMonitoring();
+                $monitoring->scholar_id = $item['scholar_id'];
+            }
+
+            // ✅ Update field value
+            $monitoring->{$item['field']} = $item['value'];
+            $monitoring->save();
+
+            $createdIds[] = $monitoring->id;
         }
 
-        return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+            'monitoring_ids' => $createdIds,
+        ]);
     }
+
+
+
 
     public function printMonitoring(Request $request)
     {
