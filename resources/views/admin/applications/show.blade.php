@@ -563,6 +563,8 @@
                         'Lateral Certification' => $application->lateral_certification_pdf ?? null,
                     ];
 
+                    $documents = array_filter($documents, fn($file) => !empty($file));
+
                     if (!function_exists('getFileUrlFromValue')) {
                         function getFileUrlFromValue($file)
                         {
