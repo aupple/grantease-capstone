@@ -38,16 +38,27 @@ class AdminController extends Controller
     /**
      * Admin Dashboard
      */
-    public function dashboard()
+    public function dashboard(Request $request)
     {
+        $search = $request->query('search');
+
         $total_applicants = ApplicationForm::count();
         $pending = ApplicationForm::where('status', 'pending')->count();
         $document_verification = ApplicationForm::where('status', 'document_verification')->count();
-        $for_interview = ApplicationForm::where('status', 'for_interview')->count();
         $approved = ApplicationForm::where('status', 'approved')->count();
         $rejected = ApplicationForm::where('status', 'rejected')->count();
 
-        $recent_applicants = ApplicationForm::latest()->take(10)->get();
+        $recent_applicants = ApplicationForm::with('user')
+            ->latest()
+            ->when($search, function ($query, $search) {
+                $firstLetter = substr($search, 0, 1);
+                $query->whereHas('user', function ($q) use ($firstLetter) {
+                    $q->where('first_name', 'like', "{$firstLetter}%")
+                        ->orWhere('last_name', 'like', "{$firstLetter}%");
+                });
+            })
+            ->take(10)
+            ->get();
 
         $rawStatuses = Scholar::select('status', DB::raw('count(*) as total'))
             ->groupBy('status')
@@ -61,13 +72,14 @@ class AdminController extends Controller
             'total_applicants',
             'pending',
             'document_verification',
-            'for_interview',
             'approved',
             'rejected',
             'recent_applicants',
-            'scholarStatuses'
+            'scholarStatuses',
+            'search'
         ));
     }
+
 
     /**
      * View / list applications
@@ -78,17 +90,14 @@ class AdminController extends Controller
         $search = $request->query('search');
 
         $applications = ApplicationForm::with('user')
-            ->where('status', 'pending')
+            ->whereIn('status', ['pending', 'document_verification'])
             ->when($search, function ($query, $search) {
-                $search = Str::lower($search);
-                $query->whereHas('user', function ($userQuery) use ($search) {
-                    $userQuery->whereRaw('LOWER(first_name) LIKE ?', ["%{$search}%"])
-                        ->orWhereRaw('LOWER(last_name) LIKE ?', ["%{$search}%"])
-                        ->orWhereRaw('LOWER(email) LIKE ?', ["%{$search}%"]);
-                })
-                    ->orWhereRaw('LOWER(program) LIKE ?', ["%{$search}%"])
-                    ->orWhereRaw('LOWER(bs_university) LIKE ?', ["%{$search}%"])
-                    ->orWhereRaw('LOWER(grad_university) LIKE ?', ["%{$search}%"]);
+                $firstLetter = Str::lower(substr($search, 0, 1));
+
+                $query->whereHas('user', function ($userQuery) use ($firstLetter) {
+                    $userQuery->whereRaw('LOWER(first_name) LIKE ?', ["{$firstLetter}%"])
+                        ->orWhereRaw('LOWER(last_name) LIKE ?', ["{$firstLetter}%"]);
+                });
             })
             ->latest()
             ->paginate(10);
@@ -120,12 +129,14 @@ class AdminController extends Controller
         // Decode existing verified documents (or default to empty array)
         $verifiedDocs = $application->verified_documents ? json_decode($application->verified_documents, true) : [];
 
-        // Update verification state
+        $key = Str::snake(str_replace(' ', '_', strtolower($request->document)));
+
         if ($verified) {
-            $verifiedDocs[$document] = true;
+            $verifiedDocs[$key] = true;
         } else {
-            unset($verifiedDocs[$document]);
+            unset($verifiedDocs[$key]);
         }
+
 
         $application->verified_documents = json_encode($verifiedDocs);
         $application->save();
@@ -227,9 +238,6 @@ class AdminController extends Controller
         return redirect()->route('admin.applications')->with('success', 'Application rejected.');
     }
 
-    /**
-     * Update status with optional remarks
-     */
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
@@ -265,7 +273,6 @@ class AdminController extends Controller
                 new ApplicationStatusMail($request->status, $request->remarks)
             );
         } catch (\Throwable $e) {
-            // Optional log
         }
 
         // ✅ If request came from fetch() → return JSON instead of redirect
@@ -283,9 +290,6 @@ class AdminController extends Controller
     }
 
 
-    /**
-     * Reports Summary
-     */
     public function reportSummary(Request $request)
     {
         $total_applicants = ApplicationForm::count();

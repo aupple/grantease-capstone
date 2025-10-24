@@ -106,11 +106,15 @@
                     <h3 class="text-lg font-semibold text-gray-800">Recent Applications</h3>
                 </div>
                 <div class="flex items-center gap-2">
-                    <input type="text" placeholder="Search applications..."
-                        class="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <button class="px-4 py-2 text-sm bg-blue-900 text-white rounded-lg hover:bg-blue-500 transition-colors">
-                        Search
-                    </button>
+                    <form method="GET" action="{{ route('admin.dashboard') }}" class="flex items-center gap-2">
+                        <input type="text" name="search" placeholder="Search applications..."
+                            value="{{ $search ?? '' }}"
+                            class="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <button type="submit"
+                            class="px-4 py-2 text-sm bg-blue-900 text-white rounded-lg hover:bg-blue-500 transition-colors">
+                            Search
+                        </button>
+                    </form>
                 </div>
             </div>
 

@@ -585,13 +585,24 @@
 
                 <!-- 👇 scrollable container -->
                 <div class="max-h-80 overflow-y-auto pr-2 space-y-4">
+                    @php
+                        $application = $scholar->applicationForm;
+                        $verifiedDocuments = $application->verified_documents
+                            ? json_decode($application->verified_documents, true)
+                            : [];
+                    @endphp
+
                     @foreach ($documents as $label => $file)
-                        @php $url = getFileUrlFromValue($file); @endphp
+                        @php
+                            $url = getFileUrlFromValue($file);
+                            // convert label to snake_case key matching stored JSON
+                            $key = Str::snake(str_replace(' ', '_', strtolower($label)));
+                            $isVerified = isset($verifiedDocuments[$key]) && $verifiedDocuments[$key];
+                        @endphp
+
                         <div class="flex items-center justify-between border-b border-gray-200 pb-2">
-                            <!-- Label -->
                             <p class="text-sm font-medium w-1/2">{{ $label }}</p>
 
-                            <!-- View File / Status -->
                             <div class="w-1/4 text-center">
                                 @if ($url)
                                     <a href="{{ $url }}" target="_blank"
@@ -603,11 +614,11 @@
                                 @endif
                             </div>
 
-                            <!-- Checkbox -->
                             <div class="w-1/4 text-right">
                                 @if ($file && $url)
                                     <label class="inline-flex items-center text-sm cursor-pointer">
-                                        <input type="checkbox" class="peer hidden checkbox-tracker">
+                                        <input type="checkbox" class="peer hidden checkbox-tracker"
+                                            {{ $isVerified ? 'checked' : '' }} disabled>
                                         <div
                                             class="w-2.5 h-2.5 rounded-full border border-gray-400 peer-checked:bg-green-500 peer-checked:border-green-500 transition">
                                         </div>

@@ -215,7 +215,7 @@ class ReportController extends Controller
 
     public function updateMonitoringField(Request $request)
     {
-        $data = $request->all(); // expects array of {id, scholar_id, field, value}
+        $data = $request->all(); 
         $createdIds = [];
 
         foreach ($data as $item) {

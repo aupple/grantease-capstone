@@ -370,8 +370,8 @@
                 const thesis = row.querySelector('[data-col="thesis_title"] .edit-input').value.trim();
                 const units = row.querySelector('[data-col="units_required"] .edit-input').value.trim();
                 const duration = row.querySelector('[data-col="duration"] .edit-input').value.trim();
-                const intended = row.querySelector('[data-col="intended_degree"] .edit-input')?.value
-                    .trim();
+                const intended = row.querySelector('[data-col="intended_degree"] .edit-input')?.value.trim();
+                const remarks = row.querySelector('[data-col="remarks"] .edit-input')?.value.trim();
                 const id = row.querySelector('[data-col="thesis_title"] .edit-input').dataset.id;
 
                 fetch("{{ route('admin.reports.applicants.update-field') }}", {
@@ -401,6 +401,11 @@
                                 field: 'intended_degree',
                                 value: intended
                             },
+                            {
+                                id,
+                                field: 'remarks',
+                                value: remarks
+                            },
                         ])
                     })
                     .then(res => res.json())
@@ -413,8 +418,9 @@
                                 units;
                             row.querySelector('[data-col="duration"] .display-text').textContent =
                                 duration;
-                            row.querySelector('[data-col="intended_degree"] .display-text')
-                                .textContent = intended;
+                            row.querySelector('[data-col="intended_degree"] .display-text').textContent = intended;
+
+                            row.querySelector('[data-col="remarks"] .display-text').textContent = remarks;
 
                             row.querySelectorAll('.display-text').forEach(span => span.classList.remove(
                                 'hidden'));
