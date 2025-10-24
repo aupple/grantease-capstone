@@ -198,8 +198,8 @@
             'university' => 'University',
             'thesis_title' => 'Thesis/Dissertation Title',
             'units_required' => 'Units Required',
-            'units_earned' => 'Units Earned',
-            'percent_completed' => '% Completed',
+            'units_earned' => 'Units Earned (only for Lateral)',
+            'percent_completed' => '% Completed (only for Lateral)',
             'duration' => 'Duration',
             'remarks' => 'Remarks',
         ] as $col => $label)
@@ -257,7 +257,7 @@
                                 <td data-col="units_earned" class="border px-2 py-1 text-center">
                                     {{ $a->lateral_units_earned }}</td>
                                 <td data-col="percent_completed" class="border px-2 py-1 text-center">
-                                    {{ $a->lateral_units_earned }}</td>
+                                    {{ $a->lateral_remaining_units }}</td>
 
                                 <td data-col="duration">
                                     <span class="display-text">{{ $a->duration ?? '' }}</span> <input type="text"

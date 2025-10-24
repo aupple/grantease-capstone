@@ -144,7 +144,6 @@
     <h4 class="text-lg font-semibold text-blue-700 mb-6">I. PERSONAL INFORMATION</h4>
 
     <!-- 🧍 Name Section -->
-    <!-- 🧍 Name Section -->
 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
     <div>
         <label for="last_name" class="text-sm font-medium text-gray-700">Last Name</label>

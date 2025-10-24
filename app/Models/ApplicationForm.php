@@ -139,7 +139,7 @@ class ApplicationForm extends Model
         'cert_purpose',
         'reason',
         'program',
-        
+
 
         // Step 8: Declaration / Terms
         'terms_and_conditions_agreed',
@@ -174,10 +174,13 @@ class ApplicationForm extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
-    
-    public function scholar()
-{
-    return $this->hasOne(Scholar::class, 'application_form_id', 'application_form_id');
-}
 
+    public function scholar()
+    {
+        return $this->hasOne(Scholar::class, 'application_form_id', 'application_form_id');
+    }
+    public function documents()
+    {
+        return $this->hasMany(ApplicationDocument::class, 'application_form_id', 'application_form_id');
+    }
 }

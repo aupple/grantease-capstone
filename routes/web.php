@@ -76,6 +76,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/applications/{id}/approve', [AdminController::class, 'approveApplication'])->name('applications.approve');
         Route::post('/applications/{id}/reject', [AdminController::class, 'rejectApplication'])->name('applications.reject');
         Route::post('/applications/{id}/status', [AdminController::class, 'updateStatus'])->name('applications.update-status');
+        Route::post('/applications/{applicationId}/verify-document', [AdminController::class, 'verifyDocument'])->name('applications.verify-document');
+
 
         // ✅ Rejected Applications
         Route::prefix('rejected')->name('rejected.')->group(function () {
@@ -101,6 +103,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Scholars
         Route::get('/scholars', [AdminController::class, 'viewScholars'])->name('scholars');
+        Route::get('/scholars/{id}', [AdminController::class, 'showScholar'])->name('scholars.show');
         // Scholar Monitoring
         Route::prefix('monitoring')->name('monitoring.')->group(function () {
             Route::get('/', [App\Http\Controllers\ScholarMonitoringController::class, 'index'])->name('index');

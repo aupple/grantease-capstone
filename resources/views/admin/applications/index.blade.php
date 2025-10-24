@@ -31,6 +31,7 @@
             <table class="min-w-full text-sm text-gray-800">
                 <thead class="bg-white/40 text-gray-700 border-b border-white/30">
                     <tr>
+                        <th class="p-3 text-left font-semibold w-12">#</th>
                         <th class="p-3 text-left font-semibold">Applicant</th>
                         <th class="p-3 text-left font-semibold">Program</th>
                         <th class="p-3 text-left font-semibold">School</th>
@@ -43,33 +44,37 @@
                 <tbody class="divide-y divide-white/20">
                     @forelse ($applications as $app)
                         <tr class="hover:bg-white/30 hover:backdrop-blur-sm transition duration-200 ease-in-out">
-                            <td class="p-3">
+                            <td class="p-3 text-gray-700 font-medium">
+                                {{ $loop->iteration + ($applications->currentPage() - 1) * $applications->perPage() }}
+                            </td>
+
+                            <td class="p-1">
                                 <div
                                     class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
                                     {{ $app->user->full_name ?? $app->user->first_name . ' ' . $app->user->last_name }}
                                 </div>
                             </td>
-                            <td class="p-3">
+                            <td class="p-1">
                                 <div
                                     class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
                                     {{ $app->program ?? '-' }}
                                 </div>
                             </td>
-                            <td class="p-3">
+                            <td class="p-1">
                                 <div
                                     class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
                                     {{ $app->bs_university ?? ($app->grad_university ?? '-') }}
                                 </div>
                             </td>
-                            <td class="p-3">
+                            <td class="p-1">
                                 <div
                                     class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
                                     {{ $app->academic_year ?? '-' }}
                                 </div>
                             </td>
-                            <td class="p-3">
+                            <td class="p-1">
                                 <span
-                                    class="px-3 py-1 rounded-full text-xs font-semibold shadow-md backdrop-blur-sm border border-white/30
+                                    class="px-2 py-1.5 rounded-full text-xs font-semibold shadow-md backdrop-blur-sm border border-white/30
                                 @if ($app->status === 'approved') bg-green-200/60 text-green-900
                                 @elseif ($app->status === 'rejected') bg-red-200/60 text-red-900
                                 @elseif ($app->status === 'pending') bg-yellow-200/60 text-yellow-900
@@ -79,13 +84,13 @@
                                     {{ ucfirst(str_replace('_', ' ', $app->status)) }}
                                 </span>
                             </td>
-                            <td class="p-3">
+                            <td class="p-1">
                                 <div
                                     class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
                                     {{ $app->submitted_at ?? $app->created_at->format('M d, Y') }}
                                 </div>
                             </td>
-                            <td class="p-3">
+                            <td class="p-1">
                                 <div
                                     class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
                                     <a href="{{ route('admin.applications.show', $app->application_form_id) }}"

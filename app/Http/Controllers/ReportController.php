@@ -347,7 +347,7 @@ class ReportController extends Controller
 
         foreach ($data as $item) {
             $applicant = ApplicationForm::find($item['id']);
-            if ($applicant && in_array($item['field'], ['thesis_title', 'units_required', 'duration', 'intended_degree', 'reason'])) {
+            if ($applicant && in_array($item['field'], ['thesis_title', 'units_required', 'duration', 'intended_degree', 'remarks'])) {
                 $applicant->{$item['field']} = $item['value'];
                 $applicant->save();
             }
