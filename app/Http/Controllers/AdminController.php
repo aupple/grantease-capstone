@@ -10,6 +10,8 @@ use App\Mail\ApplicationStatusMail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Notifications\RemarkNotification;
+
 
 class AdminController extends Controller
 {
@@ -98,8 +100,37 @@ class AdminController extends Controller
      */
     public function showApplication($id)
     {
-        $application = ApplicationForm::with('user')->findOrFail($id);
+        $application = \App\Models\ApplicationForm::with('documentRemarks')->findOrFail($id);
         return view('admin.applications.show', compact('application'));
+    }
+
+
+    /**
+    * Store a new remark for an application
+    */
+    public function storeRemark(Request $request, $id)
+    {
+        // Validate input
+        $request->validate([
+            'document_remarks' => 'required|string|max:2000',
+        ]);
+
+        // Create the new remark linked to the application (evaluation)
+        $remark = \App\Models\Remark::create([
+            'evaluation_id' => $id, // corresponds to the application/evaluation ID
+            'content' => $request->document_remarks,
+        ]);
+
+        // Optionally, notify the applicant
+        // (Assuming there's a user relation in your Evaluation/Application model)
+        $application = \App\Models\ApplicationForm::where('application_form_id', $id)->first();
+
+        // ✅ Notify the applicant using Laravel’s built-in notification system
+        if ($application && $application->user) {
+            $application->user->notify(new \App\Notifications\RemarkNotification($remark));
+        }        
+
+        return back()->with('success', 'Remark sent successfully.');
     }
 
     /**
