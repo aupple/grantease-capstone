@@ -61,6 +61,12 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
+        // Ang atong "Sureball" Fix para siguradong mapadala ang email
+        $user->sendEmailVerificationNotification();
+
+        // I-redirect sa verification notice page
+        return redirect()->route('verification.notice');
+        
         // Redirect applicants to their dashboard
         return redirect()->route('applicant.dashboard');
     }
