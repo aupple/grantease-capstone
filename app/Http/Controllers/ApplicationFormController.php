@@ -249,6 +249,6 @@ public function edit($id)
     }
 
     // Return the edit view and pass the record
-    return view('applicant.application.edit', compact('application'));
+    return view('applicant.application-edit', compact('application'));
 }
 }

@@ -116,7 +116,7 @@ Route::prefix('monitoring')->name('monitoring.')->group(function () {
         Route::put('/profile/update', [AdminProfileController::class, 'update'])->name('profile.update');
     });
         Route::get('/application/{id}/edit', [ApplicationFormController::class, 'edit'])
-            ->name('applicant.application.edit');
+    ->name('applicant.application-edit');
 
     /**
      * =======================
