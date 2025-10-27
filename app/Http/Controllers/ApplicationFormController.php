@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\ApplicationForm;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Application;
 
 class ApplicationFormController extends Controller
 {
@@ -232,5 +233,22 @@ $application->save();
 // Redirect with success message
 return redirect()->route('dashboard')
     ->with('success', 'Application form submitted successfully.');
-  }
+} 
+
+/**
+ * Show the edit form for an existing application
+ */
+public function edit($id)
+{
+    // Get the application record by its ID
+    $application = ApplicationForm::findOrFail($id);
+
+    // Optional: authorize user
+    if ($application->user_id !== Auth::id()) {
+        abort(403, 'Unauthorized action.');
+    }
+
+    // Return the edit view and pass the record
+    return view('applicant.application.edit', compact('application'));
+}
 }
