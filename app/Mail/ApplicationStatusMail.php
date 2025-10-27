@@ -1,38 +1,23 @@
-<?php
+{{-- Pwede ni nimo usbon ang design, pero mao ni ang basic nga sulod --}}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scholarship Application Status</title>
+</head>
+<body>
+    <p>Hello Applicant,</p>
+    <p>There has been an update on your scholarship application.</p>
+    
+    <p><strong>New Status: {{ $status }}</strong></p>
 
-namespace App\Mail;
+    @if ($remarks)
+        <p><strong>Remarks from Admin:</strong></p>
+        <p>{{ $remarks }}</p>
+    @endif
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Mail\Mailable;
-use Illuminate\Queue\SerializesModels;
-
-class ApplicationStatusMail extends Mailable
-{
-    use Queueable, SerializesModels;
-
-    public $status;
-    public $remarks;
-
-    /**
-     * Create a new message instance.
-     */
-    public function __construct($status, $remarks = null)
-    {
-        $this->status = $status;
-        $this->remarks = $remarks;
-    }
-
-    /**
-     * Build the message.
-     */
-    public function build()
-{
-    return $this->subject('Your Scholarship Application Status')
-                ->view('emails.application-status')
-                ->with([
-                    'status' => $this->status,
-                    'remarks' => $this->remarks,
-                ]);
-}
-
-}
+    <p>You can log in to your account for more details.</p>
+    <p>Thank you,<br>
+    {{ config('app.name') }}
+    </p>
+</body>
+</html>
