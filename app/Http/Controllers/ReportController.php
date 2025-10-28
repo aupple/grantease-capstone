@@ -180,27 +180,20 @@ class ReportController extends Controller
 
     public function monitoring(Request $request)
     {
-        $semester = $request->input('semester', null);
-        $academicYear = $request->input('academic_year', null);
+        $semester = $request->input('semester');
 
-        // Fetch all approved scholars with optional filters
         $scholars = Scholar::with('applicationForm')
-            ->whereHas('applicationForm', function ($q) use ($semester, $academicYear) {
+            ->whereHas('applicationForm', function ($q) use ($semester) {
                 $q->where('status', 'approved');
 
-                if ($semester) {
+                if (!empty($semester)) {
                     $q->where('school_term', $semester);
-                }
-                if ($academicYear) {
-                    $q->where('academic_year', $academicYear);
                 }
             })
             ->get();
 
-        // Pass directly to the Blade
         return view('admin.reports.monitoring', compact('scholars'));
     }
-
 
 
     public function showMonitoring()
@@ -215,7 +208,7 @@ class ReportController extends Controller
 
     public function updateMonitoringField(Request $request)
     {
-        $data = $request->all(); 
+        $data = $request->all();
         $createdIds = [];
 
         foreach ($data as $item) {
@@ -262,15 +255,39 @@ class ReportController extends Controller
     }
 
 
-
-
     public function printMonitoring(Request $request)
     {
-        $schoolTerm = $request->input('school_term', null);
-        $academicYear = $request->input('academic_year', null);
-        $program = $request->input('program', null);
+        // Use query() since you’re passing them via URL parameters (GET)
+        $schoolTerm = $request->query('school_term', null);
+        $academicYear = $request->query('academic_year', null);
+        $program = $request->query('program', null);
 
-        $scholars = Scholar::with(['user', 'applicationForm'])
+        // Decode selected columns from URL (?columns=...)
+        $columns = json_decode($request->query('columns', '[]'), true);
+
+        // Default full column list
+        $defaultColumns = [
+            'no',
+            'last_name',
+            'first_name',
+            'middle_name',
+            'level',
+            'course',
+            'school',
+            'new_lateral',
+            'pt_ft',
+            'duration',
+            'date_started',
+            'expected_completion',
+            'status',
+            'remarks'
+        ];
+
+        // Use selected columns if provided; otherwise, fall back to default
+        $selectedColumns = !empty($columns) ? $columns : $defaultColumns;
+
+        // Fetch approved scholars, with optional filters
+        $scholars = Scholar::with(['user', 'applicationForm', 'monitorings'])
             ->whereHas('applicationForm', function ($q) use ($schoolTerm, $academicYear, $program) {
                 $q->where('status', 'approved');
 
@@ -280,8 +297,16 @@ class ReportController extends Controller
             })
             ->get();
 
-        return view('admin.reports.monitoring-print', compact('scholars', 'schoolTerm', 'academicYear', 'program'));
+        // Send data to Blade view
+        return view('admin.reports.monitoring-print', compact(
+            'scholars',
+            'schoolTerm',
+            'academicYear',
+            'program',
+            'selectedColumns'
+        ));
     }
+
 
     public function chedMonitoring()
     {

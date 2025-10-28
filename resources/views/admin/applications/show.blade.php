@@ -524,17 +524,25 @@
 
             <!-- Navigation -->
             <div class="flex justify-between items-center px-6">
-                <button @click="sectionIndex = Math.max(sectionIndex - 1, 0)"
-                    class="px-4 py-2 bg-gray-400 border border-gray-300 text-sm font-semibold rounded hover:bg-gray-300 transition"
-                    :disabled="sectionIndex === 0">← Back</button>
+                <button x-show="sectionIndex > 0" @click="sectionIndex = Math.max(sectionIndex - 1, 0)"
+                    class="px-4 py-2 bg-gray-400 border border-gray-300 text-sm font-semibold rounded hover:bg-gray-300 transition">
+                    ← Back
+                </button>
+
+                <div x-show="sectionIndex === 0"></div>
+
                 <div class="text-sm font-semibold text-gray-600">
                     Step <span x-text="sectionIndex + 1"></span> of 5
                 </div>
-                <button @click="sectionIndex = Math.min(sectionIndex + 1, 4)"
-                    class="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded hover:bg-blue-400 transition"
-                    :disabled="sectionIndex === 4">Next →</button>
-            </div>
 
+                <button x-show="sectionIndex < 4" @click="sectionIndex = Math.min(sectionIndex + 1, 4)"
+                    class="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded hover:bg-blue-400 transition">
+                    Next →
+                </button>
+
+                <!-- Spacer to maintain center alignment when Next button is hidden -->
+                <div x-show="sectionIndex === 4"></div>
+            </div>
         </div>
 
         <!-- RIGHT SIDE -->
@@ -700,10 +708,10 @@
 
         function toggleActionButtons() {
             const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-            const currentStatus = "{{ $application->status }}"; 
+            const currentStatus = "{{ $application->status }}";
 
             actionButtons.classList.toggle('hidden', !allChecked);
-           
+
             if (allChecked && currentStatus !== 'approved' && currentStatus !== 'rejected') {
                 updateApplicantStatus(applicationId, 'document_verification');
             }
