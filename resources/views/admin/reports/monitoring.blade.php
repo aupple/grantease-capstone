@@ -69,8 +69,10 @@
                     <select name="semester"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="" {{ request('semester') == '' ? 'selected' : '' }}>All Semesters</option>
-                        <option value="1st" {{ request('semester') == '1st' ? 'selected' : '' }}>First Semester</option>
-                        <option value="2nd" {{ request('semester') == '2nd' ? 'selected' : '' }}>Second Semester</option>
+                        <option value="First" {{ request('semester') == 'First' ? 'selected' : '' }}>First Semester
+                        </option>
+                        <option value="Second" {{ request('semester') == 'Second' ? 'selected' : '' }}>Second Semester
+                        </option>
                     </select>
                 </div>
 
@@ -80,14 +82,10 @@
                         class="bg-blue-600 font-medium text-white text-sm px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition">
                         Filter
                     </button>
-
-                    <a href="{{ route('admin.reports.monitoring.print', ['semester' => request('semester', '')]) }}"
-                        target="_blank" rel="noopener"
+                    <button type="button" id="printBtn"
                         class="bg-green-600 font-medium text-white text-sm px-4 py-2 rounded-lg shadow-md hover:bg-green-700 transition">
                         Print
-                    </a>
-
-
+                    </button>
                     <button type="button" id="resetCols"
                         class="bg-red-600 font-medium text-white text-sm px-4 py-2 rounded-lg shadow-md hover:bg-red-700 transition">
                         Reset Columns
@@ -136,7 +134,6 @@
     <div class="bg-white rounded-xl shadow-lg overflow-auto">
         <div class="p-4">
             <div class="overflow-x-auto">
-                <!-- Print-only header inserted here, visible only in print -->
                 <div class="print-header">
                     <h2 class="text-lg font-bold">DETAILED STATUS REPORT OF SCHOLARSHIP PROGRAM</h2>
                     <div class="text-sm mt-1">University: University of Science and Technology of Southern Philippines
@@ -176,24 +173,27 @@
                                 $monitoring = $scholar->monitorings->first();
                             @endphp
                             <tr class="odd:bg-white even:bg-slate-50">
-                                <td class="px-2 py-2 text-center border">{{ $index + 1 }}</td>
-                                <td class="px-2 py-2 border">{{ $scholar->applicationForm->last_name }}</td>
-                                <td class="px-2 py-2 border">{{ $scholar->applicationForm->first_name }}</td>
-                                <td class="px-2 py-2 border">{{ $scholar->applicationForm->middle_name }}</td>
-                                <td class="px-2 py-2 text-center border">
-                                    {{ implode(', ', $scholar->applicationForm->scholarship_type ?? []) }}</td>
+                                <td data-col="no" class="px-2 py-2 text-center border">{{ $index + 1 }}</td>
+                                <td data-col="last_name" class="px-2 py-2 border">
+                                    {{ $scholar->applicationForm->last_name }}</td>
+                                <td data-col="first_name" class="px-2 py-2 border">
+                                    {{ $scholar->applicationForm->first_name }}</td>
+                                <td data-col="middle_name" class="px-2 py-2 border">
+                                    {{ $scholar->applicationForm->middle_name }}</td>
+                                <td data-col="level" class="px-2 py-2 text-center border">
+                                    {{ implode(', ', $scholar->applicationForm->scholarship_type ?? []) }}
+                                </td>
 
                                 <!-- Editable fields -->
-                                <td class="px-2 py-2 border">
-                                    <span class="display-text"
-                                        data-field="course">{{ $monitoring?->course ?? '' }}</span>
+                                <td data-col="course" class="px-2 py-2 border">
+                                    <span class="display-text" data-field="course">{{ $monitoring?->course ?? '' }}</span>
                                     <input type="text" class="edit-input hidden border px-1 py-1 w-full"
                                         value="{{ $monitoring?->course ?? '' }}" data-field="course"
                                         data-monitoring-id="{{ $monitoring?->id }}"
                                         data-scholar-id="{{ $scholar->id }}">
                                 </td>
 
-                                <td class="px-2 py-2 border">
+                                <td data-col="school" class="px-2 py-2 border">
                                     <span class="display-text"
                                         data-field="school">{{ $monitoring?->school ?? '' }}</span>
                                     <input type="text" class="edit-input hidden border px-1 py-1 w-full"
@@ -202,10 +202,11 @@
                                         data-scholar-id="{{ $scholar->id }}">
                                 </td>
 
-                                <td class="px-2 py-2 text-center border">{{ $scholar->applicationForm->applicant_status }}
+                                <td data-col="new_lateral" class="px-2 py-2 text-center border">
+                                    {{ $scholar->applicationForm->applicant_status }}
                                 </td>
 
-                                <td class="px-2 py-2 text-center border">
+                                <td data-col="pt_ft" class="px-2 py-2 text-center border">
                                     <span class="display-text"
                                         data-field="enrollment_type">{{ $monitoring?->enrollment_type ?? '' }}</span>
                                     <input type="text" class="edit-input hidden border px-1 py-1 w-full text-center"
@@ -214,7 +215,7 @@
                                         data-scholar-id="{{ $scholar->id }}">
                                 </td>
 
-                                <td class="px-2 py-2 text-center border">
+                                <td data-col="duration" class="px-2 py-2 text-center border">
                                     <span class="display-text"
                                         data-field="scholarship_duration">{{ $monitoring?->scholarship_duration ?? '' }}</span>
                                     <input type="text" class="edit-input hidden border px-1 py-1 w-full text-center"
@@ -223,7 +224,7 @@
                                         data-scholar-id="{{ $scholar->id }}">
                                 </td>
 
-                                <td class="px-2 py-2 text-center border">
+                                <td data-col="date_started" class="px-2 py-2 text-center border">
                                     <span class="display-text"
                                         data-field="date_started">{{ $monitoring?->date_started ?? '' }}</span>
                                     <input type="text" class="edit-input hidden border px-1 py-1 w-full text-center"
@@ -232,7 +233,7 @@
                                         data-scholar-id="{{ $scholar->id }}">
                                 </td>
 
-                                <td class="px-2 py-2 text-center border">
+                                <td data-col="expected_completion" class="px-2 py-2 text-center border">
                                     <span class="display-text"
                                         data-field="expected_completion">{{ $monitoring?->expected_completion ?? '' }}</span>
                                     <input type="text" class="edit-input hidden border px-1 py-1 w-full text-center"
@@ -241,9 +242,11 @@
                                         data-scholar-id="{{ $scholar->id }}">
                                 </td>
 
-                                <td class="px-2 py-2 text-center border">{{ $scholar->applicationForm->status }}</td>
+                                <td data-col="status" class="px-2 py-2 text-center border">
+                                    {{ $scholar->applicationForm->status }}
+                                </td>
 
-                                <td class="px-2 py-2 border">
+                                <td data-col="remarks" class="px-2 py-2 border">
                                     <span class="display-text"
                                         data-field="remarks">{{ $monitoring?->remarks ?? '' }}</span>
                                     <input type="text" class="edit-input hidden border px-1 py-1 w-full"
@@ -258,7 +261,8 @@
                                     <button type="button"
                                         class="save-btn hidden bg-green-500 text-white px-2 py-1 rounded text-xs">Save</button>
                                 </td>
-                            @empty
+                            </tr>
+                        @empty
                             <tr>
                                 <td colspan="15" class="text-center p-6 text-slate-500">No approved scholars found.</td>
                             </tr>
@@ -282,7 +286,7 @@
                     const resetBtn = document.getElementById('resetCols');
                     const STORAGE_KEY = 'monitoring_scholars_cols_v1';
 
-                    if (!table) return; // guard against missing table
+                    if (!table) return;
 
                     const defaultCols = [
                         'no', 'last_name', 'first_name', 'middle_name', 'level', 'course', 'school',
@@ -335,8 +339,26 @@
 
                     if (printBtn) {
                         printBtn.addEventListener('click', function() {
-                            savePrefs();
-                            window.print();
+                            const selectedCols = [];
+                            colToggles.forEach(cb => {
+                                if (cb.checked) {
+                                    selectedCols.push(cb.getAttribute('data-col'));
+                                }
+                            });
+
+                            const schoolTerm = document.querySelector('select[name="school_term"]')
+                                ?.value || '';
+                            const academicYear = document.querySelector('select[name="academic_year"]')
+                                ?.value || '';
+                            const program = document.querySelector('select[name="program"]')?.value || '';
+                            const columnsParam = encodeURIComponent(JSON.stringify(selectedCols));
+                            const printUrl = `{{ route('admin.reports.monitoring.print') }}` +
+                                `?school_term=${encodeURIComponent(schoolTerm)}` +
+                                `&academic_year=${encodeURIComponent(academicYear)}` +
+                                `&program=${encodeURIComponent(program)}` +
+                                `&columns=${columnsParam}`;
+
+                            window.open(printUrl, '_blank');
                         });
                     }
 
@@ -437,7 +459,6 @@
                             .then(res => res.json())
                             .then(data => {
                                 if (data.success) {
-                                    // Update table visually
                                     row.querySelector('.display-text[data-field="course"]')
                                         .textContent = course;
                                     row.querySelector('.display-text[data-field="school"]')
@@ -454,8 +475,6 @@
                                         .textContent = expected_completion;
                                     row.querySelector('.display-text[data-field="remarks"]')
                                         .textContent = remarks;
-
-                                    // Hide inputs & show display
                                     row.querySelectorAll('.display-text').forEach(span => span
                                         .classList.remove('hidden'));
                                     row.querySelectorAll('.edit-input').forEach(input => input
@@ -463,7 +482,6 @@
                                     editBtn.classList.remove('hidden');
                                     saveBtn.classList.add('hidden');
 
-                                    // Update the monitoringId if it was null (new row)
                                     if (!row.querySelector('.edit-input[data-field="course"]')
                                         .dataset.monitoringId) {
                                         const newId = data.monitoring_ids ? data.monitoring_ids[0] :

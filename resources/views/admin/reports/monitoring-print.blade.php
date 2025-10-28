@@ -83,26 +83,74 @@
             AY {{ $academicYear ?? '2023-2024' }}</h2>
         <div class="subtitle"><strong>Scholarship Program:</strong> {{ strtoupper($program ?? 'DOST') }}</div>
     </div>
-
+    @php
+        $selectedColumns = request('columns')
+            ? json_decode(request('columns'), true)
+            : [
+                'no',
+                'last_name',
+                'first_name',
+                'middle_name',
+                'level',
+                'course',
+                'school',
+                'new_lateral',
+                'enrollment_type',
+                'duration',
+                'date_started',
+                'expected_completion',
+                'status',
+                'remarks',
+            ];
+    @endphp
     <table>
         <thead>
             <tr>
-                <th>NO.</th>
-                <th>LAST NAME</th>
-                <th>FIRST NAME</th>
-                <th>MIDDLE NAME</th>
-                <th>LEVEL<br>(MS / PhD)</th>
-                <th>COURSE</th>
-                <th>SCHOOL</th>
-                <th>NEW / LATERAL</th>
-                <th>PART-TIME / FULL-TIME</th>
-                <th>SCHOLARSHIP DURATION</th>
-                <th>DATE STARTED<br>(Month and Year)</th>
-                <th>EXPECTED COMPLETION<br>(Month and Year)</th>
-                <th>STATUS</th>
-                <th>REMARKS</th>
+                @if (in_array('no', $selectedColumns))
+                    <th>NO.</th>
+                @endif
+                @if (in_array('last_name', $selectedColumns))
+                    <th>LAST NAME</th>
+                @endif
+                @if (in_array('first_name', $selectedColumns))
+                    <th>FIRST NAME</th>
+                @endif
+                @if (in_array('middle_name', $selectedColumns))
+                    <th>MIDDLE NAME</th>
+                @endif
+                @if (in_array('level', $selectedColumns))
+                    <th>LEVEL<br>(MS / PhD)</th>
+                @endif
+                @if (in_array('course', $selectedColumns))
+                    <th>COURSE</th>
+                @endif
+                @if (in_array('school', $selectedColumns))
+                    <th>SCHOOL</th>
+                @endif
+                @if (in_array('new_lateral', $selectedColumns))
+                    <th>NEW / LATERAL</th>
+                @endif
+                @if (in_array('enrollment_type', $selectedColumns))
+                    <th>PART-TIME / FULL-TIME</th>
+                @endif
+                @if (in_array('duration', $selectedColumns))
+                    <th>SCHOLARSHIP DURATION</th>
+                @endif
+                @if (in_array('date_started', $selectedColumns))
+                    <th>DATE STARTED<br>(Month and Year)</th>
+                @endif
+                @if (in_array('expected_completion', $selectedColumns))
+                    <th>EXPECTED COMPLETION<br>(Month and Year)</th>
+                @endif
+                @if (in_array('status', $selectedColumns))
+                    <th>STATUS</th>
+                @endif
+                @if (in_array('remarks', $selectedColumns))
+                    <th>REMARKS</th>
+                @endif
             </tr>
         </thead>
+
         <tbody>
             @forelse ($scholars as $index => $scholar)
                 @php
@@ -110,25 +158,54 @@
                     $monitoring = $scholar->monitorings()->latest()->first();
                 @endphp
                 <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ strtoupper($form->last_name ?? '') }}</td>
-                    <td>{{ strtoupper($form->first_name ?? '') }}</td>
-                    <td>{{ strtoupper($form->middle_name ?? '') }}</td>
-                    <td>{{ strtoupper(is_array($form->scholarship_type) ? implode(', ', $form->scholarship_type) : $form->scholarship_type ?? '') }}
-                    </td>
-                    <td>{{ strtoupper($monitoring->course ?? '') }}</td>
-                    <td>{{ strtoupper($monitoring->school ?? '') }}</td>
-                    <td>{{ strtoupper($form->applicant_status ?? '') }}</td>
-                    <td>{{ strtoupper($monitoring->enrollment_type ?? '') }}</td>
-                    <td>{{ strtoupper($monitoring->scholarship_duration ?? '') }}</td>
-                    <td>{{ strtoupper($monitoring->date_started ?? '') }}</td>
-                    <td>{{ strtoupper($monitoring->expected_completion ?? '') }}</td>
-                    <td>{{ strtoupper($form->status ?? '') }}</td>
-                    <td>{{ strtoupper($monitoring->remarks ?? '') }}</td>
+                    @if (in_array('no', $selectedColumns))
+                        <td>{{ $index + 1 }}</td>
+                    @endif
+                    @if (in_array('last_name', $selectedColumns))
+                        <td>{{ strtoupper($form->last_name ?? '') }}</td>
+                    @endif
+                    @if (in_array('first_name', $selectedColumns))
+                        <td>{{ strtoupper($form->first_name ?? '') }}</td>
+                    @endif
+                    @if (in_array('middle_name', $selectedColumns))
+                        <td>{{ strtoupper($form->middle_name ?? '') }}</td>
+                    @endif
+                    @if (in_array('level', $selectedColumns))
+                        <td>{{ strtoupper(is_array($form->scholarship_type) ? implode(', ', $form->scholarship_type) : $form->scholarship_type ?? '') }}
+                        </td>
+                    @endif
+                    @if (in_array('course', $selectedColumns))
+                        <td>{{ strtoupper($monitoring->course ?? '') }}</td>
+                    @endif
+                    @if (in_array('school', $selectedColumns))
+                        <td>{{ strtoupper($monitoring->school ?? '') }}</td>
+                    @endif
+                    @if (in_array('new_lateral', $selectedColumns))
+                        <td>{{ strtoupper($form->applicant_status ?? '') }}</td>
+                    @endif
+                    @if (in_array('enrollment_type', $selectedColumns))
+                        <td>{{ strtoupper($monitoring->enrollment_type ?? '') }}</td>
+                    @endif
+                    @if (in_array('duration', $selectedColumns))
+                        <td>{{ strtoupper($monitoring->scholarship_duration ?? '') }}</td>
+                    @endif
+                    @if (in_array('date_started', $selectedColumns))
+                        <td>{{ strtoupper($monitoring->date_started ?? '') }}</td>
+                    @endif
+                    @if (in_array('expected_completion', $selectedColumns))
+                        <td>{{ strtoupper($monitoring->expected_completion ?? '') }}</td>
+                    @endif
+                    @if (in_array('status', $selectedColumns))
+                        <td>{{ strtoupper($form->status ?? '') }}</td>
+                    @endif
+                    @if (in_array('remarks', $selectedColumns))
+                        <td>{{ strtoupper($monitoring->remarks ?? '') }}</td>
+                    @endif
                 </tr>
             @empty
                 <tr>
-                    <td colspan="14" style="text-align:center;">No scholars found for this term/year.</td>
+                    <td colspan="{{ count($selectedColumns) }}" style="text-align:center;">No scholars found for this
+                        term/year.</td>
                 </tr>
             @endforelse
         </tbody>
