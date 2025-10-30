@@ -251,4 +251,11 @@ public function edit($id)
     // Return the edit view and pass the record
     return view('applicant.application-edit', compact('application'));
 }
+public function update(Request $request, $id)
+{
+    $application = ApplicationForm::findOrFail($id);
+    $application->update($request->all());
+
+    return response()->json(['success' => true]);
+}
 }

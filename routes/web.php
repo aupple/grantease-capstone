@@ -118,6 +118,9 @@ Route::prefix('monitoring')->name('monitoring.')->group(function () {
         Route::get('/application/{id}/edit', [ApplicationFormController::class, 'edit'])
     ->name('applicant.application-edit');
 
+    Route::patch('/application/{id}', [ApplicationFormController::class, 'update'])
+    ->name('application.update');
+
     /**
      * =======================
      * Profile Management for Applicants
