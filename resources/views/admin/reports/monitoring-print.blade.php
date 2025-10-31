@@ -130,7 +130,7 @@
                 @if (in_array('new_lateral', $selectedColumns))
                     <th>NEW / LATERAL</th>
                 @endif
-                @if (in_array('enrollment_type', $selectedColumns))
+                @if (in_array('pt_ft', $selectedColumns))
                     <th>PART-TIME / FULL-TIME</th>
                 @endif
                 @if (in_array('duration', $selectedColumns))
@@ -183,7 +183,7 @@
                     @if (in_array('new_lateral', $selectedColumns))
                         <td>{{ strtoupper($form->applicant_status ?? '') }}</td>
                     @endif
-                    @if (in_array('enrollment_type', $selectedColumns))
+                    @if (in_array('pt_ft', $selectedColumns))
                         <td>{{ strtoupper($monitoring->enrollment_type ?? '') }}</td>
                     @endif
                     @if (in_array('duration', $selectedColumns))

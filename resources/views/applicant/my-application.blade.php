@@ -137,72 +137,33 @@
             @if ($applications->isEmpty())
                 <p class="text-gray-600">You haven't submitted any applications yet.</p>
             @else
-                @foreach ($applications as $application)
-                    <!-- ===== APPLICATION STATUS (TOP) ===== -->
-                    <h2 class="section-title mt-4 flex justify-between items-center">
-                        <span>Application Status</span>
-                        <button onclick="window.print()"
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
-                            🖨 Print
-                        </button>
-                    </h2>
-
-                    <div class="p-1.5 mb-6 flex items-center gap-4">
-                        <div>
-                            <strong>Status:</strong>
-                            <span
-                                class="inline-block px-2 py-1 rounded text-xs
-            {{ $application->status == 'approved'
-                ? 'bg-green-100 text-green-800'
-                : ($application->status == 'rejected'
-                    ? 'bg-red-100 text-red-800'
-                    : 'bg-yellow-100 text-yellow-800') }}">
-                                {{ ucfirst(str_replace('_', ' ', $application->status ?? 'pending')) }}
-                            </span>
-                        </div>
-                        <div>
-                            <strong>Submitted At:</strong>
-                            <span
-                                class="text-sm">{{ $application->submitted_at ?? ($application->created_at ?? '—') }}</span>
-                        </div>
-
-                        <!-- Edit Button (only if pending) -->
-                        @if (($application->status ?? 'pending') === 'pending' && !empty($application->id))
-                            <div class="ml-auto">
-                                <a href="{{ route('applicant.application.edit', ['id' => $application->id]) }}"
-                                    class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded text-sm">
-                                    ✏️ Edit Application
-                                </a>
-                            </div>
-                        @endif
-                    </div>
-
-
-                    <!-- HEADER -->
-                    <div class="header-row">
-                        <div class="logo-box">
-                            <img src="{{ asset('images/DOST.png') }}" alt="DOST Logo" class="logo">
-                        </div>
-
-                        <div class="title text-center">
-                            <p class="text-sm font-semibold">DEPARTMENT OF SCIENCE AND TECHNOLOGY</p>
-                            <p class="text-sm font-semibold">SCIENCE EDUCATION INSTITUTE</p>
-                            <p class="text-xs">Bicutan, Taguig City</p>
-                            <h1 class="text-base font-bold underline mt-1">APPLICATION FORM</h1>
-                            <p class="text-xs mt-1">for the</p>
-                            <h2 class="text-sm font-bold mt-1">
-                                SCIENCE AND TECHNOLOGY REGIONAL ALLIANCE OF UNIVERSITIES<br>
-                                FOR NATIONAL DEVELOPMENT (STRAND)
+                <div class="space-y-6">
+                    @foreach ($applications as $application)
+                        <div class="bg-white rounded-lg shadow p-6 border border-gray-200">
+                            <h2 class="text-xl font-semibold text-gray-800 mb-2">
+                                {{ $application->program }} Scholarship
                             </h2>
-                        </div>
+                            <div class="text-sm text-gray-700 space-y-1">
+                                <p><strong>School:</strong> {{ $application->school }}</p>
+                                <p><strong>Year Level:</strong> {{ $application->year_level }}</p>
+                                <p><strong>Reason:</strong> {{ $application->reason }}</p>
+                                <p><strong>Status:</strong>
+                                    <span class="inline-block bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">
+                                        {{ ucfirst(str_replace('_', ' ', $application->status)) }}
+                                    </span>
+                                </p>
+                                <p><strong>Remarks:</strong> {{ $application->remarks ?? 'None' }}</p>
+                                <p><strong>Submitted At:</strong>
+                                    {{ $application->submitted_at ?? $application->created_at }}</p>
+                            </div>
 
-                        <div class="photo-box relative">
-                            <p class="font-semibold mb-1 text-[12px]">Attached Photo</p>
-                            @if ($application->passport_picture)
-                                <img src="{{ asset('storage/' . $application->passport_picture) }}"
-                                    class="photo-preview object-cover">
-                            @else
-                                <div class="photo-preview">No Photo</div>
+                            @if ($application->status === 'pending')
+                                <div class="mt-4">
+                                    <a href="{{ route('applicant.application.edit', ['id' => $application->application_form_id]) }}"
+                                        class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded text-sm">
+                                        ✏️ Edit Application
+                                    </a>
+                                </div>
                             @endif
                         </div>
                     </div>
