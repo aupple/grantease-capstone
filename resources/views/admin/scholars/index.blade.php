@@ -163,7 +163,7 @@
                             <td class="p-1">
                                 <div
                                     class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
-                                    <a href="{{ route('admin.scholars.show', $scholar->application_form_id) }}"
+                                    <a href="{{ route('admin.scholars.show', $scholar->id) }}"
                                         class="text-blue-600 hover:text-blue-800 text-sm font-semibold transition underline underline-offset-2">
                                         View
                                     </a>

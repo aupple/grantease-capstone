@@ -149,10 +149,19 @@
                                 </td>
                                 <td class="p-4 text-gray-600">{{ $app->created_at->format('M d, Y') }}</td>
                                 <td class="p-4">
-                                    <a href="{{ route('admin.applications.show', $app->application_form_id) }}"
-                                        class="inline-flex items-center px-3 py-1 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors">
-                                        View
-                                    </a>
+                                    @if ($app->status === 'approved' && $app->scholar)
+                                        {{-- Go to Scholar Details page --}}
+                                        <a href="{{ route('admin.scholars.show', $app->scholar->id) }}"
+                                            class="inline-flex items-center px-3 py-1 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors">
+                                            View
+                                        </a>
+                                    @else
+                                        {{-- Go to Application Details page --}}
+                                        <a href="{{ route('admin.applications.show', $app->id) }}"
+                                            class="inline-flex items-center px-3 py-1 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors">
+                                            View
+                                        </a>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach
