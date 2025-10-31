@@ -119,6 +119,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/profile/edit', [AdminProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile/update', [AdminProfileController::class, 'update'])->name('profile.update');
     });
+        Route::get('/application/{id}/edit', [ApplicationFormController::class, 'edit'])
+    ->name('applicant.application-edit');
+
+    Route::patch('/application/{id}', [ApplicationFormController::class, 'update'])
+    ->name('application.update');
 
     /**
      * =======================

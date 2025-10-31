@@ -9,8 +9,24 @@ use App\Models\Evaluation;
 
 class PdfController extends Controller
 {
- 
-   public function scoreSheet()
+    /**
+     * STRAND Application Download (Full Application Form)
+     */
+    public function download($id)
+    {
+        $application = ApplicationForm::findOrFail($id);
+
+        // Load your application status view as the PDF content
+        $pdf = Pdf::loadView('applicant.application-status', compact('application'))
+                  ->setPaper('A4', 'portrait');
+
+        return $pdf->download("STRAND_Application_{$application->application_no}.pdf");
+    }
+
+    /**
+     * Score Sheet PDF
+     */
+    public function scoreSheet()
     {
         $userId = auth()->user()->user_id;
         $applicant = ApplicationForm::with('user')->where('user_id', $userId)->firstOrFail();
@@ -20,6 +36,9 @@ class PdfController extends Controller
         return $pdf->download('Score_Sheet.pdf');
     }
 
+    /**
+     * Recommendation Form PDF
+     */
     public function recommendationForm()
     {
         $userId = auth()->user()->user_id;
@@ -29,6 +48,9 @@ class PdfController extends Controller
         return $pdf->download('Recommendation_Form.pdf');
     }
 
+    /**
+     * Research Plans PDF
+     */
     public function researchPlans()
     {
         $userId = auth()->user()->user_id;
@@ -38,6 +60,9 @@ class PdfController extends Controller
         return $pdf->download('Research_Plans.pdf');
     }
 
+    /**
+     * Career Plans PDF
+     */
     public function careerPlans()
     {
         $userId = auth()->user()->user_id;
@@ -47,6 +72,9 @@ class PdfController extends Controller
         return $pdf->download('Career_Plans.pdf');
     }
 
+    /**
+     * Certification of Employment PDF
+     */
     public function certificationEmployment()
     {
         $userId = auth()->user()->user_id;
@@ -56,6 +84,9 @@ class PdfController extends Controller
         return $pdf->download('Certification_of_Employment.pdf');
     }
 
+    /**
+     * Certification of DepEd Employment PDF
+     */
     public function certificationDepEd()
     {
         $userId = auth()->user()->user_id;
@@ -65,6 +96,9 @@ class PdfController extends Controller
         return $pdf->download('Certification_of_DepEd_Employment.pdf');
     }
 
+    /**
+     * Certification of Health Status PDF
+     */
     public function certificationHealthStatus()
     {
         $userId = auth()->user()->user_id;
