@@ -108,9 +108,9 @@
                 class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm 
                 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
                 <option value="">Select Term</option>
-                <option value="First">First Semester / Term</option>
-                <option value="Second">Second Semester / Term</option>
-                <option value="Third">Third Semester / Term</option>
+                <option value="First Semester">First Semester / Term</option>
+                <option value="Second Semester">Second Semester / Term</option>
+                <option value="Third Semester">Third Semester / Term</option>
             </select>
         </div>
     </div>

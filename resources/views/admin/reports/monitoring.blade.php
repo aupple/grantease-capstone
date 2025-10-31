@@ -69,9 +69,9 @@
                     <select name="semester"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="" {{ request('semester') == '' ? 'selected' : '' }}>All Semesters</option>
-                        <option value="First" {{ request('semester') == 'First' ? 'selected' : '' }}>First Semester
+                        <option value="First Semester" {{ request('semester') == 'First Semester' ? 'selected' : '' }}>First Semester
                         </option>
-                        <option value="Second" {{ request('semester') == 'Second' ? 'selected' : '' }}>Second Semester
+                        <option value="Second Semester" {{ request('semester') == 'Second Semester' ? 'selected' : '' }}>Second Semester
                         </option>
                     </select>
                 </div>

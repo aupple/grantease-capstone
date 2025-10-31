@@ -210,6 +210,7 @@
                     'middle_name' => 'Middle Name',
                     'suffix' => 'Suffix',
                     'street' => 'Street',
+                    'village' => 'Village',
                     'barangay' => 'Barangay',
                     'town' => 'Town',
                     'province' => 'Province',
@@ -274,7 +275,7 @@
                                     {{ formatValue($a->address_street) }}
                                 @break
 
-                                @case('barangay')
+                                @case('village')
                                     {{ getLocationName($a->barangay, 'barangay') }}
                                 @break
 
@@ -351,7 +352,7 @@
                                 @break
 
                                 @case('percent_completed')
-                                    {{ formatValue($a->percent_completed) }}
+                                    {{ formatValue($a->lateral_remaining_units) }}
                                 @break
 
                                 @case('duration')

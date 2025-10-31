@@ -18,19 +18,20 @@
                                 <p><strong>School:</strong> {{ $application->school }}</p>
                                 <p><strong>Year Level:</strong> {{ $application->year_level }}</p>
                                 <p><strong>Reason:</strong> {{ $application->reason }}</p>
-                                <p><strong>Status:</strong> 
+                                <p><strong>Status:</strong>
                                     <span class="inline-block bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">
                                         {{ ucfirst(str_replace('_', ' ', $application->status)) }}
                                     </span>
                                 </p>
                                 <p><strong>Remarks:</strong> {{ $application->remarks ?? 'None' }}</p>
-                                <p><strong>Submitted At:</strong> {{ $application->submitted_at ?? $application->created_at }}</p>
+                                <p><strong>Submitted At:</strong>
+                                    {{ $application->submitted_at ?? $application->created_at }}</p>
                             </div>
 
                             @if ($application->status === 'pending')
                                 <div class="mt-4">
                                     <a href="{{ route('applicant.application.edit', ['id' => $application->application_form_id]) }}"
-                                       class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded text-sm">
+                                        class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded text-sm">
                                         ✏️ Edit Application
                                     </a>
                                 </div>
