@@ -24,9 +24,12 @@
         th,
         td {
             border: 1px solid #000;
-            padding: 3px 5px;
+            padding: 2px 3px;
             text-align: center;
             word-wrap: break-word;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 8px;
         }
 
         th {
@@ -208,13 +211,13 @@
                     'suffix' => 'Suffix',
                     'street' => 'Street',
                     'barangay' => 'Barangay',
-                    'city' => 'City/Town',
+                    'town' => 'Town',
                     'province' => 'Province',
                     'zipcode' => 'Zipcode',
                     'district' => 'District',
                     'region' => 'Region',
                     'email' => 'Email Address',
-                    'birthday' => 'Birthday (YYYY-MM-DD)',
+                    'bday' => 'Birthday',
                     'contact_no' => 'Contact No.',
                     'gender' => 'Gender',
                     'course_completed' => 'Course Completed',
@@ -275,7 +278,7 @@
                                     {{ getLocationName($a->barangay, 'barangay') }}
                                 @break
 
-                                @case('city')
+                                @case('town')
                                     {{ getLocationName($a->city, 'city') }}
                                 @break
 
@@ -299,7 +302,7 @@
                                     {{ formatValue($a->email_address) }}
                                 @break
 
-                                @case('birthday')
+                                @case('bday')
                                     {{ formatValue($a->date_of_birth) }}
                                 @break
 
