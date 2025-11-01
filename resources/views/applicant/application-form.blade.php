@@ -1170,12 +1170,12 @@ document.addEventListener('DOMContentLoaded', function() {
     attachStrandCategoryListener();
     attachNumericValidation();
     attachAgeCalculation();
-    attachAcademicYear(); // ✅ Academic Year auto-fill
+    attachAcademicYear();
     attachSignaturePad(); 
     attachIfEmployedListener(); 
     attachDegreeButtons();  
-    attachLiveValidation(); // ✅ New live validation feedback
-    attachApplicantTypeToggle(); // ✅ New: New vs Lateral toggle handler
+    attachLiveValidation();
+    attachApplicantTypeToggle();
 });
 
 let currentStep = 1;
