@@ -96,23 +96,6 @@
                 </h2>
                 <p class="text-sm text-gray-500">Submitted on {{ $application->created_at->format('F d, Y') }}</p>
             </div>
-
-            <div id="actionButtons" class="hidden flex gap-2">
-                <form action="{{ route('admin.applications.update-status', $application->application_form_id) }}"
-                    method="POST">
-                    @csrf
-                    <input type="hidden" name="status" value="approved">
-                    <button type="submit"
-                        class="bg-green-600 text-white text-sm px-4 py-1.5 rounded-md hover:bg-green-700 transition font-semibold">Approve</button>
-                </form>
-                <form action="{{ route('admin.applications.update-status', $application->application_form_id) }}"
-                    method="POST">
-                    @csrf
-                    <input type="hidden" name="status" value="rejected">
-                    <button type="submit"
-                        class="bg-red-600 text-white text-sm px-4 py-1.5 rounded-md hover:bg-red-700 transition font-semibold">Reject</button>
-                </form>
-            </div>
         </div>
     </div>
 
@@ -548,9 +531,32 @@
         <!-- RIGHT SIDE -->
         <div class="col-span-1 space-y-6">
 
-            <!-- 📑 Documents -->
             <div class="bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6">
-                <h3 class="text-lg font-bold mb-4">Documents</h3>
+                <!-- Header: Title + Buttons side by side -->
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold">Documents</h3>
+
+                    <div id="actionButtons" class="flex gap-2">
+                        <form action="{{ route('admin.applications.update-status', $application->application_form_id) }}"
+                            method="POST">
+                            @csrf
+                            <input type="hidden" name="status" value="approved">
+                            <button type="submit"
+                                class="bg-green-600 text-white text-sm px-4 py-1.5 rounded-md hover:bg-green-700 transition font-semibold">
+                                Approve
+                            </button>
+                        </form>
+                        <form action="{{ route('admin.applications.update-status', $application->application_form_id) }}"
+                            method="POST">
+                            @csrf
+                            <input type="hidden" name="status" value="rejected">
+                            <button type="submit"
+                                class="bg-red-600 text-white text-sm px-4 py-1.5 rounded-md hover:bg-red-700 transition font-semibold">
+                                Reject
+                            </button>
+                        </form>
+                    </div>
+                </div>
 
                 @php
                     $documents = [

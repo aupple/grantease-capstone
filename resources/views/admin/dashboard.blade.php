@@ -121,7 +121,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left border-collapse">
                     <thead>
-                        <tr class="bg-white/60 text-gray-700">
+                        <tr class="bg-gray-100 text-gray-700">
                             <th class="p-4 border-b border-gray-200 font-semibold">Applicant</th>
                             <th class="p-4 border-b border-gray-200 font-semibold">Program</th>
                             <th class="p-4 border-b border-gray-200 font-semibold">Status</th>
@@ -152,13 +152,13 @@
                                     @if ($app->status === 'approved' && $app->scholar)
                                         {{-- Go to Scholar Details page --}}
                                         <a href="{{ route('admin.scholars.show', $app->scholar->id) }}"
-                                            class="inline-flex items-center px-3 py-1 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors">
+                                            class="inline-flex items-center px-3 py-1 font-semibold text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors">
                                             View
                                         </a>
                                     @else
                                         {{-- Go to Application Details page --}}
                                         <a href="{{ route('admin.applications.show', $app->application_form_id) }}"
-                                            class="inline-flex items-center px-3 py-1 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors">
+                                            class="inline-flex items-center px-3 py-1 font-semibold text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors">
                                             View
                                         </a>
                                     @endif
