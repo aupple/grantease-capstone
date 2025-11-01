@@ -661,9 +661,9 @@
                     @if ($application->status === 'approved') bg-green-200 text-green-800
                     @elseif ($application->status === 'rejected') bg-red-200 text-red-800
                     @elseif ($application->status === 'pending') bg-yellow-200 text-yellow-800
-                    @elseif ($application->status === 'document_verification') bg-purple-200 text-purple-800 
+                    @elseif ($application->status === 'document_verification') bg-blue-200 text-blue-800 
                     @else bg-gray-100 text-gray-800 @endif">
-                        {{ ucfirst(str_replace('_', ' ', $application->status)) }}
+                        {{ $application->status === 'document_verified' ? 'Document verified' : ucfirst(str_replace('_', ' ', $application->status)) }}
                     </span>
                 </div>
 
@@ -700,20 +700,32 @@
         const actionButtons = document.getElementById('actionButtons');
         const applicationId = "{{ $application->application_form_id }}";
 
+        // Initialize checkboxes from database state
         checkboxes.forEach(cb => {
-            if (cb.hasAttribute('checked')) {
-                cb.checked = true;
-            }
+            // The checked attribute should already be set from PHP
+            // No need to manually set it here
         });
 
         function toggleActionButtons() {
             const allChecked = Array.from(checkboxes).every(cb => cb.checked);
             const currentStatus = "{{ $application->status }}";
 
-            actionButtons.classList.toggle('hidden', !allChecked);
+            if (allChecked) {
+                actionButtons.classList.remove('hidden');
 
-            if (allChecked && currentStatus !== 'approved' && currentStatus !== 'rejected') {
-                updateApplicantStatus(applicationId, 'document_verification');
+                // Only update status if NOT already in document_verification, approved, or rejected
+                if (currentStatus !== 'document_verification' &&
+                    currentStatus !== 'approved' &&
+                    currentStatus !== 'rejected') {
+                    updateApplicantStatus(applicationId, 'document_verification');
+                }
+            } else {
+                actionButtons.classList.add('hidden');
+
+                // If unchecking and status is document_verification, revert to pending
+                if (currentStatus === 'document_verification') {
+                    updateApplicantStatus(applicationId, 'pending');
+                }
             }
         }
 
@@ -735,15 +747,19 @@
                     })
                     .then(res => res.json())
                     .then(data => {
-                        console.log(data);
+                        console.log('✅ Document verification saved:', data);
                         toggleActionButtons();
                     })
-                    .catch(err => console.error('❌ Error verifying document:', err));
+                    .catch(err => {
+                        console.error('❌ Error verifying document:', err);
+                        // Revert checkbox on error
+                        cb.checked = !verified;
+                    });
             });
         });
 
         function updateApplicantStatus(id, status) {
-            fetch(`/admin/applications/${applicationId}/status`, {
+            fetch(`/admin/applications/${id}/status`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -756,10 +772,35 @@
                 .then(res => res.json())
                 .then(data => {
                     console.log("✅ Status updated to:", data.status);
+                    // Update the status badge without full page reload
+                    updateStatusBadge(data.status);
                 })
                 .catch(err => console.error("❌ Error updating status:", err));
         }
 
+        function updateStatusBadge(status) {
+            const statusBadge = document.querySelector('.application-status-badge');
+            if (statusBadge) {
+                statusBadge.textContent = status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+                // Update badge colors
+                statusBadge.className = 'application-status-badge px-3 py-1 rounded-full text-sm font-bold';
+
+                if (status === 'approved') {
+                    statusBadge.classList.add('bg-green-200', 'text-green-800');
+                } else if (status === 'rejected') {
+                    statusBadge.classList.add('bg-red-200', 'text-red-800');
+                } else if (status === 'pending') {
+                    statusBadge.classList.add('bg-yellow-200', 'text-yellow-800');
+                } else if (status === 'document_verification') {
+                    statusBadge.classList.add('bg-blue-200', 'text-blue-800');
+                } else {
+                    statusBadge.classList.add('bg-gray-100', 'text-gray-800');
+                }
+            }
+        }
+
+        // Initial check
         toggleActionButtons();
     });
 </script>

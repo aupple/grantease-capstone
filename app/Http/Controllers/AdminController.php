@@ -129,19 +129,17 @@ class AdminController extends Controller
         // Decode existing verified documents (or default to empty array)
         $verifiedDocs = $application->verified_documents ? json_decode($application->verified_documents, true) : [];
 
-        $key = Str::snake(str_replace(' ', '_', strtolower($request->document)));
-
+        // ✅ FIX: Use the exact document name as the key (don't convert to snake_case)
         if ($verified) {
-            $verifiedDocs[$key] = true;
+            $verifiedDocs[$document] = true;
         } else {
-            unset($verifiedDocs[$key]);
+            unset($verifiedDocs[$document]);
         }
-
 
         $application->verified_documents = json_encode($verifiedDocs);
         $application->save();
 
-        // ✅ Define the required document names that match your actual frontend labels
+        // ✅ Define ALL document names that match your Blade file
         $requiredDocuments = [
             'Passport Picture',
             'Birth Certificate',
@@ -160,27 +158,64 @@ class AdminController extends Controller
             'Lateral Certification',
         ];
 
-        // ✅ Count how many required docs are verified
-        $verifiedCount = count(array_intersect($requiredDocuments, array_keys($verifiedDocs)));
+        // ✅ Filter only uploaded documents from required list
+        $uploadedRequiredDocs = array_filter($requiredDocuments, function ($doc) use ($application) {
+            $documents = [
+                'Passport Picture' => $application->passport_picture ?? null,
+                'Birth Certificate' => $application->birth_certificate_pdf ?? null,
+                'Transcript of Record' => $application->transcript_of_record_pdf ?? null,
+                'Endorsement Letter 1' => $application->endorsement_1_pdf ?? null,
+                'Endorsement Letter 2' => $application->endorsement_2_pdf ?? null,
+                'Recommendation of Head of Agency' => $application->recommendation_head_agency_pdf ?? null,
+                'Form 2A - Certificate of Employment' => $application->form_2a_pdf ?? null,
+                'Form 2B - Optional Employment Cert.' => $application->form_2b_pdf ?? null,
+                'Form A - Research Plans' => $application->form_a_research_plans_pdf ?? null,
+                'Form B - Career Plans' => $application->form_b_career_plans_pdf ?? null,
+                'Form C - Health Status' => $application->form_c_health_status_pdf ?? null,
+                'NBI Clearance' => $application->nbi_clearance_pdf ?? null,
+                'Letter of Admission' => $application->letter_of_admission_pdf ?? null,
+                'Approved Program of Study' => $application->approved_program_of_study_pdf ?? null,
+                'Lateral Certification' => $application->lateral_certification_pdf ?? null,
+            ];
+            return !empty($documents[$doc]);
+        });
+
+        // ✅ Count how many uploaded required docs are verified
+        $verifiedCount = count(array_filter($uploadedRequiredDocs, function ($doc) use ($verifiedDocs) {
+            return isset($verifiedDocs[$doc]) && $verifiedDocs[$doc] === true;
+        }));
+
+        $totalRequired = count($uploadedRequiredDocs);
+        $allVerified = $verifiedCount === $totalRequired && $totalRequired > 0;
 
         // ✅ Update status when all required docs are verified
-        if ($verifiedCount === count($requiredDocuments)) {
+        if ($allVerified && $application->status === 'pending') {
             $application->status = 'document_verification';
+            $application->save();
+        } elseif (!$allVerified && $application->status === 'document_verification') {
+            // ✅ If unchecking documents, revert to pending
+            $application->status = 'pending';
             $application->save();
         }
 
         // ✅ DEBUG: check if update actually happens
         \Log::info('Document verification update', [
             'id' => $application->id,
+            'document' => $document,
+            'verified' => $verified,
             'verified_count' => $verifiedCount,
-            'required_count' => count($requiredDocuments),
+            'required_count' => $totalRequired,
+            'all_verified' => $allVerified,
             'status' => $application->status,
+            'verified_docs' => $verifiedDocs,
         ]);
 
         return response()->json([
             'success' => true,
             'verified_documents' => $verifiedDocs,
             'verified_count' => $verifiedCount,
+            'total_required' => $totalRequired,
+            'all_verified' => $allVerified,
             'status' => $application->status,
         ]);
     }

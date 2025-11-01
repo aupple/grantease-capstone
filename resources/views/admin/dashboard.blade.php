@@ -142,9 +142,9 @@
                                     @if ($app->status === 'approved') bg-green-100 text-green-700 border border-green-400
                                     @elseif ($app->status === 'rejected') bg-red-100 text-red-700 border border-red-400
                                     @elseif ($app->status === 'pending') bg-yellow-100 text-yellow-700 border border-yellow-400
-                                    @elseif ($app->status === 'document_verification') bg-purple-100 text-purple-700 border border-purple-400
+                                    @elseif ($app->status === 'document_verification') bg-blue-100 text-blue-700 border border-blue-400
                                     @else bg-gray-100 text-gray-800 border border-gray-200 @endif">
-                                        {{ ucfirst(str_replace('_', ' ', $app->status)) }}
+                                        {{ $app->status === 'document_verified' ? 'Document verified' : ucfirst(str_replace('_', ' ', $app->status)) }}
                                     </span>
                                 </td>
                                 <td class="p-4 text-gray-600">{{ $app->created_at->format('M d, Y') }}</td>
@@ -157,7 +157,7 @@
                                         </a>
                                     @else
                                         {{-- Go to Application Details page --}}
-                                        <a href="{{ route('admin.applications.show', $app->id) }}"
+                                        <a href="{{ route('admin.applications.show', $app->application_form_id) }}"
                                             class="inline-flex items-center px-3 py-1 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors">
                                             View
                                         </a>

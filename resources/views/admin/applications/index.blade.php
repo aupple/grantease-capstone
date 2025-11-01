@@ -78,8 +78,7 @@
                                 @if ($app->status === 'approved') bg-green-200/60 text-green-900
                                 @elseif ($app->status === 'rejected') bg-red-200/60 text-red-900
                                 @elseif ($app->status === 'pending') bg-yellow-200/60 text-yellow-900
-                                @elseif ($app->status === 'document_verification') bg-purple-200/60 text-purple-900
-                                @elseif ($app->status === 'for_interview') bg-blue-200/60 text-blue-900
+                                @elseif ($app->status === 'document_verification') bg-blue-200/60 text-blue-900
                                 @else bg-gray-200/60 text-gray-900 @endif">
                                     {{ ucfirst(str_replace('_', ' ', $app->status)) }}
                                 </span>
