@@ -14,7 +14,7 @@
       <!-- ✅ Sidebar -->
 <aside class="w-64 bg-white shadow-md hidden md:block">
     <!-- GrantEase Admin Logo Box -->
-   <div class="bg-gray-50 px-1 py-1 flex items-center justify-center h-20 border-b border-gray-200">
+   <div class="bg-gray-50 px-2 py-1 flex items-center justify-center h-25 border-b border-gray-200">
     <img src="{{ asset('images/logo.png') }}" alt="GrantEase Logo" class="max-h-full max-w-full object-contain">
 </div>
 
@@ -97,7 +97,7 @@
         <main class="flex-1">
 
             <!-- ✅ Top Navbar with Profile Dropdown -->
-            <header class="bg-[#ffbf00] text-white shadow px-4 py-3 flex justify-between items-center">
+            <header class="bg-[#ffbf00] text-white shadow px-4 h-16 flex justify-between items-center">
                 <div class="text-lg font-bold text-gray-700">Admin Panel</div>
 
                 <div class="relative">

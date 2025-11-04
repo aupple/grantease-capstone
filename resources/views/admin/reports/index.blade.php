@@ -5,7 +5,7 @@
         <h1 class="text-2xl font-bold mb-6">Reports & Monitoring</h1>
 
         {{-- DOST Section --}}
-        <h2 class="text-xl font-bold mb-3 text-blue-700">DOST Reports</h2>
+        <h2 class="text-xl font-bold mb-3 text-black-700">DOST Reports</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
             @php
                 $dostReports = [
@@ -36,7 +36,7 @@
         </div>
 
         {{-- CHED Section --}}
-        <h2 class="text-xl font-bold mb-3 text-green-700">CHED Reports</h2>
+        <h2 class="text-xl font-bold mb-3 text-black-700">CHED Reports</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             @php
                 $chedReports = [
@@ -54,7 +54,7 @@
                     <h2 class="text-lg font-semibold mb-2 text-gray-800">{{ $card['title'] }}</h2>
                     <p class="text-sm text-gray-700 mb-3">{{ $card['desc'] }}</p>
                     <a href="{{ route($card['route']) }}"
-                        class="inline-block bg-green-700 text-white text-sm px-4 py-2 rounded-md shadow-md hover:bg-green-600 transition font-semibold">
+                        class="inline-block bg-blue-900 text-white text-sm px-4 py-2 rounded-md shadow-md hover:bg-blue-700/90 transition font-semibold">
                         Open
                     </a>
                 </div>

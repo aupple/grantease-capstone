@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="mb-6 space-y-6">
-        <h1 class="text-3xl font-bold text-gray-800 mb-4">Approved Scholars</h1>
+        <h1 class="text-3xl font-bold text-gray-800 mb-4"> DOST & CHED Scholars</h1>
 
         <!-- 🔍 Filters -->
         <form method="GET" action="{{ route('admin.scholars') }}"
@@ -40,7 +40,7 @@
 
             <!-- Apply Button -->
             <button type="submit"
-                class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md shadow-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                class="bg-blue-900 backdrop-blur-md text-white px-4 py-2 text-sm rounded-md shadow-md hover:bg-blue-600/80 transition font-semibold">
                 Apply
             </button>
         </form>
