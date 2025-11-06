@@ -43,7 +43,7 @@ class ApplicationFormController extends Controller
             'academic_year' => 'required|string|max:20',
             'school_term' => 'required|string|max:20',
             'application_no' => 'required|string|max:50',
-            'photo' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
+            'passport_picture' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
 
             // II. Personal Info
             'last_name' => 'required|string|max:100',
@@ -104,7 +104,7 @@ class ApplicationFormController extends Controller
             'declaration_date' => 'nullable|date',
         ]);
 
-        // ✅ Create application record
+        // ✅ Create new application record
         $application = new ApplicationForm();
         $application->user_id = Auth::user()->user_id;
         $application->program = $request->program;
@@ -114,16 +114,16 @@ class ApplicationFormController extends Controller
         // ✅ Fill validated fields
         $application->fill($validated);
 
-        // ✅ Handle photo upload
-        if ($request->hasFile('photo')) {
-            $path = $request->file('photo')->store('uploads/application_photos', 'public');
+        // ✅ Handle passport photo upload
+        if ($request->hasFile('passport_picture')) {
+            $path = $request->file('passport_picture')->store('uploads/application_photos', 'public');
             $application->photo = $path;
         }
 
         // ✅ Save to database
         $application->save();
 
-        return redirect()->route('dashboard')->with('success', 'Application form submitted successfully.');
+        return redirect()->back()->with('success', 'Application submitted successfully!');
     }
 
     /**

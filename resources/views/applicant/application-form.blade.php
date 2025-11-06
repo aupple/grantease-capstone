@@ -150,21 +150,17 @@ body {
 }
 </style>
 
-
-<div class="py-6">
+        <div class="py-6">
     <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-        <form id="applicationForm" 
-              method="POST" 
-              action="{{ route('applicant.application.store') }}" 
-              enctype="multipart/form-data"
-              class="bg-white p-6 rounded shadow-md relative">
-            @csrf
+        <!-- Application Form -->
+       <form method="POST" action="{{ route('applicant.application.store') }}" enctype="multipart/form-data" class="bg-white p-6 rounded shadow">
+    @csrf
 
-           <!-- ✅ SUCCESS TOAST -->
-<div id="successToast"
-     class="hidden fixed bottom-6 right-6 bg-green-600 text-white px-4 py-2 rounded shadow-lg transition-opacity duration-500 opacity-0">
-    ✅ Application submitted successfully!
-</div>
+            <!-- ✅ SUCCESS TOAST -->
+            <div id="successToast"
+                 class="hidden fixed bottom-6 right-6 bg-green-600 text-white px-4 py-2 rounded shadow-lg transition-opacity duration-500 opacity-0">
+                ✅ Application submitted successfully!
+            </div>
 
 
             <!-- =================== HEADER =================== -->
@@ -1089,7 +1085,11 @@ function previewPhoto(event) {
     const reader = new FileReader();
     reader.onload = function(e) {
         const preview = document.getElementById('photoPreview');
-        preview.innerHTML = `<img src="${e.target.result}" alt="Preview" class="object-cover w-full h-full">`;
+        preview.innerHTML = `
+            <img src="${e.target.result}" 
+                 alt="Uploaded Photo" 
+                 class="object-cover w-[120px] h-[120px] rounded border border-gray-300 mx-auto shadow-sm">
+        `;
     };
     reader.readAsDataURL(file);
 }
