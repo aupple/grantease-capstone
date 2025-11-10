@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Contracts\Auth\MustVerifyEmail; //g add nako (ver)
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable; // Include HasApiTokens if needed
 
     protected $primaryKey = 'user_id';
 
@@ -19,6 +19,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'last_name',
         'email',
         'password',
+        'program_type', // Added for DOST/CHED selection
         'role_id',
     ];
 
@@ -32,21 +33,21 @@ class User extends Authenticatable implements MustVerifyEmail
         'password' => 'hashed',
     ];
 
+    // Accessor for full name (consistent with your naming)
+    public function getFullNameAttribute()
+    {
+        return trim("{$this->first_name} {$this->middle_name} {$this->last_name}");
+    }
+
+    // Relationship to Role
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'role_id', 'role_id');
+    }
+
     // Relationship: User has many ApplicationForms
     public function applicationForms()
     {
         return $this->hasMany(ApplicationForm::class, 'user_id', 'user_id');
     }
-
-    // Accessor for full name
-    public function getFullNameAttribute()
-    {
-        return trim($this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name);
-
-    }
-    public function role()
-{
-    return $this->belongsTo(Role::class, 'role_id', 'role_id');
-}
-
 }

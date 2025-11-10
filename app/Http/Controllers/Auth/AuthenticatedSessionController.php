@@ -34,6 +34,10 @@ class AuthenticatedSessionController extends Controller
         if ($user->role_id == 1) {
             return redirect()->intended('/admin/dashboard');
         } elseif ($user->role_id == 2) {
+            if ($user->program_type === 'CHED') {
+                return redirect()->intended('/ched/dashboard');
+            }
+            // Default: DOST applicant
             return redirect()->intended('/applicant/dashboard');
         }
 
@@ -45,14 +49,13 @@ class AuthenticatedSessionController extends Controller
      * Destroy an authenticated session.
      */
     public function destroy(Request $request): RedirectResponse
-{
-    Auth::guard('web')->logout();
+    {
+        Auth::guard('web')->logout();
 
-    $request->session()->invalidate();
+        $request->session()->invalidate();
 
-    $request->session()->regenerateToken();
+        $request->session()->regenerateToken();
 
-    return redirect()->route('login');
-}
-
+        return redirect()->route('login');
+    }
 }

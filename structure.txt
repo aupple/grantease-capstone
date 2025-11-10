@@ -63,6 +63,9 @@ C:.
 ¦   ¦       
 ¦   +---Providers
 ¦   ¦       AppServiceProvider.php
+¦   ¦       AuthServiceProvider.php
+¦   ¦       EventServiceProvider.php
+¦   ¦       RouteServiceProvider.php
 ¦   ¦       
 ¦   +---View
 ¦       +---Components
@@ -115,6 +118,9 @@ C:.
 ¦   ¦       2025_07_13_141708_create_scholar_monitorings_table.php
 ¦   ¦       2025_09_18_072546_add_missing_file_columns_to_application_forms_table.php
 ¦   ¦       2025_10_12_134646_add_thesis_fields_to_application_forms_table.php
+¦   ¦       2025_10_16_030553_add_intended_degree_to_application_forms_table.php
+¦   ¦       2025_10_24_154108_add_verified_documents_to_application_forms_table.php
+¦   ¦       2025_10_26_225109_create_password_reset_tokens_table.php
 ¦   ¦       
 ¦   +---seeders
 ¦           DatabaseSeeder.php
@@ -9439,42 +9445,60 @@ C:.
 ¦       ¦   
 ¦       +---uploads
 ¦           +---application_forms
-¦                   2kaytZAQibrpFdSvpr2JLIxLY87FvhbPZf9mh5tR.pdf
-¦                   2YqgZkBLKsfvdOH0CBkOu1ea80jYYVJhEcCDubpD.pdf
-¦                   5eGl8ldmwiRB6Lgw9NqJwppQ035a3yoIsFp6b5T2.pdf
-¦                   5fpUHpdeztFokD6GK3l3vcGUvmMd4gX5eRqX032S.pdf
-¦                   5r90s2664C1LFw9gpkHYJDE4RLPhozsgGKpLLKvc.pdf
-¦                   85X7k7zS2R6gNNnrBPJxjlz6xFZNgOsZR6gNVIyg.pdf
-¦                   9CNnoZ1u3a9d2u9jml8H5LwfeEBO7PUvJRRuPcMI.pdf
-¦                   9rlH8QRdbNAghSpNUO3DnZVRj9DMDCXu6Zxw6txQ.pdf
-¦                   aRnCfNH2BwcM1RzkR409eZALdNWlh8kUB5eVUlQQ.pdf
-¦                   Avh5T1xC8GFZf1EcdhGeDW7OmdDlREYPyur4jAyg.pdf
-¦                   briN2Vxx7MGyMH7H9O5pUpAOwZYdawNz9arxYG15.pdf
-¦                   E6J5PdcKvzX08spQ2SWxxfS4k2tgUgo6xjgmLSVU.pdf
-¦                   foY4iSb5uEOwq90Is5SGEBPeJAfYVdnk7Fl3AtDE.pdf
-¦                   jJd56lqki8XLSD7sX5UIw0jieKKCSK9F2XQuHbVy.pdf
-¦                   lppf4WiL2CB1iCizj9qVao7QatoZlpirYixdZZwJ.pdf
-¦                   lPXYmVSvjjCeHof01EEkT0BaTtM7PMDMIg3Fn7mb.pdf
-¦                   lv2JxT7wKCxLQUdMJ8VCjqAt9uHyFAi8Vs7Ytfn5.pdf
-¦                   mdjB6k0tCKirEEZMcDwEKAFDKkWfe1WOmxNaHmfO.pdf
-¦                   miFeDxc11ANiIg4x9yhXLWVttnd0N9hBtyC3GBKD.pdf
-¦                   MPHaWkK1TBxItWxK8fXrFeVhv7tozB1F5wmXUfen.pdf
-¦                   MV9eAc830fGzyHsMymV8jMJEAN7qDnCO7zWXuRcM.pdf
-¦                   nh1tM9ZjbdcoTwOknXDz8QCIk8QBdp2cahXM5j2K.pdf
-¦                   nJHS6pJdqg0xIw66LaTKaNkjf4ogrzTtVNDIB2Pw.jpg
-¦                   nVbc6lfz3n7ZekwmeV50gLJnZfz7BJ1MbnE0v7j0.png
-¦                   nYVWEyqTpCR9E7t35t6Gm8TT8sYSnjoKWc9ZybLw.pdf
-¦                   OJJjnDrcoDDkvtpb3o2CWWtOX6e93S9HiTlXR9cK.pdf
-¦                   qRnpKtmhhQjBdJojlOesekx1NFUTPKPDU4qyZf0s.pdf
-¦                   rpdZHXvljNFFD0V890f31tXKTaVAUjSGARLJznNv.pdf
-¦                   T4pPoK0QFx1Y3fq8MYRry6r9XFUuGBpCwgvsH4Jg.pdf
-¦                   uxZFxyihFfjf7tpmurB1EKIA0UhIZW41jUuSqKxB.pdf
-¦                   VWezyDDh7dcfgLjqBZ1qLVEvU29cDU4oxzP0E1rC.pdf
-¦                   VXOVotlGYbbZkXA84T8TQORml3wCYWmDo7Um5ILf.pdf
-¦                   wokBHk2lD8NyMuxgiHads1luY3gD6o433kxzOp59.pdf
-¦                   xe5eu6LhwrouZD6rGpS5xeDvj0D6wBnprH9xSq29.pdf
-¦                   XM9W4rohNW3KoXZeos7VV0Ou2oh5e2aZ4T3Su9WO.png
-¦                   ztfQaDtk5ufkAIkBJOru3lBCQjrfzTkqsh5saQiS.pdf
+¦                   05Ig5paJ0HkqY6YBRFiyxImz37ld2MaeCFSs2Yxo.pdf
+¦                   6S7adeceSeLOqUeHbIEx2Cu7HQ72NbcSQLMHvPfI.pdf
+¦                   6yfPJG5XXToEHoo0KoVnS6VSbVfhyLyWpKPjxGa9.pdf
+¦                   6zBwzW2xUlwWOtSozuDAyPRr23ORKpVqZQnWwCjt.pdf
+¦                   8UevmHA5rH1wk92gKw3ymjAr5bmdUefb6ZC1DwdE.pdf
+¦                   a0Z7yQ57wtUf0s4tifjTFIwinTWsNKoI8sMRI2u8.jpg
+¦                   A5mr2B7zvr1KHov6AGHPitbq9cCbafJCkpNeoUde.pdf
+¦                   aHCbxfk2VWxJXjZpAUWpQEk0RW9Dexn8tDzDs9Yl.pdf
+¦                   bn4hxzl900MFijEHWbRSPWuLaluT6zX3KJuAWuuy.pdf
+¦                   bVTKSXIkHSbnwSS9n4T0dAMp4GhnV5uJCP66fmRH.pdf
+¦                   cfCjPlTTdZP474DiNaci1NwpO7xxSRZWXqwSJ0VL.pdf
+¦                   DfiJ8ld50GZsIdpn4oVGENtf9Ccr41G5ie6idQpQ.pdf
+¦                   EfkB5Qcd5a4jIgz5n27LQxUpknPhNHd0duyyjwU6.jpg
+¦                   EPWpmVjCN7NAWMc1iaW3G9J5516Io1UI1zmFiY58.pdf
+¦                   ErIa80CvS4m7dmlIK7xKRarl5Rd0SOcCav5tm2S9.pdf
+¦                   Esy6oY3NTiZVwy2GDS6xcHDcR2c9sdVfeEadOjg9.pdf
+¦                   FgebrfYudLgOX7V5DcxHdlwmkzhq1HFGHx97VJnl.pdf
+¦                   fuwhXaDSZU1jcKrfUEz5i8L1CwBCoNglMH0ZQcLy.pdf
+¦                   Gi53RiGy46NT71yZEdbHerBQX6n5EQsBNasllL19.pdf
+¦                   gtJnedE9PgGRE0wDFdP7agaRRgSgvvZmjiWdhiW2.pdf
+¦                   himQ7zD6RjMyF1b6Z8EeTaFJpiQFuXiWniCkekHi.pdf
+¦                   hnRedtqRITyuLjIgvj3DejFDMlEkOsDaNUyDOOc6.pdf
+¦                   IPdCJZdBUfvS05n9sHpY8LoTsGIhbiiZ9aPUx5eH.pdf
+¦                   iWH7Oye3ZmJwi5OJoq6DnjS6RuhW1OCRtbcFvzdE.pdf
+¦                   J5Jx6PkdQSxADUBQtzPuXhRbxEonAGh6OmNTObSH.jpg
+¦                   KhoXz5yUA29LRjwqhdGU3DbOSx5d1MXeev5JumXo.pdf
+¦                   LiUgG0KfuaNlcq4T5jdrzm1xmov5stODRzBJmQnI.pdf
+¦                   LwHd9keoEGLEUCD5BSQ37t70hBQBHxnJlJf0nXAx.jpg
+¦                   NdcG50rJGHyYnWE7op1qJuzNziMnqacFYK7bh5JS.pdf
+¦                   nL0VoOu1TaxhfsF6zcfAvzBGG9ios8FW3NkI3JAZ.jpg
+¦                   O3vaiwMbUjwrQyenC6WbRR6Vab3kyPyE7SiMKzSY.pdf
+¦                   omCGelRdP0AqqNEIIVcFcwn2UBKJKTVsPH5m9e3f.pdf
+¦                   OTc9giDzO5BRU0AQ7Q2jttqBmmTqt4NKOs7afWF7.pdf
+¦                   P0r1zgHW0y0AdK5hNfxnC3fNS7f9FOU1l9hKwcsy.pdf
+¦                   PKogr9D2fEJaAxP11QBswBeq3NwbUvzd9toFp1t6.pdf
+¦                   Q3JMxwAdLlGbqlnU7GoiP7C6MVV6nzFe6fpmY4Fb.pdf
+¦                   QrNL0omaev5MBHbmXLD6cr4SUexTTjcJAysMcVGG.pdf
+¦                   sRhUeFc7g65nCZrHnMiZvgtwpgXMVrAkLlzO0iMF.pdf
+¦                   sWz0hj09OIS3lfZo3Bu24GgX8rZFQ7PwC6WIniu8.pdf
+¦                   TdtOSOw493EVZl7OZojwlgDWxPCuqa3FWGwp1ttw.pdf
+¦                   tohx4GMadi41RLuCJZCndtLE9wov7uMxdsV4CEJq.pdf
+¦                   U6hXDtN9lx8zqfQ7trsXecjYE2cuhrIX06VbIBAu.pdf
+¦                   ugNowPu7jHZmTkAMQob23REpldS8gFutShByXuaP.pdf
+¦                   V0mOZPqhAzGo2IfVtNlaVwy9KLP7wf6AGqEaEyJq.pdf
+¦                   V5Z7f2FBZ0K2eR9iMD9hBj5wtHS1CzBUWiRSJcTg.pdf
+¦                   vGiVDCYfEPEVM9ZjeccFvpHNIWImnny8RjhkfXFq.pdf
+¦                   vjimvfOaGisYOv6GGB5wxD0SwQDgf3DIfDpczeXW.pdf
+¦                   VNvVssWr8y9Bz4b33Kh9P7tOWirg4CZnIQz8h501.png
+¦                   vQ6EwtWBBDfQY3adxovGrktnVV0F2RsTnuO2JUFV.pdf
+¦                   WUngKLT6WPZD5gqSIiBOrIHhWOyZwGUHL5vLOvLd.pdf
+¦                   xuUFNimCXj4uhEVGoupXdQCxbfu2FCGpQcSmqkNp.pdf
+¦                   yuhuvoYHh2rodFo7u9j5qFd1PVMlhCQoORZz6yX2.pdf
+¦                   yZHncnaT1jIovvSonSXFtCq7IuIoQzcj3PEPxjOO.pdf
+¦                   zJGwna57TjSycDbkqfU0sWdFJ4NlVluedAR0aLid.pdf
 ¦                   
 +---resources
 ¦   +---css
@@ -9507,6 +9531,7 @@ C:.
 ¦       ¦   ¦       
 ¦       ¦   +---scholars
 ¦       ¦           index.blade.php
+¦       ¦           show.blade.php
 ¦       ¦           
 ¦       +---applicant
 ¦       ¦   ¦   application-edit.blade.php
@@ -9587,6 +9612,7 @@ C:.
 ¦                   tailwind.blade.php
 ¦                   
 +---routes
+¦       api.php
 ¦       auth.php
 ¦       console.php
 ¦       web.php
@@ -9596,7 +9622,6 @@ C:.
 ¦   ¦   ¦   .gitignore
 ¦   ¦   ¦   psgc_barangay.json
 ¦   ¦   ¦   psgc_city.json
-¦   ¦   ¦   psgc_district.json
 ¦   ¦   ¦   psgc_province.json
 ¦   ¦   ¦   
 ¦   ¦   +---private
@@ -9607,42 +9632,60 @@ C:.
 ¦   ¦       ¦   
 ¦   ¦       +---uploads
 ¦   ¦           +---application_forms
-¦   ¦                   2kaytZAQibrpFdSvpr2JLIxLY87FvhbPZf9mh5tR.pdf
-¦   ¦                   2YqgZkBLKsfvdOH0CBkOu1ea80jYYVJhEcCDubpD.pdf
-¦   ¦                   5eGl8ldmwiRB6Lgw9NqJwppQ035a3yoIsFp6b5T2.pdf
-¦   ¦                   5fpUHpdeztFokD6GK3l3vcGUvmMd4gX5eRqX032S.pdf
-¦   ¦                   5r90s2664C1LFw9gpkHYJDE4RLPhozsgGKpLLKvc.pdf
-¦   ¦                   85X7k7zS2R6gNNnrBPJxjlz6xFZNgOsZR6gNVIyg.pdf
-¦   ¦                   9CNnoZ1u3a9d2u9jml8H5LwfeEBO7PUvJRRuPcMI.pdf
-¦   ¦                   9rlH8QRdbNAghSpNUO3DnZVRj9DMDCXu6Zxw6txQ.pdf
-¦   ¦                   aRnCfNH2BwcM1RzkR409eZALdNWlh8kUB5eVUlQQ.pdf
-¦   ¦                   Avh5T1xC8GFZf1EcdhGeDW7OmdDlREYPyur4jAyg.pdf
-¦   ¦                   briN2Vxx7MGyMH7H9O5pUpAOwZYdawNz9arxYG15.pdf
-¦   ¦                   E6J5PdcKvzX08spQ2SWxxfS4k2tgUgo6xjgmLSVU.pdf
-¦   ¦                   foY4iSb5uEOwq90Is5SGEBPeJAfYVdnk7Fl3AtDE.pdf
-¦   ¦                   jJd56lqki8XLSD7sX5UIw0jieKKCSK9F2XQuHbVy.pdf
-¦   ¦                   lppf4WiL2CB1iCizj9qVao7QatoZlpirYixdZZwJ.pdf
-¦   ¦                   lPXYmVSvjjCeHof01EEkT0BaTtM7PMDMIg3Fn7mb.pdf
-¦   ¦                   lv2JxT7wKCxLQUdMJ8VCjqAt9uHyFAi8Vs7Ytfn5.pdf
-¦   ¦                   mdjB6k0tCKirEEZMcDwEKAFDKkWfe1WOmxNaHmfO.pdf
-¦   ¦                   miFeDxc11ANiIg4x9yhXLWVttnd0N9hBtyC3GBKD.pdf
-¦   ¦                   MPHaWkK1TBxItWxK8fXrFeVhv7tozB1F5wmXUfen.pdf
-¦   ¦                   MV9eAc830fGzyHsMymV8jMJEAN7qDnCO7zWXuRcM.pdf
-¦   ¦                   nh1tM9ZjbdcoTwOknXDz8QCIk8QBdp2cahXM5j2K.pdf
-¦   ¦                   nJHS6pJdqg0xIw66LaTKaNkjf4ogrzTtVNDIB2Pw.jpg
-¦   ¦                   nVbc6lfz3n7ZekwmeV50gLJnZfz7BJ1MbnE0v7j0.png
-¦   ¦                   nYVWEyqTpCR9E7t35t6Gm8TT8sYSnjoKWc9ZybLw.pdf
-¦   ¦                   OJJjnDrcoDDkvtpb3o2CWWtOX6e93S9HiTlXR9cK.pdf
-¦   ¦                   qRnpKtmhhQjBdJojlOesekx1NFUTPKPDU4qyZf0s.pdf
-¦   ¦                   rpdZHXvljNFFD0V890f31tXKTaVAUjSGARLJznNv.pdf
-¦   ¦                   T4pPoK0QFx1Y3fq8MYRry6r9XFUuGBpCwgvsH4Jg.pdf
-¦   ¦                   uxZFxyihFfjf7tpmurB1EKIA0UhIZW41jUuSqKxB.pdf
-¦   ¦                   VWezyDDh7dcfgLjqBZ1qLVEvU29cDU4oxzP0E1rC.pdf
-¦   ¦                   VXOVotlGYbbZkXA84T8TQORml3wCYWmDo7Um5ILf.pdf
-¦   ¦                   wokBHk2lD8NyMuxgiHads1luY3gD6o433kxzOp59.pdf
-¦   ¦                   xe5eu6LhwrouZD6rGpS5xeDvj0D6wBnprH9xSq29.pdf
-¦   ¦                   XM9W4rohNW3KoXZeos7VV0Ou2oh5e2aZ4T3Su9WO.png
-¦   ¦                   ztfQaDtk5ufkAIkBJOru3lBCQjrfzTkqsh5saQiS.pdf
+¦   ¦                   05Ig5paJ0HkqY6YBRFiyxImz37ld2MaeCFSs2Yxo.pdf
+¦   ¦                   6S7adeceSeLOqUeHbIEx2Cu7HQ72NbcSQLMHvPfI.pdf
+¦   ¦                   6yfPJG5XXToEHoo0KoVnS6VSbVfhyLyWpKPjxGa9.pdf
+¦   ¦                   6zBwzW2xUlwWOtSozuDAyPRr23ORKpVqZQnWwCjt.pdf
+¦   ¦                   8UevmHA5rH1wk92gKw3ymjAr5bmdUefb6ZC1DwdE.pdf
+¦   ¦                   a0Z7yQ57wtUf0s4tifjTFIwinTWsNKoI8sMRI2u8.jpg
+¦   ¦                   A5mr2B7zvr1KHov6AGHPitbq9cCbafJCkpNeoUde.pdf
+¦   ¦                   aHCbxfk2VWxJXjZpAUWpQEk0RW9Dexn8tDzDs9Yl.pdf
+¦   ¦                   bn4hxzl900MFijEHWbRSPWuLaluT6zX3KJuAWuuy.pdf
+¦   ¦                   bVTKSXIkHSbnwSS9n4T0dAMp4GhnV5uJCP66fmRH.pdf
+¦   ¦                   cfCjPlTTdZP474DiNaci1NwpO7xxSRZWXqwSJ0VL.pdf
+¦   ¦                   DfiJ8ld50GZsIdpn4oVGENtf9Ccr41G5ie6idQpQ.pdf
+¦   ¦                   EfkB5Qcd5a4jIgz5n27LQxUpknPhNHd0duyyjwU6.jpg
+¦   ¦                   EPWpmVjCN7NAWMc1iaW3G9J5516Io1UI1zmFiY58.pdf
+¦   ¦                   ErIa80CvS4m7dmlIK7xKRarl5Rd0SOcCav5tm2S9.pdf
+¦   ¦                   Esy6oY3NTiZVwy2GDS6xcHDcR2c9sdVfeEadOjg9.pdf
+¦   ¦                   FgebrfYudLgOX7V5DcxHdlwmkzhq1HFGHx97VJnl.pdf
+¦   ¦                   fuwhXaDSZU1jcKrfUEz5i8L1CwBCoNglMH0ZQcLy.pdf
+¦   ¦                   Gi53RiGy46NT71yZEdbHerBQX6n5EQsBNasllL19.pdf
+¦   ¦                   gtJnedE9PgGRE0wDFdP7agaRRgSgvvZmjiWdhiW2.pdf
+¦   ¦                   himQ7zD6RjMyF1b6Z8EeTaFJpiQFuXiWniCkekHi.pdf
+¦   ¦                   hnRedtqRITyuLjIgvj3DejFDMlEkOsDaNUyDOOc6.pdf
+¦   ¦                   IPdCJZdBUfvS05n9sHpY8LoTsGIhbiiZ9aPUx5eH.pdf
+¦   ¦                   iWH7Oye3ZmJwi5OJoq6DnjS6RuhW1OCRtbcFvzdE.pdf
+¦   ¦                   J5Jx6PkdQSxADUBQtzPuXhRbxEonAGh6OmNTObSH.jpg
+¦   ¦                   KhoXz5yUA29LRjwqhdGU3DbOSx5d1MXeev5JumXo.pdf
+¦   ¦                   LiUgG0KfuaNlcq4T5jdrzm1xmov5stODRzBJmQnI.pdf
+¦   ¦                   LwHd9keoEGLEUCD5BSQ37t70hBQBHxnJlJf0nXAx.jpg
+¦   ¦                   NdcG50rJGHyYnWE7op1qJuzNziMnqacFYK7bh5JS.pdf
+¦   ¦                   nL0VoOu1TaxhfsF6zcfAvzBGG9ios8FW3NkI3JAZ.jpg
+¦   ¦                   O3vaiwMbUjwrQyenC6WbRR6Vab3kyPyE7SiMKzSY.pdf
+¦   ¦                   omCGelRdP0AqqNEIIVcFcwn2UBKJKTVsPH5m9e3f.pdf
+¦   ¦                   OTc9giDzO5BRU0AQ7Q2jttqBmmTqt4NKOs7afWF7.pdf
+¦   ¦                   P0r1zgHW0y0AdK5hNfxnC3fNS7f9FOU1l9hKwcsy.pdf
+¦   ¦                   PKogr9D2fEJaAxP11QBswBeq3NwbUvzd9toFp1t6.pdf
+¦   ¦                   Q3JMxwAdLlGbqlnU7GoiP7C6MVV6nzFe6fpmY4Fb.pdf
+¦   ¦                   QrNL0omaev5MBHbmXLD6cr4SUexTTjcJAysMcVGG.pdf
+¦   ¦                   sRhUeFc7g65nCZrHnMiZvgtwpgXMVrAkLlzO0iMF.pdf
+¦   ¦                   sWz0hj09OIS3lfZo3Bu24GgX8rZFQ7PwC6WIniu8.pdf
+¦   ¦                   TdtOSOw493EVZl7OZojwlgDWxPCuqa3FWGwp1ttw.pdf
+¦   ¦                   tohx4GMadi41RLuCJZCndtLE9wov7uMxdsV4CEJq.pdf
+¦   ¦                   U6hXDtN9lx8zqfQ7trsXecjYE2cuhrIX06VbIBAu.pdf
+¦   ¦                   ugNowPu7jHZmTkAMQob23REpldS8gFutShByXuaP.pdf
+¦   ¦                   V0mOZPqhAzGo2IfVtNlaVwy9KLP7wf6AGqEaEyJq.pdf
+¦   ¦                   V5Z7f2FBZ0K2eR9iMD9hBj5wtHS1CzBUWiRSJcTg.pdf
+¦   ¦                   vGiVDCYfEPEVM9ZjeccFvpHNIWImnny8RjhkfXFq.pdf
+¦   ¦                   vjimvfOaGisYOv6GGB5wxD0SwQDgf3DIfDpczeXW.pdf
+¦   ¦                   VNvVssWr8y9Bz4b33Kh9P7tOWirg4CZnIQz8h501.png
+¦   ¦                   vQ6EwtWBBDfQY3adxovGrktnVV0F2RsTnuO2JUFV.pdf
+¦   ¦                   WUngKLT6WPZD5gqSIiBOrIHhWOyZwGUHL5vLOvLd.pdf
+¦   ¦                   xuUFNimCXj4uhEVGoupXdQCxbfu2FCGpQcSmqkNp.pdf
+¦   ¦                   yuhuvoYHh2rodFo7u9j5qFd1PVMlhCQoORZz6yX2.pdf
+¦   ¦                   yZHncnaT1jIovvSonSXFtCq7IuIoQzcj3PEPxjOO.pdf
+¦   ¦                   zJGwna57TjSycDbkqfU0sWdFJ4NlVluedAR0aLid.pdf
 ¦   ¦                   
 ¦   +---framework
 ¦   ¦   ¦   .gitignore
@@ -9653,18 +9696,61 @@ C:.
 ¦   ¦   ¦   +---data
 ¦   ¦   ¦       ¦   .gitignore
 ¦   ¦   ¦       ¦   
+¦   ¦   ¦       +---12
+¦   ¦   ¦       ¦   +---5c
+¦   ¦   ¦       +---1c
+¦   ¦   ¦       ¦   +---fb
+¦   ¦   ¦       ¦           1cfb84243e84fc03529a77a146e0024592396756
+¦   ¦   ¦       ¦           
 ¦   ¦   ¦       +---1d
 ¦   ¦   ¦       ¦   +---23
+¦   ¦   ¦       +---45
+¦   ¦   ¦       ¦   +---55
+¦   ¦   ¦       ¦           45552621362a455bfec3fa4d8312f096a377f6d1
+¦   ¦   ¦       ¦           
+¦   ¦   ¦       +---52
+¦   ¦   ¦       ¦   +---e0
 ¦   ¦   ¦       +---53
 ¦   ¦   ¦       ¦   +---44
+¦   ¦   ¦       +---63
+¦   ¦   ¦       ¦   +---4e
+¦   ¦   ¦       ¦           634e84587192d2ee2d49b17aa770db9e93ac5e52
+¦   ¦   ¦       ¦           
+¦   ¦   ¦       +---68
+¦   ¦   ¦       ¦   +---5d
+¦   ¦   ¦       +---76
+¦   ¦   ¦       ¦   +---e7
+¦   ¦   ¦       ¦           76e7c0fdd0cc0d46502f9d381b947cdf6aa69891
+¦   ¦   ¦       ¦           
+¦   ¦   ¦       +---77
+¦   ¦   ¦       ¦   +---48
+¦   ¦   ¦       ¦           77486802ac09661b8c73774161440416b3e4d2dc
+¦   ¦   ¦       ¦           
 ¦   ¦   ¦       +---88
 ¦   ¦   ¦       ¦   +---d1
 ¦   ¦   ¦       +---89
 ¦   ¦   ¦       ¦   +---85
+¦   ¦   ¦       +---91
+¦   ¦   ¦       ¦   +---7a
 ¦   ¦   ¦       +---9c
+¦   ¦   ¦       ¦   +---1c
+¦   ¦   ¦       ¦   ¦       9c1c01dc3ac1445a500251fc34a15d3e75a849df
+¦   ¦   ¦       ¦   ¦       
 ¦   ¦   ¦       ¦   +---1e
+¦   ¦   ¦       +---a3
+¦   ¦   ¦       ¦   +---e3
+¦   ¦   ¦       +---c1
+¦   ¦   ¦       ¦   +---10
+¦   ¦   ¦       ¦           c110982ac3d999ceb5787201eb91a4cbba070995
+¦   ¦   ¦       ¦           
 ¦   ¦   ¦       +---de
-¦   ¦   ¦           +---8a
+¦   ¦   ¦       ¦   +---8a
+¦   ¦   ¦       +---f4
+¦   ¦   ¦       ¦   +---63
+¦   ¦   ¦       ¦           f463987926ddf0e7aa03484bbf231f788fa07b99
+¦   ¦   ¦       ¦           
+¦   ¦   ¦       +---fe
+¦   ¦   ¦           +---0c
 ¦   ¦   +---sessions
 ¦   ¦   ¦       .gitignore
 ¦   ¦   ¦       
@@ -9673,35 +9759,38 @@ C:.
 ¦   ¦   ¦       
 ¦   ¦   +---views
 ¦   ¦           .gitignore
-¦   ¦           03899a77cbaf8d975d8c92346b26f2f7.php
-¦   ¦           06416ce606e3b333603910a9aec10aec.php
 ¦   ¦           078371ed3750b0a02901ec2fc222dfe0.php
 ¦   ¦           0915a061878b2131506e4bd0dcf7e9b4.php
-¦   ¦           152d4020e09991cefeba4d3b6d9206b7.php
+¦   ¦           15ba4748243618a2935e52df72fac797.php
 ¦   ¦           1c7e9b0d44028122aac6edb5c71c5bcc.php
 ¦   ¦           263a8706f50956860f2d233444fec2b7.php
+¦   ¦           26dd27c8c8b2c84f7eefee90e7b7b48e.php
 ¦   ¦           29348bb8903b82388cb787fa15c3c22d.php
+¦   ¦           2aec9d8651797efb914da8c2a0d7412c.php
 ¦   ¦           2dc3c000d42a73411d38f8dd6026bd8b.php
 ¦   ¦           32aa4133faf49daf82c07b6085244482.php
 ¦   ¦           345f85fc039c37b5788a4ed77208080c.php
 ¦   ¦           34af4737b9041b5df44d0fe6fb291c61.php
+¦   ¦           3781eb924adff0d227a790f22f092d6f.php
 ¦   ¦           38a28abc5f48c64128a0dec8c83a4fbf.php
+¦   ¦           390a38595e0db3f3e498212c03bbdd1b.php
+¦   ¦           3ccca94104e2312bff3d3a71083d4285.php
 ¦   ¦           46423eb955f255b404b9a1a76161e0b3.php
 ¦   ¦           47a5d71fe9807d17bd028cc622785830.php
 ¦   ¦           49fa1ffb9c3cfe02f66770863c8b7a3e.php
-¦   ¦           4c6af20393f1dc72f05b7771efa35a42.php
 ¦   ¦           4e96cc66be06a904bdd84013116cddee.php
 ¦   ¦           55b8f38c061f87e8efb464ccfbd074d6.php
 ¦   ¦           5b542ca4db46b64f4195a693a59da4eb.php
-¦   ¦           5ea7304eaf74e13c68eccbe134300a5e.php
+¦   ¦           609e9276ca6e7d9ac0c0b1e0d478335f.php
+¦   ¦           67c30b2a710512d5a5841ea8dae46c72.php
 ¦   ¦           684f6c1539965c366060ed3004bb9ac5.php
 ¦   ¦           6ab78f34ca9690f417f3a5a316c10892.php
 ¦   ¦           6e8cbbb554b71795b362806db6172987.php
 ¦   ¦           70e90b13b1b2cb9c6f5fdab4ac399b57.php
 ¦   ¦           7593325d3ae8138a6c1f9aa633cc2067.php
+¦   ¦           77c4d029cbcc1d6b7fefd1ba28a78ae5.php
 ¦   ¦           80cea19d27ce0de7ebe685e42f106f10.php
 ¦   ¦           830bb998290df9cb687b7a81440316ec.php
-¦   ¦           8487087078e20a684210120d80c260d3.php
 ¦   ¦           86c8fdda492bf2d087e172460195b273.php
 ¦   ¦           880a44a811296728fad74b9e38ffdd23.php
 ¦   ¦           8ec9e8e8dccef0b9c849bafb9ca77cdb.php
@@ -9711,14 +9800,17 @@ C:.
 ¦   ¦           9feac4c580dab531bcbd20faa590b2e9.php
 ¦   ¦           a0eccbe86a2fc7fd73afad0d03bfb404.php
 ¦   ¦           a24eede2f77083cb259c4cffa3896d4d.php
-¦   ¦           b504207995fb3429eb81e0298be380c6.php
+¦   ¦           a46f87ad837e51f2bb391cff326e604e.php
+¦   ¦           ad7cfd8f1e6fb57e0fc9704b68d85457.php
 ¦   ¦           b564730b2728f4a18dbcfe1cd6113b23.php
 ¦   ¦           be8188627bf43d45d9f7264035a10d6d.php
+¦   ¦           c0502233e932d4f5c60a3ead2db50c12.php
 ¦   ¦           c5641f4cb45d39ef96a6154385df53c5.php
 ¦   ¦           c903ee4dcb1f07d41d0d4b43069f7c56.php
 ¦   ¦           d34cf3101d18e055761041db92a0386f.php
 ¦   ¦           d37c46ad2de8fe151c65265a6aa4a039.php
 ¦   ¦           d417771bccf314c77c918a6d3733edc0.php
+¦   ¦           d63fb7595148b77e13e03ef59d82ff4c.php
 ¦   ¦           d95e6b4fdb6d809cb6ae4587141c1b6a.php
 ¦   ¦           e09313252084384af9d9838bcf74eda4.php
 ¦   ¦           e0fdd8f65ffd01323ba15cbec2796dfd.php
@@ -9729,6 +9821,8 @@ C:.
 ¦   ¦           eea3eb24bef67fd11fa10097c6ce1e1c.php
 ¦   ¦           f314991fa473698549f2f0574cea970e.php
 ¦   ¦           f499c91d91517788a9d59f5f8e92468d.php
+¦   ¦           f6550186108ff566498e9a87761a8075.php
+¦   ¦           f6b959b8db21f451fb0e1a71b62453c2.php
 ¦   ¦           f820ee575a3b588b9e31fc6822d65bbb.php
 ¦   ¦           
 ¦   +---logs

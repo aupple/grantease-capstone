@@ -231,17 +231,20 @@
                 <div class="bg-white border border-gray-200 shadow-md rounded-2xl p-8">
                     <h2 class="font-semibold text-gray-800 mb-4">Available Scholarships</h2>
 
-                    <!-- ✅ DOST -->
+                    <!-- ✅ CHED -->
                     <div
-                        class="rounded-xl p-4 mb-4 flex justify-between items-center bg-gradient-to-r from-blue-200 via-blue-100 to-white shadow-md">
+                        class="rounded-xl p-4 flex justify-between items-center 
+                                bg-gradient-to-r from-yellow-200/40 via-yellow-100/20 to-white-100/40 
+                                backdrop-blur-lg border border-white/20 shadow-xl">
                         <div>
-                            <p class="font-semibold text-gray-800">DOST Scholarship</p>
-                            <p class="text-sm text-gray-700">For students pursuing Science, Tech, Engineering, Math</p>
-                            <p class="text-xs text-gray-600 mt-1">Deadline: June 30, 2023</p>
+                            <p class="font-semibold text-gray-900">CHED Scholarship</p>
+                            <p class="text-sm text-gray-700">For academically qualified students with financial needs
+                            </p>
+                            <p class="text-xs text-gray-600 mt-1">Deadline: July 15, 2023</p>
                         </div>
-                        <a href="{{ route('applicant.application.create', ['program' => 'DOST']) }}"
+                        <a href="{{ route('applicant.application.create', ['program' => 'CHED']) }}"
                             class="bg-white text-blue-800 font-medium px-4 py-2 rounded-md hover:bg-gray-100 transition">
-                            Apply Now
+                            Click here for CHED qualifier
                         </a>
                     </div>
                 </div> <!-- End Glassmorphism Box -->

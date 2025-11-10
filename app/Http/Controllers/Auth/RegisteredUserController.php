@@ -29,22 +29,22 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-       $request->validate([
-    'first_name' => ['required', 'string', 'max:255'],
-    'middle_name' => ['nullable', 'string', 'max:255'],
-    'last_name' => ['required', 'string', 'max:255'],
-    'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
-    'password' => [
-        'required',
-        'confirmed',
-        Password::min(8)       // at least 8 characters
-            ->mixedCase()      // at least 1 uppercase + 1 lowercase
-            ->letters()        // must contain letters
-            ->numbers()        // must contain numbers
-            ->symbols(),       // must contain symbols
-    ],
-]);
-
+        $request->validate([
+            'first_name' => ['required', 'string', 'max:255'],
+            'middle_name' => ['nullable', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
+            'password' => [
+                'required',
+                'confirmed',
+                Password::min(8)       // at least 8 characters
+                    ->mixedCase()      // at least 1 uppercase + 1 lowercase
+                    ->letters()        // must contain letters
+                    ->numbers()        // must contain numbers
+                    ->symbols(),       // must contain symbols
+            ],
+            'program_type' => ['required', 'in:DOST,CHED'], // Add validation for program_type
+        ]);
 
         // Create a new user with default applicant role
         $user = User::create([
@@ -53,21 +53,22 @@ class RegisteredUserController extends Controller
             'last_name' => Str::ucfirst(strtolower($request->last_name)),
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role_id' => 2, // 1 = Admin, 2 = Applicant
-            'email_verified_at' => now(), // Mark as verified (optional if not using email verification)
+            'program_type' => $request->program_type, // Store the selected program_type
+            'role_id' => 2, // 1 = Admin, 2 = Applicant (adjust if CHED needs a different role)
+            //'email_verified_at' => now(), // Comment out if you want actual email verification
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        // Ang atong "Sureball" Fix para siguradong mapadala ang email
+        // If using email verification, send the notification
         $user->sendEmailVerificationNotification();
 
-        // I-redirect sa verification notice page
+        // Redirect to verification notice if verification is required
         return redirect()->route('verification.notice');
-        
-        // Redirect applicants to their dashboard
-        return redirect()->route('applicant.dashboard');
+
+        // If skipping verification, uncomment and use this instead:
+        // return redirect()->route('dashboard'); // Where you'll handle program_type-based redirection
     }
 }

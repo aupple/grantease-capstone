@@ -8,6 +8,7 @@ use App\Http\Controllers\ApplicationFormController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\PdfController;
+use App\Http\Controllers\ChedController;
 
 Route::redirect('/', '/login');
 
@@ -16,7 +17,8 @@ Route::post('/register', [RegisteredUserController::class, 'store'])->name('regi
 
 // Protected routes
 Route::middleware(['auth'])->group(function () {
-
+    // CHED dashboard
+    Route::get('/ched/dashboard', [ChedController::class, 'index'])->name('ched.dashboard');
     /**
      * =======================
      * Applicant Routes
@@ -29,6 +31,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/my-application', [ApplicationFormController::class, 'viewMyApplication'])->name('application.view');
         Route::get('/application/{id}/edit', [ApplicationFormController::class, 'edit'])->name('application.edit');
         Route::patch('/application/{id}', [ApplicationFormController::class, 'update'])->name('application.update');
+
 
         // Applicant PDF Routes
         Route::prefix('pdf')->name('pdf.')->group(function () {
@@ -49,12 +52,17 @@ Route::middleware(['auth'])->group(function () {
      * =======================
      */
     Route::get('/dashboard', function () {
-        $role = auth()->user()->role_id;
+        $user = auth()->user();
 
-        if ($role == 1) {
+        if ($user->role_id == 1) {
             return redirect()->route('admin.dashboard');
-        } elseif ($role == 2) {
-            return redirect()->route('applicant.dashboard');
+        } elseif ($user->role_id == 2) {
+            // Role 2 = Applicant, check program_type
+            if ($user->program_type === 'DOST') {
+                return redirect()->route('applicant.dashboard');
+            } elseif ($user->program_type === 'CHED') {
+                return redirect()->route('ched.dashboard'); // Adjust route name if using the applicant group
+            }
         }
 
         abort(403); // Unknown or unauthorized role
