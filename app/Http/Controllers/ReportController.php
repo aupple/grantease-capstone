@@ -308,22 +308,36 @@ class ReportController extends Controller
     }
 
 
-    public function chedMonitoring()
+    public function chedMonitoring(Request $request)
     {
-        // CHED scholars only
-        $scholars = Scholar::with(['user', 'applicationForm', 'monitorings'])
-            ->where('program', 'CHED')
-            ->get();
+        // Get filters
+        $semester = $request->input('semester');
+        $academicYear = $request->input('academic_year');
 
-        $monitorings = ScholarMonitoring::with('scholar.user')
+        // CHED scholars - filter by 'program' column in application_forms table
+        $query = Scholar::with(['user', 'applicationForm', 'monitorings'])
+            ->whereHas('applicationForm', function ($q) use ($semester, $academicYear) {
+                $q->where('status', 'approved')
+                    ->where('program', 'CHED'); // ✅ This is the correct column!
+
+                if ($semester) {
+                    $q->where('school_term', $semester);
+                }
+
+                if ($academicYear) {
+                    $q->where('academic_year', $academicYear);
+                }
+            });
+
+        $scholars = $query->get();
+
+        // Get monitoring data for these scholars
+        $monitorings = ScholarMonitoring::with('scholar.user', 'scholar.applicationForm')
             ->whereIn('scholar_id', $scholars->pluck('id'))
             ->get();
 
-        $grouped = $monitorings->groupBy('degree_type');
-
-        return view('admin.reports.ched-monitoring', compact('monitorings', 'grouped', 'scholars'));
+        return view('admin.reports.ched-monitoring', compact('monitorings', 'scholars'));
     }
-
 
     public function downloadMonitoring()
     {

@@ -4,7 +4,7 @@
     <div class="mb-6 space-y-6">
         <div class="flex items-center justify-between">
             <div>
-                <h3 class="text-3xl font-bold text-gray-800 mb-1">Scholarship Applications</h3>
+                <h3 class="text-3xl font-bold text-gray-800 mb-1"> DOST Applications</h3>
                 <p class="text-sm text-gray-600">Review and manage all scholarship applications</p>
             </div>
         </div>

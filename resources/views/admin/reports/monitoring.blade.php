@@ -50,11 +50,11 @@
         }
     </style>
 
-    <div class="space-y-6">
+    <div class="space-y-6 mb-6">
         <!-- Header -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
             <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                Monitoring Scholars
+                DOST Monitoring Scholars
             </h1>
         </div>
 
@@ -98,7 +98,7 @@
         <!-- Field Selection Section -->
         <div class="bg-white/30 backdrop-blur-lg shadow-md border border-white/20 rounded-2xl p-5">
             <h2 class="text-sm font-semibold text-gray-700 mb-3">Select Fields to Display</h2>
-            <div class="flex flex-wrap gap-4">
+            <div class="flex flex-wrap gap-6">
                 <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="no" checked>
                     <span class="ml-2">No.</span></label>
                 <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="last_name"
