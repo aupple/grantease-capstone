@@ -673,15 +673,43 @@
                     </span>
                 </div>
 
-                <form action="{{ route('admin.applications.update-status', $application->application_form_id) }}"
-                    method="POST" class="flex items-center gap-2">
-                    @csrf
-                    <strong class="text-sm">Remarks:</strong>
-                    <input type="text" name="remarks" class="text-xs border px-3 py-1 rounded w-64"
-                        placeholder="Type your message here..." value="{{ $application->remarks }}">
-                    <button type="submit"
-                        class="text-xs text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded transition">Send</button>
-                </form>
+                <!-- ✅ New Remarks Section -->
+                <div class="mt-4">
+                    <h4 class="text-md font-semibold mb-2">Remarks</h4>
+
+                    <!-- 📝 Form for sending a new remark -->
+                    <form action="{{ route('admin.applications.storeRemark', $application->application_form_id) }}" 
+                          method="POST" class="flex items-center gap-2 mb-4">
+                        @csrf
+                        <input type="text" 
+                               name="document_remarks" 
+                               class="text-xs border px-3 py-1 rounded w-64" 
+                               placeholder="Type your remark here..." 
+                               required>
+                        <button type="submit"
+                                class="text-xs text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded transition">
+                            {{ $application->documentRemarks->count() > 0 ? 'Send Again' : 'Send' }}
+                        </button>
+                    </form>
+
+                    <!-- 🗂️ List of previously sent remarks -->
+                    @if($application->documentRemarks->count() > 0)
+                        <div class="border-t border-gray-200 pt-2">
+                            <h5 class="text-sm font-semibold mb-2 text-gray-700">Remarks sent to applicant:</h5>
+                            <ul class="space-y-2 text-xs">
+                                @foreach($application->documentRemarks as $remark)
+                                    <li class="p-2 bg-gray-50 border rounded">
+                                        <p>{{ $remark->content }}</p>
+                                        <p class="text-gray-500 text-[11px] mt-1">{{ $remark->created_at->diffForHumans() }}</p>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @else
+                        <p class="text-xs text-gray-500 italic">No remarks yet.</p>
+                    @endif
+                </div>
+
             </div>
 
             <!-- ✅ Quick Actions -->

@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\ChedController;
+use App\Http\Controllers\NotificationController;	
 
 Route::redirect('/', '/login');
 
@@ -85,6 +86,10 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/applications/{id}/status', [AdminController::class, 'updateStatus'])->name('applications.update-status');
         Route::post('/applications/{applicationId}/verify-document', [AdminController::class, 'verifyDocument'])->name('applications.verify-document');
 
+        // Remarks
+        Route::post('/applications/{id}/remark', [AdminController::class, 'storeRemark'])->name('applications.storeRemark');
+
+        
         // ✅ Rejected Applications
         Route::prefix('rejected')->name('rejected.')->group(function () {
             Route::get('/', [AdminController::class, 'rejectedApplications'])->name('index');
@@ -130,6 +135,16 @@ Route::middleware(['auth'])->group(function () {
 
     Route::patch('/application/{id}', [ApplicationFormController::class, 'update'])
     ->name('application.update');
+
+     /**
+     * =======================
+     * Notifications
+     * =======================
+     */
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/{id}/redirect', [NotificationController::class, 'redirect'])->name('notifications.redirect');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+
 
     /**
      * =======================
