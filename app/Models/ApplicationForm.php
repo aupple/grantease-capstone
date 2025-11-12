@@ -189,11 +189,6 @@ class ApplicationForm extends Model
     {
         return $this->documentRemarks();
     }
-
-    public function scholar()
-    {
-        return $this->hasOne(Scholar::class, 'application_form_id', 'application_form_id');
-    }
     public function documents()
     {
         return $this->hasMany(ApplicationDocument::class, 'application_form_id', 'application_form_id');
