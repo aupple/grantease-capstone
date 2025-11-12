@@ -149,8 +149,8 @@ public function store(Request $request)
         'letter_of_admission_pdf' => 'nullable|file|mimes:pdf|max:20480',
         'approved_program_of_study_pdf' => 'nullable|file|mimes:pdf|max:20480',
         'lateral_certification_pdf' => 'nullable|file|mimes:pdf|max:20480',
-        'evaluation_sheet_pdf' => 'nullable|file|mimes:pdf|max:20480', // ✅ added
-        'scoresheet_pdf' => 'nullable|file|mimes:pdf|max:20480',       // ✅ added
+        'evaluation_sheet_pdf' => 'nullable|file|mimes:pdf|max:20480', 
+        'scoresheet_pdf' => 'nullable|file|mimes:pdf|max:20480',       
 
         // Step 8: Declaration
         'terms_and_conditions_agreed' => 'accepted',

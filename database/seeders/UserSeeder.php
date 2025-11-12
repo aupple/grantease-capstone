@@ -28,5 +28,15 @@ class UserSeeder extends Seeder
             'role_id' => 2,
             'program_type' => 'CHED',
         ]);
+
+        user::create([
+            'first_name' => 'Blacknigga',
+            'middle_name' => null,
+            'last_name' => 'Black',
+            'email' => 'black@gmail.com',
+            'password' => Hash::make('blabla'),
+            'role_id' => 2,
+            'program_type' => 'DOST',
+        ]);
     }
 }
