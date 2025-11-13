@@ -477,4 +477,26 @@ class ReportController extends Controller
 
         return back()->with('success', 'Applicants saved successfully.');
     }
+    public function printPersonalInfo(Request $request)
+{
+    // Get filter parameters
+    $semester = $request->input('semester');
+    
+    // Build query
+    $query = Scholar::with(['applicationForm'])
+        ->whereHas('applicationForm', function($q) {
+            $q->where('status', 'Approved');
+        });
+    
+    // Apply semester filter if provided
+    if ($semester) {
+        $query->whereHas('monitorings', function($q) use ($semester) {
+            $q->where('semester', $semester);
+        });
+    }
+    
+    $scholars = $query->get();
+    
+    return view('admin.reports.monitoring-print-info', compact('scholars'));
+}
 }

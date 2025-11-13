@@ -106,7 +106,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/reports/monitoring/print', [ReportController::class, 'printMonitoring'])->name('reports.monitoring.print');
         Route::get('/reports/ched-monitoring', [ReportController::class, 'chedmonitoring'])->name('reports.ched-monitoring');
         Route::get('/reports/monitoring/{id}', [ReportController::class, 'showMonitoring'])->name('reports.monitoring.show');
-
+        Route::get('/reports/monitoring-print-info', [ReportController::class, 'printPersonalInfo'])->name('reports.monitoring-print-info');
         // Scholars
         Route::get('/scholars', [AdminController::class, 'viewScholars'])->name('scholars');
         Route::get('/scholars/{id}', [AdminController::class, 'showScholar'])->name('scholars.show');

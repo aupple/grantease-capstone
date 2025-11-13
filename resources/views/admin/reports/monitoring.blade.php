@@ -1,6 +1,44 @@
 @extends('layouts.admin-layout')
 
 @section('content')
+    @php
+        if (!function_exists('getLocationName')) {
+            function getLocationName($code, $type = 'city')
+            {
+                $jsonUrls = [
+                    'province' => 'https://psgc.gitlab.io/api/provinces/',
+                    'city' => 'https://psgc.gitlab.io/api/cities-municipalities/',
+                    'barangay' => 'https://psgc.gitlab.io/api/barangays/',
+                    'district' => 'https://psgc.gitlab.io/api/districts/',
+                ];
+
+                if (!isset($jsonUrls[$type])) {
+                    return 'Unknown';
+                }
+                $cacheFile = storage_path("app/psgc_$type.json");
+                $data = file_exists($cacheFile) ? json_decode(file_get_contents($cacheFile), true) : null;
+
+                if (empty($data)) {
+                    try {
+                        $json = file_get_contents($jsonUrls[$type]);
+                        $data = json_decode($json, true);
+                        if (json_last_error() === JSON_ERROR_NONE && is_array($data)) {
+                            file_put_contents($cacheFile, json_encode($data));
+                        }
+                    } catch (\Exception $e) {
+                        return 'Unknown';
+                    }
+                }
+
+                foreach ($data as $item) {
+                    if (isset($item['code']) && $item['code'] == $code) {
+                        return $item['name'];
+                    }
+                }
+                return 'Unknown';
+            }
+        }
+    @endphp
     <style>
         /* Print layout: A4 landscape and print-only header */
         @media print {
@@ -69,10 +107,10 @@
                     <select name="semester"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="" {{ request('semester') == '' ? 'selected' : '' }}>All Semesters</option>
-                        <option value="First" {{ request('semester') == 'First Semester' ? 'selected' : '' }}>First
+                        <option value="First Semester" {{ request('semester') == 'First' ? 'selected' : '' }}>First
                             Semester
                         </option>
-                        <option value="Second" {{ request('semester') == 'Second Semester' ? 'selected' : '' }}>Second
+                        <option value="Second Semester" {{ request('semester') == 'Second' ? 'selected' : '' }}>Second
                             Semester
                         </option>
                     </select>
@@ -95,45 +133,129 @@
                 </div>
             </form>
         </div>
-        <!-- Field Selection Section -->
+
+        <!-- Field Selection with View Toggle -->
         <div class="bg-white/30 backdrop-blur-lg shadow-md border border-white/20 rounded-2xl p-5">
-            <h2 class="text-sm font-semibold text-gray-700 mb-3">Select Fields to Display</h2>
-            <div class="flex flex-wrap gap-6">
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="no" checked>
-                    <span class="ml-2">No.</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="last_name"
-                        checked> <span class="ml-2">Last Name</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="first_name"
-                        checked> <span class="ml-2">First name</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="middle_name"
-                        checked> <span class="ml-2">Middle Name</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="level" checked>
-                    <span class="ml-2">Level (MS/PhD)</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="course" checked>
-                    <span class="ml-2">Course</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="school" checked>
-                    <span class="ml-2">School</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="new_lateral"
-                        checked> <span class="ml-2">New/Lateral</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="pt_ft" checked>
-                    <span class="ml-2">Part-Time/Full-Time</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="duration"
-                        checked> <span class="ml-2">Scholarship Duration</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="date_started"
-                        checked> <span class="ml-2">Date Starded</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle"
-                        data-col="expected_completion" checked> <span class="ml-2">Expected Completion</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="status" checked>
-                    <span class="ml-2">Status</span></label>
-                <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="remarks"
-                        checked> <span class="ml-2">Remarks</span></label>
+            <!-- View Toggle Buttons at the top -->
+            <div class="mb-4 flex items-center gap-3">
+                <h2 class="text-sm font-semibold text-gray-700">Select View:</h2>
+                <button type="button" id="monitoringViewBtn"
+                    class="view-toggle-btn bg-blue-600 text-white px-4 py-2 rounded-lg font-medium text-sm shadow-md hover:bg-blue-700 transition">
+                    Monitoring Data
+                </button>
+                <button type="button" id="personalViewBtn"
+                    class="view-toggle-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium text-sm shadow-md hover:bg-gray-300 transition">
+                    Personal Information
+                </button>
+            </div>
+
+            <!-- Monitoring Fields (Shown by default) -->
+            <div id="monitoringFields">
+                <div class="flex flex-wrap gap-6">
+                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="no"
+                            checked>
+                        <span class="ml-2">No.</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="last_name"
+                            checked>
+                        <span class="ml-2">Last Name</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="first_name"
+                            checked>
+                        <span class="ml-2">First Name</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="middle_name"
+                            checked>
+                        <span class="ml-2">Middle Name</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="level"
+                            checked>
+                        <span class="ml-2">Level (MS/PhD)</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="course"
+                            checked>
+                        <span class="ml-2">Course</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="school"
+                            checked>
+                        <span class="ml-2">School</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="new_lateral"
+                            checked>
+                        <span class="ml-2">New/Lateral</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="pt_ft"
+                            checked>
+                        <span class="ml-2">Part-Time/Full-Time</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="duration"
+                            checked>
+                        <span class="ml-2">Scholarship Duration</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle"
+                            data-col="date_started" checked>
+                        <span class="ml-2">Date Started</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle"
+                            data-col="expected_completion" checked>
+                        <span class="ml-2">Expected Completion</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="status"
+                            checked>
+                        <span class="ml-2">Status</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="remarks"
+                            checked>
+                        <span class="ml-2">Remarks</span></label>
+                </div>
+            </div>
+
+            <!-- Personal Fields (Hidden by default) - ADD CHECKED ATTRIBUTES -->
+            <div id="personalFields" class="hidden">
+                <div class="flex flex-wrap gap-6">
+                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
+                            data-col="no" checked>
+                        <span class="ml-2">No.</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
+                            data-col="last_name" checked>
+                        <span class="ml-2">Last Name</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
+                            data-col="first_name" checked>
+                        <span class="ml-2">First Name</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
+                            data-col="middle_name" checked>
+                        <span class="ml-2">Middle Name</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
+                            data-col="suffix" checked>
+                        <span class="ml-2">Suffix</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
+                            data-col="street" checked>
+                        <span class="ml-2">Street</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
+                            data-col="village" checked>
+                        <span class="ml-2">Village</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
+                            data-col="town" checked>
+                        <span class="ml-2">Town</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
+                            data-col="province" checked>
+                        <span class="ml-2">Province</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
+                            data-col="zipcode" checked>
+                        <span class="ml-2">Zipcode</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
+                            data-col="district" checked>
+                        <span class="ml-2">District</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
+                            data-col="region" checked>
+                        <span class="ml-2">Region</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
+                            data-col="email" checked>
+                        <span class="ml-2">Email</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
+                            data-col="bday" checked>
+                        <span class="ml-2">Birthday</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
+                            data-col="contact_no" checked>
+                        <span class="ml-2">Contact No.</span></label>
+                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
+                            data-col="gender" checked>
+                        <span class="ml-2">Gender</span></label>
+                </div>
             </div>
         </div>
         </form>
     </div>
 
-    <!-- Table Card -->
-    <div class="bg-white rounded-xl shadow-lg overflow-auto">
+    <!-- Monitoring Table Card -->
+    <div id="monitoringTableWrapper" class="bg-white rounded-xl shadow-lg overflow-auto">
         <div class="p-4">
             <div class="overflow-x-auto">
                 <div class="print-header">
@@ -149,23 +271,24 @@
                             <th data-col="no" class="px-3 py-2 text-center font-semibold border">No.</th>
                             <th data-col="last_name" class="px-3 py-2 text-left font-semibold border">Last Name</th>
                             <th data-col="first_name" class="px-3 py-2 text-left font-semibold border">First Name</th>
-                            <th data-col="middle_name" class="px-3 py-2 text-left font-semibold border">Middle Name</th>
-                            <th data-col="level" class="px-3 py-2 text-center font-semibold border">Level (MS/PhD)</th>
+                            <th data-col="middle_name" class="px-3 py-2 text-left font-semibold border">Middle Name
+                            </th>
+                            <th data-col="level" class="px-3 py-2 text-center font-semibold border">Level (MS/PhD)
+                            </th>
                             <th data-col="course" class="px-3 py-2 text-left font-semibold border">Course</th>
                             <th data-col="school" class="px-3 py-2 text-left font-semibold border">School</th>
-                            <th data-col="new_lateral" class="px-3 py-2 text-center font-semibold border">New / Lateral
-                            </th>
-                            <th data-col="pt_ft" class="px-3 py-2 text-center font-semibold border">Part-Time / Full-Time
-                            </th>
+                            <th data-col="new_lateral" class="px-3 py-2 text-center font-semibold border">New /
+                                Lateral</th>
+                            <th data-col="pt_ft" class="px-3 py-2 text-center font-semibold border">Part-Time /
+                                Full-Time</th>
                             <th data-col="duration" class="px-3 py-2 text-center font-semibold border">Scholarship
                                 Duration</th>
-                            <th data-col="date_started" class="px-3 py-2 text-center font-semibold border">Date Started
-                                (Month & Year)</th>
-                            <th data-col="expected_completion" class="px-3 py-2 text-center font-semibold border">Expected
-                                Completion (Month & Year)</th>
+                            <th data-col="date_started" class="px-3 py-2 text-center font-semibold border">Date
+                                Started (Month & Year)</th>
+                            <th data-col="expected_completion" class="px-3 py-2 text-center font-semibold border">
+                                Expected Completion (Month & Year)</th>
                             <th data-col="status" class="px-3 py-2 text-center font-semibold border">Status</th>
                             <th data-col="remarks" class="px-3 py-2 text-left font-semibold border">Remarks</th>
-
                         </tr>
                     </thead>
 
@@ -257,7 +380,7 @@
                                         data-scholar-id="{{ $scholar->id }}">
                                 </td>
 
-                                <td>
+                                <td class="px-2 py-2 border">
                                     <button type="button"
                                         class="edit-btn bg-blue-500 text-white px-2 py-1 rounded text-xs">Edit</button>
                                     <button type="button"
@@ -266,7 +389,8 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="15" class="text-center p-6 text-slate-500">No approved scholars found.</td>
+                                <td colspan="15" class="text-center p-6 text-slate-500">No approved scholars found.
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -274,6 +398,88 @@
             </div>
         </div>
     </div>
+
+    <!-- Personal Information Table (Separate - Hidden by default) -->
+    <div id="personalTable" class="bg-white rounded-xl shadow-lg overflow-auto hidden">
+        <div class="p-4">
+            <div class="overflow-x-auto">
+                <div class="print-header">
+                    <h2 class="text-lg font-bold">SCHOLARS PERSONAL INFORMATION</h2>
+                    <div class="text-sm mt-1">University: University of Science and Technology of Southern Philippines
+                        (USTP)</div>
+                    <div style="height: 12px;"></div>
+                </div>
+
+                <table id="personalInfoTable" class="min-w-full text-sm">
+                    <thead>
+                        <tr class="bg-green-50">
+                            <th data-col="no" class="px-3 py-2 text-center font-semibold border">No.</th>
+                            <th data-col="last_name" class="px-3 py-2 text-left font-semibold border">Last Name</th>
+                            <th data-col="first_name" class="px-3 py-2 text-left font-semibold border">First Name</th>
+                            <th data-col="middle_name" class="px-3 py-2 text-left font-semibold border">Middle Name</th>
+                            <th data-col="suffix" class="px-3 py-2 text-center font-semibold border">Suffix</th>
+                            <th data-col="street" class="px-3 py-2 text-left font-semibold border">Street</th>
+                            <th data-col="village" class="px-3 py-2 text-left font-semibold border">Village</th>
+                            <th data-col="town" class="px-3 py-2 text-left font-semibold border">Town</th>
+                            <th data-col="province" class="px-3 py-2 text-left font-semibold border">Province</th>
+                            <th data-col="zipcode" class="px-3 py-2 text-center font-semibold border">Zipcode</th>
+                            <th data-col="district" class="px-3 py-2 text-left font-semibold border">District</th>
+                            <th data-col="region" class="px-3 py-2 text-left font-semibold border">Region</th>
+                            <th data-col="email" class="px-3 py-2 text-left font-semibold border">Email</th>
+                            <th data-col="birthday" class="px-3 py-2 text-center font-semibold border">Birthday</th>
+                            <th data-col="contact_no" class="px-3 py-2 text-center font-semibold border">Contact No.</th>
+                            <th data-col="gender" class="px-3 py-2 text-center font-semibold border">Gender</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @forelse($scholars as $index => $scholar)
+                            <tr class="odd:bg-white even:bg-slate-50">
+                                <td data-col="no" class="px-2 py-2 text-center border">{{ $index + 1 }}</td>
+                                <td data-col="last_name" class="px-2 py-2 border">
+                                    {{ $scholar->applicationForm->last_name }}</td>
+                                <td data-col="first_name" class="px-2 py-2 border">
+                                    {{ $scholar->applicationForm->first_name }}</td>
+                                <td data-col="middle_name" class="px-2 py-2 border">
+                                    {{ $scholar->applicationForm->middle_name }}</td>
+                                <td data-col="suffix" class="px-2 py-2 text-center border">
+                                    {{ $scholar->applicationForm->suffix ?? '' }}</td>
+                                <td data-col="street" class="px-2 py-2 border">
+                                    {{ $scholar->applicationForm->address_street ?? '' }}</td>
+                                <td data-col="village" class="px-2 py-2 border">
+                                    {{ getLocationName($scholar->applicationForm->barangay ?? '', 'barangay') }}
+                                </td>
+                                <td data-col="town" class="px-2 py-2 border">
+                                    {{ getLocationName($scholar->applicationForm->city ?? '', 'city') }}
+                                </td>
+                                <td data-col="province" class="px-2 py-2 border">
+                                    {{ getLocationName($scholar->applicationForm->province ?? '', 'province') }}
+                                </td>
+                                <td data-col="zipcode" class="px-2 py-2 text-center border">
+                                    {{ $scholar->applicationForm->zip_code ?? '' }}</td>
+                                <td data-col="district" class="px-2 py-2 border">
+                                    {{ $scholar->applicationForm->district ?? '' }}</td>
+                                <td data-col="region" class="px-2 py-2 border">
+                                    {{ $scholar->applicationForm->region ?? '' }}</td>
+                                <td data-col="email" class="px-2 py-2 border">
+                                    {{ $scholar->applicationForm->email_address ?? '' }}</td>
+                                <td data-col="birthday" class="px-2 py-2 text-center border">
+                                    {{ $scholar->applicationForm->date_of_birth ?? '' }}</td>
+                                <td data-col="contact_no" class="px-2 py-2 text-center border">
+                                    {{ $scholar->applicationForm->telephone_nos ?? '' }}</td>
+                                <td data-col="gender" class="px-2 py-2 text-center border">
+                                    {{ $scholar->applicationForm->sex ?? '' }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="16" class="text-center p-6 text-slate-500">No approved scholars found.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <!-- JS: column toggles, persistence, print behaviour -->
@@ -287,6 +493,63 @@
                     const printBtn = document.getElementById('printBtn');
                     const resetBtn = document.getElementById('resetCols');
                     const STORAGE_KEY = 'monitoring_scholars_cols_v1';
+                    const monitoringViewBtn = document.getElementById('monitoringViewBtn');
+                    const personalViewBtn = document.getElementById('personalViewBtn');
+                    const monitoringFields = document.getElementById('monitoringFields');
+                    const personalFields = document.getElementById('personalFields');
+                    const scholarsTable = document.getElementById('monitoringTableWrapper');
+                    const personalTable = document.getElementById('personalTable');
+
+                    if (monitoringViewBtn && personalViewBtn) {
+                        monitoringViewBtn.addEventListener('click', function() {
+                            monitoringViewBtn.classList.add('active', 'bg-blue-600', 'text-white');
+                            monitoringViewBtn.classList.remove('bg-gray-200', 'text-gray-700');
+                            personalViewBtn.classList.remove('active', 'bg-blue-600', 'text-white');
+                            personalViewBtn.classList.add('bg-gray-200', 'text-gray-700');
+
+                            monitoringFields.classList.remove('hidden');
+                            personalFields.classList.add('hidden');
+                            scholarsTable.classList.remove('hidden');
+                            personalTable.classList.add('hidden');
+                        });
+
+                        personalViewBtn.addEventListener('click', function() {
+                            personalViewBtn.classList.add('active', 'bg-blue-600', 'text-white');
+                            personalViewBtn.classList.remove('bg-gray-200', 'text-gray-700');
+                            monitoringViewBtn.classList.remove('active', 'bg-blue-600', 'text-white');
+                            monitoringViewBtn.classList.add('bg-gray-200', 'text-gray-700');
+
+                            personalFields.classList.remove('hidden');
+                            monitoringFields.classList.add('hidden');
+                            personalTable.classList.remove('hidden');
+                            scholarsTable.classList.add('hidden');
+                        });
+                    }
+
+                    // Personal Info Column Toggle Logic
+                    const personalToggles = document.querySelectorAll('.personal-col-toggle');
+                    const personalInfoTable = document.getElementById('personalInfoTable');
+
+                    if (personalInfoTable) {
+                        personalToggles.forEach(toggle => {
+                            toggle.addEventListener('change', function() {
+                                const col = this.dataset.col;
+                                const isChecked = this.checked;
+
+                                const headers = personalInfoTable.querySelectorAll(
+                                    `th[data-col="${col}"]`);
+                                headers.forEach(header => {
+                                    header.classList.toggle('col-hidden', !isChecked);
+                                });
+
+                                const cells = personalInfoTable.querySelectorAll(
+                                    `td[data-col="${col}"]`);
+                                cells.forEach(cell => {
+                                    cell.classList.toggle('col-hidden', !isChecked);
+                                });
+                            });
+                        });
+                    }
 
                     if (!table) return;
 
@@ -341,26 +604,57 @@
 
                     if (printBtn) {
                         printBtn.addEventListener('click', function() {
-                            const selectedCols = [];
-                            colToggles.forEach(cb => {
-                                if (cb.checked) {
-                                    selectedCols.push(cb.getAttribute('data-col'));
-                                }
-                            });
+                            // Check which view is active
+                            const isPersonalView = !personalTable.classList.contains('hidden');
 
-                            const schoolTerm = document.querySelector('select[name="school_term"]')
-                                ?.value || '';
-                            const academicYear = document.querySelector('select[name="academic_year"]')
-                                ?.value || '';
-                            const program = document.querySelector('select[name="program"]')?.value || '';
-                            const columnsParam = encodeURIComponent(JSON.stringify(selectedCols));
-                            const printUrl = `{{ route('admin.reports.monitoring.print') }}` +
-                                `?school_term=${encodeURIComponent(schoolTerm)}` +
-                                `&academic_year=${encodeURIComponent(academicYear)}` +
-                                `&program=${encodeURIComponent(program)}` +
-                                `&columns=${columnsParam}`;
+                            if (isPersonalView) {
+                                // Print Personal Information
+                                const personalToggles = document.querySelectorAll('.personal-col-toggle');
+                                const selectedCols = [];
+                                personalToggles.forEach(cb => {
+                                    if (cb.checked) {
+                                        selectedCols.push(cb.getAttribute('data-col'));
+                                    }
+                                });
 
-                            window.open(printUrl, '_blank');
+                                const schoolTerm = document.querySelector('select[name="school_term"]')
+                                    ?.value || '';
+                                const academicYear = document.querySelector('select[name="academic_year"]')
+                                    ?.value || '';
+                                const program = document.querySelector('select[name="program"]')?.value ||
+                                    '';
+                                const columnsParam = encodeURIComponent(JSON.stringify(selectedCols));
+                                const printUrl = `{{ route('admin.reports.monitoring-print-info') }}` +
+                                    `?school_term=${encodeURIComponent(schoolTerm)}` +
+                                    `&academic_year=${encodeURIComponent(academicYear)}` +
+                                    `&program=${encodeURIComponent(program)}` +
+                                    `&columns=${columnsParam}`;
+
+                                window.open(printUrl, '_blank');
+                            } else {
+                                // Print Monitoring Data (your existing code)
+                                const selectedCols = [];
+                                colToggles.forEach(cb => {
+                                    if (cb.checked) {
+                                        selectedCols.push(cb.getAttribute('data-col'));
+                                    }
+                                });
+
+                                const schoolTerm = document.querySelector('select[name="school_term"]')
+                                    ?.value || '';
+                                const academicYear = document.querySelector('select[name="academic_year"]')
+                                    ?.value || '';
+                                const program = document.querySelector('select[name="program"]')?.value ||
+                                    '';
+                                const columnsParam = encodeURIComponent(JSON.stringify(selectedCols));
+                                const printUrl = `{{ route('admin.reports.monitoring.print') }}` +
+                                    `?school_term=${encodeURIComponent(schoolTerm)}` +
+                                    `&academic_year=${encodeURIComponent(academicYear)}` +
+                                    `&program=${encodeURIComponent(program)}` +
+                                    `&columns=${columnsParam}`;
+
+                                window.open(printUrl, '_blank');
+                            }
                         });
                     }
 

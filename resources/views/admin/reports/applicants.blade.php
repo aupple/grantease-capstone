@@ -171,7 +171,7 @@
             class="border border-white/20 rounded-2xl bg-white/20 backdrop-blur-md shadow-lg p-4 w-full overflow-auto max-h-[500px]">
             <div class="min-w-[700px] max-w-[1200px] w-full mx-auto">
                 <table class="table-auto w-full text-xs text-left border border-gray-300 bg-white" id="applicants-table">
-                    <thead class="bg-gray-100 sticky top-0 z-10">
+                    <thead class="bg-green-50 sticky top-0 z-10">
                         <tr>
                             @foreach ([
             'no' => 'No.',
