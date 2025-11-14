@@ -152,47 +152,48 @@
             <!-- Monitoring Fields (Shown by default) -->
             <div id="monitoringFields">
                 <div class="flex flex-wrap gap-6">
-                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="no"
-                            checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="no" checked>
                         <span class="ml-2">No.</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="last_name"
-                            checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="last_name" checked>
                         <span class="ml-2">Last Name</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="first_name"
-                            checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="first_name" checked>
                         <span class="ml-2">First Name</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="middle_name"
-                            checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="middle_name" checked>
                         <span class="ml-2">Middle Name</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="level"
-                            checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="level" checked>
                         <span class="ml-2">Level (MS/PhD)</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="course"
-                            checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="course" checked>
                         <span class="ml-2">Course</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="school"
-                            checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="school" checked>
                         <span class="ml-2">School</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="new_lateral"
-                            checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="new_lateral" checked>
                         <span class="ml-2">New/Lateral</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="pt_ft"
-                            checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="pt_ft" checked>
                         <span class="ml-2">Part-Time/Full-Time</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="duration"
-                            checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="duration" checked>
                         <span class="ml-2">Scholarship Duration</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle"
-                            data-col="date_started" checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="date_started" checked>
                         <span class="ml-2">Date Started</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle"
-                            data-col="expected_completion" checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="expected_completion"
+                            checked>
                         <span class="ml-2">Expected Completion</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="status"
-                            checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="status" checked>
                         <span class="ml-2">Status</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="col-toggle" data-col="remarks"
-                            checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="remarks" checked>
                         <span class="ml-2">Remarks</span></label>
                 </div>
             </div>
@@ -200,53 +201,66 @@
             <!-- Personal Fields (Hidden by default) - ADD CHECKED ATTRIBUTES -->
             <div id="personalFields" class="hidden">
                 <div class="flex flex-wrap gap-6">
-                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
-                            data-col="no" checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="personal-col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="no" checked>
                         <span class="ml-2">No.</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
-                            data-col="last_name" checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="personal-col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="last_name"
+                            checked>
                         <span class="ml-2">Last Name</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
-                            data-col="first_name" checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="personal-col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="first_name"
+                            checked>
                         <span class="ml-2">First Name</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
-                            data-col="middle_name" checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="personal-col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="middle_name"
+                            checked>
                         <span class="ml-2">Middle Name</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
-                            data-col="suffix" checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="personal-col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="suffix"
+                            checked>
                         <span class="ml-2">Suffix</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
-                            data-col="street" checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="personal-col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="street"
+                            checked>
                         <span class="ml-2">Street</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
-                            data-col="village" checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="personal-col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="village"
+                            checked>
                         <span class="ml-2">Village</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
-                            data-col="town" checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="personal-col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="town" checked>
                         <span class="ml-2">Town</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
-                            data-col="province" checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="personal-col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="province"
+                            checked>
                         <span class="ml-2">Province</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
-                            data-col="zipcode" checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="personal-col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="zipcode"
+                            checked>
                         <span class="ml-2">Zipcode</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
-                            data-col="district" checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="personal-col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="district"
+                            checked>
                         <span class="ml-2">District</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
-                            data-col="region" checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="personal-col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="region"
+                            checked>
                         <span class="ml-2">Region</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
-                            data-col="email" checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="personal-col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="email"
+                            checked>
                         <span class="ml-2">Email</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
-                            data-col="bday" checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="personal-col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="bday" checked>
                         <span class="ml-2">Birthday</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
-                            data-col="contact_no" checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="personal-col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="contact_no"
+                            checked>
                         <span class="ml-2">Contact No.</span></label>
-                    <label class="inline-flex items-center"><input type="checkbox" class="personal-col-toggle"
-                            data-col="gender" checked>
+                    <label class="inline-flex items-center"><input type="checkbox"
+                            class="personal-col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="gender"
+                            checked>
                         <span class="ml-2">Gender</span></label>
                 </div>
             </div>
