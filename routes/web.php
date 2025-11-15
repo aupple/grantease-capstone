@@ -15,10 +15,25 @@ Route::redirect('/', '/login');
 // ✅ Handle form submission (POST)
 Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');
 
-// Protected routes
 Route::middleware(['auth'])->group(function () {
-    // CHED dashboard
-    Route::get('/ched/dashboard', [ChedController::class, 'index'])->name('ched.dashboard');
+    
+    /**
+     * =======================
+     * CHED Scholar Routes
+     * =======================
+     */
+    Route::prefix('ched')->name('ched.')->group(function () {
+         Route::get('/personal-form', [ChedController::class, 'personalForm'])->name('personal-form');
+    Route::post('/personal-form', [ChedController::class, 'storePersonalInformation'])->name('personal-form.store');
+    
+    // View page (read-only display)
+    Route::get('/personal-information', [ChedController::class, 'personalInformation'])->name('personal-information');
+    
+    // CHED Reports
+    Route::get('/report/grade', [ChedController::class, 'generateGradeReport'])->name('report.grade');
+    Route::get('/report/enrollment', [ChedController::class, 'generateEnrollmentReport'])->name('report.enrollment');
+    Route::get('/report/eligibility', [ChedController::class, 'generateContinuingEligibilityReport'])->name('report.eligibility');
+    });
     /**
      * =======================
      * Applicant Routes

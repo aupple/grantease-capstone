@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-ched-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             Dashboard
@@ -20,6 +20,30 @@
                     </h1>
                     <p class="text-sm text-gray-700">Manage your scholarship applications</p>
                 </div>
+                <!-- ADD THIS: Profile Completion Alert -->
+                @if (!auth()->user()->personal_info_completed ?? true)
+                    <div class="mb-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <svg class="h-6 w-6 text-yellow-400 mr-3 flex-shrink-0" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                <div>
+                                    <h3 class="text-sm font-semibold text-yellow-800">Action Required: Complete Your
+                                        Personal Information</h3>
+                                    <p class="text-xs text-yellow-700 mt-1">Your profile is incomplete. Please fill out
+                                        your personal information for CHED monitoring.</p>
+                                </div>
+                            </div>
+                            <a href="{{ route('ched.personal-form') }}"
+                                class="ml-4 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-semibold px-6 py-2 rounded-lg transition shadow-sm whitespace-nowrap">
+                                Complete Now →
+                            </a>
+                        </div>
+                    </div>
+                @endif
 
                 <!-- Grid: Application Status -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
@@ -29,7 +53,12 @@
                         <h2 class="font-semibold text-gray-800 mb-4">Application Status</h2>
 
                         @php
-                            $latestApplication = auth()->user()->applicationForms()->latest()->first();
+                            $latestApplication = auth()
+                                ->user()
+                                ->applicationForms()
+                                ->where('program', 'CHED')
+                                ->latest()
+                                ->first();
                         @endphp
 
                         @if ($latestApplication)
@@ -124,7 +153,7 @@
                                 </div>
 
                                 <div class="mt-5 text-right">
-                                    <a href="{{ route('applicant.application.view') }}"
+                                    <a href="{{ route('ched.application.view') }}"
                                         class="inline-block text-sm text-blue-700 hover:text-blue-900 font-medium transition">
                                         View Details →
                                     </a>
@@ -227,47 +256,68 @@
                     </div>
                 </div>
 
-                <!-- Available Scholarships -->
+                <!-- Personal Information & Quick Actions -->
                 <div class="bg-white border border-gray-200 shadow-md rounded-2xl p-8">
-                    <h2 class="font-semibold text-gray-800 mb-4">Available Scholarships</h2>
+                    <h2 class="font-semibold text-gray-800 mb-4">Quick Actions</h2>
 
-                    <!-- ✅ CHED -->
+                    <!-- Personal Information Card -->
                     <div
                         class="rounded-xl p-4 flex justify-between items-center 
-                                bg-gradient-to-r from-yellow-200/40 via-yellow-100/20 to-white-100/40 
-                                backdrop-blur-lg border border-white/20 shadow-xl">
+                bg-gradient-to-r from-blue-200/40 via-blue-100/20 to-white-100/40 
+                backdrop-blur-lg border border-white/20 shadow-xl mb-4">
                         <div>
-                            <p class="font-semibold text-gray-900">CHED Scholarship</p>
-                            <p class="text-sm text-gray-700">For academically qualified students with financial needs
+                            <p class="font-semibold text-gray-900">Personal Information Form</p>
+                            <p class="text-sm text-gray-700">Complete your profile for CHED monitoring and reports</p>
+                            <p class="text-xs text-gray-600 mt-1">
+                                Status:
+                                @if (auth()->user()->personal_info_completed ?? false)
+                                    <span class="text-green-600 font-semibold">✓ Completed</span>
+                                @else
+                                    <span class="text-red-600 font-semibold">● Incomplete - Action Required</span>
+                                @endif
                             </p>
-                            <p class="text-xs text-gray-600 mt-1">Deadline: July 15, 2023</p>
                         </div>
-                        <a href="{{ route('applicant.application.create', ['program' => 'CHED']) }}"
-                            class="bg-white text-blue-800 font-medium px-4 py-2 rounded-md hover:bg-gray-100 transition">
-                            Click here for CHED qualifier
+                        <a href="{{ route('ched.personal-form') }}"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-lg transition shadow-sm">
+                            @if (auth()->user()->personal_info_completed ?? false)
+                                Update Info
+                            @else
+                                Complete Now
+                            @endif
                         </a>
                     </div>
-                </div> <!-- End Glassmorphism Box -->
+                </div>
+
+                <!-- Success Message -->
+                @if (session('success'))
+                    <div class="mt-6 bg-green-50 border-l-4 border-green-400 p-4 rounded-lg">
+                        <div class="flex">
+                            <svg class="h-6 w-6 text-green-400 mr-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                            <p class="text-sm text-green-700">{{ session('success') }}</p>
+                        </div>
+                    </div>
+                @endif
             </div>
-        </div>
 
-    </div>
+            <script>
+                document.getElementById('dropdownButton').addEventListener('click', function() {
+                    const dropdownMenu = document.getElementById('dropdownMenu');
+                    const dropdownIcon = document.getElementById('dropdownIcon');
+                    dropdownMenu.classList.toggle('hidden');
+                    dropdownIcon.classList.toggle('transform', 'rotate-180');
+                });
 
-    <script>
-        document.getElementById('dropdownButton').addEventListener('click', function() {
-            const dropdownMenu = document.getElementById('dropdownMenu');
-            const dropdownIcon = document.getElementById('dropdownIcon');
-            dropdownMenu.classList.toggle('hidden');
-            dropdownIcon.classList.toggle('transform', 'rotate-180');
-        });
-
-        window.addEventListener('click', function(event) {
-            const dropdownMenu = document.getElementById('dropdownMenu');
-            const dropdownButton = document.getElementById('dropdownButton');
-            if (!event.target.closest('#dropdownButton') && !dropdownMenu.contains(event.target)) {
-                dropdownMenu.classList.add('hidden');
-                dropdownIcon.classList.remove('transform', 'rotate-180');
-            }
-        });
-    </script>
-</x-app-layout>
+                window.addEventListener('click', function(event) {
+                    const dropdownMenu = document.getElementById('dropdownMenu');
+                    const dropdownButton = document.getElementById('dropdownButton');
+                    if (!event.target.closest('#dropdownButton') && !dropdownMenu.contains(event.target)) {
+                        dropdownMenu.classList.add('hidden');
+                        dropdownIcon.classList.remove('transform', 'rotate-180');
+                    }
+                });
+            </script>
+</x-ched-layout>

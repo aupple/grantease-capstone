@@ -50,4 +50,8 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(ApplicationForm::class, 'user_id', 'user_id');
     }
+    public function chedInfo()
+{
+    return $this->hasOne(ChedInfo::class);
+}
 }

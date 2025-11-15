@@ -158,7 +158,7 @@
             'remarks' => 'Remarks',
         ] as $col => $label)
                     <label class="flex items-center text-sm text-gray-800">
-                        <input type="checkbox" class="col-toggle mr-1 accent-blue-600" data-col="{{ $col }}"
+                        <input type="checkbox" class="col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="{{ $col }}"
                             checked>
                         {{ $label }}
                     </label>
