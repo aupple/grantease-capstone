@@ -8,15 +8,29 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Models\ApplicationForm;
 use App\Models\Evaluation;
 use App\Models\Enrollment;
-use App\Models\ChedInfo; // Changed from ChedPersonalInformation
+use App\Models\ChedInfo;
 use Illuminate\Support\Facades\Storage;
 
 class ChedController extends Controller
 {
     // Show CHED dashboard
-    public function index()
+    public function dashboard()
     {
-        return view('ched.dashboard');
+        $user = auth()->user();
+        
+        // Get latest CHED application for this user
+        $latestApplication = $user->applicationForms()
+            ->where('program', 'CHED')
+            ->latest()
+            ->first();
+        
+        // Get personal info completion status
+        $personalInfo = $user->chedInfo;
+        
+        return view('ched.dashboard', [
+            'latestApplication' => $latestApplication,
+            'personalInfoCompleted' => $user->personal_info_completed ?? false,
+        ]);
     }
 
     // =========================
@@ -26,7 +40,6 @@ class ChedController extends Controller
     {
         $personalInfo = auth()->user()->chedInfo;
         
-        // If no data exists, redirect to form
         if (!$personalInfo) {
             return redirect()
                 ->route('ched.personal-form')
@@ -35,10 +48,7 @@ class ChedController extends Controller
         
         return view('ched.personal-information', compact('personalInfo'));
     }
-
-    // =========================
-    // Personal Form - FORM PAGE (Fill out and submit)
-    // =========================
+    
     public function personalForm()
     {
         // Get existing data if user has filled it before (for editing)
@@ -112,15 +122,15 @@ class ChedController extends Controller
             );
 
             // Mark personal info as completed in users table
-            auth()->user()->update([
-                'personal_info_completed' => true
-            ]);
+            $user = auth()->user();
+            $user->personal_info_completed = 1;
+            $user->save();
 
             // Redirect to VIEW page (not dashboard)
             return redirect()
                 ->route('ched.personal-information')
                 ->with('success', 'Personal information saved successfully!');
-                
+                    
         } catch (\Exception $e) {
             return back()
                 ->withInput()
@@ -155,7 +165,7 @@ class ChedController extends Controller
             $sheet->setCellValue('G'.$row, $applicant->evaluations->where('status','Incomplete')->count());
             $sheet->setCellValue('H'.$row, $applicant->evaluations->where('status','Failed')->count());
             $sheet->setCellValue('I'.$row, $applicant->evaluations->where('status','No Grade')->count());
-            $sheet->setCellValue('J'.$row, $applicant->evaluations->where('status','Not Credited')->count());
+            $sheet->setCellValue('J'.$row, $applicant->evaluations->where('status','No Credited')->count());
             $sheet->setCellValue('K'.$row, $applicant->status);
             $sheet->setCellValue('L'.$row, $applicant->gpa);
             $sheet->setCellValue('M'.$row, $applicant->remarks);

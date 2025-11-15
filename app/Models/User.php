@@ -9,7 +9,7 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable; // Include HasApiTokens if needed
+    use HasFactory, Notifiable;
 
     protected $primaryKey = 'user_id';
 
@@ -19,8 +19,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'last_name',
         'email',
         'password',
-        'program_type', // Added for DOST/CHED selection
+        'program_type',
         'role_id',
+        'personal_info_completed', // ← Add this
     ];
 
     protected $hidden = [
@@ -31,9 +32,10 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'personal_info_completed' => 'boolean', // ← Add this
     ];
 
-    // Accessor for full name (consistent with your naming)
+    // Accessor for full name
     public function getFullNameAttribute()
     {
         return trim("{$this->first_name} {$this->middle_name} {$this->last_name}");
@@ -50,8 +52,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(ApplicationForm::class, 'user_id', 'user_id');
     }
+
+    // Relationship: User has one CHED Personal Info
     public function chedInfo()
-{
-    return $this->hasOne(ChedInfo::class);
-}
+    {
+        return $this->hasOne(ChedInfo::class, 'user_id', 'user_id');
+    }
 }

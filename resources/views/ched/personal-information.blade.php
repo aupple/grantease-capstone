@@ -1,457 +1,232 @@
 <x-ched-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Personal Information') }}
-        </h2>
+    <x-slot name="headerTitle">
+        Personal Information
     </x-slot>
 
-    <div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div class="max-w-4xl mx-auto">
-            <!-- Step Indicator -->
-            <div class="mb-8">
-                <div class="flex items-center justify-center">
-                    <!-- Step 1 -->
-                    <div class="flex flex-col items-center relative">
-                        <div id="step1-circle"
-                            class="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-lg z-10 transition-all duration-300">
-                            1
-                        </div>
-                        <p id="step1-label" class="text-sm mt-2 font-medium text-blue-600 transition-all duration-300">
-                            Basic Info</p>
-                    </div>
+    <div class="py-6 px-4 sm:px-6 lg:px-8 min-h-screen bg-gray-100">
+        <div class="max-w-5xl mx-auto">
 
-                    <!-- Connector Line -->
-                    <div id="connector" class="w-32 h-1 bg-gray-300 mx-4 transition-all duration-300"></div>
-
-                    <!-- Step 2 -->
-                    <div class="flex flex-col items-center relative">
-                        <div id="step2-circle"
-                            class="w-12 h-12 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center font-semibold text-lg z-10 transition-all duration-300">
-                            2
-                        </div>
-                        <p id="step2-label" class="text-sm mt-2 text-gray-500 transition-all duration-300">Personal Info
-                        </p>
+            <!-- Success Message -->
+            @if (session('success'))
+                <div class="mb-6 bg-green-50 border-l-4 border-green-400 p-4 rounded-lg">
+                    <div class="flex">
+                        <svg class="h-6 w-6 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <p class="text-sm text-green-700">{{ session('success') }}</p>
                     </div>
                 </div>
-            </div>
+            @endif
 
-            <!-- Form Container -->
-            <div class="bg-white rounded-2xl shadow-lg p-8">
-                <!-- Form Title -->
-                <div class="text-center mb-8">
-                    <p class="text-gray-600">Please fill out all required fields accurately</p>
+            <!-- Main Card -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+
+                <!-- Header with Photo -->
+                <div class="bg-gradient-to-r from-blue-600 to-blue-800 px-8 py-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-6">
+                            <!-- Passport Photo -->
+                            @if ($personalInfo && $personalInfo->passport_photo)
+                                <img src="{{ Storage::url($personalInfo->passport_photo) }}" alt="Passport Photo"
+                                    class="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover">
+                            @else
+                                <div
+                                    class="w-24 h-24 rounded-full border-4 border-white bg-gray-300 flex items-center justify-center">
+                                    <svg class="w-12 h-12 text-gray-500" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                </div>
+                            @endif
+
+                            <!-- Name -->
+                            <div class="text-white">
+                                <h1 class="text-3xl font-bold">
+                                    {{ $personalInfo->first_name }}
+                                    {{ $personalInfo->middle_name }}
+                                    {{ $personalInfo->last_name }}
+                                    @if ($personalInfo->suffix)
+                                        {{ $personalInfo->suffix }}
+                                    @endif
+                                </h1>
+                                <p class="text-blue-200 text-sm mt-1">Application No:
+                                    {{ $personalInfo->application_no }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Edit Button -->
+                        <a href="{{ route('ched.personal-form') }}"
+                            class="bg-white text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition shadow-md">
+                            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Edit Information
+                        </a>
+                    </div>
                 </div>
 
-                @if ($errors->any())
-                    <div class="mb-6 bg-red-50 border-l-4 border-red-400 p-4 rounded-lg">
-                        <div class="flex">
-                            <svg class="h-6 w-6 text-red-400 mr-3" fill="none" stroke="currentColor"
+                <!-- Content -->
+                <div class="p-8">
+
+                    <!-- Academic Information -->
+                    <div class="mb-8">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12" />
+                                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                             </svg>
+                            Academic Information
+                        </h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
                             <div>
-                                <h3 class="text-sm font-semibold text-red-800">Please correct the following errors:</h3>
-                                <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
+                                <p class="text-sm text-gray-600">Academic Year</p>
+                                <p class="font-semibold text-gray-900">{{ $personalInfo->academic_year }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">School Term</p>
+                                <p class="font-semibold text-gray-900">{{ $personalInfo->school_term }}</p>
                             </div>
                         </div>
                     </div>
-                @endif
 
-                <form id="personalInfoForm" action="{{ route('ched.personal-information.store') }}" method="POST"
-                    enctype="multipart/form-data">
-                    @csrf
-
-                    <!-- Step 1: Basic Information -->
-                    <div id="step1" class="step-content">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Academic Year -->
+                    <!-- Personal Details -->
+                    <div class="mb-8">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            Personal Details
+                        </h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-lg">
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Academic Year</label>
-                                <input type="text" name="academic_year"
-                                    value="{{ old('academic_year', '2025-2026') }}" readonly
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <p class="text-sm text-gray-600">Date of Birth</p>
+                                <p class="font-semibold text-gray-900">
+                                    {{ $personalInfo->date_of_birth->format('F d, Y') }}</p>
                             </div>
-
-                            <!-- School Term -->
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">School Term <span
-                                        class="text-red-500">*</span></label>
-                                <select name="school_term" required
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                    <option value="">Select Term</option>
-                                    <option value="1st Semester"
-                                        {{ old('school_term') == '1st Semester' ? 'selected' : '' }}>1st Semester
-                                    </option>
-                                    <option value="2nd Semester"
-                                        {{ old('school_term') == '2nd Semester' ? 'selected' : '' }}>2nd Semester
-                                    </option>
-                                    <option value="Summer" {{ old('school_term') == 'Summer' ? 'selected' : '' }}>Summer
-                                    </option>
-                                </select>
+                                <p class="text-sm text-gray-600">Age</p>
+                                <p class="font-semibold text-gray-900">{{ $personalInfo->age }} years old</p>
                             </div>
-
-                            <!-- Application No - DYNAMIC -->
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Application No.</label>
-                                <input type="text" name="application_no"
-                                    value="{{ old('application_no', 'CHED-' . strtoupper(uniqid())) }}" readonly
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <p class="text-sm text-gray-600">Sex</p>
+                                <p class="font-semibold text-gray-900">{{ $personalInfo->sex }}</p>
                             </div>
-
-                            <!-- Passport Size Picture -->
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Attach Passport Size
-                                    Picture <span class="text-red-500">*</span></label>
-                                <input type="file" name="passport_photo" accept="image/*" required
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                                <p class="text-xs text-gray-500 mt-1">Maximum size: 2MB (JPG, PNG)</p>
+                                <p class="text-sm text-gray-600">Civil Status</p>
+                                <p class="font-semibold text-gray-900">{{ $personalInfo->civil_status }}</p>
                             </div>
-                        </div>
-
-                        <!-- Next Button -->
-                        <div class="flex justify-end mt-8">
-                            <button type="button" id="nextBtn"
-                                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg transition shadow-md">
-                                Next: Personal Info
-                            </button>
+                            @if ($personalInfo->passport_no)
+                                <div>
+                                    <p class="text-sm text-gray-600">Passport No.</p>
+                                    <p class="font-semibold text-gray-900">{{ $personalInfo->passport_no }}</p>
+                                </div>
+                            @endif
                         </div>
                     </div>
 
-                    <!-- Step 2: Personal Information -->
-                    <div id="step2" class="step-content hidden">
-                        <!-- Personal Information Section -->
-                        <div class="mb-8">
-                            <h2 class="text-xl font-bold text-blue-700 mb-6">I. PERSONAL INFORMATION</h2>
-
-                            <!-- Name Fields -->
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Last Name <span
-                                            class="text-red-500">*</span></label>
-                                    <input type="text" name="last_name" required
-                                        value="{{ old('last_name', auth()->user()->last_name ?? '') }}"
-                                        placeholder="Enter last name"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">First Name <span
-                                            class="text-red-500">*</span></label>
-                                    <input type="text" name="first_name" required
-                                        value="{{ old('first_name', auth()->user()->first_name ?? '') }}"
-                                        placeholder="Enter first name"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Middle Name</label>
-                                    <input type="text" name="middle_name"
-                                        value="{{ old('middle_name', auth()->user()->middle_name ?? '') }}"
-                                        placeholder="Enter middle name"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Suffix</label>
-                                    <input type="text" name="suffix" value="{{ old('suffix') }}"
-                                        placeholder="Jr., Sr., III (optional)"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                </div>
-                            </div>
-
-                            <!-- Permanent Address -->
-                            <h3 class="text-md font-semibold text-gray-800 mb-4">Permanent Address</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Province <span
-                                            class="text-red-500">*</span></label>
-                                    <select name="province" required
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                        <option value="">Select Province</option>
-                                        <option value="Misamis Oriental"
-                                            {{ old('province') == 'Misamis Oriental' ? 'selected' : '' }}>Misamis
-                                            Oriental</option>
-                                        <option value="Bukidnon"
-                                            {{ old('province') == 'Bukidnon' ? 'selected' : '' }}>Bukidnon</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">City / Municipality
-                                        <span class="text-red-500">*</span></label>
-                                    <select name="city" required
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                        <option value="">Select City / Municipality</option>
-                                        <option value="Cagayan de Oro"
-                                            {{ old('city') == 'Cagayan de Oro' ? 'selected' : '' }}>Cagayan de Oro
-                                        </option>
-                                        <option value="Tagoloan" {{ old('city') == 'Tagoloan' ? 'selected' : '' }}>
-                                            Tagoloan</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Barangay <span
-                                            class="text-red-500">*</span></label>
-                                    <select name="barangay" required
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                        <option value="">Select Barangay</option>
-                                        <option value="Carmen" {{ old('barangay') == 'Carmen' ? 'selected' : '' }}>
-                                            Carmen</option>
-                                        <option value="Gusa" {{ old('barangay') == 'Gusa' ? 'selected' : '' }}>Gusa
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Street <span
-                                            class="text-red-500">*</span></label>
-                                    <input type="text" name="street" required value="{{ old('street') }}"
-                                        placeholder="Enter street name"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">House No.</label>
-                                    <input type="text" name="house_no" value="{{ old('house_no') }}"
-                                        placeholder="House number (optional)"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Zip Code <span
-                                            class="text-red-500">*</span></label>
-                                    <input type="text" name="zip_code" required value="{{ old('zip_code') }}"
-                                        placeholder="e.g., 9000"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Region <span
-                                            class="text-red-500">*</span></label>
-                                    <input type="text" name="region" required
-                                        value="{{ old('region', 'Region X') }}" placeholder="e.g., Region X"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">District</label>
-                                    <select name="district"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                        <option value="">Select District</option>
-                                        <option value="District 1"
-                                            {{ old('district') == 'District 1' ? 'selected' : '' }}>District 1</option>
-                                        <option value="District 2"
-                                            {{ old('district') == 'District 2' ? 'selected' : '' }}>District 2</option>
-                                    </select>
-                                </div>
-                            </div>
-
+                    <!-- Contact Information -->
+                    <div class="mb-8">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            Contact Information
+                        </h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Passport No.</label>
-                                <input type="text" name="passport_no" value="{{ old('passport_no') }}"
-                                    placeholder="e.g., P1234567 (optional)"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <p class="text-sm text-gray-600">Email Address</p>
+                                <p class="font-semibold text-gray-900">{{ $personalInfo->email }}</p>
                             </div>
-                        </div>
-
-                        <!-- Contact Information -->
-                        <div class="mb-8">
-                            <h3 class="text-md font-semibold text-gray-800 mb-4">Contact Information</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email Address <span
-                                            class="text-red-500">*</span></label>
-                                    <input type="email" name="email" required
-                                        value="{{ old('email', auth()->user()->email ?? '') }}"
-                                        placeholder="your.email@example.com"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Mailing Address</label>
-                                    <input type="text" name="mailing_address"
-                                        value="{{ old('mailing_address') }}"
-                                        placeholder="If different from permanent address"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Telephone / Mobile
-                                        Number <span class="text-red-500">*</span></label>
-                                    <input type="tel" name="contact_no" required value="{{ old('contact_no') }}"
-                                        placeholder="09XXXXXXXXX"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Contact Number</p>
+                                <p class="font-semibold text-gray-900">{{ $personalInfo->contact_no }}</p>
                             </div>
-                        </div>
-
-                        <!-- Personal Details -->
-                        <div class="mb-8">
-                            <h3 class="text-md font-semibold text-gray-800 mb-4">Personal Details</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Civil Status <span
-                                            class="text-red-500">*</span></label>
-                                    <select name="civil_status" required
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                        <option value="">Select</option>
-                                        <option value="Single"
-                                            {{ old('civil_status') == 'Single' ? 'selected' : '' }}>Single</option>
-                                        <option value="Married"
-                                            {{ old('civil_status') == 'Married' ? 'selected' : '' }}>Married</option>
-                                        <option value="Widowed"
-                                            {{ old('civil_status') == 'Widowed' ? 'selected' : '' }}>Widowed</option>
-                                        <option value="Separated"
-                                            {{ old('civil_status') == 'Separated' ? 'selected' : '' }}>Separated
-                                        </option>
-                                    </select>
+                            @if ($personalInfo->mailing_address)
+                                <div class="md:col-span-2">
+                                    <p class="text-sm text-gray-600">Mailing Address</p>
+                                    <p class="font-semibold text-gray-900">{{ $personalInfo->mailing_address }}</p>
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth <span
-                                            class="text-red-500">*</span></label>
-                                    <input type="date" name="date_of_birth" required
-                                        value="{{ old('date_of_birth') }}"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Age</label>
-                                    <input type="number" name="age" value="{{ old('age') }}"
-                                        placeholder="Auto-calculated" readonly
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Sex <span
-                                            class="text-red-500">*</span></label>
-                                    <select name="sex" required
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                        <option value="">Select</option>
-                                        <option value="Male" {{ old('sex') == 'Male' ? 'selected' : '' }}>Male
-                                        </option>
-                                        <option value="Female" {{ old('sex') == 'Female' ? 'selected' : '' }}>Female
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Parents -->
-                        <div class="mb-8">
-                            <h3 class="text-md font-semibold text-gray-800 mb-4">Parents</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Father's Name</label>
-                                    <input type="text" name="father_name" value="{{ old('father_name') }}"
-                                        placeholder="Enter father's full name"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Mother's Name</label>
-                                    <input type="text" name="mother_name" value="{{ old('mother_name') }}"
-                                        placeholder="Enter mother's full name"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="flex justify-between mt-8">
-                            <button type="button" id="backBtn"
-                                class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-8 py-3 rounded-lg transition">
-                                Back
-                            </button>
-                            <button type="submit"
-                                class="bg-green-600 hover:bg-green-700 text-white font-semibold px-8 py-3 rounded-lg transition shadow-md">
-                                Submit Application
-                            </button>
+                            @endif
                         </div>
                     </div>
-                </form>
+
+                    <!-- Address -->
+                    <div class="mb-8">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            Permanent Address
+                        </h2>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-gray-900 leading-relaxed">
+                                @if ($personalInfo->house_no)
+                                    {{ $personalInfo->house_no }},
+                                @endif
+                                {{ $personalInfo->street }},
+                                {{ $personalInfo->barangay }},
+                                {{ $personalInfo->city }},
+                                {{ $personalInfo->province }},
+                                {{ $personalInfo->region }}
+                                @if ($personalInfo->district)
+                                    ({{ $personalInfo->district }})
+                                @endif
+                                - {{ $personalInfo->zip_code }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Parents Information -->
+                    <div class="mb-8">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            Parents Information
+                        </h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+                            @if ($personalInfo->father_name)
+                                <div>
+                                    <p class="text-sm text-gray-600">Father's Name</p>
+                                    <p class="font-semibold text-gray-900">{{ $personalInfo->father_name }}</p>
+                                </div>
+                            @endif
+                            @if ($personalInfo->mother_name)
+                                <div>
+                                    <p class="text-sm text-gray-600">Mother's Name</p>
+                                    <p class="font-semibold text-gray-900">{{ $personalInfo->mother_name }}</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex justify-between items-center pt-6 border-t">
+                        <a href="{{ route('ched.dashboard') }}"
+                            class="text-gray-600 hover:text-gray-800 font-medium">
+                            ← Back to Dashboard
+                        </a>
+                        <a href="{{ route('ched.personal-form') }}"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition shadow-md">
+                            Edit Information
+                        </a>
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
-
-    @push('scripts')
-        <script>
-            // Step navigation
-            const step1 = document.getElementById('step1');
-            const step2 = document.getElementById('step2');
-            const nextBtn = document.getElementById('nextBtn');
-            const backBtn = document.getElementById('backBtn');
-            const step1Circle = document.getElementById('step1-circle');
-            const step2Circle = document.getElementById('step2-circle');
-            const step1Label = document.getElementById('step1-label');
-            const step2Label = document.getElementById('step2-label');
-            const connector = document.getElementById('connector');
-
-            nextBtn.addEventListener('click', function() {
-                const schoolTerm = document.querySelector('[name="school_term"]').value;
-                const passportPhoto = document.querySelector('[name="passport_photo"]').value;
-
-                if (!schoolTerm || !passportPhoto) {
-                    alert('Please fill in all required fields in Step 1');
-                    return;
-                }
-
-                step1.classList.add('hidden');
-                step2.classList.remove('hidden');
-
-                step1Circle.classList.remove('bg-blue-600', 'text-white');
-                step1Circle.classList.add('bg-green-600', 'text-white');
-                step1Circle.innerHTML = '✓';
-                step1Label.classList.remove('text-blue-600');
-                step1Label.classList.add('text-green-600');
-
-                step2Circle.classList.remove('bg-gray-300', 'text-gray-600');
-                step2Circle.classList.add('bg-blue-600', 'text-white');
-                step2Label.classList.remove('text-gray-500');
-                step2Label.classList.add('text-blue-600', 'font-medium');
-
-                connector.classList.remove('bg-gray-300');
-                connector.classList.add('bg-blue-600');
-
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            });
-
-            backBtn.addEventListener('click', function() {
-                step1.classList.remove('hidden');
-                step2.classList.add('hidden');
-
-                step1Circle.classList.remove('bg-green-600');
-                step1Circle.classList.add('bg-blue-600');
-                step1Circle.innerHTML = '1';
-                step1Label.classList.remove('text-green-600');
-                step1Label.classList.add('text-blue-600');
-
-                step2Circle.classList.remove('bg-blue-600', 'text-white');
-                step2Circle.classList.add('bg-gray-300', 'text-gray-600');
-                step2Label.classList.remove('text-blue-600', 'font-medium');
-                step2Label.classList.add('text-gray-500');
-
-                connector.classList.remove('bg-blue-600');
-                connector.classList.add('bg-gray-300');
-
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            });
-
-            // Auto-calculate age from date of birth
-            document.querySelector('[name="date_of_birth"]').addEventListener('change', function() {
-                const dob = new Date(this.value);
-                const today = new Date();
-                let age = today.getFullYear() - dob.getFullYear();
-                const monthDiff = today.getMonth() - dob.getMonth();
-
-                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-                    age--;
-                }
-
-                document.querySelector('[name="age"]').value = age;
-            });
-        </script>
-    @endpush
 </x-ched-layout>

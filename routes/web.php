@@ -22,8 +22,11 @@ Route::middleware(['auth'])->group(function () {
      * CHED Scholar Routes
      * =======================
      */
-    Route::prefix('ched')->name('ched.')->group(function () {
-         Route::get('/personal-form', [ChedController::class, 'personalForm'])->name('personal-form');
+Route::prefix('ched')->name('ched.')->group(function () {
+    // Add this dashboard route
+    Route::get('/dashboard', [ChedController::class, 'dashboard'])->name('dashboard');
+    
+    Route::get('/personal-form', [ChedController::class, 'personalForm'])->name('personal-form');
     Route::post('/personal-form', [ChedController::class, 'storePersonalInformation'])->name('personal-form.store');
     
     // View page (read-only display)
@@ -33,7 +36,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/report/grade', [ChedController::class, 'generateGradeReport'])->name('report.grade');
     Route::get('/report/enrollment', [ChedController::class, 'generateEnrollmentReport'])->name('report.enrollment');
     Route::get('/report/eligibility', [ChedController::class, 'generateContinuingEligibilityReport'])->name('report.eligibility');
-    });
+});
     /**
      * =======================
      * Applicant Routes

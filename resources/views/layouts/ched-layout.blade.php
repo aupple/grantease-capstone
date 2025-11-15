@@ -52,7 +52,6 @@
                     </svg>
                     Personal Information
                     @if (!auth()->user()->personal_info_completed ?? true)
-                        <span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">!</span>
                     @endif
                 </a>
 
@@ -102,6 +101,9 @@
             </main>
         </div>
     </div>
+
+    {{-- ✅ ADD THIS LINE --}}
+    @stack('scripts')
 </body>
 
 </html>

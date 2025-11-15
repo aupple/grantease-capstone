@@ -37,10 +37,6 @@
                                         your personal information for CHED monitoring.</p>
                                 </div>
                             </div>
-                            <a href="{{ route('ched.personal-form') }}"
-                                class="ml-4 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-semibold px-6 py-2 rounded-lg transition shadow-sm whitespace-nowrap">
-                                Complete Now →
-                            </a>
                         </div>
                     </div>
                 @endif
@@ -50,7 +46,7 @@
 
                     <!-- Application Status -->
                     <div class="bg-white border border-gray-200 shadow-md rounded-2xl p-6 col-span-2">
-                        <h2 class="font-semibold text-gray-800 mb-4">Application Status</h2>
+                        <h2 class="font-semibold text-gray-800 mb-4">Form Status</h2>
 
                         @php
                             $latestApplication = auth()
@@ -72,83 +68,86 @@
                                     </div>
                                 </div>
 
-                                <!-- ✅ Application Status Train -->
+                                <!-- ✅ Simplified 2-Step Status Tracker for CHED -->
                                 @php
-                                    // Map your ENUM values to the simplified train steps
-                                    $statusMap = [
+                                    $currentStatus = strtolower($latestApplication->status);
+
+                                    // CHED-specific status mapping
+                                    // Map all CHED statuses to either 'pending' or 'verdict'
+                                    $chedStatusMap = [
                                         'submitted' => 'pending',
                                         'pending' => 'pending',
-                                        'document_verification' => 'verified',
+                                        'under_review' => 'pending',
+                                        'processing' => 'pending',
                                         'approved' => 'verdict',
                                         'rejected' => 'verdict',
                                     ];
 
-                                    $currentStatus = strtolower($latestApplication->status);
-                                    $trainStatus = $statusMap[$currentStatus] ?? 'pending';
+                                    $mappedStatus = $chedStatusMap[$currentStatus] ?? 'pending';
 
-                                    $statuses = ['pending', 'verified', 'verdict'];
-
-                                    $currentIndex = match ($trainStatus) {
-                                        'pending' => 0,
-                                        'verified' => 1,
-                                        'verdict' => 2,
-                                        default => 0,
-                                    };
+                                    // Determine which step we're on
+if ($mappedStatus === 'verdict') {
+    $currentStep = 2; // Final verdict
+    $verdictLabel = $currentStatus; // 'approved' or 'rejected'
+} else {
+    $currentStep = 1; // Still pending
+    $verdictLabel = 'pending';
+                                    }
                                 @endphp
 
                                 <div class="relative mt-6">
-                                    <div class="flex justify-between items-center">
-                                        @foreach ($statuses as $index => $status)
-                                            @php
-                                                $label =
-                                                    $status === 'verdict' &&
-                                                    in_array($currentStatus, ['approved', 'rejected'])
-                                                        ? $currentStatus
-                                                        : $status;
-                                            @endphp
+                                    <div class="flex justify-between items-center max-w-md mx-auto">
 
-                                            <div class="flex flex-col items-center relative w-full">
-                                                <!-- Connector Line -->
-                                                @if ($index < count($statuses) - 1)
-                                                    <div
-                                                        class="absolute top-4 left-1/2 w-full h-[2px] z-0
-                                    {{ $index < $currentIndex ? 'bg-blue-600' : 'bg-gray-300' }}">
-                                                    </div>
-                                                @endif
-
-                                                <!-- Step Circle -->
-                                                <div
-                                                    class="relative z-10 w-8 h-8 flex items-center justify-center rounded-full text-white
-                                @if ($label === 'rejected') bg-red-600
-                                @elseif($label === 'approved')
-                                    bg-green-600
-                                @elseif($index <= $currentIndex)
-                                    bg-blue-600
-                                @else
-                                    bg-gray-300 text-gray-700 @endif">
-                                                    @if ($label === 'rejected')
-                                                        3
-                                                    @elseif($label === 'approved')
-                                                        3
-                                                    @else
-                                                        {{ $index + 1 }}
-                                                    @endif
-                                                </div>
-
-                                                <!-- Step Label -->
-                                                <p
-                                                    class="text-xs mt-2 capitalize
-                                @if ($label === 'rejected') text-red-600 font-semibold
-                                @elseif($label === 'approved')
-                                    text-green-700 font-semibold
-                                @elseif($index <= $currentIndex)
-                                    text-blue-700 font-medium
-                                @else
-                                    text-gray-500 @endif">
-                                                    {{ $label }}
-                                                </p>
+                                        <!-- Step 1: Pending -->
+                                        <div class="flex flex-col items-center relative w-full">
+                                            <!-- Connector Line -->
+                                            <div
+                                                class="absolute top-4 left-1/2 w-full h-[2px] z-0 {{ $currentStep >= 2 ? 'bg-blue-600' : 'bg-gray-300' }}">
                                             </div>
-                                        @endforeach
+
+                                            <!-- Circle -->
+                                            <div
+                                                class="relative z-10 w-10 h-10 flex items-center justify-center rounded-full {{ $currentStep >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600' }}">
+                                                @if ($currentStep > 1)
+                                                    ✓
+                                                @else
+                                                    1
+                                                @endif
+                                            </div>
+
+                                            <!-- Label -->
+                                            <p
+                                                class="text-sm mt-2 font-medium {{ $currentStep >= 1 ? 'text-blue-700' : 'text-gray-500' }}">
+                                                Pending Review
+                                            </p>
+                                        </div>
+
+                                        <!-- Step 2: Verdict (Approved/Rejected) -->
+                                        <div class="flex flex-col items-center relative w-full">
+                                            <!-- Circle -->
+                                            <div
+                                                class="relative z-10 w-10 h-10 flex items-center justify-center rounded-full text-white @if ($verdictLabel === 'rejected') bg-red-600 @elseif($verdictLabel === 'approved') bg-green-600 @else bg-gray-300 text-gray-600 @endif">
+                                                @if ($verdictLabel === 'rejected')
+                                                    ✕
+                                                @elseif($verdictLabel === 'approved')
+                                                    ✓
+                                                @else
+                                                    2
+                                                @endif
+                                            </div>
+
+                                            <!-- Label -->
+                                            <p
+                                                class="text-sm mt-2 font-semibold capitalize @if ($verdictLabel === 'rejected') text-red-600 @elseif($verdictLabel === 'approved') text-green-700 @else text-gray-500 @endif">
+                                                @if ($verdictLabel === 'rejected')
+                                                    Rejected
+                                                @elseif($verdictLabel === 'approved')
+                                                    Approved
+                                                @else
+                                                    Awaiting Decision
+                                                @endif
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
 
