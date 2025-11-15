@@ -122,7 +122,7 @@
                 <table class="w-full text-sm text-left border-collapse">
                     <thead>
                         <tr class="bg-gray-100 text-gray-700">
-                            <th class="p-4 border-b border-gray-200 font-semibold">Applicant</th>
+                            <th class="p-4 border-b border-gray-200 font-semibold">Name</th>
                             <th class="p-4 border-b border-gray-200 font-semibold">Program</th>
                             <th class="p-4 border-b border-gray-200 font-semibold">Status</th>
                             <th class="p-4 border-b border-gray-200 font-semibold">Date</th>
@@ -130,35 +130,62 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white/30 text-gray-800">
-                        @foreach ($recent_applicants as $app)
+                        @foreach ($combined_recent as $item)
                             <tr class="hover:bg-white/50 transition-colors border-b border-gray-100">
                                 <td class="p-4 font-medium">
-                                    {{ $app->user->first_name ?? '' }} {{ $app->user->last_name ?? '' }}
+                                    @if (isset($item->program))
+                                        {{-- DOST Application: uses user relationship --}}
+                                        {{ $item->user->first_name ?? '' }} {{ $item->user->last_name ?? '' }}
+                                    @else
+                                        {{-- CHED Scholar: has its own name fields in ched_info_table --}}
+                                        {{ $item->first_name ?? '' }} {{ $item->last_name ?? '' }}
+                                    @endif
                                 </td>
-                                <td class="p-4">{{ $app->program ?? '-' }}</td>
+                                <td class="p-4">
+                                    @if (isset($item->program))
+                                        {{-- DOST Application --}}
+                                        <span
+                                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                                            DOST
+                                        </span>
+                                    @else
+                                        {{-- CHED Scholar --}}
+                                        <span
+                                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
+                                            CHED
+                                        </span>
+                                    @endif
+                                </td>
                                 <td class="p-4">
                                     <span
                                         class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
-                                    @if ($app->status === 'approved') bg-green-100 text-green-700 border border-green-400
-                                    @elseif ($app->status === 'rejected') bg-red-100 text-red-700 border border-red-400
-                                    @elseif ($app->status === 'pending') bg-yellow-100 text-yellow-700 border border-yellow-400
-                                    @elseif ($app->status === 'document_verification') bg-blue-100 text-blue-700 border border-blue-400
-                                    @else bg-gray-100 text-gray-800 border border-gray-200 @endif">
-                                        {{ $app->status === 'document_verified' ? 'Document verified' : ucfirst(str_replace('_', ' ', $app->status)) }}
+                    @if ($item->status === 'approved') bg-green-100 text-green-700 border border-green-400
+                    @elseif ($item->status === 'rejected') bg-red-100 text-red-700 border border-red-400
+                    @elseif ($item->status === 'pending') bg-yellow-100 text-yellow-700 border border-yellow-400
+                    @elseif ($item->status === 'document_verification') bg-blue-100 text-blue-700 border border-blue-400
+                    @else bg-gray-100 text-gray-800 border border-gray-200 @endif">
+                                        {{ ucfirst(str_replace('_', ' ', $item->status)) }}
                                     </span>
                                 </td>
-                                <td class="p-4 text-gray-600">{{ $app->created_at->format('M d, Y') }}</td>
+                                <td class="p-4 text-gray-600">{{ $item->created_at->format('M d, Y') }}</td>
                                 <td class="p-4">
-                                    @if ($app->status === 'approved' && $app->scholar)
-                                        {{-- Go to Scholar Details page --}}
-                                        <a href="{{ route('admin.scholars.show', $app->scholar->id) }}"
-                                            class="inline-flex items-center px-3 py-1 font-semibold text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors">
-                                            View
-                                        </a>
+                                    @if (isset($item->program))
+                                        {{-- DOST Link --}}
+                                        @if ($item->status === 'approved' && $item->scholar)
+                                            <a href="{{ route('admin.scholars.show', $item->scholar->id) }}"
+                                                class="inline-flex items-center px-3 py-1 font-semibold text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors">
+                                                View
+                                            </a>
+                                        @else
+                                            <a href="{{ route('admin.applications.show', $item->application_form_id) }}"
+                                                class="inline-flex items-center px-3 py-1 font-semibold text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors">
+                                                View
+                                            </a>
+                                        @endif
                                     @else
-                                        {{-- Go to Application Details page --}}
-                                        <a href="{{ route('admin.applications.show', $app->application_form_id) }}"
-                                            class="inline-flex items-center px-3 py-1 font-semibold text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors">
+                                        {{-- CHED Link --}}
+                                        <a href="{{ route('admin.ched.show', $item->id) }}"
+                                            class="inline-flex items-center px-3 py-1 font-semibold text-sm text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-md transition-colors">
                                             View
                                         </a>
                                     @endif

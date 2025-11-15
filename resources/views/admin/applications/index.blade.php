@@ -2,115 +2,225 @@
 
 @section('content')
     <div class="mb-6 space-y-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <h3 class="text-3xl font-bold text-gray-800 mb-1"> DOST Applications</h3>
-                <p class="text-sm text-gray-600">Review and manage all scholarship applications</p>
+        <h1 class="text-3xl font-bold text-gray-800 mb-4"> DOST & CHED Scholars</h1>
+
+        <!-- 🔍 Filters -->
+        <form method="GET" action="{{ route('admin.scholars') }}"
+            class="flex flex-wrap gap-4 items-center bg-gray-150/80 backdrop-blur-xl border border-gray-100 shadow-md rounded-xl px-4 py-3">
+
+            <!-- Search Bar -->
+            <div class="flex-1 min-w-[250px]">
+                <label for="search" class="text-sm font-bold text-gray-700">Search:</label>
+                <input type="text" name="search" id="search" value="{{ request('search') }}"
+                    placeholder="Search Scholar..."
+                    class="ml-2 px-3 py-2 border border-white/30 rounded-md bg-white/30 backdrop-blur-md text-sm w-full max-w-md focus:ring-2 focus:ring-blue-400 focus:outline-none placeholder:text-gray-500">
             </div>
-        </div>
 
-        <!-- 🔍 Search + Filter -->
-        <div
-            class="flex flex-wrap gap-4 items-center justify-between bg-white/20 backdrop-blur-xl border border-white/20 shadow-md rounded-xl px-4 py-3">
-            <form method="GET" action="{{ route('admin.applications') }}" class="flex items-center gap-2">
-                <input type="text" name="search" placeholder="Search applicants..." value="{{ $search }}"
-                    class="bg-white/10 backdrop-blur-md border border-white/20 text-sm rounded-md px-3 py-2 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300 transition" />
-                @if ($status)
-                    <input type="hidden" name="status" value="{{ $status }}">
-                @endif
-                <button type="submit"
-                    class="bg-blue-900 backdrop-blur-md text-white px-4 py-2 text-sm rounded-md shadow-md hover:bg-blue-600/80 transition font-semibold">
-                    Search
-                </button>
-            </form>
-        </div>
+            <!-- Program Filter -->
+            <div>
+                <label for="program" class="text-sm font-semibold text-gray-700">Program:</label>
+                <select name="program" id="program"
+                    class="ml-2 px-3 py-2 pr-10 border border-white/30 rounded-md text-sm bg-white/30 backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <option value="all" {{ $program == 'all' ? 'selected' : '' }}>All</option>
+                    <option value="DOST" {{ $program == 'DOST' ? 'selected' : '' }}>DOST</option>
+                    <option value="CHED" {{ $program == 'CHED' ? 'selected' : '' }}>CHED</option>
+                </select>
+            </div>
 
-        <!-- 📋 Applications Table -->
+            <!-- Semester Filter -->
+            <div>
+                <label for="semester" class="text-sm font-semibold text-gray-700">Semester:</label>
+                <select name="semester" id="semester"
+                    class="ml-2 px-3 py-2 pr-10 border border-white/30 rounded-md text-sm bg-white/30 backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <option value="all" {{ $semester == 'all' ? 'selected' : '' }}>All</option>
+                    <option value="First" {{ $semester == 'First' ? 'selected' : '' }}>1st Semester</option>
+                    <option value="Second" {{ $semester == 'Second' ? 'selected' : '' }}>2nd Semester</option>
+                </select>
+            </div>
+
+            <!-- Apply Button -->
+            <button type="submit"
+                class="bg-blue-900 backdrop-blur-md text-white px-4 py-2 text-sm rounded-md shadow-md hover:bg-blue-600/80 transition font-semibold">
+                Apply
+            </button>
+        </form>
+
+        <!-- 📋 Scholars Table with Glassmorphism -->
         <div
             class="bg-white/20 backdrop-blur-xl border border-white/30 shadow-xl rounded-2xl overflow-x-auto transition hover:shadow-2xl">
             <table class="min-w-full text-sm text-gray-800">
                 <thead class="bg-white/40 text-gray-700 border-b border-white/30">
                     <tr>
-                        <th class="p-3 text-left font-semibold w-12">#</th>
-                        <th class="p-3 text-left font-semibold">Applicant</th>
-                        <th class="p-3 text-left font-semibold">Program</th>
+                        <th class="p-3 text-left font-semibold">#</th>
+                        <th class="p-3 text-left font-semibold">Scholar Name</th>
+                        <th class="p-3 text-left font-semibold">Scholarship Program</th>
+                        <th class="p-3 text-left font-semibold">Level</th>
                         <th class="p-3 text-left font-semibold">School</th>
-                        <th class="p-3 text-left font-semibold">Year Level</th>
-                        <th class="p-3 text-left font-semibold">Status</th>
-                        <th class="p-3 text-left font-semibold">Submitted</th>
+                        <th class="p-3 text-left font-semibold">Semester</th>
+                        <th class="p-3 text-left font-semibold">Scholar Status</th>
+                        <th class="p-3 text-left font-semibold">Approved At</th>
                         <th class="p-3 text-left font-semibold">Action</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-white/20">
-                    @forelse ($applications as $app)
+                    @forelse ($scholars as $index => $scholar)
                         <tr class="hover:bg-white/30 hover:backdrop-blur-sm transition duration-200 ease-in-out">
+                            <!-- Numbering -->
                             <td class="p-3 text-gray-700 font-medium">
-                                {{ $loop->iteration + ($applications->currentPage() - 1) * $applications->perPage() }}
+                                {{ $scholars->firstItem() + $index }}
                             </td>
 
+                            <!-- Applicant Name -->
                             <td class="p-1">
                                 <div
                                     class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
-                                    {{ $app->user->full_name ?? $app->user->first_name . ' ' . $app->user->last_name }}
+                                    @if (isset($scholar->user) && $scholar->user)
+                                        @if (isset($scholar->user->full_name))
+                                            {{ $scholar->user->full_name }}
+                                        @elseif(isset($scholar->user->first_name))
+                                            {{ $scholar->user->first_name }} {{ $scholar->user->last_name ?? '' }}
+                                        @else
+                                            <span class="text-gray-500 text-xs italic">Name not available</span>
+                                        @endif
+                                    @else
+                                        <span class="text-red-500 text-xs font-semibold">⚠️ No User Linked</span>
+                                    @endif
                                 </div>
                             </td>
+
+                            <!-- Scholarship Type -->
                             <td class="p-1">
                                 <div
                                     class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
-                                    {{ $app->program ?? '-' }}
+                                    @if ($scholar->program_type === 'CHED')
+                                        <span
+                                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
+                                            CHED
+                                        </span>
+                                    @else
+                                        <span
+                                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                                            DOST
+                                        </span>
+                                    @endif
                                 </div>
                             </td>
+
+                            <!-- Level -->
                             <td class="p-1">
                                 <div
                                     class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
-                                    {{ $app->bs_university ?? ($app->grad_university ?? '-') }}
+                                    @if ($scholar->program_type === 'CHED')
+                                        CHED Scholar
+                                    @else
+                                        {{ is_array($scholar->applicationForm->scholarship_type ?? null)
+                                            ? implode(', ', $scholar->applicationForm->scholarship_type)
+                                            : $scholar->applicationForm->scholarship_type ?? 'N/A' }}
+                                    @endif
                                 </div>
                             </td>
+
+                            <!-- School -->
                             <td class="p-1">
                                 <div
                                     class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
-                                    {{ $app->academic_year ?? '-' }}
+                                    @if ($scholar->program_type === 'CHED')
+                                        N/A
+                                    @else
+                                        {{ $scholar->applicationForm->bs_university ?? 'N/A' }}
+                                    @endif
                                 </div>
                             </td>
+
+                            <!-- Semester -->
                             <td class="p-1">
+                                <div
+                                    class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
+                                    {{ $scholar->applicationForm->school_term ?? 'N/A' }}
+                                </div>
+                            </td>
+
+                            <!-- Scholar Status -->
+                            @php
+                                $colors = [
+                                    '#4CAF50',
+                                    '#FF9800',
+                                    '#03A9F4',
+                                    '#9C27B0',
+                                    '#F44336',
+                                    '#FFC107',
+                                    '#00BCD4',
+                                    '#607D8B',
+                                    '#795548',
+                                    '#E91E63',
+                                    '#8BC34A',
+                                    '#2196F3',
+                                    '#CDDC39',
+                                    '#009688',
+                                    '#673AB7',
+                                ];
+
+                                // Each unique status gets its own consistent color
+                                static $statusColors = [];
+                                $status = $scholar->status ?? 'N/A';
+
+                                if (!isset($statusColors[$status])) {
+                                    $statusColors[$status] = $colors[count($statusColors) % count($colors)];
+                                }
+
+                                // Add transparency to background
+                                $bgColor = $statusColors[$status] . '20';
+                                $textColor = $statusColors[$status];
+                            @endphp
+
+                            <td class="p-4">
                                 <span
-                                    class="px-2 py-1.5 rounded-full text-xs font-semibold shadow-md backdrop-blur-sm border border-white/30
-                                @if ($app->status === 'approved') bg-green-200/60 text-green-900
-                                @elseif ($app->status === 'rejected') bg-red-200/60 text-red-900
-                                @elseif ($app->status === 'pending') bg-yellow-200/60 text-yellow-900
-                                @elseif ($app->status === 'document_verification') bg-blue-200/60 text-blue-900
-                                @else bg-gray-200/60 text-gray-900 @endif">
-                                    {{ ucfirst(str_replace('_', ' ', $app->status)) }}
+                                    class="px-3 py-1 rounded-full text-xs font-semibold shadow-md backdrop-blur-sm border border-white/30"
+                                    style="background-color: {{ $bgColor }}; color: {{ $textColor }};">
+                                    {{ ucfirst(str_replace('_', ' ', $status)) }}
                                 </span>
                             </td>
+
+                            <!-- Approved At -->
                             <td class="p-1">
                                 <div
                                     class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
-                                    {{ $app->submitted_at ?? $app->created_at->format('M d, Y') }}
+                                    {{ $scholar->updated_at->format('M d, Y') }}
                                 </div>
                             </td>
+
+                            <!-- Action -->
                             <td class="p-1">
                                 <div
                                     class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
-                                    <a href="{{ route('admin.applications.show', $app->application_form_id) }}"
-                                        class="text-blue-600 hover:text-blue-800 text-sm font-semibold transition underline underline-offset-2">
-                                        View
-                                    </a>
+                                    @if ($scholar->program_type === 'CHED')
+                                        <a href="{{ route('admin.ched.show', $scholar->id) }}"
+                                            class="text-purple-600 hover:text-purple-800 text-sm font-semibold">
+                                            View
+                                        </a>
+                                    @else
+                                        <a href="{{ route('admin.scholars.show', $scholar->id) }}"
+                                            class="text-blue-600 hover:text-blue-800 text-sm font-semibold">
+                                            View
+                                        </a>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="p-4 text-center text-gray-500">No applications found.</td>
+                            <td colspan="9" class="p-4 text-center text-gray-500">No scholars yet.</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
 
-        <!-- 📄 Pagination -->
-        <div class="p-4 bg-white/20 backdrop-blur-xl border border-white/20 shadow-md rounded-xl">
-            {{ $applications->withQueryString()->links('pagination::tailwind') }}
-        </div>
+        <!-- 📄 Pagination with Glassmorphism -->
+        @if ($scholars->hasPages())
+            <div class="p-4 bg-white/20 backdrop-blur-xl border border-white/20 shadow-md rounded-xl">
+                {{ $scholars->links('pagination::tailwind') }}
+            </div>
+        @endif
     </div>
 @endsection

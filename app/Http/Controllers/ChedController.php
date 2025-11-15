@@ -14,24 +14,12 @@ use Illuminate\Support\Facades\Storage;
 class ChedController extends Controller
 {
     // Show CHED dashboard
-    public function dashboard()
-    {
-        $user = auth()->user();
-        
-        // Get latest CHED application for this user
-        $latestApplication = $user->applicationForms()
-            ->where('program', 'CHED')
-            ->latest()
-            ->first();
-        
-        // Get personal info completion status
-        $personalInfo = $user->chedInfo;
-        
-        return view('ched.dashboard', [
-            'latestApplication' => $latestApplication,
-            'personalInfoCompleted' => $user->personal_info_completed ?? false,
-        ]);
-    }
+   public function dashboard()
+{
+    $chedInfo = auth()->user()->chedInfo;
+    
+    return view('ched.dashboard', compact('chedInfo'));
+}
 
     // =========================
     // Personal Information - VIEW PAGE (Read-only display)

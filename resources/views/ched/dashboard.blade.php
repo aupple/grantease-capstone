@@ -48,49 +48,27 @@
                     <div class="bg-white border border-gray-200 shadow-md rounded-2xl p-6 col-span-2">
                         <h2 class="font-semibold text-gray-800 mb-4">Form Status</h2>
 
-                        @php
-                            $latestApplication = auth()
-                                ->user()
-                                ->applicationForms()
-                                ->where('program', 'CHED')
-                                ->latest()
-                                ->first();
-                        @endphp
-
-                        @if ($latestApplication)
+                        @if ($chedInfo)
                             <div class="border rounded-xl p-4 bg-gray-100">
                                 <div class="flex justify-between items-center mb-2">
                                     <div>
-                                        <p class="font-semibold">{{ $latestApplication->program }} Scholarship</p>
+                                        <p class="font-semibold">CHED Personal Information</p>
                                         <p class="text-sm text-gray-500">
-                                            Submitted on: {{ $latestApplication->created_at->format('F d, Y') }}
+                                            Submitted on: {{ $chedInfo->created_at->format('F d, Y') }}
                                         </p>
                                     </div>
                                 </div>
 
-                                <!-- ✅ Simplified 2-Step Status Tracker for CHED -->
+                                <!-- ✅ Simplified 2-Step Status Tracker -->
                                 @php
-                                    $currentStatus = strtolower($latestApplication->status);
-
-                                    // CHED-specific status mapping
-                                    // Map all CHED statuses to either 'pending' or 'verdict'
-                                    $chedStatusMap = [
-                                        'submitted' => 'pending',
-                                        'pending' => 'pending',
-                                        'under_review' => 'pending',
-                                        'processing' => 'pending',
-                                        'approved' => 'verdict',
-                                        'rejected' => 'verdict',
-                                    ];
-
-                                    $mappedStatus = $chedStatusMap[$currentStatus] ?? 'pending';
+                                    $currentStatus = strtolower($chedInfo->status ?? 'pending');
 
                                     // Determine which step we're on
-if ($mappedStatus === 'verdict') {
-    $currentStep = 2; // Final verdict
-    $verdictLabel = $currentStatus; // 'approved' or 'rejected'
+if (in_array($currentStatus, ['approved', 'rejected'])) {
+    $currentStep = 2;
+    $verdictLabel = $currentStatus;
 } else {
-    $currentStep = 1; // Still pending
+    $currentStep = 1;
     $verdictLabel = 'pending';
                                     }
                                 @endphp
@@ -100,12 +78,9 @@ if ($mappedStatus === 'verdict') {
 
                                         <!-- Step 1: Pending -->
                                         <div class="flex flex-col items-center relative w-full">
-                                            <!-- Connector Line -->
                                             <div
                                                 class="absolute top-4 left-1/2 w-full h-[2px] z-0 {{ $currentStep >= 2 ? 'bg-blue-600' : 'bg-gray-300' }}">
                                             </div>
-
-                                            <!-- Circle -->
                                             <div
                                                 class="relative z-10 w-10 h-10 flex items-center justify-center rounded-full {{ $currentStep >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600' }}">
                                                 @if ($currentStep > 1)
@@ -114,17 +89,14 @@ if ($mappedStatus === 'verdict') {
                                                     1
                                                 @endif
                                             </div>
-
-                                            <!-- Label -->
                                             <p
                                                 class="text-sm mt-2 font-medium {{ $currentStep >= 1 ? 'text-blue-700' : 'text-gray-500' }}">
                                                 Pending Review
                                             </p>
                                         </div>
 
-                                        <!-- Step 2: Verdict (Approved/Rejected) -->
+                                        <!-- Step 2: Verdict -->
                                         <div class="flex flex-col items-center relative w-full">
-                                            <!-- Circle -->
                                             <div
                                                 class="relative z-10 w-10 h-10 flex items-center justify-center rounded-full text-white @if ($verdictLabel === 'rejected') bg-red-600 @elseif($verdictLabel === 'approved') bg-green-600 @else bg-gray-300 text-gray-600 @endif">
                                                 @if ($verdictLabel === 'rejected')
@@ -135,8 +107,6 @@ if ($mappedStatus === 'verdict') {
                                                     2
                                                 @endif
                                             </div>
-
-                                            <!-- Label -->
                                             <p
                                                 class="text-sm mt-2 font-semibold capitalize @if ($verdictLabel === 'rejected') text-red-600 @elseif($verdictLabel === 'approved') text-green-700 @else text-gray-500 @endif">
                                                 @if ($verdictLabel === 'rejected')
@@ -152,9 +122,9 @@ if ($mappedStatus === 'verdict') {
                                 </div>
 
                                 <div class="mt-5 text-right">
-                                    <a href="{{ route('ched.application.view') }}"
-                                        class="inline-block text-sm text-blue-700 hover:text-blue-900 font-medium transition">
-                                        View Details →
+                                    <a href="{{ route('ched.personal-information') }}"
+                                        class="inline-block text-sm font-semibold text-blue-700 hover:text-blue-900 font-medium transition">
+                                        View Details
                                     </a>
                                 </div>
                             </div>

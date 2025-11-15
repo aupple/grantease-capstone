@@ -109,6 +109,12 @@ Route::prefix('ched')->name('ched.')->group(function () {
             Route::get('/{id}', [AdminController::class, 'showRejected'])->name('show');
         });
 
+        Route::prefix('ched-scholars')->name('ched.')->group(function () {
+        Route::get('/', [AdminController::class, 'viewChedScholars'])->name('index');
+        Route::get('/{id}', [AdminController::class, 'showChedScholar'])->name('show');
+        Route::post('/{id}/update-status', [AdminController::class, 'updateChedStatus'])->name('update-status');
+    });
+
         // Reports
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
         Route::get('/reports/pdf', [AdminController::class, 'downloadReportPdf'])->name('reports.pdf');

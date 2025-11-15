@@ -13,6 +13,7 @@ class ChedInfo extends Model
 
     protected $fillable = [
         'user_id',
+        'status',
         'academic_year',
         'school_term',
         'application_no',
@@ -48,9 +49,9 @@ class ChedInfo extends Model
 
     // Relationship to User
     public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+{
+    return $this->belongsTo(User::class, 'user_id', 'user_id');
+}
 
     // Full name accessor
     public function getFullNameAttribute()

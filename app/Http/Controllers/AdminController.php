@@ -10,6 +10,7 @@ use App\Mail\ApplicationStatusMail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Models\ChedInfo;
 
 class AdminController extends Controller
 {
@@ -39,47 +40,77 @@ class AdminController extends Controller
      * Admin Dashboard
      */
     public function dashboard(Request $request)
-    {
-        $search = $request->query('search');
+{
+    $search = $request->query('search');
 
-        $total_applicants = ApplicationForm::count();
-        $pending = ApplicationForm::where('status', 'pending')->count();
-        $document_verification = ApplicationForm::where('status', 'document_verification')->count();
-        $approved = ApplicationForm::where('status', 'approved')->count();
-        $rejected = ApplicationForm::where('status', 'rejected')->count();
+    $total_applicants = ApplicationForm::count();
+    $pending = ApplicationForm::where('status', 'pending')->count();
+    $document_verification = ApplicationForm::where('status', 'document_verification')->count();
+    $approved = ApplicationForm::where('status', 'approved')->count();
+    $rejected = ApplicationForm::where('status', 'rejected')->count();
+    
+    // CHED Scholar Statistics
+    $total_ched_scholars = ChedInfo::count();
+    $pending_ched_scholars = ChedInfo::where('status', 'pending')->count();
+    $approved_ched_scholars = ChedInfo::where('status', 'approved')->count();
+    $rejected_ched_scholars = ChedInfo::where('status', 'rejected')->count();
 
-        $recent_applicants = ApplicationForm::with('user')
-            ->latest()
-            ->when($search, function ($query, $search) {
-                $firstLetter = substr($search, 0, 1);
-                $query->whereHas('user', function ($q) use ($firstLetter) {
-                    $q->where('first_name', 'like', "{$firstLetter}%")
-                        ->orWhere('last_name', 'like', "{$firstLetter}%");
-                });
-            })
-            ->take(10)
-            ->get();
+    // Get DOST applications
+    $recent_applicants = ApplicationForm::with('user')
+        ->latest()
+        ->when($search, function ($query, $search) {
+            $firstLetter = substr($search, 0, 1);
+            $query->whereHas('user', function ($q) use ($firstLetter) {
+                $q->where('first_name', 'like', "{$firstLetter}%")
+                    ->orWhere('last_name', 'like', "{$firstLetter}%");
+            });
+        })
+        ->take(10)
+        ->get();
 
-        $rawStatuses = Scholar::select('status', DB::raw('count(*) as total'))
-            ->groupBy('status')
-            ->pluck('total', 'status');
+    // Get CHED scholars
+    $recent_ched_scholars = ChedInfo::with('user')
+        ->latest()
+        ->when($search, function ($query, $search) {
+            $firstLetter = substr($search, 0, 1);
+            $query->whereHas('user', function ($q) use ($firstLetter) {
+                $q->where('first_name', 'like', "{$firstLetter}%")
+                    ->orWhere('last_name', 'like', "{$firstLetter}%");
+            });
+        })
+        ->take(10)
+        ->get();
 
-        $scholarStatuses = collect($this->scholarStatusMap)->mapWithKeys(function ($info, $key) use ($rawStatuses) {
-            return [$info['label'] => $rawStatuses[$key] ?? 0];
-        });
+    // ✅ Combine and sort by date (most recent first)
+    $combined_recent = collect($recent_applicants)
+        ->merge($recent_ched_scholars)
+        ->sortByDesc('created_at')
+        ->take(10)
+        ->values(); // Reset array keys
 
-        return view('admin.dashboard', compact(
-            'total_applicants',
-            'pending',
-            'document_verification',
-            'approved',
-            'rejected',
-            'recent_applicants',
-            'scholarStatuses',
-            'search'
-        ));
-    }
+    $rawStatuses = Scholar::select('status', DB::raw('count(*) as total'))
+        ->groupBy('status')
+        ->pluck('total', 'status');
 
+    $scholarStatuses = collect($this->scholarStatusMap)->mapWithKeys(function ($info, $key) use ($rawStatuses) {
+        return [$info['label'] => $rawStatuses[$key] ?? 0];
+    });
+
+    return view('admin.dashboard', compact(
+        'total_applicants',
+        'pending',
+        'document_verification',
+        'approved',
+        'rejected',
+        'combined_recent',
+        'scholarStatuses',
+        'search',
+        'total_ched_scholars',
+        'pending_ched_scholars',
+        'approved_ched_scholars',
+        'rejected_ched_scholars'
+    ));
+}
 
     /**
      * View / list applications
@@ -416,31 +447,162 @@ class AdminController extends Controller
      * View approved scholars
      */
     public function viewScholars(Request $request)
-    {
-        $program = $request->query('program');
-        $semester = $request->query('semester');
-        $search = $request->query('search'); // from your search bar
+{
+    $program = $request->query('program', 'all');
+    $semester = $request->query('semester', 'all');
+    $search = $request->query('search');
 
-        $scholars = \App\Models\Scholar::with(['user', 'applicationForm'])
-            ->whereHas('applicationForm', function ($query) use ($program, $semester) {
-                if ($program && $program !== 'all') {
-                    $query->where('program', $program);
-                }
+    $combinedScholars = collect();
+
+    // Get DOST scholars
+    if ($program === 'DOST' || $program === 'all') {
+        $dostScholars = \App\Models\Scholar::with(['user', 'applicationForm'])
+            ->whereHas('applicationForm', function ($q) use ($semester) {
+                $q->where('program', 'DOST');
                 if ($semester && $semester !== 'all') {
-                    $query->where('school_term', $semester);
+                    $q->where('school_term', $semester);
                 }
             })
-            // 🔍 First-letter search only
             ->when($search, function ($query, $search) {
                 $query->whereHas('user', function ($userQuery) use ($search) {
-                    $firstLetter = substr($search, 0, 1); // take only first character
+                    $firstLetter = substr($search, 0, 1);
                     $userQuery->where('first_name', 'like', "{$firstLetter}%")
                         ->orWhere('last_name', 'like', "{$firstLetter}%");
                 });
             })
             ->latest()
-            ->paginate(10);
-
-        return view('admin.scholars.index', compact('scholars', 'program', 'semester', 'search'));
+            ->get()
+            ->each(function ($scholar) {
+                $scholar->program_type = 'DOST';
+            });
+        
+        $combinedScholars = $combinedScholars->merge($dostScholars);
     }
+
+    // Get CHED scholars
+    if ($program === 'CHED' || $program === 'all') {
+        $chedScholars = \App\Models\ChedInfo::with('user')
+            ->where('status', 'approved')
+            ->when($semester !== 'all', function ($query) use ($semester) {
+                $query->where('school_term', $semester);
+            })
+            ->when($search, function ($query, $search) {
+                $query->whereHas('user', function ($userQuery) use ($search) {
+                    $firstLetter = substr($search, 0, 1);
+                    $userQuery->where('first_name', 'like', "{$firstLetter}%")
+                        ->orWhere('last_name', 'like', "{$firstLetter}%");
+                });
+            })
+            ->latest()
+            ->get()
+            ->map(function ($chedInfo) {
+                // Create a scholar-like object
+                $scholar = new \stdClass();
+                $scholar->id = $chedInfo->id;
+                $scholar->user = $chedInfo->user; // Keep the actual user object
+                $scholar->status = $chedInfo->status;
+                $scholar->updated_at = $chedInfo->updated_at;
+                $scholar->program_type = 'CHED';
+                
+                // Create applicationForm object
+                $scholar->applicationForm = new \stdClass();
+                $scholar->applicationForm->program = 'CHED';
+                $scholar->applicationForm->scholarship_type = 'CHED Scholar';
+                $scholar->applicationForm->bs_university = 'N/A';
+                $scholar->applicationForm->school_term = $chedInfo->school_term ?? 'N/A';
+                
+                return $scholar;
+            });
+        
+        $combinedScholars = $combinedScholars->merge($chedScholars);
+    }
+
+    // Sort by updated_at
+    $combinedScholars = $combinedScholars->sortByDesc(function($scholar) {
+        return $scholar->updated_at;
+    })->values();
+
+    // Manual pagination
+    $perPage = 10;
+    $currentPage = $request->query('page', 1);
+    $total = $combinedScholars->count();
+    $offset = ($currentPage - 1) * $perPage;
+    
+    $paginatedItems = $combinedScholars->slice($offset, $perPage)->values();
+
+    $scholars = new \Illuminate\Pagination\LengthAwarePaginator(
+        $paginatedItems,
+        $total,
+        $perPage,
+        $currentPage,
+        ['path' => $request->url(), 'query' => $request->query()]
+    );
+
+    return view('admin.scholars.index', [
+        'scholars' => $scholars,
+        'program' => $program,
+        'semester' => $semester,
+        'search' => $search
+    ]);
+}
+    /**
+ * View all CHED scholars
+ */
+public function viewChedScholars(Request $request)
+{
+    $search = $request->query('search');
+    $status = $request->query('status');
+
+    $chedScholars = \App\Models\ChedInfo::with('user')
+        ->when($status, function ($query, $status) {
+            $query->where('status', $status);
+        })
+        ->when($search, function ($query, $search) {
+            $query->whereHas('user', function ($userQuery) use ($search) {
+                $firstLetter = substr($search, 0, 1);
+                $userQuery->where('first_name', 'like', "{$firstLetter}%")
+                    ->orWhere('last_name', 'like', "{$firstLetter}%");
+            });
+        })
+        ->latest()
+        ->paginate(15);
+
+    return view('admin.ched.index', compact('chedScholars', 'search', 'status'));
+}
+
+/**
+ * View individual CHED scholar details
+ */
+public function showChedScholar($id)
+{
+    $chedInfo = \App\Models\ChedInfo::with('user')->findOrFail($id);
+    
+    return view('admin.ched.show', compact('chedInfo'));
+}
+
+/**
+ * Update CHED scholar status
+ */
+public function updateChedStatus(Request $request, $id)
+{
+    $request->validate([
+        'status' => 'required|in:pending,approved,rejected'
+    ]);
+    
+    $chedInfo = \App\Models\ChedInfo::findOrFail($id);
+    $chedInfo->status = $request->status;
+    $chedInfo->updated_at = now(); // Force update timestamp
+    $chedInfo->save();
+    
+    // Debug: Log the update
+    \Log::info('CHED Status Updated', [
+        'id' => $id,
+        'new_status' => $request->status,
+        'saved' => $chedInfo->wasChanged()
+    ]);
+    
+    return redirect()
+        ->back()
+        ->with('success', 'Status updated to: ' . ucfirst($request->status));
+}
 }
