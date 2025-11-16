@@ -31,7 +31,9 @@ Route::prefix('ched')->name('ched.')->group(function () {
     
     // View page (read-only display)
     Route::get('/personal-information', [ChedController::class, 'personalInformation'])->name('personal-information');
-    
+
+    Route::get('/reports', [ChedController::class, 'reports'])->name('reports');
+
     // CHED Reports
     Route::get('/report/grade', [ChedController::class, 'generateGradeReport'])->name('report.grade');
     Route::get('/report/enrollment', [ChedController::class, 'generateEnrollmentReport'])->name('report.enrollment');
@@ -115,6 +117,7 @@ Route::prefix('ched')->name('ched.')->group(function () {
         Route::post('/{id}/update-status', [AdminController::class, 'updateChedStatus'])->name('update-status');
     });
 
+
         // Reports
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
         Route::get('/reports/pdf', [AdminController::class, 'downloadReportPdf'])->name('reports.pdf');
@@ -128,9 +131,18 @@ Route::prefix('ched')->name('ched.')->group(function () {
         Route::post('/reports/applicants/update-field', [ReportController::class, 'updateField'])->name('reports.applicants.update-field');
         Route::get('/reports/monitoring/download', [ReportController::class, 'downloadMonitoring'])->name('reports.monitoring.download');
         Route::get('/reports/monitoring/print', [ReportController::class, 'printMonitoring'])->name('reports.monitoring.print');
-        Route::get('/reports/ched-monitoring', [ReportController::class, 'chedmonitoring'])->name('reports.ched-monitoring');
+        
+        //Ched monitoring
+        Route::post('/reports/ched-monitoring/add-to-enrollment/{id}', [ChedController::class, 'addToEnrollment'])->name('reports.ched-monitoring.add-to-enrollment');
+        Route::post('/reports/ched-monitoring/update-enrollment/{id}', [ChedController::class, 'updateEnrollmentReport'])->name('reports.ched-monitoring.update-enrollment');
+        Route::post('/reports/ched-monitoring/update-grade/{id}', [ChedController::class, 'updateGradeReport'])->name('reports.ched-monitoring.update-grade');
+        Route::get('/reports/ched-monitoring', [ChedController::class, 'reports'])->name('reports.ched-monitoring');
         Route::get('/reports/monitoring/{id}', [ReportController::class, 'showMonitoring'])->name('reports.monitoring.show');
         Route::get('/reports/monitoring-print-info', [ReportController::class, 'printPersonalInfo'])->name('reports.monitoring-print-info');
+        Route::post('/reports/ched-monitoring/add-to-continuing/{id}', [ChedController::class, 'addToContinuing'])->name('reports.ched-monitoring.add-to-continuing');
+        Route::post('/reports/ched-monitoring/update-continuing/{id}', [ChedController::class, 'updateContinuingReport'])->name('reports.ched-monitoring.update-continuing');
+
+
         // Scholars
         Route::get('/scholars', [AdminController::class, 'viewScholars'])->name('scholars');
         Route::get('/scholars/{id}', [AdminController::class, 'showScholar'])->name('scholars.show');

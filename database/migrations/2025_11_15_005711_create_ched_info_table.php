@@ -59,7 +59,7 @@ return new class extends Migration
             $table->string('father_name')->nullable();
             $table->string('mother_name')->nullable();
 
-            $table->timestamps();
+            $table->timestamps();   
         });
     }
 

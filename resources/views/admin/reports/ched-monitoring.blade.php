@@ -150,22 +150,23 @@
                         'middle_name' => 'Middle Name',
                         'suffix' => 'Suffix',
                         'street' => 'Street',
-                        'village' => 'Village',
-                        'town' => 'Town',
+                        'barangay' => 'Village',
+                        'city' => 'Town',
                         'province' => 'Province',
-                        'zipcode' => 'Zipcode',
+                        'zip_code' => 'Zipcode',
                         'district' => 'District',
                         'region' => 'Region',
                         'email' => 'Email',
-                        'birthday' => 'Birthday',
+                        'date_of_birth' => 'Birthday',
                         'contact_no' => 'Contact No.',
-                        'gender' => 'Gender',
+                        'sex' => 'Gender',
+                        'age' => 'Age',
                     ];
 
                     $gradeReportCols = [
                         'gr_no' => 'No.',
                         'gr_name' => 'Name',
-                        'gr_application_number' => 'Application Number',
+                        'application_no' => 'Application Number',
                         'gr_degree_program' => 'Degree Program',
                         'gr_enrolled_subjects' => 'Enrolled Subjects',
                         'gr_subjects_passed' => 'Subjects Passed',
@@ -443,10 +444,10 @@
                                             class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 col-{{ $col }}">
                                             @if ($col === 'no')
                                                 {{ $index + 1 }}
-                                            @elseif($col === 'birthday')
-                                                {{ $scholar->birthday ? \Carbon\Carbon::parse($scholar->birthday)->format('m/d/Y') : '' }}
+                                            @elseif($col === 'Birthday')
+                                                {{ $scholar->date_of_birth ? \Carbon\Carbon::parse($scholar->date_of_birth)->format('m/d/Y') : '' }}
                                             @else
-                                                {{ data_get($scholar, $col) ?? '' }}
+                                                {{ $scholar->$col ?? '' }}
                                             @endif
                                         </td>
                                     @endforeach
@@ -475,50 +476,99 @@
                                         {{ $label }}
                                     </th>
                                 @endforeach
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                    Actions
+                                </th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse ($scholars ?? [] as $index => $scholar)
-                                <tr class="hover:bg-gray-50">
+                                <tr class="hover:bg-gray-50" data-scholar-id="{{ $scholar->id }}">
                                     @foreach ($gradeReportCols as $col => $label)
                                         <td class="px-4 py-3 text-sm text-gray-900 col-{{ $col }}">
                                             @if ($col === 'gr_no')
                                                 {{ $index + 1 }}
                                             @elseif($col === 'gr_name')
+                                                {{-- Name is always visible, never editable --}}
                                                 {{ trim(($scholar->first_name ?? '') . ' ' . ($scholar->middle_name ?? '') . ' ' . ($scholar->last_name ?? '') . ' ' . ($scholar->suffix ?? '')) }}
-                                            @elseif($col === 'gr_application_number')
-                                                {{ $scholar->application_number ?? '' }}
+                                            @elseif($col === 'application_no')
+                                                {{-- Application Number is always visible, never editable --}}
+                                                {{ $scholar->application_no ?? '' }}
                                             @elseif($col === 'gr_degree_program')
-                                                {{ $scholar->degree_program ?? '' }}
+                                                <span class="view-mode">{{ $scholar->degree_program ?? '' }}</span>
+                                                <input type="text"
+                                                    class="edit-mode hidden w-full px-2 py-1 border rounded"
+                                                    name="degree_program" value="{{ $scholar->degree_program ?? '' }}">
                                             @elseif($col === 'gr_enrolled_subjects')
-                                                {{ $scholar->enrolled_subjects ?? '' }}
+                                                <span class="view-mode">{{ $scholar->enrolled_subjects ?? '' }}</span>
+                                                <input type="number"
+                                                    class="edit-mode hidden w-full px-2 py-1 border rounded"
+                                                    name="enrolled_subjects"
+                                                    value="{{ $scholar->enrolled_subjects ?? '' }}">
                                             @elseif($col === 'gr_subjects_passed')
-                                                {{ $scholar->subjects_passed ?? '' }}
+                                                <span class="view-mode">{{ $scholar->subjects_passed ?? '' }}</span>
+                                                <input type="number"
+                                                    class="edit-mode hidden w-full px-2 py-1 border rounded"
+                                                    name="subjects_passed" value="{{ $scholar->subjects_passed ?? '' }}">
                                             @elseif($col === 'gr_incomplete_grades')
-                                                {{ $scholar->incomplete_grades ?? '' }}
+                                                <span class="view-mode">{{ $scholar->incomplete_grades ?? '' }}</span>
+                                                <input type="number"
+                                                    class="edit-mode hidden w-full px-2 py-1 border rounded"
+                                                    name="incomplete_grades"
+                                                    value="{{ $scholar->incomplete_grades ?? '' }}">
                                             @elseif($col === 'gr_subjects_failed')
-                                                {{ $scholar->subjects_failed ?? '' }}
+                                                <span class="view-mode">{{ $scholar->subjects_failed ?? '' }}</span>
+                                                <input type="number"
+                                                    class="edit-mode hidden w-full px-2 py-1 border rounded"
+                                                    name="subjects_failed" value="{{ $scholar->subjects_failed ?? '' }}">
                                             @elseif($col === 'gr_no_grades')
-                                                {{ $scholar->no_grades ?? '' }}
+                                                <span class="view-mode">{{ $scholar->no_grades ?? '' }}</span>
+                                                <input type="number"
+                                                    class="edit-mode hidden w-full px-2 py-1 border rounded"
+                                                    name="no_grades" value="{{ $scholar->no_grades ?? '' }}">
                                             @elseif($col === 'gr_not_credited')
-                                                {{ $scholar->not_credited_subjects ?? '' }}
+                                                <span class="view-mode">{{ $scholar->not_credited_subjects ?? '' }}</span>
+                                                <input type="number"
+                                                    class="edit-mode hidden w-full px-2 py-1 border rounded"
+                                                    name="not_credited_subjects"
+                                                    value="{{ $scholar->not_credited_subjects ?? '' }}">
                                             @elseif($col === 'gr_status')
-                                                <span
-                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                                    {{ ($scholar->status ?? '') === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                                    {{ $scholar->status ?? '' }}
-                                                </span>
+                                                <span class="view-mode">{{ $scholar->grade_status ?? '' }}</span>
+                                                <input type="text"
+                                                    class="edit-mode hidden w-full px-2 py-1 border rounded"
+                                                    name="status" value="{{ $scholar->grade_status ?? '' }}">
                                             @elseif($col === 'gr_gpa')
-                                                {{ $scholar->gpa ? number_format($scholar->gpa, 2) : '' }}
+                                                <span
+                                                    class="view-mode">{{ $scholar->gpa ? number_format($scholar->gpa, 2) : '' }}</span>
+                                                <input type="number" step="0.01"
+                                                    class="edit-mode hidden w-full px-2 py-1 border rounded"
+                                                    name="gpa" value="{{ $scholar->gpa ?? '' }}">
                                             @elseif($col === 'gr_remarks')
-                                                {{ $scholar->remarks ?? '' }}
+                                                <span class="view-mode">{{ $scholar->remarks ?? '' }}</span>
+                                                <textarea class="edit-mode hidden w-full px-2 py-1 border rounded" name="remarks" rows="2">{{ $scholar->remarks ?? '' }}</textarea>
                                             @endif
                                         </td>
                                     @endforeach
+                                    <td class="px-4 py-3 text-sm whitespace-nowrap">
+                                        <button
+                                            class="edit-btn view-mode bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs">
+                                            Edit
+                                        </button>
+                                        <div class="edit-mode hidden flex gap-2">
+                                            <button
+                                                class="save-btn bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs">
+                                                Save
+                                            </button>
+                                            <button
+                                                class="cancel-btn bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded text-xs">
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="{{ count($gradeReportCols) }}"
+                                    <td colspan="{{ count($gradeReportCols) + 1 }}"
                                         class="px-4 py-8 text-center text-gray-500">
                                         No grade reports found for the selected filters.
                                     </td>
@@ -529,14 +579,22 @@
                 </div>
             </div>
 
+            {{-- SIKAP DHEI Enrollment Report --}}
             <div id="table-enrollment" class="view-table hidden">
                 {{-- TABLE A: Enrolled Scholars, With No Issues --}}
                 <div class="mb-8">
-                    <h2 class="text-lg font-bold text-gray-900 bg-gray-100 px-4 py-3 border-b-2 border-gray-300">
-                        A. Enrolled Scholars, With No Issues
-                    </h2>
+                    <div class="flex justify-between items-center bg-gray-100 px-4 py-3 border-b-2 border-gray-300">
+                        <h2 class="text-lg font-bold text-gray-900">
+                            A. Enrolled Scholars, With No Issues
+                        </h2>
+                        <button
+                            class="add-scholar-btn no-print bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-semibold"
+                            data-table="a">
+                            + Add Scholar
+                        </button>
+                    </div>
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200" data-table="a">
                             <thead class="bg-gray-50">
                                 <tr>
                                     @foreach ($enrollmentACols as $col => $label)
@@ -545,32 +603,86 @@
                                             {{ $label }}
                                         </th>
                                     @endforeach
+                                    <th
+                                        class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                        Actions
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse (($scholars_enrollment_a ?? []) as $index => $scholar)
-                                    <tr class="hover:bg-gray-50">
+                                    <tr class="hover:bg-gray-50" data-scholar-id="{{ $scholar->id }}">
                                         <td class="px-4 py-3 text-sm text-gray-900 col-enr_a_no">{{ $index + 1 }}</td>
                                         <td class="px-4 py-3 text-sm text-gray-900 col-enr_a_name">
                                             {{ trim(($scholar->first_name ?? '') . ' ' . ($scholar->middle_name ?? '') . ' ' . ($scholar->last_name ?? '') . ' ' . ($scholar->suffix ?? '')) }}
                                         </td>
                                         <td class="px-4 py-3 text-sm text-gray-900 col-enr_a_application_number">
-                                            {{ $scholar->application_number ?? '' }}</td>
+                                            {{ $scholar->application_no ?? '' }}
+                                        </td>
                                         <td class="px-4 py-3 text-sm text-gray-900 col-enr_a_degree_program">
-                                            {{ $scholar->degree_program ?? '' }}</td>
+                                            <span class="view-mode">{{ $scholar->degree_program ?? '' }}</span>
+                                            <input type="text" class="edit-mode hidden w-full px-2 py-1 border rounded"
+                                                name="degree_program" value="{{ $scholar->degree_program ?? '' }}">
+                                        </td>
                                         <td class="px-4 py-3 text-sm text-gray-900 col-enr_a_status">
-                                            {{ $scholar->enrollment_status ?? '' }}</td>
+                                            <span class="view-mode">{{ $scholar->enrollment_status ?? '' }}</span>
+                                            <select class="edit-mode hidden w-full px-2 py-1 border rounded"
+                                                name="enrollment_status">
+                                                <option value="">Select Status</option>
+                                                <option value="Units"
+                                                    {{ ($scholar->enrollment_status ?? '') == 'Units' ? 'selected' : '' }}>
+                                                    Units</option>
+                                                <option value="Residency"
+                                                    {{ ($scholar->enrollment_status ?? '') == 'Residency' ? 'selected' : '' }}>
+                                                    Residency</option>
+                                                <option value="Others"
+                                                    {{ ($scholar->enrollment_status ?? '') == 'Others' ? 'selected' : '' }}>
+                                                    Others</option>
+                                            </select>
+                                        </td>
                                         <td class="px-4 py-3 text-sm text-gray-900 col-enr_a_units_enrolled">
-                                            {{ $scholar->units_enrolled ?? '' }}</td>
+                                            <span class="view-mode">{{ $scholar->units_enrolled ?? '' }}</span>
+                                            <input type="number" class="edit-mode hidden w-full px-2 py-1 border rounded"
+                                                name="units_enrolled" value="{{ $scholar->units_enrolled ?? '' }}">
+                                        </td>
                                         <td class="px-4 py-3 text-sm text-gray-900 col-enr_a_retaken_subjects">
-                                            {{ $scholar->retaken_subjects ?? '' }}</td>
+                                            <span class="view-mode">{{ $scholar->retaken_subjects ?? '' }}</span>
+                                            <select class="edit-mode hidden w-full px-2 py-1 border rounded"
+                                                name="retaken_subjects">
+                                                <option value="">Select</option>
+                                                <option value="Yes"
+                                                    {{ ($scholar->retaken_subjects ?? '') == 'Yes' ? 'selected' : '' }}>Yes
+                                                </option>
+                                                <option value="No"
+                                                    {{ ($scholar->retaken_subjects ?? '') == 'No' ? 'selected' : '' }}>No
+                                                </option>
+                                            </select>
+                                        </td>
                                         <td class="px-4 py-3 text-sm text-gray-900 col-enr_a_remarks">
-                                            {{ $scholar->remarks ?? '' }}</td>
+                                            <span class="view-mode">{{ $scholar->remarks ?? '' }}</span>
+                                            <textarea class="edit-mode hidden w-full px-2 py-1 border rounded" name="remarks" rows="2">{{ $scholar->remarks ?? '' }}</textarea>
+                                        </td>
+                                        <td class="px-4 py-3 text-sm whitespace-nowrap">
+                                            <button
+                                                class="edit-btn view-mode bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs">
+                                                Edit
+                                            </button>
+                                            <div class="edit-mode hidden flex gap-2">
+                                                <button
+                                                    class="save-btn bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs">
+                                                    Save
+                                                </button>
+                                                <button
+                                                    class="cancel-btn bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded text-xs">
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="px-4 py-8 text-center text-gray-500">
-                                            No enrolled scholars with no issues found.
+                                        <td colspan="9" class="px-4 py-8 text-center text-gray-500">
+                                            No enrolled scholars with no issues found. Click "Add Scholar" to add one.
                                         </td>
                                     </tr>
                                 @endforelse
@@ -579,13 +691,21 @@
                     </div>
                 </div>
 
-                {{-- TABLE B: Enrolled Scholars, But With Issues --}}
+                {{-- Similar structure for Tables B, C, D --}}
+                {{-- TABLE B --}}
                 <div class="mb-8">
-                    <h2 class="text-lg font-bold text-gray-900 bg-gray-100 px-4 py-3 border-b-2 border-gray-300">
-                        B. Enrolled Scholars, But With Issues
-                    </h2>
+                    <div class="flex justify-between items-center bg-gray-100 px-4 py-3 border-b-2 border-gray-300">
+                        <h2 class="text-lg font-bold text-gray-900">
+                            B. Enrolled Scholars, But With Issues
+                        </h2>
+                        <button
+                            class="add-scholar-btn no-print bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-semibold"
+                            data-table="b">
+                            + Add Scholar
+                        </button>
+                    </div>
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200" data-table="b">
                             <thead class="bg-gray-50">
                                 <tr>
                                     @foreach ($enrollmentBCols as $col => $label)
@@ -594,30 +714,18 @@
                                             {{ $label }}
                                         </th>
                                     @endforeach
+                                    <th
+                                        class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                        Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse (($scholars_enrollment_b ?? []) as $index => $scholar)
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-enr_b_no">{{ $index + 1 }}</td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-enr_b_name">
-                                            {{ trim(($scholar->first_name ?? '') . ' ' . ($scholar->middle_name ?? '') . ' ' . ($scholar->last_name ?? '') . ' ' . ($scholar->suffix ?? '')) }}
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-enr_b_application_number">
-                                            {{ $scholar->application_number ?? '' }}</td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-enr_b_degree_program">
-                                            {{ $scholar->degree_program ?? '' }}</td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-enr_b_status">
-                                            {{ $scholar->issue_status ?? '' }}</td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-enr_b_others_status">
-                                            {{ $scholar->others_status ?? '' }}</td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-enr_b_description">
-                                            {{ $scholar->status_description ?? '' }}</td>
-                                    </tr>
+                                    {{-- Same structure as Table A but with Table B fields --}}
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="px-4 py-8 text-center text-gray-500">
-                                            No enrolled scholars with issues found.
+                                        <td colspan="8" class="px-4 py-8 text-center text-gray-500">
+                                            No enrolled scholars with issues found. Click "Add Scholar" to add one.
                                         </td>
                                     </tr>
                                 @endforelse
@@ -626,13 +734,20 @@
                     </div>
                 </div>
 
-                {{-- TABLE C: Expected to Enroll, But Did Not Enroll --}}
+                {{-- TABLE C --}}
                 <div class="mb-8">
-                    <h2 class="text-lg font-bold text-gray-900 bg-gray-100 px-4 py-3 border-b-2 border-gray-300">
-                        C. Expected to Enroll, But Did Not Enroll
-                    </h2>
+                    <div class="flex justify-between items-center bg-gray-100 px-4 py-3 border-b-2 border-gray-300">
+                        <h2 class="text-lg font-bold text-gray-900">
+                            C. Expected to Enroll, But Did Not Enroll
+                        </h2>
+                        <button
+                            class="add-scholar-btn no-print bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-semibold"
+                            data-table="c">
+                            + Add Scholar
+                        </button>
+                    </div>
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200" data-table="c">
                             <thead class="bg-gray-50">
                                 <tr>
                                     @foreach ($enrollmentCCols as $col => $label)
@@ -641,30 +756,19 @@
                                             {{ $label }}
                                         </th>
                                     @endforeach
+                                    <th
+                                        class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                        Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse (($scholars_enrollment_c ?? []) as $index => $scholar)
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-enr_c_no">{{ $index + 1 }}</td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-enr_c_name">
-                                            {{ trim(($scholar->first_name ?? '') . ' ' . ($scholar->middle_name ?? '') . ' ' . ($scholar->last_name ?? '') . ' ' . ($scholar->suffix ?? '')) }}
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-enr_c_application_number">
-                                            {{ $scholar->application_number ?? '' }}</td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-enr_c_degree_program">
-                                            {{ $scholar->degree_program ?? '' }}</td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-enr_c_status">
-                                            {{ $scholar->non_enrollment_status ?? '' }}</td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-enr_c_others_status">
-                                            {{ $scholar->others_status ?? '' }}</td>
-                                        <td class="px-4 py-3 text-sm text-sm text-gray-900 col-enr_c_description">
-                                            {{ $scholar->status_description ?? '' }}</td>
-                                    </tr>
+                                    {{-- Same structure as Table A but with Table C fields --}}
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="px-4 py-8 text-center text-gray-500">
-                                            No scholars expected to enroll but did not enroll found.
+                                        <td colspan="8" class="px-4 py-8 text-center text-gray-500">
+                                            No scholars expected to enroll but did not enroll found. Click "Add Scholar" to
+                                            add one.
                                         </td>
                                     </tr>
                                 @endforelse
@@ -673,13 +777,20 @@
                     </div>
                 </div>
 
-                {{-- TABLE D: Scholars No Longer Expected to Enroll --}}
+                {{-- TABLE D --}}
                 <div class="mb-8">
-                    <h2 class="text-lg font-bold text-gray-900 bg-gray-100 px-4 py-3 border-b-2 border-gray-300">
-                        D. Scholars No Longer Expected to Enroll
-                    </h2>
+                    <div class="flex justify-between items-center bg-gray-100 px-4 py-3 border-b-2 border-gray-300">
+                        <h2 class="text-lg font-bold text-gray-900">
+                            D. Scholars No Longer Expected to Enroll
+                        </h2>
+                        <button
+                            class="add-scholar-btn no-print bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-semibold"
+                            data-table="d">
+                            + Add Scholar
+                        </button>
+                    </div>
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200" data-table="d">
                             <thead class="bg-gray-50">
                                 <tr>
                                     @foreach ($enrollmentDCols as $col => $label)
@@ -688,169 +799,18 @@
                                             {{ $label }}
                                         </th>
                                     @endforeach
+                                    <th
+                                        class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                        Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse (($scholars_enrollment_d ?? []) as $index => $scholar)
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-enr_d_no">{{ $index + 1 }}</td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-enr_d_name">
-                                            {{ trim(($scholar->first_name ?? '') . ' ' . ($scholar->middle_name ?? '') . ' ' . ($scholar->last_name ?? '') . ' ' . ($scholar->suffix ?? '')) }}
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-enr_d_application_number">
-                                            {{ $scholar->application_number ?? '' }}</td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-enr_d_degree_program">
-                                            {{ $scholar->degree_program ?? '' }}</td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-enr_d_status">
-                                            {{ $scholar->termination_status ?? '' }}</td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-enr_d_others_status">
-                                            {{ $scholar->others_status ?? '' }}</td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-enr_d_description">
-                                            {{ $scholar->status_description ?? '' }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="7" class="px-4 py-8 text-center text-gray-500">
-                                            No scholars no longer expected to enroll found.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div id="table-continuing" class="view-table hidden">
-                {{-- TABLE A: Continuing Scholars --}}
-                <div class="mb-8">
-                    <h2 class="text-lg font-bold text-gray-900 bg-gray-100 px-4 py-3 border-b-2 border-gray-300">
-                        A. Continuing Scholars
-                    </h2>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    @foreach ($continuingACols as $col => $label)
-                                        <th
-                                            class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider col-{{ $col }}">
-                                            {{ $label }}
-                                        </th>
-                                    @endforeach
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @forelse (($scholars_continuing_a ?? []) as $index => $scholar)
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_name">
-                                            {{ trim(($scholar->first_name ?? '') . ' ' . ($scholar->middle_name ?? '') . ' ' . ($scholar->last_name ?? '') . ' ' . ($scholar->suffix ?? '')) }}
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_application_number">
-                                            {{ $scholar->application_number ?? '' }}
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_scholarship_type">
-                                            {{ $scholar->scholarship_type ?? '' }}
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_degree_program">
-                                            {{ $scholar->degree_program ?? '' }}
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_year_approval">
-                                            {{ $scholar->year_of_approval ?? '' }}
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_last_term">
-                                            {{ $scholar->last_term_enrollment ?? '' }}
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_good_standing">
-                                            @if (isset($scholar->good_academic_standing))
-                                                <span
-                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                        {{ $scholar->good_academic_standing ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                                    {{ $scholar->good_academic_standing ? 'Yes' : 'No' }}
-                                                </span>
-                                            @endif
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_standing_explanation">
-                                            {{ $scholar->standing_explanation ?? '' }}
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_finish_on_time">
-                                            @if (isset($scholar->finish_on_time))
-                                                <span
-                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                        {{ $scholar->finish_on_time ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
-                                                    {{ $scholar->finish_on_time ? 'Yes' : 'No' }}
-                                                </span>
-                                            @endif
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_finish_explanation">
-                                            {{ $scholar->finish_explanation ?? '' }}
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_recommendation">
-                                            {{ $scholar->recommendation ?? '' }}
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_rationale">
-                                            {{ $scholar->rationale ?? '' }}
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="12" class="px-4 py-8 text-center text-gray-500">
-                                            No continuing scholars found.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                {{-- TABLE B: Scholars Who Have Completed Their Degrees --}}
-                <div class="mb-8">
-                    <h2 class="text-lg font-bold text-gray-900 bg-gray-100 px-4 py-3 border-b-2 border-gray-300">
-                        B. Scholars Who Have Completed Their Degrees
-                    </h2>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    @foreach ($continuingBCols as $col => $label)
-                                        <th
-                                            class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider col-{{ $col }}">
-                                            {{ $label }}
-                                        </th>
-                                    @endforeach
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @forelse (($scholars_continuing_b ?? []) as $index => $scholar)
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-cont_b_no">
-                                            {{ $index + 1 }}
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-cont_b_name">
-                                            {{ trim(($scholar->first_name ?? '') . ' ' . ($scholar->middle_name ?? '') . ' ' . ($scholar->last_name ?? '') . ' ' . ($scholar->suffix ?? '')) }}
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-cont_b_application_number">
-                                            {{ $scholar->application_number ?? '' }}
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-cont_b_scholarship_type">
-                                            {{ $scholar->scholarship_type ?? '' }}
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-cont_b_degree_program">
-                                            {{ $scholar->degree_program ?? '' }}
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-cont_b_academic_year">
-                                            {{ $scholar->academic_year_graduation ?? '' }}
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-cont_b_term_graduation">
-                                            {{ $scholar->term_of_graduation ?? '' }}
-                                        </td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 col-cont_b_remarks">
-                                            {{ $scholar->remarks ?? '' }}
-                                        </td>
-                                    </tr>
+                                    {{-- Same structure as Table A but with Table D fields --}}
                                 @empty
                                     <tr>
                                         <td colspan="8" class="px-4 py-8 text-center text-gray-500">
-                                            No scholars who have completed their degrees found.
+                                            No scholars no longer expected to enroll found. Click "Add Scholar" to add one.
                                         </td>
                                     </tr>
                                 @endforelse
@@ -859,161 +819,295 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Add Scholar Modal --}}
+            <div id="addScholarModal"
+                class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+                <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-2/3 lg:w-1/2 shadow-lg rounded-md bg-white">
+                    <div class="flex justify-between items-center pb-3 border-b">
+                        <h3 class="text-xl font-bold">Select Scholar to Add</h3>
+                        <button class="close-modal text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+                    </div>
+
+                    <div class="mt-4">
+                        <input type="text" id="scholarSearch" placeholder="Search by name or application number..."
+                            class="w-full px-4 py-2 border rounded-lg mb-4">
+
+                        <div id="scholarList" class="max-h-96 overflow-y-auto">
+                            @foreach ($scholars ?? [] as $scholar)
+                                <div class="scholar-item p-3 hover:bg-gray-100 cursor-pointer border-b flex justify-between items-center"
+                                    data-scholar-id="{{ $scholar->id }}"
+                                    data-name="{{ trim(($scholar->first_name ?? '') . ' ' . ($scholar->middle_name ?? '') . ' ' . ($scholar->last_name ?? '') . ' ' . ($scholar->suffix ?? '')) }}"
+                                    data-application="{{ $scholar->application_no }}">
+                                    <div>
+                                        <div class="font-semibold">
+                                            {{ trim(($scholar->first_name ?? '') . ' ' . ($scholar->middle_name ?? '') . ' ' . ($scholar->last_name ?? '') . ' ' . ($scholar->suffix ?? '')) }}
+                                        </div>
+                                        <div class="text-sm text-gray-600">{{ $scholar->application_no }}</div>
+                                    </div>
+                                    <button
+                                        class="select-scholar-btn bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
+                                        Select
+                                    </button>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+           {{-- SIKAP Continuing Eligibility Report --}}
+<div id="table-continuing" class="view-table hidden">
+    {{-- TABLE A: Continuing Scholars --}}
+    <div class="mb-8">
+        <div class="flex justify-between items-center bg-gray-100 px-4 py-3 border-b-2 border-gray-300">
+            <h2 class="text-lg font-bold text-gray-900">
+                A. Continuing Scholars
+            </h2>
+            <button class="add-continuing-btn no-print bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-semibold" data-table="a">
+                + Add Scholar
+            </button>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200" data-table="a">
+                <thead class="bg-gray-50">
+                    <tr>
+                        @foreach ($continuingACols as $col => $label)
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider col-{{ $col }}">
+                                {{ $label }}
+                            </th>
+                        @endforeach
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse (($scholars_continuing_a ?? []) as $index => $scholar)
+                        <tr class="hover:bg-gray-50" data-scholar-id="{{ $scholar->id }}">
+                            <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_name">
+                                {{ trim(($scholar->first_name ?? '') . ' ' . ($scholar->middle_name ?? '') . ' ' . ($scholar->last_name ?? '') . ' ' . ($scholar->suffix ?? '')) }}
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_application_number">
+                                {{ $scholar->application_no ?? '' }}
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_scholarship_type">
+                                <span class="view-mode">{{ $scholar->scholarship_type ?? '' }}</span>
+                                <input type="text" class="edit-mode hidden w-full px-2 py-1 border rounded"
+                                    name="scholarship_type" value="{{ $scholar->scholarship_type ?? '' }}">
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_degree_program">
+                                <span class="view-mode">{{ $scholar->degree_program ?? '' }}</span>
+                                <input type="text" class="edit-mode hidden w-full px-2 py-1 border rounded"
+                                    name="degree_program" value="{{ $scholar->degree_program ?? '' }}">
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_year_approval">
+                                <span class="view-mode">{{ $scholar->year_of_approval ?? '' }}</span>
+                                <input type="text" class="edit-mode hidden w-full px-2 py-1 border rounded"
+                                    name="year_of_approval" value="{{ $scholar->year_of_approval ?? '' }}">
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_last_term">
+                                <span class="view-mode">{{ $scholar->last_term_enrollment ?? '' }}</span>
+                                <input type="text" class="edit-mode hidden w-full px-2 py-1 border rounded"
+                                    name="last_term_enrollment" value="{{ $scholar->last_term_enrollment ?? '' }}">
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_good_standing">
+                                <span class="view-mode">
+                                    @if (isset($scholar->good_academic_standing))
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $scholar->good_academic_standing ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                            {{ $scholar->good_academic_standing ? 'Yes' : 'No' }}
+                                        </span>
+                                    @endif
+                                </span>
+                                <select class="edit-mode hidden w-full px-2 py-1 border rounded" name="good_academic_standing">
+                                    <option value="">Select</option>
+                                    <option value="1" {{ ($scholar->good_academic_standing ?? '') == 1 ? 'selected' : '' }}>Yes</option>
+                                    <option value="0" {{ ($scholar->good_academic_standing ?? '') == 0 ? 'selected' : '' }}>No</option>
+                                </select>
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_standing_explanation">
+                                <span class="view-mode">{{ $scholar->standing_explanation ?? '' }}</span>
+                                <textarea class="edit-mode hidden w-full px-2 py-1 border rounded" name="standing_explanation" rows="2">{{ $scholar->standing_explanation ?? '' }}</textarea>
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_finish_on_time">
+                                <span class="view-mode">
+                                    @if (isset($scholar->finish_on_time))
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $scholar->finish_on_time ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                            {{ $scholar->finish_on_time ? 'Yes' : 'No' }}
+                                        </span>
+                                    @endif
+                                </span>
+                                <select class="edit-mode hidden w-full px-2 py-1 border rounded" name="finish_on_time">
+                                    <option value="">Select</option>
+                                    <option value="1" {{ ($scholar->finish_on_time ?? '') == 1 ? 'selected' : '' }}>Yes</option>
+                                    <option value="0" {{ ($scholar->finish_on_time ?? '') == 0 ? 'selected' : '' }}>No</option>
+                                </select>
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_finish_explanation">
+                                <span class="view-mode">{{ $scholar->finish_explanation ?? '' }}</span>
+                                <textarea class="edit-mode hidden w-full px-2 py-1 border rounded" name="finish_explanation" rows="2">{{ $scholar->finish_explanation ?? '' }}</textarea>
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_recommendation">
+                                <span class="view-mode">{{ $scholar->recommendation ?? '' }}</span>
+                                <input type="text" class="edit-mode hidden w-full px-2 py-1 border rounded"
+                                    name="recommendation" value="{{ $scholar->recommendation ?? '' }}">
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-900 col-cont_a_rationale">
+                                <span class="view-mode">{{ $scholar->rationale ?? '' }}</span>
+                                <textarea class="edit-mode hidden w-full px-2 py-1 border rounded" name="rationale" rows="2">{{ $scholar->rationale ?? '' }}</textarea>
+                            </td>
+                            <td class="px-4 py-3 text-sm whitespace-nowrap">
+                                <button class="edit-btn view-mode bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs">
+                                    Edit
+                                </button>
+                                <div class="edit-mode hidden flex gap-2">
+                                    <button class="save-btn bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs">
+                                        Save
+                                    </button>
+                                    <button class="cancel-btn bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded text-xs">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="13" class="px-4 py-8 text-center text-gray-500">
+                                No continuing scholars found. Click "Add Scholar" to add one.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Current active view
-            let currentView = 'personal';
+    {{-- TABLE B: Scholars Who Have Completed Their Degrees --}}
+    <div class="mb-8">
+        <div class="flex justify-between items-center bg-gray-100 px-4 py-3 border-b-2 border-gray-300">
+            <h2 class="text-lg font-bold text-gray-900">
+                B. Scholars Who Have Completed Their Degrees
+            </h2>
+            <button class="add-continuing-btn no-print bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-semibold" data-table="b">
+                + Add Scholar
+            </button>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200" data-table="b">
+                <thead class="bg-gray-50">
+                    <tr>
+                        @foreach ($continuingBCols as $col => $label)
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider col-{{ $col }}">
+                                {{ $label }}
+                            </th>
+                        @endforeach
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse (($scholars_continuing_b ?? []) as $index => $scholar)
+                        <tr class="hover:bg-gray-50" data-scholar-id="{{ $scholar->id }}">
+                            <td class="px-4 py-3 text-sm text-gray-900 col-cont_b_no">
+                                {{ $index + 1 }}
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-900 col-cont_b_name">
+                                {{ trim(($scholar->first_name ?? '') . ' ' . ($scholar->middle_name ?? '') . ' ' . ($scholar->last_name ?? '') . ' ' . ($scholar->suffix ?? '')) }}
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-900 col-cont_b_application_number">
+                                {{ $scholar->application_no ?? '' }}
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-900 col-cont_b_scholarship_type">
+                                <span class="view-mode">{{ $scholar->scholarship_type ?? '' }}</span>
+                                <input type="text" class="edit-mode hidden w-full px-2 py-1 border rounded"
+                                    name="scholarship_type" value="{{ $scholar->scholarship_type ?? '' }}">
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-900 col-cont_b_degree_program">
+                                <span class="view-mode">{{ $scholar->degree_program ?? '' }}</span>
+                                <input type="text" class="edit-mode hidden w-full px-2 py-1 border rounded"
+                                    name="degree_program" value="{{ $scholar->degree_program ?? '' }}">
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-900 col-cont_b_academic_year">
+                                <span class="view-mode">{{ $scholar->academic_year_graduation ?? '' }}</span>
+                                <input type="text" class="edit-mode hidden w-full px-2 py-1 border rounded"
+                                    name="academic_year_graduation" value="{{ $scholar->academic_year_graduation ?? '' }}">
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-900 col-cont_b_term_graduation">
+                                <span class="view-mode">{{ $scholar->term_of_graduation ?? '' }}</span>
+                                <select class="edit-mode hidden w-full px-2 py-1 border rounded" name="term_of_graduation">
+                                    <option value="">Select Term</option>
+                                    <option value="1st Semester" {{ ($scholar->term_of_graduation ?? '') == '1st Semester' ? 'selected' : '' }}>1st Semester</option>
+                                    <option value="2nd Semester" {{ ($scholar->term_of_graduation ?? '') == '2nd Semester' ? 'selected' : '' }}>2nd Semester</option>
+                                    <option value="Summer" {{ ($scholar->term_of_graduation ?? '') == 'Summer' ? 'selected' : '' }}>Summer</option>
+                                </select>
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-900 col-cont_b_remarks">
+                                <span class="view-mode">{{ $scholar->remarks ?? '' }}</span>
+                                <textarea class="edit-mode hidden w-full px-2 py-1 border rounded" name="remarks" rows="2">{{ $scholar->remarks ?? '' }}</textarea>
+                            </td>
+                            <td class="px-4 py-3 text-sm whitespace-nowrap">
+                                <button class="edit-btn view-mode bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs">
+                                    Edit
+                                </button>
+                                <div class="edit-mode hidden flex gap-2">
+                                    <button class="save-btn bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs">
+                                        Save
+                                    </button>
+                                    <button class="cancel-btn bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded text-xs">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="9" class="px-4 py-8 text-center text-gray-500">
+                                No scholars who have completed their degrees found. Click "Add Scholar" to add one.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-            // Tab switching
-            const viewTabs = document.querySelectorAll('.view-tab');
-            const viewFields = document.querySelectorAll('.view-fields');
-            const viewTables = document.querySelectorAll('.view-table');
-
-            viewTabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const viewName = this.id.replace('view', '').toLowerCase();
-
-                    // Update active tab styling
-                    viewTabs.forEach(t => {
-                        t.classList.remove('bg-blue-600', 'text-white');
-                        t.classList.add('bg-gray-200', 'text-gray-700',
-                            'hover:bg-gray-300');
-                    });
-                    this.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
-                    this.classList.add('bg-blue-600', 'text-white');
-
-                    // Show corresponding fields and table
-                    viewFields.forEach(field => field.classList.add('hidden'));
-                    viewTables.forEach(table => table.classList.add('hidden'));
-
-                    document.getElementById(`fields-${viewName}`).classList.remove('hidden');
-                    document.getElementById(`table-${viewName}`).classList.remove('hidden');
-
-                    currentView = viewName;
-                });
-            });
-
-            // Column visibility toggle
-            const fieldChecks = document.querySelectorAll('.field-check');
-
-            fieldChecks.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    const colName = this.dataset.col;
-                    const isChecked = this.checked;
-
-                    // Get all column elements for this column (both th and td)
-                    const columns = document.querySelectorAll(`.col-${colName}`);
-
-                    columns.forEach(col => {
-                        if (isChecked) {
-                            col.classList.remove('col-hidden');
-                        } else {
-                            col.classList.add('col-hidden');
-                        }
-                    });
-                });
-            });
-
-            // Print functionality with view-specific handling
-            document.getElementById('printBtn').addEventListener('click', function() {
-                // Add a print title based on current view
-                const printTitles = {
-                    'personal': 'CHED Monitoring Scholars - Personal Information',
-                    'gradereport': 'CHED Monitoring Scholars - SIKAP DHEI Grade Report',
-                    'enrollment': 'CHED Monitoring Scholars - SIKAP DHEI Enrollment Report',
-                    'continuing': 'CHED Monitoring Scholars - SIKAP Continuing Eligibility Report'
-                };
-
-                // Store original title
-                const originalTitle = document.title;
-
-                // Set print-specific title
-                document.title = printTitles[currentView] || originalTitle;
-
-                // Print
-                window.print();
-
-                // Restore original title
-                document.title = originalTitle;
-            });
-
-            // Reset columns - enhanced for enrollment view with multiple tables
-            document.getElementById('resetCols').addEventListener('click', function() {
-                // Check all checkboxes for current view
-                const currentFieldChecks = document.querySelectorAll(
-                    `.field-check[data-view="${currentView}"]`);
-
-                currentFieldChecks.forEach(checkbox => {
-                    checkbox.checked = true;
-                    const colName = checkbox.dataset.col;
-
-                    // Show all columns
-                    const columns = document.querySelectorAll(`.col-${colName}`);
-                    columns.forEach(col => {
-                        col.classList.remove('col-hidden');
-                    });
-                });
-
-                // Show success feedback
-                showFeedback('All columns have been reset and are now visible.');
-            });
-
-            // Helper function to show feedback messages
-            function showFeedback(message) {
-                // Remove existing feedback if any
-                const existingFeedback = document.getElementById('feedback-message');
-                if (existingFeedback) {
-                    existingFeedback.remove();
-                }
-
-                // Create feedback element
-                const feedback = document.createElement('div');
-                feedback.id = 'feedback-message';
-                feedback.className =
-                    'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity duration-300';
-                feedback.textContent = message;
-
-                // Add to page
-                document.body.appendChild(feedback);
-
-                // Auto-remove after 3 seconds
-                setTimeout(() => {
-                    feedback.style.opacity = '0';
-                    setTimeout(() => feedback.remove(), 300);
-                }, 3000);
-            }
-
-            // Initialize: Ensure all columns are visible on page load
-            document.querySelectorAll('.field-check').forEach(checkbox => {
-                if (checkbox.checked) {
-                    const colName = checkbox.dataset.col;
-                    const columns = document.querySelectorAll(`.col-${colName}`);
-                    columns.forEach(col => {
-                        col.classList.remove('col-hidden');
-                    });
-                }
-            });
-
-            // Add keyboard shortcuts (optional enhancement)
-            document.addEventListener('keydown', function(e) {
-                // Ctrl/Cmd + P for print
-                if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
-                    e.preventDefault();
-                    document.getElementById('printBtn').click();
-                }
-
-                // Ctrl/Cmd + R for reset columns
-                if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
-                    e.preventDefault();
-                    document.getElementById('resetCols').click();
-                }
-            });
-
-            // Log current view for debugging (optional - remove in production)
-            console.log('Initial view:', currentView);
-        });
-    </script>
+{{-- Add Scholar Modal for Continuing Eligibility (reuse the same modal from enrollment) --}}
+<div id="addContinuingModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-2/3 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center pb-3 border-b">
+            <h3 class="text-xl font-bold">Select Scholar to Add</h3>
+            <button class="close-continuing-modal text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+        </div>
+        
+        <div class="mt-4">
+            <input type="text" id="continuingScholarSearch" placeholder="Search by name or application number..." 
+                class="w-full px-4 py-2 border rounded-lg mb-4">
+            
+            <div id="continuingScholarList" class="max-h-96 overflow-y-auto">
+                @foreach($scholars ?? [] as $scholar)
+                    <div class="continuing-scholar-item p-3 hover:bg-gray-100 cursor-pointer border-b flex justify-between items-center" 
+                         data-scholar-id="{{ $scholar->id }}"
+                         data-name="{{ trim(($scholar->first_name ?? '') . ' ' . ($scholar->middle_name ?? '') . ' ' . ($scholar->last_name ?? '') . ' ' . ($scholar->suffix ?? '')) }}"
+                         data-application="{{ $scholar->application_no }}">
+                        <div>
+                            <div class="font-semibold">{{ trim(($scholar->first_name ?? '') . ' ' . ($scholar->middle_name ?? '') . ' ' . ($scholar->last_name ?? '') . ' ' . ($scholar->suffix ?? '')) }}</div>
+                            <div class="text-sm text-gray-600">{{ $scholar->application_no }}</div>
+                        </div>
+                        <button class="select-continuing-scholar-btn bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
+                            Select
+                        </button>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
+@push('scripts')
+    <script src="{{ asset('js/ched-reports-common.js') }}"></script>
+    <script src="{{ asset('js/ched-grade-report.js') }}"></script>
+    <script src="{{ asset('js/ched-enrollment-report.js') }}"></script>
+    <script src="{{ asset('js/ched-eligibility-report.js') }}"></script>
+@endpush

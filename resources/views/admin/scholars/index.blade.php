@@ -170,7 +170,7 @@
                                         </a>
                                     @else
                                         <a href="{{ route('admin.ched.show', $scholar->id) }}"
-                                            class="text-purple-600 hover:text-purple-800 text-sm font-semibold">
+                                            class="text-blue-600 hover:text-blue-800 text-sm font-semibold">
                                             View
                                         </a>
                                     @endif

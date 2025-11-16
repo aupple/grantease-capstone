@@ -58,4 +58,13 @@ class ChedInfo extends Model
     {
         return trim("{$this->first_name} {$this->middle_name} {$this->last_name} {$this->suffix}");
     }
+    public function enrollmentReport()
+{
+    return $this->hasOne(ChedEnrollmentReport::class, 'ched_info_id');
+}
+public function continuingReport()
+{
+    return $this->hasOne(ChedContinuingReport::class, 'ched_info_id');
+}
+
 }

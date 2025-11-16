@@ -185,7 +185,7 @@
                                     @else
                                         {{-- CHED Link --}}
                                         <a href="{{ route('admin.ched.show', $item->id) }}"
-                                            class="inline-flex items-center px-3 py-1 font-semibold text-sm text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-md transition-colors">
+                                            class="inline-flex items-center px-3 py-1 font-semibold text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors">
                                             View
                                         </a>
                                     @endif

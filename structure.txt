@@ -56,6 +56,7 @@ C:.
 ¦   ¦       
 ¦   +---Models
 ¦   ¦       ApplicationForm.php
+¦   ¦       ChedGradeReport.php
 ¦   ¦       ChedInfo.php
 ¦   ¦       Evaluation.php
 ¦   ¦       Role.php
@@ -125,6 +126,7 @@ C:.
 ¦   ¦       2025_10_24_154108_add_verified_documents_to_application_forms_table.php
 ¦   ¦       2025_10_26_225109_create_password_reset_tokens_table.php
 ¦   ¦       2025_11_15_005711_create_ched_info_table.php
+¦   ¦       2025_11_16_041024_create_ched_grade_reports_table.php
 ¦   ¦       
 ¦   +---seeders
 ¦           DatabaseSeeder.php
@@ -9442,17 +9444,26 @@ C:.
 ¦   ¦       school.jpg
 ¦   ¦       wow.jpg
 ¦   ¦       
+¦   +---js
+¦   ¦       ched-eligibility-report.js
+¦   ¦       ched-enrollment-report.js
+¦   ¦       ched-grade-report.js
+¦   ¦       ched-reports-common.js
+¦   ¦       
 ¦   +---storage
 ¦       ¦   .gitignore
 ¦       ¦   
 ¦       +---ched
 ¦       ¦   +---passport_photos
+¦       ¦           1UjV6TKXHwqkxiLNfQZNyiOqK685Zpj9vaxNH6dD.jpg
 ¦       ¦           AWl6ZwRdTF2mJlXvgFDhfQjp7ajWG0te0z5ZfjFW.jpg
 ¦       ¦           awVkDEnWvxmwagKZKpUA0s9RUfMpcw6vF4ag3Z9o.png
 ¦       ¦           dVVwbRNRt7cIJAFJJuayVjHqxe5VLWMuZuO7kXNH.jpg
 ¦       ¦           fpJooZQgasbyfq8ZK2XWuWJ6UzIKk94l9Pb0uGUL.jpg
+¦       ¦           FYdQ4DZPXM7gWZ3M10Nkekt5HGshToypxGiFeaPo.jpg
 ¦       ¦           jXrTbkQnUSGz4qLJYowh9yneprc8ygVIZwtVm1kq.jpg
 ¦       ¦           Nf2yxjlxO1EI9lXPShAwINkWo4jzQmkwLMvicvZF.jpg
+¦       ¦           opwwmJnMSZvljjeXyNtE7hVbwicqrhHyuiSsICXI.jpg
 ¦       ¦           rDCDNzZNLCR6KvhEUHuUsIMB35tfYcEs4297jZTR.jpg
 ¦       ¦           rOJYl285DTUnGYzBjQISJ9qbOWgHCLBrtfxUPCWS.jpg
 ¦       ¦           uuotdTD4f0X3sW2hJjVFRN48wKSknkbCd8Wwpqfu.jpg
@@ -9570,6 +9581,9 @@ C:.
 ¦       ¦   ¦   
 ¦       ¦   +---applications
 ¦       ¦   ¦       index.blade.php
+¦       ¦   ¦       show.blade.php
+¦       ¦   ¦       
+¦       ¦   +---ched
 ¦       ¦   ¦       show.blade.php
 ¦       ¦   ¦       
 ¦       ¦   +---rejected
@@ -9694,12 +9708,15 @@ C:.
 ¦   ¦   ¦   ¦   
 ¦   ¦   ¦   +---ched
 ¦   ¦   ¦   ¦   +---passport_photos
+¦   ¦   ¦   ¦           1UjV6TKXHwqkxiLNfQZNyiOqK685Zpj9vaxNH6dD.jpg
 ¦   ¦   ¦   ¦           AWl6ZwRdTF2mJlXvgFDhfQjp7ajWG0te0z5ZfjFW.jpg
 ¦   ¦   ¦   ¦           awVkDEnWvxmwagKZKpUA0s9RUfMpcw6vF4ag3Z9o.png
 ¦   ¦   ¦   ¦           dVVwbRNRt7cIJAFJJuayVjHqxe5VLWMuZuO7kXNH.jpg
 ¦   ¦   ¦   ¦           fpJooZQgasbyfq8ZK2XWuWJ6UzIKk94l9Pb0uGUL.jpg
+¦   ¦   ¦   ¦           FYdQ4DZPXM7gWZ3M10Nkekt5HGshToypxGiFeaPo.jpg
 ¦   ¦   ¦   ¦           jXrTbkQnUSGz4qLJYowh9yneprc8ygVIZwtVm1kq.jpg
 ¦   ¦   ¦   ¦           Nf2yxjlxO1EI9lXPShAwINkWo4jzQmkwLMvicvZF.jpg
+¦   ¦   ¦   ¦           opwwmJnMSZvljjeXyNtE7hVbwicqrhHyuiSsICXI.jpg
 ¦   ¦   ¦   ¦           rDCDNzZNLCR6KvhEUHuUsIMB35tfYcEs4297jZTR.jpg
 ¦   ¦   ¦   ¦           rOJYl285DTUnGYzBjQISJ9qbOWgHCLBrtfxUPCWS.jpg
 ¦   ¦   ¦   ¦           uuotdTD4f0X3sW2hJjVFRN48wKSknkbCd8Wwpqfu.jpg
@@ -9815,16 +9832,8 @@ C:.
 ¦   ¦   ¦   ¦   .gitignore
 ¦   ¦   ¦   ¦   
 ¦   ¦   ¦   +---data
-¦   ¦   ¦       ¦   .gitignore
-¦   ¦   ¦       ¦   
-¦   ¦   ¦       +---6a
-¦   ¦   ¦       ¦   +---58
-¦   ¦   ¦       ¦           6a58b6c7e02f6d92150e84bffa4418d987f54dc9
-¦   ¦   ¦       ¦           
-¦   ¦   ¦       +---6b
-¦   ¦   ¦           +---7d
-¦   ¦   ¦                   6b7de648fa56b210414c24a0509645a1011f7dc0
-¦   ¦   ¦                   
+¦   ¦   ¦           .gitignore
+¦   ¦   ¦           
 ¦   ¦   +---sessions
 ¦   ¦   ¦       .gitignore
 ¦   ¦   ¦       
@@ -9860,6 +9869,7 @@ C:.
 ¦   ¦           77c4d029cbcc1d6b7fefd1ba28a78ae5.php
 ¦   ¦           80cea19d27ce0de7ebe685e42f106f10.php
 ¦   ¦           86c8fdda492bf2d087e172460195b273.php
+¦   ¦           880a44a811296728fad74b9e38ffdd23.php
 ¦   ¦           949ef4299988399a3f58a697092115cb.php
 ¦   ¦           9a1b1c84edaef91b98d89a86e580aeae.php
 ¦   ¦           9edd4d490ad00e8b8b11da85d2493fe9.php
@@ -9867,10 +9877,12 @@ C:.
 ¦   ¦           a0eccbe86a2fc7fd73afad0d03bfb404.php
 ¦   ¦           a24eede2f77083cb259c4cffa3896d4d.php
 ¦   ¦           a3b9ed7f96f07e78a520de6e8b86a972.php
+¦   ¦           a46f87ad837e51f2bb391cff326e604e.php
 ¦   ¦           ad7cfd8f1e6fb57e0fc9704b68d85457.php
 ¦   ¦           b564730b2728f4a18dbcfe1cd6113b23.php
 ¦   ¦           c0502233e932d4f5c60a3ead2db50c12.php
 ¦   ¦           c5641f4cb45d39ef96a6154385df53c5.php
+¦   ¦           c86fdf969836a0e85b8b28deabc4152c.php
 ¦   ¦           c903ee4dcb1f07d41d0d4b43069f7c56.php
 ¦   ¦           d34cf3101d18e055761041db92a0386f.php
 ¦   ¦           d37c46ad2de8fe151c65265a6aa4a039.php
@@ -9881,6 +9893,8 @@ C:.
 ¦   ¦           e0fdd8f65ffd01323ba15cbec2796dfd.php
 ¦   ¦           e1159b2dc876f57bd8b6a755894c0c30.php
 ¦   ¦           e249e7cf66330c3d1bb2a745a915c7a6.php
+¦   ¦           e77759c98300a4196b73f9931b3ecb08.php
+¦   ¦           eea17443df1f7a94305172681187b293.php
 ¦   ¦           eea3eb24bef67fd11fa10097c6ce1e1c.php
 ¦   ¦           f499c91d91517788a9d59f5f8e92468d.php
 ¦   ¦           f6550186108ff566498e9a87761a8075.php
