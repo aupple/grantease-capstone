@@ -95,6 +95,31 @@
                                 </select>
                             </div>
 
+                            <!-- School/University -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">School/University <span
+                                        class="text-red-500">*</span></label>
+                                <input type="text" name="school" required value="{{ old('school') }}"
+                                    placeholder="Enter your school/university"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+
+                            <!-- Year Level -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Level <span
+                                        class="text-red-500">*</span></label>
+                                <select name="year_level" required
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="">Select Level</option>
+                                    <option value="MS"
+                                        {{ old('year_level') == "Master's Degree" ? 'selected' : '' }}>Master's Degree
+                                        (MS/MA)</option>
+                                    <option value="PhD"
+                                        {{ old('year_level') == 'Doctoral Degree' ? 'selected' : '' }}>Doctoral Degree
+                                        (PhD)</option>
+                                </select>
+                            </div>
+
                             <!-- Application No - DYNAMIC -->
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">Application No.</label>

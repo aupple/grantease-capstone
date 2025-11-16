@@ -25,22 +25,6 @@
                 visibility: hidden !important;
             }
 
-            .print-area,
-            .print-area * {
-                visibility: visible !important;
-            }
-
-            .print-area {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 210mm;
-                padding: 15mm;
-                background: white;
-                border: none;
-                box-shadow: none;
-            }
-
             nav,
             header,
             footer,
@@ -139,12 +123,8 @@
             @else
                 @foreach ($applications as $application)
                     <!-- ===== APPLICATION STATUS (TOP) ===== -->
-                    <h2 class="section-title mt-4 flex justify-between items-center">
+                    <h2 class="section-title mt-4">
                         <span>Application Status</span>
-                        <button onclick="window.print()"
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
-                            🖨 Print
-                        </button>
                     </h2>
 
                     <div class="p-1.5 mb-6 flex items-center gap-4">
@@ -231,19 +211,19 @@
                         <div class="grid grid-cols-4 gap-2 p-1.5">
                             <div>
                                 <label class="block text-[12px] font-semibold">Last Name</label>
-                                <div class="editable-field text-[13px]">{{ $user->last_name ?? '—' }}</div>
+                                <div class="editable-field text-[13px]">{{ $application->last_name ?? '—' }}</div>
                             </div>
                             <div>
                                 <label class="block text-[12px] font-semibold">First Name</label>
-                                <div class="editable-field text-[13px]">{{ $user->first_name ?? '—' }}</div>
+                                <div class="editable-field text-[13px]">{{ $application->first_name ?? '—' }}</div>
                             </div>
                             <div>
                                 <label class="block text-[12px] font-semibold">Middle Name</label>
-                                <div class="editable-field text-[13px]">{{ $user->middle_name ?? '—' }}</div>
+                                <div class="editable-field text-[13px]">{{ $application->middle_name ?? '—' }}</div>
                             </div>
                             <div>
                                 <label class="block text-[12px] font-semibold">Suffix</label>
-                                <div class="editable-field text-[13px]">{{ $user->suffix ?? 'N/A' }}</div>
+                                <div class="editable-field text-[13px]">{{ $application->suffix ?? 'N/A' }}</div>
                             </div>
                         </div>
 
@@ -251,23 +231,23 @@
                         <div class="grid grid-cols-6 gap-2 p-1.5">
                             <div class="col-span-2">
                                 <label class="block text-[12px] font-semibold">Permanent Address (No.)</label>
-                                <div class="editable-field text-[13px]">{{ $user->address_no ?? '—' }}</div>
+                                <div class="editable-field text-[13px]">{{ $application->address_no ?? '—' }}</div>
                             </div>
                             <div>
                                 <label class="block text-[12px] font-semibold">Street</label>
-                                <div class="editable-field text-[13px]">{{ $user->address_street ?? '—' }}</div>
+                                <div class="editable-field text-[13px]">{{ $application->address_street ?? '—' }}</div>
                             </div>
                             <div>
                                 <label class="block text-[12px] font-semibold">Barangay</label>
-                                <div class="editable-field text-[13px]">{{ $user->barangay ?? '—' }}</div>
+                                <div class="editable-field text-[13px]">{{ $application->barangay ?? '—' }}</div>
                             </div>
                             <div>
                                 <label class="block text-[10px] font-semibold">City / Municipality</label>
-                                <div class="editable-field text-[13px]">{{ $user->city ?? '—' }}</div>
+                                <div class="editable-field text-[13px]">{{ $application->city ?? '—' }}</div>
                             </div>
                             <div>
                                 <label class="block text-[12px] font-semibold">Province</label>
-                                <div class="editable-field text-[13px]">{{ $user->province ?? '—' }}</div>
+                                <div class="editable-field text-[13px]">{{ $application->province ?? '—' }}</div>
                             </div>
                         </div>
 
@@ -275,41 +255,43 @@
                         <div class="grid grid-cols-6 gap-2 p-1.5">
                             <div>
                                 <label class="block text-[12px] font-semibold">ZIP Code</label>
-                                <div class="editable-field text-[13px]">{{ $user->zip_code ?? '—' }}</div>
+                                <div class="editable-field text-[13px]">{{ $application->zip_code ?? '—' }}</div>
                             </div>
                             <div>
                                 <label class="block text-[12px] font-semibold">Region</label>
-                                <div class="editable-field text-[13px]">{{ $user->region ?? '—' }}</div>
+                                <div class="editable-field text-[13px]">{{ $application->region ?? '—' }}</div>
                             </div>
                             <div>
                                 <label class="block text-[12px] font-semibold">District</label>
-                                <div class="editable-field text-[13px]">{{ $user->district ?? '—' }}</div>
+                                <div class="editable-field text-[13px]">{{ $application->district ?? '—' }}</div>
                             </div>
                             <div>
                                 <label class="block text-[12px] font-semibold">Passport No.</label>
-                                <div class="editable-field text-[13px]">{{ $user->passport_no ?? '—' }}</div>
+                                <div class="editable-field text-[13px]">{{ $application->passport_no ?? '—' }}</div>
                             </div>
                             <div class="col-span-2">
                                 <label class="block text-[12px] font-semibold">E-mail Address</label>
-                                <div class="editable-field text-[13px]">{{ $user->email ?? '—' }}</div>
+                                <div class="editable-field text-[13px]">{{ $application->email_address ?? '—' }}</div>
                             </div>
                         </div>
 
                         <!-- Current Mailing Address -->
                         <div class="p-1.5">
                             <label class="block text-[12px] font-semibold">Current Mailing Address</label>
-                            <div class="editable-field text-[13px]">{{ $user->current_address ?? '—' }}</div>
+                            <div class="editable-field text-[13px]">{{ $application->current_mailing_address ?? '—' }}
+                            </div>
                         </div>
 
                         <!-- Telephone / Alternate Contact -->
                         <div class="grid grid-cols-2 gap-2 p-1.5">
                             <div>
                                 <label class="block text-[12px] font-semibold">Telephone Nos. (Landline/Mobile)</label>
-                                <div class="editable-field text-[13px]">{{ $user->phone ?? '—' }}</div>
+                                <div class="editable-field text-[13px]">{{ $application->telephone_nos ?? '—' }}</div>
                             </div>
                             <div>
                                 <label class="block text-[12px] font-semibold">Alternate Contact No.</label>
-                                <div class="editable-field text-[13px]">{{ $user->alternate_contact ?? '—' }}</div>
+                                <div class="editable-field text-[13px]">{{ $application->alternate_contact ?? '—' }}
+                                </div>
                             </div>
                         </div>
 
@@ -317,34 +299,33 @@
                         <div class="grid grid-cols-4 gap-2 p-1.5">
                             <div>
                                 <label class="block text-[12px] font-semibold">Civil Status</label>
-                                <div class="editable-field text-[13px]">{{ $user->civil_status ?? '—' }}</div>
+                                <div class="editable-field text-[13px]">{{ $application->civil_status ?? '—' }}</div>
                             </div>
                             <div>
                                 <label class="block text-[12px] font-semibold">Date of Birth</label>
-                                <div class="editable-field text-[13px]">{{ $user->date_of_birth ?? '—' }}</div>
+                                <div class="editable-field text-[13px]">{{ $application->date_of_birth ?? '—' }}</div>
                             </div>
                             <div>
                                 <label class="block text-[12px] font-semibold">Age</label>
-                                <div class="editable-field text-[13px]">{{ $user->age ?? '—' }}</div>
+                                <div class="editable-field text-[13px]">{{ $application->age ?? '—' }}</div>
                             </div>
                             <div>
                                 <label class="block text-[12px] font-semibold">Sex</label>
-                                <div class="editable-field text-[13px]">{{ $user->sex ?? '—' }}</div>
+                                <div class="editable-field text-[13px]">{{ $application->sex ?? '—' }}</div>
                             </div>
                         </div>
 
                         <!-- Parents -->
                         <div class="grid grid-cols-2 gap-2 p-1.5">
                             <div>
-                                <label class="block text-[12px] font-semibold">Father’s Name</label>
-                                <div class="editable-field text-[13px]">{{ $user->father_name ?? '—' }}</div>
+                                <label class="block text-[12px] font-semibold">Father's Name</label>
+                                <div class="editable-field text-[13px]">{{ $application->father_name ?? '—' }}</div>
                             </div>
                             <div>
-                                <label class="block text-[12px] font-semibold">Mother’s Name</label>
-                                <div class="editable-field text-[13px]">{{ $user->mother_name ?? '—' }}</div>
+                                <label class="block text-[12px] font-semibold">Mother's Name</label>
+                                <div class="editable-field text-[13px]">{{ $application->mother_name ?? '—' }}</div>
                             </div>
                         </div>
-
                     </div>
 
 
@@ -428,7 +409,7 @@
                             $strand_categories = $application->strand_category ?? [];
                             $applicant_types = $application->applicant_type ?? [];
                             $scholarship_types = $application->scholarship_type ?? [];
-                            $research_approved = $application->research_approved ?? '';
+                            $research_approved = $application->research_topic_approved ? 'YES' : 'NO';
                         @endphp
 
                         <table class="w-full text-[12px] border-t border-b border-gray-400 text-center mb-2">
@@ -520,9 +501,11 @@
                         <div class="px-1 py-1 border-t border-gray-400 text-[12px]">
                             <div class="flex items-center gap-1">
                                 <span><strong>e.</strong> Research topic approved?</span>
-                                <label><input type="checkbox" disabled {{ $research_approved == 'YES' ? 'checked' : '' }}
+                                <label><input type="checkbox" disabled
+                                        {{ $research_approved == 'YES' ? 'checked' : '' }}
                                         class="ml-1 mr-1 text-xs">YES</label>
-                                <label><input type="checkbox" disabled {{ $research_approved == 'NO' ? 'checked' : '' }}
+                                <label><input type="checkbox" disabled
+                                        {{ $research_approved == 'NO' ? 'checked' : '' }}
                                         class="ml-1 mr-1 text-xs">NO</label>
                             </div>
                             <div class="mt-1">
@@ -547,44 +530,47 @@
                         <div class="px-3 py-2">
                             <p>a. Present Employment Status</p>
                             <div class="p-1 border rounded mt-1 text-[13px]">
-                                {{ isset($user->employment_status) && is_array($user->employment_status) ? implode(', ', $user->employment_status) : '—' }}
+                                {{ isset($application->employment_status) && is_array($application->employment_status) ? implode(', ', $application->employment_status) : '—' }}
                             </div>
                         </div>
-
 
                         <!-- a.1 Presently employed -->
                         <div class="px-3 py-2">
                             <p class="font-semibold">a.1 For those who are presently employed*</p>
                             <div class="grid grid-cols-12 gap-x-2 gap-y-1 mt-1">
                                 <div class="col-span-2">Position</div>
-                                <div class="col-span-4 border p-1 rounded">{{ $user->employed_position ?? '—' }}</div>
+                                <div class="col-span-4 border p-1 rounded">
+                                    {{ $application->employed_position ?? '—' }}</div>
 
                                 <div class="col-span-3 text-right pr-1">Length of Service</div>
                                 <div class="col-span-3 border p-1 rounded">
-                                    {{ $user->employed_length_of_service ?? '—' }}</div>
+                                    {{ $application->employed_length_of_service ?? '—' }}</div>
 
                                 <div class="col-span-3 mt-1">Name of Company/Office</div>
                                 <div class="col-span-9 mt-1 border p-1 rounded">
-                                    {{ $user->employed_company_name ?? '—' }}</div>
-
+                                    {{ $application->employed_company_name ?? '—' }}</div>
                                 <div class="col-span-3 mt-1">Address of Company/Office</div>
                                 <div class="col-span-9 mt-1 border p-1 rounded">
-                                    {{ $user->employed_company_address ?? '—' }}</div>
+                                    {{ $application->employed_company_address ?? '—' }}</div>
 
                                 <div class="col-span-1 mt-1">Email</div>
-                                <div class="col-span-5 mt-1 border p-1 rounded">{{ $user->employed_email ?? '—' }}
+                                <div class="col-span-5 mt-1 border p-1 rounded">
+                                    {{ $application->employed_email ?? '—' }}
                                 </div>
 
                                 <div class="col-span-1 mt-1">Website</div>
-                                <div class="col-span-5 mt-1 border p-1 rounded">{{ $user->employed_website ?? '—' }}
+                                <div class="col-span-5 mt-1 border p-1 rounded">
+                                    {{ $application->employed_website ?? '—' }}
                                 </div>
 
                                 <div class="col-span-2 mt-1">Telephone No.</div>
-                                <div class="col-span-4 mt-1 border p-1 rounded">{{ $user->employed_telephone ?? '—' }}
+                                <div class="col-span-4 mt-1 border p-1 rounded">
+                                    {{ $application->employed_telephone ?? '—' }}
                                 </div>
 
                                 <div class="col-span-1 mt-1">Fax No.</div>
-                                <div class="col-span-5 mt-1 border p-1 rounded">{{ $user->employed_fax ?? '—' }}</div>
+                                <div class="col-span-5 mt-1 border p-1 rounded">
+                                    {{ $application->employed_fax ?? '—' }}</div>
                             </div>
                         </div>
 
@@ -594,44 +580,45 @@
                             <div class="grid grid-cols-12 gap-x-2 gap-y-1 mt-1">
                                 <div class="col-span-2">Business Name</div>
                                 <div class="col-span-10 border p-1 rounded">
-                                    {{ $user->self_employed_business_name ?? '—' }}</div>
+                                    {{ $application->self_employed_business_name ?? '—' }}</div>
 
                                 <div class="col-span-2 mt-1">Address</div>
                                 <div class="col-span-10 mt-1 border p-1 rounded">
-                                    {{ $user->self_employed_address ?? '—' }}</div>
+                                    {{ $application->self_employed_address ?? '—' }}</div>
 
                                 <div class="col-span-2 mt-1">Email/Website</div>
                                 <div class="col-span-3 mt-1 border p-1 rounded">
-                                    {{ $user->self_employed_email_website ?? '—' }}</div>
+                                    {{ $application->self_employed_email_website ?? '—' }}</div>
 
                                 <div class="col-span-2 mt-1">Telephone No.</div>
                                 <div class="col-span-3 mt-1 border p-1 rounded">
-                                    {{ $user->self_employed_telephone ?? '—' }}</div>
+                                    {{ $application->self_employed_telephone ?? '—' }}</div>
 
                                 <div class="col-span-1 mt-1">Fax No.</div>
-                                <div class="col-span-1 mt-1 border p-1 rounded">{{ $user->self_employed_fax ?? '—' }}
+                                <div class="col-span-1 mt-1 border p-1 rounded">
+                                    {{ $application->self_employed_fax ?? '—' }}
                                 </div>
 
                                 <div class="col-span-2 mt-1">Type of Business</div>
                                 <div class="col-span-4 mt-1 border p-1 rounded">
-                                    {{ $user->self_employed_type_of_business ?? '—' }}</div>
+                                    {{ $application->self_employed_type_of_business ?? '—' }}</div>
 
                                 <div class="col-span-2 mt-1">Years of Operation</div>
                                 <div class="col-span-4 mt-1 border p-1 rounded">
-                                    {{ $user->self_employed_years_of_operation ?? '—' }}</div>
+                                    {{ $application->self_employed_years_of_operation ?? '—' }}</div>
                             </div>
                         </div>
 
                         <!-- Research Plans -->
                         <div class="px-3 py-2 border-t border-gray-400">
                             <p class="font-semibold">b. RESEARCH PLANS (Minimum of 300 words)</p>
-                            <div class="border p-1 rounded mt-1">{{ $user->research_plans ?? '—' }}</div>
+                            <div class="border p-1 rounded mt-1">{{ $application->research_plans ?? '—' }}</div>
                         </div>
 
                         <!-- Career Plans -->
                         <div class="px-3 py-2 border-t border-gray-400">
                             <p class="font-semibold">c. CAREER PLANS (Minimum of 300 words)</p>
-                            <div class="border p-1 rounded mt-1">{{ $user->career_plans ?? '—' }}</div>
+                            <div class="border p-1 rounded mt-1">{{ $application->career_plans ?? '—' }}</div>
                         </div>
 
                     </div>
@@ -658,7 +645,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($user->research_involvements ?? [] as $research)
+                                    @forelse($application->research_involvements ?? [] as $research)
                                         <tr>
                                             <td class="table-xs border p-1 rounded">
                                                 {{ $research['field_title'] ?? '—' }}</td>
@@ -693,7 +680,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($user->publications ?? [] as $pub)
+                                    @forelse($application->publications ?? [] as $pub)
                                         <tr>
                                             <td class="table-xs border p-1 rounded">{{ $pub['title'] ?? '—' }}</td>
                                             <td class="table-xs border p-1 rounded">{{ $pub['name_year'] ?? '—' }}
@@ -725,7 +712,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($user->awards ?? [] as $award)
+                                    @forelse($application->awards ?? [] as $award)
                                         <tr>
                                             <td class="table-xs border p-1 rounded">{{ $award['title'] ?? '—' }}</td>
                                             <td class="table-xs border p-1 rounded">{{ $award['giving_body'] ?? '—' }}
@@ -753,24 +740,28 @@
                         <div class="space-y-2 pl-4">
                             <div>
                                 <p>• Birth Certificate (Photocopy)</p>
-                                <div class="p-1 border rounded">{{ $user->birth_certificate ?? 'Not uploaded' }}</div>
+                                <div class="p-1 border rounded">
+                                    {{ $application->birth_certificate ?? 'Not uploaded' }}</div>
                             </div>
 
                             <div>
                                 <p>• Certified True Copy of the Official Transcript of Record</p>
-                                <div class="p-1 border rounded">{{ $user->transcript_record ?? 'Not uploaded' }}</div>
+                                <div class="p-1 border rounded">
+                                    {{ $application->transcript_record ?? 'Not uploaded' }}</div>
                             </div>
 
                             <div>
                                 <p>• Endorsement 1 – Former professor in college for MS / former professor in MS program
                                     for PhD</p>
-                                <div class="p-1 border rounded">{{ $user->endorsement_1 ?? 'Not uploaded' }}</div>
+                                <div class="p-1 border rounded">{{ $application->endorsement_1 ?? 'Not uploaded' }}
+                                </div>
                             </div>
 
                             <div>
                                 <p>• Endorsement 2 – Former professor in college for MS / former professor in MS program
                                     for PhD</p>
-                                <div class="p-1 border rounded">{{ $user->endorsement_2 ?? 'Not uploaded' }}</div>
+                                <div class="p-1 border rounded">{{ $application->endorsement_2 ?? 'Not uploaded' }}
+                                </div>
                             </div>
                         </div>
 
@@ -781,16 +772,18 @@
                                 <div>
                                     <p>• Recommendation from Head of Agency</p>
                                     <div class="p-1 border rounded">
-                                        {{ $user->recommendation_head_agency ?? 'Not uploaded' }}</div>
+                                        {{ $application->recommendation_head_agency ?? 'Not uploaded' }}</div>
                                 </div>
                                 <div>
                                     <p>• Form 2A – Certificate of Employment and Permit to Study</p>
-                                    <div class="p-1 border rounded">{{ $user->form_2a ?? 'Not uploaded' }}</div>
+                                    <div class="p-1 border rounded">{{ $application->form_2a ?? 'Not uploaded' }}
+                                    </div>
                                 </div>
                                 <div>
                                     <p>• Form 2B – Certificate of DepEd Employment and Permit to Study (for DepEd
                                         employees only)</p>
-                                    <div class="p-1 border rounded">{{ $user->form_2b ?? 'Not uploaded' }}</div>
+                                    <div class="p-1 border rounded">{{ $application->form_2b ?? 'Not uploaded' }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -802,21 +795,23 @@
                                 <div>
                                     <p>• Form C – Certification of Health Status</p>
                                     <div class="p-1 border rounded">
-                                        {{ $user->form_c_health_status ?? 'Not uploaded' }}</div>
+                                        {{ $application->form_c_health_status ?? 'Not uploaded' }}</div>
                                 </div>
                                 <div>
                                     <p>• Valid NBI Clearance</p>
-                                    <div class="p-1 border rounded">{{ $user->nbi_clearance ?? 'Not uploaded' }}</div>
+                                    <div class="p-1 border rounded">
+                                        {{ $application->nbi_clearance ?? 'Not uploaded' }}</div>
                                 </div>
                                 <div>
                                     <p>• Letter of Admission with Regular Status (includes Evaluation Sheet)</p>
-                                    <div class="p-1 border rounded">{{ $user->letter_of_admission ?? 'Not uploaded' }}
+                                    <div class="p-1 border rounded">
+                                        {{ $application->letter_of_admission ?? 'Not uploaded' }}
                                     </div>
                                 </div>
                                 <div>
                                     <p>• Approved Program of Study</p>
                                     <div class="p-1 border rounded">
-                                        {{ $user->approved_program_study ?? 'Not uploaded' }}</div>
+                                        {{ $application->approved_program_study ?? 'Not uploaded' }}</div>
                                 </div>
                             </div>
                         </div>
@@ -832,7 +827,7 @@
                                         <li>Number of graduate units already earned with corresponding grades</li>
                                     </ul>
                                     <div class="p-1 border rounded">
-                                        {{ $user->lateral_certification ?? 'Not uploaded' }}</div>
+                                        {{ $application->lateral_certification ?? 'Not uploaded' }}</div>
                                 </div>
                             </div>
                         </div>
@@ -874,8 +869,8 @@
                             <!-- Applicant Signature -->
                             <div>
                                 <label class="block text-[12px] font-semibold mb-1">Applicant Signature</label>
-                                @if (!empty($user->applicant_signature))
-                                    <img src="{{ $user->applicant_signature }}" alt="Applicant Signature"
+                                @if (!empty($application->applicant_signature))
+                                    <img src="{{ $application->applicant_signature }}" alt="Applicant Signature"
                                         class="border rounded w-full h-24 object-contain">
                                 @else
                                     <div
@@ -889,7 +884,7 @@
                         <!-- Terms Agreement -->
                         <div class="mt-4 flex items-center gap-2">
                             <input type="checkbox" class="h-4 w-4 border-gray-400" disabled
-                                {{ $user->terms_and_conditions_agreed ? 'checked' : '' }}>
+                                {{ $application->terms_and_conditions_agreed ? 'checked' : '' }}>
                             <span class="text-[12px]">I agree to the Terms, Conditions, and Data Privacy Policy.</span>
                         </div>
                     </div>

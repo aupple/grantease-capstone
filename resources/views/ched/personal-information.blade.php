@@ -89,6 +89,14 @@
                                 <p class="text-sm text-gray-600">School Term</p>
                                 <p class="font-semibold text-gray-900">{{ $personalInfo->school_term }}</p>
                             </div>
+                            <div>
+                                <p class="text-sm text-gray-600">School/University</p>
+                                <p class="font-semibold text-gray-900">{{ $personalInfo->school ?? 'N/A' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Level</p>
+                                <p class="font-semibold text-gray-900">{{ $personalInfo->year_level ?? 'N/A' }}</p>
+                            </div>
                         </div>
                     </div>
 

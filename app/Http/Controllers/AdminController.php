@@ -116,25 +116,27 @@ class AdminController extends Controller
      * View / list applications
      */
     public function viewApplications(Request $request)
-    {
-        $status = $request->query('status');
-        $search = $request->query('search');
+{
+    $status = $request->query('status');
+    $search = $request->query('search');
 
-        $applications = ApplicationForm::with('user')
-            ->whereIn('status', ['pending', 'document_verification'])
-            ->when($search, function ($query, $search) {
-                $firstLetter = Str::lower(substr($search, 0, 1));
+    // Only DOST applicants who are NOT yet scholars
+    $applications = ApplicationForm::with('user')
+        ->whereIn('status', ['pending', 'document_verification'])
+        ->whereDoesntHave('scholar') // ✅ Exclude those who are already scholars
+        ->when($search, function ($query, $search) {
+            $firstLetter = Str::lower(substr($search, 0, 1));
 
-                $query->whereHas('user', function ($userQuery) use ($firstLetter) {
-                    $userQuery->whereRaw('LOWER(first_name) LIKE ?', ["{$firstLetter}%"])
-                        ->orWhereRaw('LOWER(last_name) LIKE ?', ["{$firstLetter}%"]);
-                });
-            })
-            ->latest()
-            ->paginate(10);
+            $query->whereHas('user', function ($userQuery) use ($firstLetter) {
+                $userQuery->whereRaw('LOWER(first_name) LIKE ?', ["{$firstLetter}%"])
+                    ->orWhereRaw('LOWER(last_name) LIKE ?', ["{$firstLetter}%"]);
+            });
+        })
+        ->latest()
+        ->paginate(10);
 
-        return view('admin.applications.index', compact('applications', 'status', 'search'));
-    }
+    return view('admin.applications.index', compact('applications', 'status', 'search'));
+}
 
     /**
      * View a specific application
@@ -479,43 +481,44 @@ class AdminController extends Controller
         $combinedScholars = $combinedScholars->merge($dostScholars);
     }
 
-    // Get CHED scholars
     if ($program === 'CHED' || $program === 'all') {
-        $chedScholars = \App\Models\ChedInfo::with('user')
-            ->where('status', 'approved')
-            ->when($semester !== 'all', function ($query) use ($semester) {
-                $query->where('school_term', $semester);
-            })
-            ->when($search, function ($query, $search) {
-                $query->whereHas('user', function ($userQuery) use ($search) {
-                    $firstLetter = substr($search, 0, 1);
-                    $userQuery->where('first_name', 'like', "{$firstLetter}%")
-                        ->orWhere('last_name', 'like', "{$firstLetter}%");
-                });
-            })
-            ->latest()
-            ->get()
-            ->map(function ($chedInfo) {
-                // Create a scholar-like object
-                $scholar = new \stdClass();
-                $scholar->id = $chedInfo->id;
-                $scholar->user = $chedInfo->user; // Keep the actual user object
-                $scholar->status = $chedInfo->status;
-                $scholar->updated_at = $chedInfo->updated_at;
-                $scholar->program_type = 'CHED';
-                
-                // Create applicationForm object
-                $scholar->applicationForm = new \stdClass();
-                $scholar->applicationForm->program = 'CHED';
-                $scholar->applicationForm->scholarship_type = 'CHED Scholar';
-                $scholar->applicationForm->bs_university = 'N/A';
-                $scholar->applicationForm->school_term = $chedInfo->school_term ?? 'N/A';
-                
-                return $scholar;
+    $chedScholars = \App\Models\ChedInfo::with('user')
+        ->where('status', 'approved')
+        ->when($semester !== 'all', function ($query) use ($semester) {
+            $query->where('school_term', $semester);
+        })
+        ->when($search, function ($query, $search) {
+            $query->whereHas('user', function ($userQuery) use ($search) {
+                $firstLetter = substr($search, 0, 1);
+                $userQuery->where('first_name', 'like', "{$firstLetter}%")
+                    ->orWhere('last_name', 'like', "{$firstLetter}%");
             });
-        
-        $combinedScholars = $combinedScholars->merge($chedScholars);
-    }
+        })
+        ->latest()
+        ->get()
+        ->map(function ($chedInfo) {
+            // Create a scholar-like object
+            $scholar = new \stdClass();
+            $scholar->id = $chedInfo->id;
+            $scholar->user = $chedInfo->user;
+            $scholar->status = $chedInfo->status;
+            $scholar->updated_at = $chedInfo->updated_at;
+            $scholar->program_type = 'CHED';
+            
+            // Create applicationForm object with CHED data
+            $scholar->applicationForm = new \stdClass();
+            $scholar->applicationForm->program = 'CHED';
+            $scholar->applicationForm->scholarship_type = 'CHED Scholar';
+            $scholar->applicationForm->school_term = $chedInfo->school_term ?? 'N/A';
+            $scholar->applicationForm->school = $chedInfo->school ?? 'N/A';              // ✅ Add this
+            $scholar->applicationForm->year_level = $chedInfo->year_level ?? 'N/A';      // ✅ Add thi             // ✅ Add this (bonus)
+            $scholar->applicationForm->bs_university = 'N/A';  // For DOST compatibility
+            
+            return $scholar;
+        });
+    
+    $combinedScholars = $combinedScholars->merge($chedScholars);
+}
 
     // Sort by updated_at
     $combinedScholars = $combinedScholars->sortByDesc(function($scholar) {

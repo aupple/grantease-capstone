@@ -133,6 +133,8 @@ Route::prefix('ched')->name('ched.')->group(function () {
         Route::get('/reports/monitoring/print', [ReportController::class, 'printMonitoring'])->name('reports.monitoring.print');
         
         //Ched monitoring
+        Route::get('/reports/ched-monitoring/print-personal', [ChedController::class, 'printPersonalInformation'])->name('reports.ched-monitoring.print-personal');
+        Route::post('/reports/ched-monitoring/export-excel', [ChedController::class, 'exportToExcel'])->name('reports.ched-monitoring.export-excel');
         Route::post('/reports/ched-monitoring/add-to-enrollment/{id}', [ChedController::class, 'addToEnrollment'])->name('reports.ched-monitoring.add-to-enrollment');
         Route::post('/reports/ched-monitoring/update-enrollment/{id}', [ChedController::class, 'updateEnrollmentReport'])->name('reports.ched-monitoring.update-enrollment');
         Route::post('/reports/ched-monitoring/update-grade/{id}', [ChedController::class, 'updateGradeReport'])->name('reports.ched-monitoring.update-grade');

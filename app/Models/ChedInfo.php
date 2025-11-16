@@ -16,6 +16,8 @@ class ChedInfo extends Model
         'status',
         'academic_year',
         'school_term',
+        'school',
+        'year_level',
         'application_no',
         'passport_photo',
         'last_name',

@@ -85,12 +85,17 @@
                                 </div>
                             </td>
 
+                            <!-- Level -->
                             <td class="p-1">
                                 <div
                                     class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
-                                    {{ is_array($scholar->applicationForm->scholarship_type)
-                                        ? implode(', ', $scholar->applicationForm->scholarship_type)
-                                        : $scholar->applicationForm->scholarship_type ?? 'N/A' }}
+                                    @if ($scholar->program_type === 'CHED')
+                                        {{ $scholar->applicationForm->year_level ?? 'N/A' }}
+                                    @else
+                                        {{ is_array($scholar->applicationForm->scholarship_type ?? null)
+                                            ? implode(', ', $scholar->applicationForm->scholarship_type)
+                                            : $scholar->applicationForm->scholarship_type ?? 'N/A' }}
+                                    @endif
                                 </div>
                             </td>
 
@@ -98,7 +103,11 @@
                             <td class="p-1">
                                 <div
                                     class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
-                                    {{ $scholar->applicationForm->bs_university ?? 'N/A' }}
+                                    @if ($scholar->program_type === 'CHED')
+                                        {{ $scholar->applicationForm->school ?? 'N/A' }}
+                                    @else
+                                        {{ $scholar->applicationForm->bs_university ?? 'N/A' }}
+                                    @endif
                                 </div>
                             </td>
                             <!-- Semester -->

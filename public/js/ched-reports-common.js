@@ -40,6 +40,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 .classList.remove("hidden");
 
             currentView = viewName;
+
+            // Store current view
+            sessionStorage.setItem("currentView", viewName);
         });
     });
 
@@ -59,25 +62,142 @@ document.addEventListener("DOMContentLoaded", function () {
                     col.classList.add("col-hidden");
                 }
             });
+
+            // Save state to localStorage
+            saveColumnState(currentView, colName, isChecked);
         });
     });
 
-    // Print functionality
+    // Print/Export functionality
     document.getElementById("printBtn").addEventListener("click", function () {
-        const printTitles = {
-            personal: "CHED Monitoring Scholars - Personal Information",
-            gradereport: "CHED Monitoring Scholars - SIKAP DHEI Grade Report",
-            enrollment:
-                "CHED Monitoring Scholars - SIKAP DHEI Enrollment Report",
-            continuing:
-                "CHED Monitoring Scholars - SIKAP Continuing Eligibility Report",
-        };
+        // Check if current view has Excel template
+        if (currentView === "personal") {
+            // Personal Information - Open printable page in new window
+            printPersonalInformation();
+            return;
+        }
 
-        const originalTitle = document.title;
-        document.title = printTitles[currentView] || originalTitle;
-        window.print();
-        document.title = originalTitle;
+        // For Grade Report, Enrollment, and Continuing - Export to Excel
+        exportToExcel();
     });
+
+    // Print Personal Information in new window
+    function printPersonalInformation() {
+        // Get filter values
+        const semester =
+            document.querySelector('select[name="semester"]')?.value || "";
+        const academicYear =
+            document.querySelector('select[name="academic_year"]')?.value || "";
+
+        // Get visible columns
+        const visibleColumns = [];
+        document
+            .querySelectorAll('.field-check[data-view="personal"]:checked')
+            .forEach((checkbox) => {
+                visibleColumns.push(checkbox.dataset.col);
+            });
+
+        // Build URL with parameters
+        let url = "/admin/reports/ched-monitoring/print-personal?";
+        const params = new URLSearchParams();
+
+        if (semester) params.append("semester", semester);
+        if (academicYear) params.append("academic_year", academicYear);
+        params.append("columns", JSON.stringify(visibleColumns));
+
+        url += params.toString();
+
+        // Open in new window
+        window.open(url, "_blank");
+    }
+
+    // Export to Excel function
+    function exportToExcel() {
+        // Get filter values
+        const semester =
+            document.querySelector('select[name="semester"]')?.value || "";
+        const academicYear =
+            document.querySelector('select[name="academic_year"]')?.value || "";
+
+        // Get hidden columns for current view
+        const hiddenColumns = [];
+        document
+            .querySelectorAll(
+                `.field-check[data-view="${currentView}"]:not(:checked)`
+            )
+            .forEach((checkbox) => {
+                hiddenColumns.push(checkbox.dataset.col);
+            });
+
+        // Show loading state
+        const printBtn = document.getElementById("printBtn");
+        const originalText = printBtn.textContent;
+        printBtn.disabled = true;
+        printBtn.textContent = "Generating Excel...";
+
+        // Create form and submit
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = "/admin/reports/ched-monitoring/export-excel";
+        form.style.display = "none";
+
+        // Add CSRF token
+        const csrfToken = document.querySelector(
+            'meta[name="csrf-token"]'
+        )?.content;
+        if (csrfToken) {
+            const csrfInput = document.createElement("input");
+            csrfInput.type = "hidden";
+            csrfInput.name = "_token";
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+        }
+
+        // Add report type
+        const reportTypeInput = document.createElement("input");
+        reportTypeInput.type = "hidden";
+        reportTypeInput.name = "report_type";
+        reportTypeInput.value = currentView;
+        form.appendChild(reportTypeInput);
+
+        // Add filters
+        if (semester) {
+            const semesterInput = document.createElement("input");
+            semesterInput.type = "hidden";
+            semesterInput.name = "semester";
+            semesterInput.value = semester;
+            form.appendChild(semesterInput);
+        }
+
+        if (academicYear) {
+            const yearInput = document.createElement("input");
+            yearInput.type = "hidden";
+            yearInput.name = "academic_year";
+            yearInput.value = academicYear;
+            form.appendChild(yearInput);
+        }
+
+        // Add hidden columns
+        hiddenColumns.forEach((col) => {
+            const colInput = document.createElement("input");
+            colInput.type = "hidden";
+            colInput.name = "hidden_columns[]";
+            colInput.value = col;
+            form.appendChild(colInput);
+        });
+
+        document.body.appendChild(form);
+        form.submit();
+
+        // Reset button state after delay
+        setTimeout(() => {
+            printBtn.disabled = false;
+            printBtn.textContent = originalText;
+            if (document.body.contains(form)) {
+                document.body.removeChild(form);
+            }
+        }, 3000);
+    }
 
     // Reset columns
     document.getElementById("resetCols").addEventListener("click", function () {
@@ -94,8 +214,56 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
 
+        // Clear saved states for current view
+        clearColumnStates(currentView);
+
         showFeedback("All columns have been reset and are now visible.");
     });
+
+    // Save column state to localStorage
+    function saveColumnState(view, col, visible) {
+        const states = JSON.parse(localStorage.getItem("columnStates") || "{}");
+        const key = `${view}_${col}`;
+        states[key] = visible;
+        localStorage.setItem("columnStates", JSON.stringify(states));
+    }
+
+    // Clear column states for a view
+    function clearColumnStates(view) {
+        const states = JSON.parse(localStorage.getItem("columnStates") || "{}");
+        Object.keys(states).forEach((key) => {
+            if (key.startsWith(`${view}_`)) {
+                delete states[key];
+            }
+        });
+        localStorage.setItem("columnStates", JSON.stringify(states));
+    }
+
+    // Load saved column states on page load
+    function loadColumnStates() {
+        const states = JSON.parse(localStorage.getItem("columnStates") || "{}");
+
+        Object.keys(states).forEach((key) => {
+            const visible = states[key];
+            const [view, col] = key.split("_");
+
+            const checkbox = document.querySelector(
+                `.field-check[data-view="${view}"][data-col="${col}"]`
+            );
+
+            if (checkbox) {
+                checkbox.checked = visible;
+                const columns = document.querySelectorAll(`.col-${col}`);
+                columns.forEach((column) => {
+                    if (visible) {
+                        column.classList.remove("col-hidden");
+                    } else {
+                        column.classList.add("col-hidden");
+                    }
+                });
+            }
+        });
+    }
 
     // Helper function - make it global so other scripts can use it
     window.showFeedback = function (message) {
@@ -128,6 +296,20 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
     });
+
+    // Load saved column states
+    loadColumnStates();
+
+    // Restore last view if exists
+    const lastView = sessionStorage.getItem("currentView");
+    if (lastView && lastView !== "personal") {
+        const tab = document.getElementById(
+            `view${lastView.charAt(0).toUpperCase() + lastView.slice(1)}`
+        );
+        if (tab) {
+            tab.click();
+        }
+    }
 
     // Keyboard shortcuts
     document.addEventListener("keydown", function (e) {

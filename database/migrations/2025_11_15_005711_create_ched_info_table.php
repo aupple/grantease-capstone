@@ -24,6 +24,8 @@ return new class extends Migration
             // Step 1 fields
             $table->string('academic_year');
             $table->string('school_term');
+            $table->string('school')->nullable();
+            $table->string('year_level')->nullable();
             $table->string('application_no')->unique();
             $table->string('passport_photo');
 

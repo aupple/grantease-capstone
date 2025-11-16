@@ -4,7 +4,6 @@
             Dashboard
         </h2>
     </x-slot>
-
     <!-- ✅ Normal background only -->
     <div class="py-6 px-4 sm:px-6 lg:px-8 min-h-screen bg-gray-100">
 
@@ -154,15 +153,6 @@
                             <div id="dropdownMenu"
                                 class="absolute left-0 w-full mt-1 hidden bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                                 <div class="py-2">
-                                    <a href="{{ route('applicant.pdf.score_sheet') }}"
-                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
-                                        <span class="flex-1">Score Sheet</span>
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                        </svg>
-                                    </a>
                                     <a href="{{ route('applicant.pdf.recommendation_form') }}"
                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
                                         <span class="flex-1">Recommendation Form</span>

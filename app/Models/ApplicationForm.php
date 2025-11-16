@@ -159,6 +159,9 @@ class ApplicationForm extends Model
         'ms_scholarship_type' => 'array',
         'phd_scholarship_type' => 'array',
         'scholarship_type' => 'array',
+        'strand_category' => 'array',        // ADD THIS
+        'applicant_type' => 'array',         // ADD THIS
+        'employment_status' => 'array',
         'rnd_involvement' => 'array',
         'scholarship_duration' => 'array',
         'publications' => 'array',
