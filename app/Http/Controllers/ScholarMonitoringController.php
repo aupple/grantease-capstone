@@ -45,7 +45,7 @@ class ScholarMonitoringController extends Controller
             'total' => 'nullable|integer',
         ]);
 
-        $validated['scholar_id'] = $scholarId; // 🔗 link to scholar
+        $validated['scholar_id'] = $scholarId;
 
         ScholarMonitoring::create($validated);
 

@@ -149,8 +149,6 @@ class ApplicationForm extends Model
         // Status & tracking
         'status',
         'submitted_at',
-        'remarks',
-        'remark',
     ];
 
     // Cast JSON fields and booleans properly
@@ -187,7 +185,7 @@ class ApplicationForm extends Model
         return $this->hasMany(ApplicationDocument::class, 'application_form_id', 'application_form_id');
     }
 
-    public function remarks()
+   public function remarks()
 {
     return $this->hasMany(Remark::class, 'application_form_id', 'application_form_id');
 }

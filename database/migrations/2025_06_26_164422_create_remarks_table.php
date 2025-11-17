@@ -9,7 +9,7 @@ return new class extends Migration {
         Schema::create('remarks', function (Blueprint $table) {
             $table->id('remark_id');
             $table->unsignedBigInteger('application_form_id');
-            $table->string('document_name'); // e.g., "Birth Certificate", "NBI Clearance"
+            $table->string('document_name');
             $table->text('remark_text');
             $table->timestamps();
 

@@ -183,9 +183,9 @@
                                     {{ $personalInfo->house_no }},
                                 @endif
                                 {{ $personalInfo->street }},
-                                {{ $personalInfo->barangay }},
-                                {{ $personalInfo->city }},
-                                {{ $personalInfo->province }},
+                                {{ $barangayName }},
+                                {{ $cityName }},
+                                {{ $provinceName }},
                                 {{ $personalInfo->region }}
                                 @if ($personalInfo->district)
                                     ({{ $personalInfo->district }})

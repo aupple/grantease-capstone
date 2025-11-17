@@ -16,11 +16,11 @@
 
     <!-- ✅ 4 Summary Cards with Light Gradient Accent -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-        <!-- Total Applications -->
+        <!-- Total Scholars -->
         <div
             class="relative bg-white/60 backdrop-blur-md p-5 rounded-xl text-center shadow-sm border border-white/30 hover:shadow-md transition-shadow overflow-hidden">
             <div
-                class="absolute inset-0 bg-gradient-to-br from-blue-500 to-transparent opacity-60 rounded-x1 pointer-events-none">
+                class="absolute inset-0 bg-gradient-to-br from-blue-500 to-transparent opacity-60 rounded-xl pointer-events-none">
             </div>
             <div class="relative z-10">
                 <div class="flex items-center justify-center mb-2">
@@ -30,7 +30,7 @@
                     </svg>
                 </div>
                 <p class="text-sm text-blue-900 font-semibold mb-1">Total Scholars</p>
-                <p class="text-3xl font-bold text-blue-800">{{ $total_applicants }}</p>
+                <p class="text-3xl font-bold text-blue-800">{{ $total_scholars }}</p>
             </div>
         </div>
 
@@ -103,7 +103,7 @@
                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                         </path>
                     </svg>
-                    <h3 class="text-lg font-semibold text-gray-800">Recent Applications</h3>
+                    <h3 class="text-lg font-semibold text-gray-800">Recent Activities</h3>
                 </div>
                 <div class="flex items-center gap-2">
                     <form method="GET" action="{{ route('admin.dashboard') }}" class="flex items-center gap-2">

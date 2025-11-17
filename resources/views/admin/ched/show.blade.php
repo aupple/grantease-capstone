@@ -68,17 +68,17 @@
 
                         <div>
                             <p class="text-sm font-medium text-gray-600 mb-1">Province</p>
-                            <p class="text-base text-gray-900 font-semibold">{{ $chedInfo->province ?? 'N/A' }}</p>
+                            <p class="text-base text-gray-900 font-semibold">{{ $provinceName }}</p>
                         </div>
 
                         <div>
                             <p class="text-sm font-medium text-gray-600 mb-1">City / Municipality</p>
-                            <p class="text-base text-gray-900 font-semibold">{{ $chedInfo->city ?? 'N/A' }}</p>
+                            <p class="text-base text-gray-900 font-semibold">{{ $cityName }}</p>
                         </div>
 
                         <div>
                             <p class="text-sm font-medium text-gray-600 mb-1">Barangay</p>
-                            <p class="text-base text-gray-900 font-semibold">{{ $chedInfo->barangay ?? 'N/A' }}</p>
+                            <p class="text-base text-gray-900 font-semibold">{{ $barangayName }}</p>
                         </div>
 
                         <div>

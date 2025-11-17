@@ -4,7 +4,6 @@
     @endphp
 
     <style>
-        /* ===== PAGE & PRINT ===== */
         body {
             background-color: #f9fafb;
         }
@@ -215,7 +214,7 @@
                         <div class="title text-center">
                             <p class="text-sm font-semibold">DEPARTMENT OF SCIENCE AND TECHNOLOGY</p>
                             <p class="text-sm font-semibold">SCIENCE EDUCATION INSTITUTE</p>
-                            <p class="text-xs">Bicutan, Taguig City</p>
+                            <p class="text-xs">Lapasan, Cagayan De Oro City</p>
                             <h1 class="text-base font-bold underline mt-1">APPLICATION FORM</h1>
                             <p class="text-xs mt-1">for the</p>
                             <h2 class="text-sm font-bold mt-1">
@@ -239,7 +238,8 @@
                     <div class="grid grid-cols-4 gap-2 text-sm mb-4">
                         <div>
                             <label class="block text-[12px] font-semibold">Application No.</label>
-                            <div class="editable-field bg-gray-100 text-center">{{ $application->application_no }}</div>
+                            <div class="editable-field bg-gray-100 text-center">{{ $application->application_no }}
+                            </div>
                         </div>
                         <div>
                             <label class="block text-[12px] font-semibold">Academic Year</label>
@@ -833,31 +833,26 @@
                             }
 
                             // Get remarks from application
-                            $documentRemarks = $application->document_remarks
-                                ? json_decode($application->document_remarks, true)
-                                : [];
-                            $documentsNeedingRevision = $application->documents_needing_revision
-                                ? json_decode($application->documents_needing_revision, true)
-                                : [];
+                            $allRemarks = DB::table('remarks')
+                                ->where('application_form_id', $application->application_form_id) // ✅ Fixed!
+                                ->get()
+                                ->keyBy('document_name');
                         @endphp
 
                         <!-- General Requirements -->
                         <div class="space-y-3 pl-4">
                             <!-- Birth Certificate -->
                             @php
-                                $hasRemark = isset($documentRemarks['birth_certificate']);
-                                $needsRevision = in_array('birth_certificate', $documentsNeedingRevision);
+                                $documentKey = 'Birth Certificate';
+                                $hasRemark = $allRemarks->has($documentKey);
+                                $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
                             @endphp
                             <div
-                                class="border rounded-lg p-3 {{ hasDocument($application->birth_certificate_pdf) ? ($needsRevision ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200' }}">
+                                class="border rounded-lg p-3 {{ $hasRemark ? 'bg-red-50 border-red-300' : (hasDocument($application->birth_certificate_pdf) ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200') }}">
                                 <div class="flex items-start justify-between">
                                     <div class="flex-1">
-                                        <p class="font-medium text-sm flex items-center gap-2">
+                                        <p class="font-medium text-sm">
                                             • Birth Certificate (Photocopy)
-                                            @if ($needsRevision)
-                                                <span class="text-xs bg-red-500 text-white px-2 py-0.5 rounded">Needs
-                                                    Revision</span>
-                                            @endif
                                         </p>
                                         <div class="flex items-center gap-2 mt-1 flex-wrap">
                                             @if (hasDocument($application->birth_certificate_pdf))
@@ -887,7 +882,7 @@
                                                             ⚠️ Admin Remarks:
                                                         </p>
                                                         <p class="text-yellow-700 mt-1 text-xs">
-                                                            {{ $documentRemarks['birth_certificate'] }}</p>
+                                                            {{ $remarkData->remark_text }}</p>
                                                         <p class="text-yellow-600 text-xs mt-1 italic">
                                                             Please update this document and resubmit.
                                                         </p>
@@ -897,10 +892,10 @@
                                         @endif
                                     </div>
 
-                                    @if (($application->status === 'pending' || $needsRevision) && hasDocument($application->birth_certificate_pdf))
+                                    @if ($application->status === 'pending' || $hasRemark)
                                         <button onclick="openEditModal('birth_certificate', 'Birth Certificate')"
                                             class="ml-2 text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded flex items-center gap-1 whitespace-nowrap">
-                                            Edit File
+                                            {{ hasDocument($application->birth_certificate_pdf) ? 'Edit File' : 'Upload File' }}
                                         </button>
                                     @endif
                                 </div>
@@ -908,8 +903,10 @@
 
                             <!-- Transcript of Record -->
                             @php
-                                $hasRemark = isset($documentRemarks['transcript_of_record']);
-                                $needsRevision = in_array('transcript_of_record', $documentsNeedingRevision);
+                                $documentKey = 'Transcript of Record';
+                                $hasRemark = $allRemarks->has($documentKey);
+                                $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
+                                $needsRevision = $hasRemark;
                             @endphp
                             <div
                                 class="border rounded-lg p-3 {{ hasDocument($application->transcript_of_record_pdf) ? ($needsRevision ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200' }}">
@@ -917,10 +914,6 @@
                                     <div class="flex-1">
                                         <p class="font-medium text-sm flex items-center gap-2">
                                             • Certified True Copy of the Official Transcript of Record
-                                            @if ($needsRevision)
-                                                <span class="text-xs bg-red-500 text-white px-2 py-0.5 rounded">Needs
-                                                    Revision</span>
-                                            @endif
                                         </p>
                                         <div class="flex items-center gap-2 mt-1 flex-wrap">
                                             @if (hasDocument($application->transcript_of_record_pdf))
@@ -940,17 +933,22 @@
                                             @endif
                                         </div>
 
+                                        <!-- Remarks Section -->
                                         @if ($hasRemark)
                                             <div class="mt-2 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
-                                                <p
-                                                    class="font-semibold text-yellow-800 text-xs flex items-center gap-1">
-                                                    ⚠️ Admin Remarks:
-                                                </p>
-                                                <p class="text-yellow-700 mt-1 text-xs">
-                                                    {{ $documentRemarks['transcript_of_record'] }}</p>
-                                                <p class="text-yellow-600 text-xs mt-1 italic">
-                                                    Please update this document and resubmit.
-                                                </p>
+                                                <div class="flex items-start justify-between">
+                                                    <div class="flex-1">
+                                                        <p
+                                                            class="font-semibold text-yellow-800 text-xs flex items-center gap-1">
+                                                            ⚠️ Admin Remarks:
+                                                        </p>
+                                                        <p class="text-yellow-700 mt-1 text-xs">
+                                                            {{ $remarkData->remark_text }}</p>
+                                                        <p class="text-yellow-600 text-xs mt-1 italic">
+                                                            Please update this document and resubmit.
+                                                        </p>
+                                                    </div>
+                                                </div>
                                             </div>
                                         @endif
                                     </div>
@@ -964,11 +962,12 @@
                                 </div>
                             </div>
 
-
                             <!-- Endorsement 1 -->
                             @php
-                                $hasRemark = isset($documentRemarks['endorsement_1']);
-                                $needsRevision = in_array('endorsement_1', $documentsNeedingRevision);
+                                $documentKey = 'Endorsement Letter 1';
+                                $hasRemark = $allRemarks->has($documentKey);
+                                $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
+                                $needsRevision = $hasRemark;
                             @endphp
                             <div
                                 class="border rounded-lg p-3 {{ hasDocument($application->endorsement_1_pdf) ? ($needsRevision ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200' }}">
@@ -977,10 +976,6 @@
                                         <p class="font-medium text-sm flex items-center gap-2">
                                             • Endorsement 1 – Former professor in college for MS / former professor in
                                             MS program for PhD
-                                            @if ($needsRevision)
-                                                <span class="text-xs bg-red-500 text-white px-2 py-0.5 rounded">Needs
-                                                    Revision</span>
-                                            @endif
                                         </p>
                                         <div class="flex items-center gap-2 mt-1 flex-wrap">
                                             @if (hasDocument($application->endorsement_1_pdf))
@@ -1007,7 +1002,7 @@
                                                     ⚠️ Admin Remarks:
                                                 </p>
                                                 <p class="text-yellow-700 mt-1 text-xs">
-                                                    {{ $documentRemarks['endorsement_1'] }}</p>
+                                                    {{ $remarkData->remark_text }}</p>
                                                 <p class="text-yellow-600 text-xs mt-1 italic">
                                                     Please update this document and resubmit.
                                                 </p>
@@ -1026,8 +1021,10 @@
 
                             <!-- Endorsement 2 -->
                             @php
-                                $hasRemark = isset($documentRemarks['endorsement_2']);
-                                $needsRevision = in_array('endorsement_2', $documentsNeedingRevision);
+                                $documentKey = 'Endorsement Letter 2';
+                                $hasRemark = $allRemarks->has($documentKey);
+                                $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
+                                $needsRevision = $hasRemark;
                             @endphp
                             <div
                                 class="border rounded-lg p-3 {{ hasDocument($application->endorsement_2_pdf) ? ($needsRevision ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200' }}">
@@ -1036,10 +1033,7 @@
                                         <p class="font-medium text-sm flex items-center gap-2">
                                             • Endorsement 2 – Former professor in college for MS / former professor in
                                             MS program for PhD
-                                            @if ($needsRevision)
-                                                <span class="text-xs bg-red-500 text-white px-2 py-0.5 rounded">Needs
-                                                    Revision</span>
-                                            @endif
+
                                         </p>
                                         <div class="flex items-center gap-2 mt-1 flex-wrap">
                                             @if (hasDocument($application->endorsement_2_pdf))
@@ -1066,7 +1060,7 @@
                                                     ⚠️ Admin Remarks:
                                                 </p>
                                                 <p class="text-yellow-700 mt-1 text-xs">
-                                                    {{ $documentRemarks['endorsement_2'] }}</p>
+                                                    {{ $remarkData->remark_text }}</p>
                                                 <p class="text-yellow-600 text-xs mt-1 italic">
                                                     Please update this document and resubmit.
                                                 </p>
@@ -1090,8 +1084,10 @@
                             <div class="space-y-3 pl-4">
                                 <!-- Recommendation from Head of Agency -->
                                 @php
-                                    $hasRemark = isset($documentRemarks['recommendation_head_agency']);
-                                    $needsRevision = in_array('recommendation_head_agency', $documentsNeedingRevision);
+                                    $documentKey = 'Recommendation from Head of Agency';
+                                    $hasRemark = $allRemarks->has($documentKey);
+                                    $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
+                                    $needsRevision = $hasRemark;
                                 @endphp
                                 <div
                                     class="border rounded-lg p-3 {{ hasDocument($application->recommendation_head_agency_pdf) ? ($needsRevision ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200' }}">
@@ -1099,11 +1095,7 @@
                                         <div class="flex-1">
                                             <p class="font-medium text-sm flex items-center gap-2">
                                                 • Recommendation from Head of Agency
-                                                @if ($needsRevision)
-                                                    <span
-                                                        class="text-xs bg-red-500 text-white px-2 py-0.5 rounded">Needs
-                                                        Revision</span>
-                                                @endif
+
                                             </p>
                                             <div class="flex items-center gap-2 mt-1 flex-wrap">
                                                 @if (hasDocument($application->recommendation_head_agency_pdf))
@@ -1132,7 +1124,7 @@
                                                         ⚠️ Admin Remarks:
                                                     </p>
                                                     <p class="text-yellow-700 mt-1 text-xs">
-                                                        {{ $documentRemarks['recommendation_head_agency'] }}</p>
+                                                        {{ $remarkData->remark_text }}</p>
                                                     <p class="text-yellow-600 text-xs mt-1 italic">
                                                         Please update this document and resubmit.
                                                     </p>
@@ -1150,84 +1142,19 @@
                                     </div>
                                 </div>
 
-                                <!-- Form 2A -->
-                                @php
-                                    $hasRemark = isset($documentRemarks['form_2a']);
-                                    $needsRevision = in_array('form_2a', $documentsNeedingRevision);
-                                @endphp
-                                <div
-                                    class="border rounded-lg p-3 {{ hasDocument($application->form_2a_pdf) ? ($needsRevision ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200' }}">
-                                    <div class="flex items-start justify-between">
-                                        <div class="flex-1">
-                                            <p class="font-medium text-sm flex items-center gap-2">
-                                                • Form 2A – Certificate of Employment and Permit to Study
-                                                @if ($needsRevision)
-                                                    <span
-                                                        class="text-xs bg-red-500 text-white px-2 py-0.5 rounded">Needs
-                                                        Revision</span>
-                                                @endif
-                                            </p>
-                                            <div class="flex items-center gap-2 mt-1 flex-wrap">
-                                                @if (hasDocument($application->form_2a_pdf))
-                                                    <span class="text-green-700 font-semibold text-xs">✓
-                                                        Uploaded</span>
-                                                    <a href="{{ getFileUrl($application->form_2a_pdf) }}"
-                                                        target="_blank"
-                                                        class="text-blue-600 hover:text-blue-800 text-xs font-semibold underline">
-                                                        View File
-                                                    </a>
-                                                    <button
-                                                        onclick="openDocumentModal('{{ getFileUrl($application->form_2a_pdf) }}', 'Form 2A')"
-                                                        class="text-purple-600 hover:text-purple-800 text-xs font-semibold underline">
-                                                        Quick View
-                                                    </button>
-                                                @else
-                                                    <span class="text-gray-500 text-xs">Not uploaded</span>
-                                                @endif
-                                            </div>
-
-                                            @if ($hasRemark)
-                                                <div
-                                                    class="mt-2 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
-                                                    <p
-                                                        class="font-semibold text-yellow-800 text-xs flex items-center gap-1">
-                                                        ⚠️ Admin Remarks:
-                                                    </p>
-                                                    <p class="text-yellow-700 mt-1 text-xs">
-                                                        {{ $documentRemarks['form_2a'] }}</p>
-                                                    <p class="text-yellow-600 text-xs mt-1 italic">
-                                                        Please update this document and resubmit.
-                                                    </p>
-                                                </div>
-                                            @endif
-                                        </div>
-
-                                        @if (($application->status === 'pending' || $needsRevision) && hasDocument($application->form_2a_pdf))
-                                            <button onclick="openEditModal('form_2a', 'Form 2A')"
-                                                class="ml-2 text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded flex items-center gap-1 whitespace-nowrap">
-                                                Edit File
-                                            </button>
-                                        @endif
-                                    </div>
-                                </div>
-
                                 <!-- Form 2B -->
                                 @php
-                                    $hasRemark = isset($documentRemarks['form_2b']);
-                                    $needsRevision = in_array('form_2b', $documentsNeedingRevision);
+                                    $documentKey = 'Form 2B - Optional Employment Cert.'; // ✅ FIXED: Correct key
+                                    $hasRemark = $allRemarks->has($documentKey);
+                                    $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
                                 @endphp
                                 <div
-                                    class="border rounded-lg p-3 {{ hasDocument($application->form_2b_pdf) ? ($needsRevision ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200' }}">
+                                    class="border rounded-lg p-3 {{ $hasRemark ? 'bg-red-50 border-red-300' : (hasDocument($application->form_2b_pdf) ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200') }}">
                                     <div class="flex items-start justify-between">
                                         <div class="flex-1">
-                                            <p class="font-medium text-sm flex items-center gap-2">
+                                            <p class="font-medium text-sm">
                                                 • Form 2B – Certificate of DepEd Employment and Permit to Study (for
                                                 DepEd employees only)
-                                                @if ($needsRevision)
-                                                    <span
-                                                        class="text-xs bg-red-500 text-white px-2 py-0.5 rounded">Needs
-                                                        Revision</span>
-                                                @endif
                                             </p>
                                             <div class="flex items-center gap-2 mt-1 flex-wrap">
                                                 @if (hasDocument($application->form_2b_pdf))
@@ -1256,7 +1183,67 @@
                                                         ⚠️ Admin Remarks:
                                                     </p>
                                                     <p class="text-yellow-700 mt-1 text-xs">
-                                                        {{ $documentRemarks['form_2b'] }}</p>
+                                                        {{ $remarkData->remark_text }}</p>
+                                                    <p class="text-yellow-600 text-xs mt-1 italic">
+                                                        Please update this document and resubmit.
+                                                    </p>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        @if ($application->status === 'pending' || $hasRemark)
+                                            <button onclick="openEditModal('form_2b', 'Form 2B')"
+                                                class="ml-2 text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded flex items-center gap-1 whitespace-nowrap">
+                                                {{ hasDocument($application->form_2b_pdf) ? 'Edit File' : 'Upload File' }}
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <!-- Form 2B -->
+                                @php
+                                    $documentKey = 'Form B - Career Plans';
+                                    $hasRemark = $allRemarks->has($documentKey);
+                                    $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
+                                    $needsRevision = $hasRemark;
+                                @endphp
+                                <div
+                                    class="border rounded-lg p-3 {{ hasDocument($application->form_2b_pdf) ? ($needsRevision ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200' }}">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <p class="font-medium text-sm flex items-center gap-2">
+                                                • Form 2B – Certificate of DepEd Employment and Permit to Study (for
+                                                DepEd employees only)
+
+                                            </p>
+                                            <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                                @if (hasDocument($application->form_2b_pdf))
+                                                    <span class="text-green-700 font-semibold text-xs">✓
+                                                        Uploaded</span>
+                                                    <a href="{{ getFileUrl($application->form_2b_pdf) }}"
+                                                        target="_blank"
+                                                        class="text-blue-600 hover:text-blue-800 text-xs font-semibold underline">
+                                                        View File
+                                                    </a>
+                                                    <button
+                                                        onclick="openDocumentModal('{{ getFileUrl($application->form_2b_pdf) }}', 'Form 2B')"
+                                                        class="text-purple-600 hover:text-purple-800 text-xs font-semibold underline">
+                                                        Quick View
+                                                    </button>
+                                                @else
+                                                    <span class="text-gray-500 text-xs">Not uploaded</span>
+                                                @endif
+                                            </div>
+
+                                            @if ($hasRemark)
+                                                <div
+                                                    class="mt-2 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                                                    <p
+                                                        class="font-semibold text-yellow-800 text-xs flex items-center gap-1">
+                                                        ⚠️ Admin Remarks:
+                                                    </p>
+                                                    <p class="text-yellow-700 mt-1 text-xs">
+                                                        {{ $remarkData->remark_text }}</p>
                                                     <p class="text-yellow-600 text-xs mt-1 italic">
                                                         Please update this document and resubmit.
                                                     </p>
@@ -1281,20 +1268,16 @@
                             <div class="space-y-3 pl-4">
                                 <!-- Form C -->
                                 @php
-                                    $hasRemark = isset($documentRemarks['form_c_health_status']);
-                                    $needsRevision = in_array('form_c_health_status', $documentsNeedingRevision);
+                                    $documentKey = 'Form C - Health Status';
+                                    $hasRemark = $allRemarks->has($documentKey);
+                                    $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
                                 @endphp
                                 <div
-                                    class="border rounded-lg p-3 {{ hasDocument($application->form_c_health_status_pdf) ? ($needsRevision ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200' }}">
+                                    class="border rounded-lg p-3 {{ $hasRemark ? 'bg-red-50 border-red-300' : (hasDocument($application->form_c_health_status_pdf) ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200') }}">
                                     <div class="flex items-start justify-between">
                                         <div class="flex-1">
-                                            <p class="font-medium text-sm flex items-center gap-2">
+                                            <p class="font-medium text-sm">
                                                 • Form C – Certification of Health Status
-                                                @if ($needsRevision)
-                                                    <span
-                                                        class="text-xs bg-red-500 text-white px-2 py-0.5 rounded">Needs
-                                                        Revision</span>
-                                                @endif
                                             </p>
                                             <div class="flex items-center gap-2 mt-1 flex-wrap">
                                                 @if (hasDocument($application->form_c_health_status_pdf))
@@ -1323,7 +1306,7 @@
                                                         ⚠️ Admin Remarks:
                                                     </p>
                                                     <p class="text-yellow-700 mt-1 text-xs">
-                                                        {{ $documentRemarks['form_c_health_status'] }}</p>
+                                                        {{ $remarkData->remark_text }}</p>
                                                     <p class="text-yellow-600 text-xs mt-1 italic">
                                                         Please update this document and resubmit.
                                                     </p>
@@ -1331,20 +1314,21 @@
                                             @endif
                                         </div>
 
-                                        @if (($application->status === 'pending' || $needsRevision) && hasDocument($application->form_c_health_status_pdf))
+                                        @if ($application->status === 'pending' || $hasRemark)
                                             <button
                                                 onclick="openEditModal('form_c_health_status', 'Form C - Health Status')"
                                                 class="ml-2 text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded flex items-center gap-1 whitespace-nowrap">
-                                                Edit File
+                                                {{ hasDocument($application->form_c_health_status_pdf) ? 'Edit File' : 'Upload File' }}
                                             </button>
                                         @endif
                                     </div>
                                 </div>
-
                                 <!-- NBI Clearance -->
                                 @php
-                                    $hasRemark = isset($documentRemarks['nbi_clearance']);
-                                    $needsRevision = in_array('nbi_clearance', $documentsNeedingRevision);
+                                    $documentKey = 'NBI Clearance';
+                                    $hasRemark = $allRemarks->has($documentKey);
+                                    $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
+                                    $needsRevision = $hasRemark;
                                 @endphp
                                 <div
                                     class="border rounded-lg p-3 {{ hasDocument($application->nbi_clearance_pdf) ? ($needsRevision ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200' }}">
@@ -1352,11 +1336,7 @@
                                         <div class="flex-1">
                                             <p class="font-medium text-sm flex items-center gap-2">
                                                 • Valid NBI Clearance
-                                                @if ($needsRevision)
-                                                    <span
-                                                        class="text-xs bg-red-500 text-white px-2 py-0.5 rounded">Needs
-                                                        Revision</span>
-                                                @endif
+
                                             </p>
                                             <div class="flex items-center gap-2 mt-1 flex-wrap">
                                                 @if (hasDocument($application->nbi_clearance_pdf))
@@ -1385,7 +1365,7 @@
                                                         ⚠️ Admin Remarks:
                                                     </p>
                                                     <p class="text-yellow-700 mt-1 text-xs">
-                                                        {{ $documentRemarks['nbi_clearance'] }}</p>
+                                                        {{ $remarkData->remark_text }}</p>
                                                     <p class="text-yellow-600 text-xs mt-1 italic">
                                                         Please update this document and resubmit.
                                                     </p>
@@ -1404,8 +1384,10 @@
 
                                 <!-- Letter of Admission -->
                                 @php
-                                    $hasRemark = isset($documentRemarks['letter_of_admission']);
-                                    $needsRevision = in_array('letter_of_admission', $documentsNeedingRevision);
+                                    $documentKey = 'Letter of Admission';
+                                    $hasRemark = $allRemarks->has($documentKey);
+                                    $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
+                                    $needsRevision = $hasRemark;
                                 @endphp
                                 <div
                                     class="border rounded-lg p-3 {{ hasDocument($application->letter_of_admission_pdf) ? ($needsRevision ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200' }}">
@@ -1413,11 +1395,7 @@
                                         <div class="flex-1">
                                             <p class="font-medium text-sm flex items-center gap-2">
                                                 • Letter of Admission with Regular Status (includes Evaluation Sheet)
-                                                @if ($needsRevision)
-                                                    <span
-                                                        class="text-xs bg-red-500 text-white px-2 py-0.5 rounded">Needs
-                                                        Revision</span>
-                                                @endif
+
                                             </p>
                                             <div class="flex items-center gap-2 mt-1 flex-wrap">
                                                 @if (hasDocument($application->letter_of_admission_pdf))
@@ -1446,7 +1424,7 @@
                                                         ⚠️ Admin Remarks:
                                                     </p>
                                                     <p class="text-yellow-700 mt-1 text-xs">
-                                                        {{ $documentRemarks['letter_of_admission'] }}</p>
+                                                        {{ $remarkData->remark_text }}</p>
                                                     <p class="text-yellow-600 text-xs mt-1 italic">
                                                         Please update this document and resubmit.
                                                     </p>
@@ -1466,8 +1444,10 @@
 
                                 <!-- Approved Program of Study -->
                                 @php
-                                    $hasRemark = isset($documentRemarks['approved_program_of_study']);
-                                    $needsRevision = in_array('approved_program_of_study', $documentsNeedingRevision);
+                                    $documentKey = 'Approved Program of Study';
+                                    $hasRemark = $allRemarks->has($documentKey);
+                                    $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
+                                    $needsRevision = $hasRemark;
                                 @endphp
                                 <div
                                     class="border rounded-lg p-3 {{ hasDocument($application->approved_program_of_study_pdf) ? ($needsRevision ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200' }}">
@@ -1475,11 +1455,7 @@
                                         <div class="flex-1">
                                             <p class="font-medium text-sm flex items-center gap-2">
                                                 • Approved Program of Study
-                                                @if ($needsRevision)
-                                                    <span
-                                                        class="text-xs bg-red-500 text-white px-2 py-0.5 rounded">Needs
-                                                        Revision</span>
-                                                @endif
+
                                             </p>
                                             <div class="flex items-center gap-2 mt-1 flex-wrap">
                                                 @if (hasDocument($application->approved_program_of_study_pdf))
@@ -1508,7 +1484,7 @@
                                                         ⚠️ Admin Remarks:
                                                     </p>
                                                     <p class="text-yellow-700 mt-1 text-xs">
-                                                        {{ $documentRemarks['approved_program_of_study'] }}</p>
+                                                        {{ $remarkData->remark_text }}</p>
                                                     <p class="text-yellow-600 text-xs mt-1 italic">
                                                         Please update this document and resubmit.
                                                     </p>
@@ -1533,8 +1509,10 @@
                             <p class="font-semibold mb-2">Additional Requirements for Lateral Applicants:</p>
                             <div class="space-y-3 pl-4">
                                 @php
-                                    $hasRemark = isset($documentRemarks['lateral_certification']);
-                                    $needsRevision = in_array('lateral_certification', $documentsNeedingRevision);
+                                    $documentKey = 'Lateral Certification';
+                                    $hasRemark = $allRemarks->has($documentKey);
+                                    $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
+                                    $needsRevision = $hasRemark;
                                 @endphp
                                 <div
                                     class="border rounded-lg p-3 {{ hasDocument($application->lateral_certification_pdf) ? ($needsRevision ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200' }}">
@@ -1542,11 +1520,7 @@
                                         <div class="flex-1">
                                             <p class="font-medium text-sm flex items-center gap-2">
                                                 • Certification from the university indicating:
-                                                @if ($needsRevision)
-                                                    <span
-                                                        class="text-xs bg-red-500 text-white px-2 py-0.5 rounded">Needs
-                                                        Revision</span>
-                                                @endif
+
                                             </p>
                                             <ul class="list-disc pl-6 text-xs mt-1 mb-2">
                                                 <li>Number of graduate units required in the program</li>
@@ -1580,7 +1554,7 @@
                                                         ⚠️ Admin Remarks:
                                                     </p>
                                                     <p class="text-yellow-700 mt-1 text-xs">
-                                                        {{ $documentRemarks['lateral_certification'] }}</p>
+                                                        {{ $remarkData->remark_text }}</p>
                                                     <p class="text-yellow-600 text-xs mt-1 italic">
                                                         Please update this document and resubmit.
                                                     </p>
@@ -1592,7 +1566,7 @@
                                             <button
                                                 onclick="openEditModal('lateral_certification', 'Lateral Certification')"
                                                 class="ml-2 text-xs bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded flex items-center gap-1 whitespace-nowrap">
-                                                ✏️ Replace
+                                                Replace
                                             </button>
                                         @endif
                                     </div>
@@ -1703,29 +1677,14 @@
                                     {{ trim(($user->first_name ?? '') . ' ' . ($user->middle_name ?? '') . ' ' . ($user->last_name ?? '')) }}
                                 </div>
                             </div>
-
-                            <!-- Applicant Signature -->
-                            <div>
-                                <label class="block text-[12px] font-semibold mb-1">Applicant Signature</label>
-                                @if (!empty($application->applicant_signature))
-                                    <img src="{{ $application->applicant_signature }}" alt="Applicant Signature"
-                                        class="border rounded w-full h-24 object-contain bg-white">
-                                @else
-                                    <div
-                                        class="p-2 border rounded w-full h-24 flex items-center justify-center bg-gray-50 text-gray-500">
-                                        No signature uploaded
-                                    </div>
-                                @endif
+                            <!-- Terms Agreement -->
+                            <div class="mt-4 flex items-start gap-2">
+                                <input type="checkbox" class="h-4 w-4 border-gray-400 mt-0.5" disabled
+                                    {{ $application->terms_and_conditions_agreed ? 'checked' : '' }}>
+                                <span class="text-[12px]">I agree to the Terms, Conditions, and Data Privacy
+                                    Policy.</span>
                             </div>
                         </div>
-
-                        <!-- Terms Agreement -->
-                        <div class="mt-4 flex items-start gap-2">
-                            <input type="checkbox" class="h-4 w-4 border-gray-400 mt-0.5" disabled
-                                {{ $application->terms_and_conditions_agreed ? 'checked' : '' }}>
-                            <span class="text-[12px]">I agree to the Terms, Conditions, and Data Privacy Policy.</span>
-                        </div>
-                    </div>
                 @endforeach
             @endif
         </div>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ApplicationForm;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Remark;
 use Illuminate\Support\Facades\Storage;
 
 class ApplicationFormController extends Controller
@@ -25,12 +26,13 @@ class ApplicationFormController extends Controller
     /**
      * Show the current applicant's submitted application.
      */
-    public function viewMyApplication()
+   public function viewMyApplication()
 {
     $user = Auth::user();
 
-    // Get all applications for this user
-    $applications = ApplicationForm::where('user_id', $user->user_id)->get();
+    $applications = ApplicationForm::with(['remarks.attachments'])
+        ->where('user_id', $user->user_id)
+        ->get();
 
     return view('applicant.my-application', compact('applications'));
 }
@@ -237,57 +239,57 @@ return redirect()->route('dashboard')
   
 public function updateDocument(Request $request, $documentType)
 {
-    // Validate the uploaded file
     $request->validate([
         'document' => 'required|file|mimes:pdf|max:5120', // 5MB max
     ]);
 
-    // Get the current user's application
-    $application = ApplicationForm::where('user_id', Auth::id())
-        ->where('status', 'pending')
-        ->firstOrFail();
+    $user = Auth::user();
+    $application = ApplicationForm::where('user_id', $user->user_id)->latest()->first();
 
-    // Map of document types to their database column names
-    $documentFields = [
-        'birth_certificate' => 'birth_certificate_pdf',
-        'transcript_of_record' => 'transcript_of_record_pdf',
-        'endorsement_1' => 'endorsement_1_pdf',
-        'endorsement_2' => 'endorsement_2_pdf',
-        'recommendation_head_agency' => 'recommendation_head_agency_pdf',
-        'form_2a' => 'form_2a_pdf',
-        'form_2b' => 'form_2b_pdf',
-        'form_a_research_plans' => 'form_a_research_plans_pdf',
-        'form_b_career_plans' => 'form_b_career_plans_pdf',
-        'form_c_health_status' => 'form_c_health_status_pdf',
-        'nbi_clearance' => 'nbi_clearance_pdf',
-        'letter_of_admission' => 'letter_of_admission_pdf',
-        'approved_program_of_study' => 'approved_program_of_study_pdf',
-        'lateral_certification' => 'lateral_certification_pdf',
-        'evaluation_sheet' => 'evaluation_sheet_pdf',
-        'scoresheet' => 'scoresheet_pdf',
-    ];
-
-    // Check if the document type is valid
-    if (!isset($documentFields[$documentType])) {
-        return back()->with('error', 'Invalid document type.');
+    if (!$application) {
+        return back()->with('error', 'Application not found.');
     }
 
-    $fieldName = $documentFields[$documentType];
-
-    // Delete old file if it exists
-    if ($application->$fieldName) {
-        Storage::disk('public')->delete($application->$fieldName);
+    // Delete old file if exists
+    $columnName = $documentType . '_pdf';
+    if ($application->$columnName) {
+        Storage::disk('public')->delete($application->$columnName);
     }
 
     // Upload new file
-    $filePath = $request->file('document')->store('uploads/application_forms', 'public');
-    
-    // Update the application record
-    $application->$fieldName = $filePath;
+    $file = $request->file('document');
+    $filename = $documentType . '_' . time() . '.' . $file->getClientOriginalExtension();
+    $path = $file->storeAs('documents/' . $user->user_id, $filename, 'public');
+
+    // Update application
+    $application->$columnName = $path;
     $application->save();
 
-    return redirect()->route('applicant.application.view')
-        ->with('success', 'Document updated successfully!');
+    // ✅ DELETE THE REMARK for this document
+    $documentNameMap = [
+        'birth_certificate' => 'Birth Certificate',
+        'transcript_of_record' => 'Transcript of Record',
+        'endorsement_1' => 'Endorsement Letter 1',
+        'endorsement_2' => 'Endorsement Letter 2',
+        'recommendation_head_agency' => 'Recommendation of Head of Agency',
+        'form_2a' => 'Form 2A - Certificate of Employment',
+        'form_2b' => 'Form 2B - Optional Employment Cert.',
+        'form_a_research_plans' => 'Form A - Research Plans',
+        'form_b_career_plans' => 'Form B - Career Plans',
+        'form_c_health_status' => 'Form C - Health Status',
+        'nbi_clearance' => 'NBI Clearance',
+        'letter_of_admission' => 'Letter of Admission',
+        'approved_program_of_study' => 'Approved Program of Study',
+        'lateral_certification' => 'Lateral Certification',
+    ];
+
+    if (isset($documentNameMap[$documentType])) {
+        Remark::where('application_form_id', $application->application_form_id)
+              ->where('document_name', $documentNameMap[$documentType])
+              ->delete();
+    }
+
+    return back()->with('success', 'Document updated successfully! Admin remarks have been cleared.');
 }
 
 }
