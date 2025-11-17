@@ -529,282 +529,367 @@
         <!-- RIGHT SIDE -->
         <div class="col-span-1 space-y-6">
 
-            <div class="bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6">
-                <!-- Header: Title + Buttons side by side -->
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold">Documents</h3>
+            <!-- RIGHT SIDE -->
+            <div class="col-span-1 space-y-6">
 
-                    <div id="actionButtons" class="flex gap-2">
-                        <form action="{{ route('admin.applications.update-status', $application->application_form_id) }}"
-                            method="POST">
-                            @csrf
-                            <input type="hidden" name="status" value="approved">
-                            <button type="submit"
-                                class="bg-green-600 text-white text-sm px-4 py-1.5 rounded-md hover:bg-green-700 transition font-semibold">
-                                Approve
-                            </button>
-                        </form>
-                        <form action="{{ route('admin.applications.update-status', $application->application_form_id) }}"
-                            method="POST">
-                            @csrf
-                            <input type="hidden" name="status" value="rejected">
-                            <button type="submit"
-                                class="bg-red-600 text-white text-sm px-4 py-1.5 rounded-md hover:bg-red-700 transition font-semibold">
-                                Reject
-                            </button>
-                        </form>
+                <div class="bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6">
+                    <!-- Header: Title + Buttons side by side -->
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold">Documents</h3>
+
+                        <div id="actionButtons" class="@if (in_array($application->status, ['approved', 'rejected'])) hidden @endif flex gap-2">
+                            <form
+                                action="{{ route('admin.applications.update-status', $application->application_form_id) }}"
+                                method="POST">
+                                @csrf
+                                <input type="hidden" name="status" value="approved">
+                                <button type="submit"
+                                    class="bg-green-600 text-white text-sm px-4 py-1.5 rounded-md hover:bg-green-700 transition font-semibold">
+                                    Approve
+                                </button>
+                            </form>
+                            <form
+                                action="{{ route('admin.applications.update-status', $application->application_form_id) }}"
+                                method="POST">
+                                @csrf
+                                <input type="hidden" name="status" value="rejected">
+                                <button type="submit"
+                                    class="bg-red-600 text-white text-sm px-4 py-1.5 rounded-md hover:bg-red-700 transition font-semibold">
+                                    Reject
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    @php
+                        $documents = [
+                            'Passport Picture' => $application->passport_picture ?? null,
+                            'Birth Certificate' => $application->birth_certificate_pdf ?? null,
+                            'Transcript of Record' => $application->transcript_of_record_pdf ?? null,
+                            'Endorsement Letter 1' => $application->endorsement_1_pdf ?? null,
+                            'Endorsement Letter 2' => $application->endorsement_2_pdf ?? null,
+                            'Recommendation of Head of Agency' => $application->recommendation_head_agency_pdf ?? null,
+                            'Form 2A - Certificate of Employment' => $application->form_2a_pdf ?? null,
+                            'Form 2B - Optional Employment Cert.' => $application->form_2b_pdf ?? null,
+                            'Form A - Research Plans' => $application->form_a_research_plans_pdf ?? null,
+                            'Form B - Career Plans' => $application->form_b_career_plans_pdf ?? null,
+                            'Form C - Health Status' => $application->form_c_health_status_pdf ?? null,
+                            'NBI Clearance' => $application->nbi_clearance_pdf ?? null,
+                            'Letter of Admission' => $application->letter_of_admission_pdf ?? null,
+                            'Approved Program of Study' => $application->approved_program_of_study_pdf ?? null,
+                            'Lateral Certification' => $application->lateral_certification_pdf ?? null,
+                        ];
+
+                        $documents = array_filter($documents, fn($file) => !empty($file));
+
+                        if (!function_exists('getFileUrlFromValue')) {
+                            function getFileUrlFromValue($file)
+                            {
+                                if (!$file) {
+                                    return null;
+                                }
+
+                                if (is_string($file)) {
+                                    $decoded = json_decode($file, true);
+                                    if (json_last_error() === JSON_ERROR_NONE) {
+                                        $file = is_array($decoded) ? $decoded[0] ?? null : $decoded;
+                                    }
+                                }
+
+                                if (is_array($file)) {
+                                    $file = $file[0] ?? null;
+                                }
+
+                                return $file ? asset('storage/' . ltrim($file, '/')) : null;
+                            }
+                        }
+
+                        // Decode verified documents from the database
+                        $verifiedDocs = $application->verified_documents
+                            ? json_decode($application->verified_documents, true)
+                            : [];
+                    @endphp
+
+                    <div class="max-h-80 overflow-y-auto pr-2 space-y-4">
+                        @foreach ($documents as $label => $file)
+                            @php
+                                $url = getFileUrlFromValue($file);
+                                $isChecked = isset($verifiedDocs[$label]) && $verifiedDocs[$label] === true;
+
+                                // Get document-specific remark from database
+                                $remark = $application->remarks()->where('document_name', $label)->first();
+                                $remarkText = $remark ? $remark->remark_text : '';
+                            @endphp
+
+                            <div class="border border-gray-200 rounded-lg p-3 bg-white/50">
+                                <div class="flex items-center justify-between">
+                                    <!-- Document Label -->
+                                    <p class="text-sm font-medium w-1/2">{{ $label }}</p>
+
+                                    <!-- View File Link -->
+                                    <div class="w-1/4 text-center">
+                                        @if ($url)
+                                            <a href="{{ $url }}" target="_blank"
+                                                class="text-blue-600 hover:underline text-sm font-semibold">View File</a>
+                                        @elseif ($file)
+                                            <span class="text-sm text-gray-500">Unreadable</span>
+                                        @else
+                                            <span class="text-sm text-gray-400">No file</span>
+                                        @endif
+                                    </div>
+
+                                    <!-- Verification Checkbox -->
+                                    <div class="w-1/4 text-right">
+                                        @if ($url)
+                                            <label class="inline-flex items-center text-sm cursor-pointer">
+                                                <input type="checkbox" class="peer hidden checkbox-tracker"
+                                                    data-document="{{ $label }}"
+                                                    {{ $isChecked ? 'checked' : '' }}>
+                                                <div
+                                                    class="w-2.5 h-2.5 rounded-full border border-gray-400 peer-checked:bg-green-500 peer-checked:border-green-500 transition">
+                                                </div>
+                                                <span
+                                                    class="ml-2 text-xs text-gray-600 peer-checked:text-green-600 font-semibold">Verified</span>
+                                            </label>
+                                        @else
+                                            <label class="inline-flex items-center text-sm opacity-50 cursor-not-allowed">
+                                                <input type="checkbox" disabled class="hidden">
+                                                <div class="w-2.5 h-2.5 rounded-full border border-gray-300 bg-gray-200">
+                                                </div>
+                                                <span class="ml-2 text-xs text-gray-400 font-semibold">No file</span>
+                                            </label>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <!-- Remarks Section -->
+                                @if ($url)
+                                    <div class="mt-3 pt-3 border-t border-gray-200">
+                                        <div class="flex gap-2">
+                                            <input type="text"
+                                                class="flex-1 text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 document-remark-input"
+                                                data-document="{{ $label }}"
+                                                placeholder="Add remarks for this document..."
+                                                value="{{ $remarkText }}">
+                                            <button
+                                                class="bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700 transition save-remark-btn"
+                                                data-document="{{ $label }}">
+                                                Save
+                                            </button>
+                                        </div>
+                                        @if ($remarkText)
+                                            <p class="text-xs text-gray-600 mt-1 italic">Current: {{ $remarkText }}</p>
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
                     </div>
                 </div>
-
-                @php
-                    $documents = [
-                        'Passport Picture' => $application->passport_picture ?? null,
-                        'Birth Certificate' => $application->birth_certificate_pdf ?? null,
-                        'Transcript of Record' => $application->transcript_of_record_pdf ?? null,
-                        'Endorsement Letter 1' => $application->endorsement_1_pdf ?? null,
-                        'Endorsement Letter 2' => $application->endorsement_2_pdf ?? null,
-                        'Recommendation of Head of Agency' => $application->recommendation_head_agency_pdf ?? null,
-                        'Form 2A - Certificate of Employment' => $application->form_2a_pdf ?? null,
-                        'Form 2B - Optional Employment Cert.' => $application->form_2b_pdf ?? null,
-                        'Form A - Research Plans' => $application->form_a_research_plans_pdf ?? null,
-                        'Form B - Career Plans' => $application->form_b_career_plans_pdf ?? null,
-                        'Form C - Health Status' => $application->form_c_health_status_pdf ?? null,
-                        'NBI Clearance' => $application->nbi_clearance_pdf ?? null,
-                        'Letter of Admission' => $application->letter_of_admission_pdf ?? null,
-                        'Approved Program of Study' => $application->approved_program_of_study_pdf ?? null,
-                        'Lateral Certification' => $application->lateral_certification_pdf ?? null,
-                    ];
-
-                    $documents = array_filter($documents, fn($file) => !empty($file));
-
-                    if (!function_exists('getFileUrlFromValue')) {
-                        function getFileUrlFromValue($file)
-                        {
-                            if (!$file) {
-                                return null;
-                            }
-
-                            if (is_string($file)) {
-                                $decoded = json_decode($file, true);
-                                if (json_last_error() === JSON_ERROR_NONE) {
-                                    $file = is_array($decoded) ? $decoded[0] ?? null : $decoded;
-                                }
-                            }
-
-                            if (is_array($file)) {
-                                $file = $file[0] ?? null;
-                            }
-
-                            return $file ? asset('storage/' . ltrim($file, '/')) : null;
-                        }
-                    }
-
-                    // Decode verified documents from the database
-                    $verifiedDocs = $application->verified_documents
-                        ? json_decode($application->verified_documents, true)
-                        : [];
-                @endphp
-
-                <div class="max-h-80 overflow-y-auto pr-2 space-y-4">
-                    @foreach ($documents as $label => $file)
-                        @php
-                            $url = getFileUrlFromValue($file);
-                            $isChecked = isset($verifiedDocs[$label]) && $verifiedDocs[$label] === true;
-                        @endphp
-
-                        <div class="flex items-center justify-between border-b border-gray-200 pb-2">
-                            <!-- Document Label -->
-                            <p class="text-sm font-medium w-1/2">{{ $label }}</p>
-
-                            <!-- View File Link -->
-                            <div class="w-1/4 text-center">
-                                @if ($url)
-                                    <a href="{{ $url }}" target="_blank"
-                                        class="text-blue-600 hover:underline text-sm font-semibold">View File</a>
-                                @elseif ($file)
-                                    <span class="text-sm text-gray-500">Unreadable</span>
-                                @else
-                                    <span class="text-sm text-gray-400">No file</span>
-                                @endif
-                            </div>
-
-                            <!-- Verification Checkbox -->
-                            <div class="w-1/4 text-right">
-                                @if ($url)
-                                    <label class="inline-flex items-center text-sm cursor-pointer">
-                                        <input type="checkbox" class="peer hidden checkbox-tracker"
-                                            data-document="{{ $label }}" {{ $isChecked ? 'checked' : '' }}>
-                                        <div
-                                            class="w-2.5 h-2.5 rounded-full border border-gray-400 peer-checked:bg-green-500 peer-checked:border-green-500 transition">
-                                        </div>
-                                        <span
-                                            class="ml-2 text-xs text-gray-600 peer-checked:text-green-600 font-semibold">Verified</span>
-                                    </label>
-                                @else
-                                    <label class="inline-flex items-center text-sm opacity-50 cursor-not-allowed">
-                                        <input type="checkbox" disabled class="hidden">
-                                        <div class="w-2.5 h-2.5 rounded-full border border-gray-300 bg-gray-200"></div>
-                                        <span class="ml-2 text-xs text-gray-400 font-semibold">No file</span>
-                                    </label>
-                                @endif
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-            <!-- End of Documents -->
+                <!-- End of Documents -->
 
 
-            <!-- Application Info -->
-            <div class="bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6">
-                <h3 class="text-lg font-bold mb-3">Application Info</h3>
-                <div class="mb-3 flex items-center gap-3">
-                    <strong class="text-sm">Status:</strong>
-                    <span
-                        class="px-3 py-1 rounded-full text-sm font-bold
+                <!-- Application Info -->
+                <div class="bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6">
+                    <h3 class="text-lg font-bold mb-3">Application Info</h3>
+                    <div class="mb-3 flex items-center gap-3">
+                        <strong class="text-sm">Status:</strong>
+                        <span
+                            class="px-3 py-1 rounded-full text-sm font-bold
                     @if ($application->status === 'approved') bg-green-200 text-green-800
                     @elseif ($application->status === 'rejected') bg-red-200 text-red-800
                     @elseif ($application->status === 'pending') bg-yellow-200 text-yellow-800
                     @elseif ($application->status === 'document_verification') bg-blue-200 text-blue-800 
                     @else bg-gray-100 text-gray-800 @endif">
-                        {{ $application->status === 'document_verified' ? 'Document verified' : ucfirst(str_replace('_', ' ', $application->status)) }}
-                    </span>
-                </div>
+                            {{ $application->status === 'document_verified' ? 'Document verified' : ucfirst(str_replace('_', ' ', $application->status)) }}
+                        </span>
+                    </div>
 
-                <form action="{{ route('admin.applications.update-status', $application->application_form_id) }}"
-                    method="POST" class="flex items-center gap-2">
-                    @csrf
-                    <strong class="text-sm">Remarks:</strong>
-                    <input type="text" name="remarks" class="text-xs border px-3 py-1 rounded w-64"
-                        placeholder="Type your message here..." value="{{ $application->remarks }}">
-                    <button type="submit"
-                        class="text-xs text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded transition">Send</button>
-                </form>
-            </div>
-
-            <!-- ✅ Quick Actions -->
-            <div class="bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6">
-                <h3 class="text-lg font-bold mb-4">Quick Actions</h3>
-                <div class="space-y-2">
-                    <a href="#"
-                        class="block w-full text-center bg-gray-50 border border-gray-200 text-sm text-gray-800 rounded-md px-4 py-2 hover:bg-gray-100 transition">📄
-                        Print Application</a>
-                    <a href="#"
-                        class="block w-full text-center bg-gray-50 border border-gray-200 text-sm text-gray-800 rounded-md px-4 py-2 hover:bg-gray-100 transition">📥
-                        Download Documents</a>
+                    <form action="{{ route('admin.applications.update-status', $application->application_form_id) }}"
+                        method="POST" class="flex items-center gap-2">
+                        @csrf
+                        <strong class="text-sm">Remarks:</strong>
+                        <input type="text" name="remarks" class="text-xs border px-3 py-1 rounded w-64"
+                            placeholder="Type your message here..." value="{{ $application->remarks }}">
+                        <button type="submit"
+                            class="text-xs text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded transition">Send</button>
+                    </form>
                 </div>
             </div>
         </div>
-    </div>
-@endsection
+    @endsection
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const checkboxes = document.querySelectorAll('.checkbox-tracker');
-        const actionButtons = document.getElementById('actionButtons');
-        const applicationId = "{{ $application->application_form_id }}";
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('.checkbox-tracker');
+            const actionButtons = document.getElementById('actionButtons');
+            const applicationId = "{{ $application->application_form_id }}";
 
-        // Initialize checkboxes from database state
-        checkboxes.forEach(cb => {
-            // The checked attribute should already be set from PHP
-            // No need to manually set it here
-        });
+            // Initialize checkboxes from database state
+            checkboxes.forEach(cb => {
+                // The checked attribute should already be set from PHP
+                // No need to manually set it here
+            });
 
-        function toggleActionButtons() {
-            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-            const currentStatus = "{{ $application->status }}";
+            function toggleActionButtons() {
+                const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+                const currentStatus = "{{ $application->status }}";
 
-            if (allChecked) {
-                actionButtons.classList.remove('hidden');
-
-                // Only update status if NOT already in document_verification, approved, or rejected
-                if (currentStatus !== 'document_verification' &&
-                    currentStatus !== 'approved' &&
-                    currentStatus !== 'rejected') {
-                    updateApplicantStatus(applicationId, 'document_verification');
+                // ✅ FIRST: Check if already approved or rejected - keep buttons hidden
+                if (currentStatus === 'approved' || currentStatus === 'rejected') {
+                    actionButtons.classList.add('hidden');
+                    return; // Stop here, don't do anything else
                 }
-            } else {
-                actionButtons.classList.add('hidden');
 
-                // If unchecking and status is document_verification, revert to pending
-                if (currentStatus === 'document_verification') {
-                    updateApplicantStatus(applicationId, 'pending');
+                // Now handle the normal logic for other statuses
+                if (allChecked) {
+                    actionButtons.classList.remove('hidden');
+
+                    // Only update status if NOT already in document_verification
+                    if (currentStatus !== 'document_verification') {
+                        updateApplicantStatus(applicationId, 'document_verification');
+                    }
+                } else {
+                    actionButtons.classList.add('hidden');
+
+                    // If unchecking and status is document_verification, revert to pending
+                    if (currentStatus === 'document_verification') {
+                        updateApplicantStatus(applicationId, 'pending');
+                    }
                 }
             }
-        }
 
-        checkboxes.forEach(cb => {
-            cb.addEventListener('change', function() {
-                const documentId = cb.dataset.document;
-                const verified = cb.checked;
+            checkboxes.forEach(cb => {
+                cb.addEventListener('change', function() {
+                    const documentId = cb.dataset.document;
+                    const verified = cb.checked;
 
-                fetch(`/admin/applications/${applicationId}/verify-document`, {
+                    fetch(`/admin/applications/${applicationId}/verify-document`, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                            },
+                            body: JSON.stringify({
+                                document: documentId,
+                                verified: verified
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            console.log('✅ Document verification saved:', data);
+                            toggleActionButtons();
+                        })
+                        .catch(err => {
+                            console.error('❌ Error verifying document:', err);
+                            // Revert checkbox on error
+                            cb.checked = !verified;
+                        });
+                });
+            });
+
+            function updateApplicantStatus(id, status) {
+                fetch(`/admin/applications/${id}/status`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
                             "X-CSRF-TOKEN": "{{ csrf_token() }}"
                         },
                         body: JSON.stringify({
-                            document: documentId,
-                            verified: verified
+                            status: status
                         })
                     })
                     .then(res => res.json())
                     .then(data => {
-                        console.log('✅ Document verification saved:', data);
-                        toggleActionButtons();
+                        console.log("✅ Status updated to:", data.status);
+                        // Update the status badge without full page reload
+                        updateStatusBadge(data.status);
                     })
-                    .catch(err => {
-                        console.error('❌ Error verifying document:', err);
-                        // Revert checkbox on error
-                        cb.checked = !verified;
-                    });
-            });
-        });
+                    .catch(err => console.error("❌ Error updating status:", err));
+            }
 
-        function updateApplicantStatus(id, status) {
-            fetch(`/admin/applications/${id}/status`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                    },
-                    body: JSON.stringify({
-                        status: status
-                    })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    console.log("✅ Status updated to:", data.status);
-                    // Update the status badge without full page reload
-                    updateStatusBadge(data.status);
-                })
-                .catch(err => console.error("❌ Error updating status:", err));
-        }
+            function updateStatusBadge(status) {
+                const statusBadge = document.querySelector('.application-status-badge');
+                if (statusBadge) {
+                    statusBadge.textContent = status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
 
-        function updateStatusBadge(status) {
-            const statusBadge = document.querySelector('.application-status-badge');
-            if (statusBadge) {
-                statusBadge.textContent = status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    // Update badge colors
+                    statusBadge.className = 'application-status-badge px-3 py-1 rounded-full text-sm font-bold';
 
-                // Update badge colors
-                statusBadge.className = 'application-status-badge px-3 py-1 rounded-full text-sm font-bold';
-
-                if (status === 'approved') {
-                    statusBadge.classList.add('bg-green-200', 'text-green-800');
-                } else if (status === 'rejected') {
-                    statusBadge.classList.add('bg-red-200', 'text-red-800');
-                } else if (status === 'pending') {
-                    statusBadge.classList.add('bg-yellow-200', 'text-yellow-800');
-                } else if (status === 'document_verification') {
-                    statusBadge.classList.add('bg-blue-200', 'text-blue-800');
-                } else {
-                    statusBadge.classList.add('bg-gray-100', 'text-gray-800');
+                    if (status === 'approved') {
+                        statusBadge.classList.add('bg-green-200', 'text-green-800');
+                    } else if (status === 'rejected') {
+                        statusBadge.classList.add('bg-red-200', 'text-red-800');
+                    } else if (status === 'pending') {
+                        statusBadge.classList.add('bg-yellow-200', 'text-yellow-800');
+                    } else if (status === 'document_verification') {
+                        statusBadge.classList.add('bg-blue-200', 'text-blue-800');
+                    } else {
+                        statusBadge.classList.add('bg-gray-100', 'text-gray-800');
+                    }
                 }
             }
-        }
 
-        // Initial check
-        toggleActionButtons();
-    });
-</script>
+            // Initial check
+            toggleActionButtons();
+        });
+
+        // ✅ HANDLE DOCUMENT REMARKS
+        document.addEventListener('DOMContentLoaded', function() {
+            const applicationId = "{{ $application->application_form_id }}"; // ✅ ADDED THIS LINE
+            const saveRemarkButtons = document.querySelectorAll('.save-remark-btn');
+
+            saveRemarkButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const documentLabel = btn.dataset.document;
+                    const input = document.querySelector(
+                        `.document-remark-input[data-document="${documentLabel}"]`);
+                    const remarkText = input.value.trim();
+
+                    // Show loading state
+                    const originalText = btn.textContent;
+                    btn.disabled = true;
+                    btn.textContent = 'Saving...';
+
+                    fetch(`/admin/applications/${applicationId}/save-remark`, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                            },
+                            body: JSON.stringify({
+                                document: documentLabel,
+                                remark: remarkText
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            console.log('✅ Remark saved:', data);
+                            btn.textContent = '✓ Saved';
+                            btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                            btn.classList.add('bg-green-600');
+
+                            // Reset button after 2 seconds
+                            setTimeout(() => {
+                                btn.textContent = originalText;
+                                btn.disabled = false;
+                                btn.classList.remove('bg-green-600');
+                                btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                            }, 2000);
+                        })
+                        .catch(err => {
+                            console.error('❌ Error saving remark:', err);
+                            btn.textContent = '✗ Error';
+                            btn.classList.add('bg-red-600');
+
+                            setTimeout(() => {
+                                btn.textContent = originalText;
+                                btn.disabled = false;
+                                btn.classList.remove('bg-red-600');
+                                btn.classList.add('bg-blue-600');
+                            }, 2000);
+                        });
+                });
+            });
+        });
+    </script>

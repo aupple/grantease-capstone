@@ -15,6 +15,14 @@ class Scholar extends Model
         'status',
         'start_date',
         'end_date',
+        'verified_documents',
+    ];
+
+    // ✅ ADD THIS - This tells Laravel to automatically convert JSON to array
+    protected $casts = [
+        'verified_documents' => 'array',
+        'start_date' => 'date',
+        'end_date' => 'date',
     ];
 
     public function user()

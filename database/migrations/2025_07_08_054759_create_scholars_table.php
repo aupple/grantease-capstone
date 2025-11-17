@@ -24,6 +24,9 @@ return new class extends Migration {
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
 
+            // ✅ ADD THIS LINE - Store verified documents from application
+            $table->json('verified_documents')->nullable();
+
             $table->timestamps();
         });
     }

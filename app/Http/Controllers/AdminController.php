@@ -11,6 +11,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\ChedInfo;
+use App\Models\Remark;
 
 class AdminController extends Controller
 {
@@ -253,34 +254,36 @@ class AdminController extends Controller
         ]);
     }
 
-    public function approveApplication($id)
-    {
-        $application = ApplicationForm::with('user')->findOrFail($id);
+   public function approveApplication($id)
+{
+    $application = ApplicationForm::with('user')->findOrFail($id);
 
-        // Update application status
-        $application->status = 'approved';
-        $application->remarks = null;
-        $application->save();
+    // Update application status
+    $application->status = 'approved';
+    $application->remarks = null;
+    $application->save();
 
-        // ✅ FIX: Correct key reference
-        Scholar::firstOrCreate(
-            ['application_form_id' => $application->application_form_id], // Use the actual ApplicationForm ID
-            [
-                'user_id' => $application->user_id,
-                'status' => 'qualifiers',
-                'start_date' => now(),
-            ]
-        );
+    // ✅ FIX: Copy verified_documents when creating scholar
+    Scholar::firstOrCreate(
+        ['application_form_id' => $application->application_form_id],
+        [
+            'user_id' => $application->user_id,
+            'status' => 'qualifiers',
+            'start_date' => now(),
+            // ✅ NEW: Preserve verified documents
+            'verified_documents' => $application->verified_documents,
+        ]
+    );
 
-        // Send email
-        try {
-            Mail::to($application->user->email)->send(new ApplicationStatusMail('approved'));
-        } catch (\Throwable $e) {
-            // Optional: log the email error
-        }
-
-        return redirect()->route('admin.applications')->with('success', 'Application approved.');
+    // Send email
+    try {
+        Mail::to($application->user->email)->send(new ApplicationStatusMail('approved'));
+    } catch (\Throwable $e) {
+        // Optional: log the email error
     }
+
+    return redirect()->route('admin.applications')->with('success', 'Application approved.');
+}
 
 
     /**
@@ -307,56 +310,57 @@ class AdminController extends Controller
     }
 
     public function updateStatus(Request $request, $id)
-    {
-        $request->validate([
-            'status' => 'required|in:pending,document_verification,for_interview,approved,rejected',
-            'remarks' => 'nullable|string',
-        ]);
+{
+    $request->validate([
+        'status' => 'required|in:pending,document_verification,for_interview,approved,rejected',
+        'remarks' => 'nullable|string',
+    ]);
 
-        $application = ApplicationForm::with('user')->findOrFail($id);
-        $application->status = $request->status;
-        $application->remarks = $request->remarks;
-        $application->save();
+    $application = ApplicationForm::with('user')->findOrFail($id);
+    $application->status = $request->status;
+    $application->remarks = $request->remarks;
+    $application->save();
 
-        // ✅ Handle scholar creation/removal
-        if ($request->status === 'approved') {
-            \App\Models\Scholar::updateOrCreate(
-                [
-                    'user_id' => $application->user_id,
-                    'application_form_id' => $application->application_form_id,
-                ],
-                [
-                    'status' => 'qualifiers',
-                    'start_date' => now(),
-                    'end_date' => null,
-                ]
-            );
-        } elseif ($request->status === 'rejected') {
-            \App\Models\Scholar::where('application_form_id', $application->application_form_id)->delete();
-        }
-
-        // ✅ Send email (optional for auto status updates)
-        try {
-            Mail::to($application->user->email)->send(
-                new ApplicationStatusMail($request->status, $request->remarks)
-            );
-        } catch (\Throwable $e) {
-        }
-
-        // ✅ If request came from fetch() → return JSON instead of redirect
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'status' => $application->status,
-                'message' => 'Status updated successfully.',
-            ]);
-        }
-
-        // Otherwise, normal redirect
-        return redirect()->route('admin.applications.show', $id)
-            ->with('success', 'Application status updated successfully!');
+    // ✅ Handle scholar creation/removal
+    if ($request->status === 'approved') {
+        \App\Models\Scholar::updateOrCreate(
+            [
+                'user_id' => $application->user_id,
+                'application_form_id' => $application->application_form_id,
+            ],
+            [
+                'status' => 'qualifiers',
+                'start_date' => now(),
+                'end_date' => null,
+                // ✅ NEW: Preserve verified documents
+                'verified_documents' => $application->verified_documents,
+            ]
+        );
+    } elseif ($request->status === 'rejected') {
+        \App\Models\Scholar::where('application_form_id', $application->application_form_id)->delete();
     }
 
+    // Send email
+    try {
+        Mail::to($application->user->email)->send(
+            new ApplicationStatusMail($request->status, $request->remarks)
+        );
+    } catch (\Throwable $e) {
+    }
+
+    // If request came from fetch() → return JSON
+    if ($request->expectsJson()) {
+        return response()->json([
+            'success' => true,
+            'status' => $application->status,
+            'message' => 'Status updated successfully.',
+        ]);
+    }
+
+    // Otherwise, normal redirect
+    return redirect()->route('admin.applications.show', $id)
+        ->with('success', 'Application status updated successfully!');
+}
 
     public function reportSummary(Request $request)
     {
@@ -608,4 +612,29 @@ public function updateChedStatus(Request $request, $id)
         ->back()
         ->with('success', 'Status updated to: ' . ucfirst($request->status));
 }
+
+public function saveDocumentRemark(Request $request, $applicationId)
+{
+    $documentLabel = $request->input('document');
+    $remarkText = $request->input('remark');
+    
+    // Find existing remark or create new one
+    $remark = Remark::updateOrCreate(
+        [
+            'application_form_id' => $applicationId,
+            'document_name' => $documentLabel,
+        ],
+        [
+            'remark_text' => $remarkText,
+        ]
+    );
+    
+    return response()->json([
+        'success' => true,
+        'message' => 'Remark saved successfully',
+        'document' => $documentLabel,
+        'remark' => $remarkText,
+    ]);
+}
+
 }

@@ -233,4 +233,61 @@ $application->save();
 return redirect()->route('dashboard')
     ->with('success', 'Application form submitted successfully.');
   }
+
+  
+public function updateDocument(Request $request, $documentType)
+{
+    // Validate the uploaded file
+    $request->validate([
+        'document' => 'required|file|mimes:pdf|max:5120', // 5MB max
+    ]);
+
+    // Get the current user's application
+    $application = ApplicationForm::where('user_id', Auth::id())
+        ->where('status', 'pending')
+        ->firstOrFail();
+
+    // Map of document types to their database column names
+    $documentFields = [
+        'birth_certificate' => 'birth_certificate_pdf',
+        'transcript_of_record' => 'transcript_of_record_pdf',
+        'endorsement_1' => 'endorsement_1_pdf',
+        'endorsement_2' => 'endorsement_2_pdf',
+        'recommendation_head_agency' => 'recommendation_head_agency_pdf',
+        'form_2a' => 'form_2a_pdf',
+        'form_2b' => 'form_2b_pdf',
+        'form_a_research_plans' => 'form_a_research_plans_pdf',
+        'form_b_career_plans' => 'form_b_career_plans_pdf',
+        'form_c_health_status' => 'form_c_health_status_pdf',
+        'nbi_clearance' => 'nbi_clearance_pdf',
+        'letter_of_admission' => 'letter_of_admission_pdf',
+        'approved_program_of_study' => 'approved_program_of_study_pdf',
+        'lateral_certification' => 'lateral_certification_pdf',
+        'evaluation_sheet' => 'evaluation_sheet_pdf',
+        'scoresheet' => 'scoresheet_pdf',
+    ];
+
+    // Check if the document type is valid
+    if (!isset($documentFields[$documentType])) {
+        return back()->with('error', 'Invalid document type.');
+    }
+
+    $fieldName = $documentFields[$documentType];
+
+    // Delete old file if it exists
+    if ($application->$fieldName) {
+        Storage::disk('public')->delete($application->$fieldName);
+    }
+
+    // Upload new file
+    $filePath = $request->file('document')->store('uploads/application_forms', 'public');
+    
+    // Update the application record
+    $application->$fieldName = $filePath;
+    $application->save();
+
+    return redirect()->route('applicant.application.view')
+        ->with('success', 'Document updated successfully!');
+}
+
 }
