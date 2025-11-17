@@ -119,45 +119,43 @@
                             </td>
 
                             <!-- Scholar Status -->
-                            @php
-                                $colors = [
-                                    '#4CAF50',
-                                    '#FF9800',
-                                    '#03A9F4',
-                                    '#9C27B0',
-                                    '#F44336',
-                                    '#FFC107',
-                                    '#00BCD4',
-                                    '#607D8B',
-                                    '#795548',
-                                    '#E91E63',
-                                    '#8BC34A',
-                                    '#2196F3',
-                                    '#CDDC39',
-                                    '#009688',
-                                    '#673AB7',
-                                ];
+                           @php
+    $status = $scholar->status ?? 'N/A';
+    $statusLower = strtolower($status);
+    $badgeClass = ''; // For Tailwind background and border
+    $textColor = 'text-gray-700'; // For Tailwind text color
+    $displayStatus = ucfirst(str_replace('_', ' ', $status)); // Para nindot tan-awon ang text
 
-                                // Each unique status gets its own consistent color
-                                static $statusColors = [];
-                                $status = $scholar->status ?? 'N/A';
+    // --- COLOR MAPPING LOGIC ---
 
-                                if (!isset($statusColors[$status])) {
-                                    $statusColors[$status] = $colors[count($statusColors) % count($colors)];
-                                }
+    // GREEN: Approved, Qualifiers, Graduated, On Track
+    if (in_array($statusLower, ['qualifiers', 'approved', 'graduated_on_time', 'graduated_ext', 'gs_on_track'])) {
+        $badgeClass = 'bg-green-500/30 border-green-500'; 
+        $textColor = 'text-green-800';
+    } 
+    // YELLOW/ORANGE: Pending, For Review, Monitoring, Leave
+    elseif (in_array($statusLower, ['pending', 'document_verification', 'for_interview', 'on_ext_for_monitoring', 'on_ext_complete_fa', 'on_ext_with_fa', 'leave_of_absence'])) {
+        $badgeClass = 'bg-yellow-500/30 border-yellow-500'; 
+        $textColor = 'text-yellow-800';
+    } 
+    // RED: Rejected, Terminated, Non-Compliant, Withdrawn
+    elseif (in_array($statusLower, ['rejected', 'not_availing', 'suspended', 'no_report', 'non_compliance', 'terminated', 'withdrawn'])) {
+        $badgeClass = 'bg-red-500/30 border-red-500'; 
+        $textColor = 'text-red-700';
+    } 
+    // DEFAULT/INFO: Deferred
+    else {
+        $badgeClass = 'bg-blue-500/30 border-blue-500';
+        $textColor = 'text-blue-700';
+    }
+@endphp
 
-                                // Add transparency to background
-                                $bgColor = $statusColors[$status] . '20';
-                                $textColor = $statusColors[$status];
-                            @endphp
-
-                            <td class="p-4">
-                                <span
-                                    class="px-3 py-1 rounded-full text-xs font-semibold shadow-md backdrop-blur-sm border border-white/30"
-                                    style="background-color: {{ $bgColor }}; color: {{ $textColor }};">
-                                    {{ ucfirst(str_replace('_', ' ', $status)) }}
-                                </span>
-                            </td>
+<td class="p-4">
+    <span
+        class="px-3 py-1 rounded-full text-xs font-semibold shadow-sm backdrop-blur-sm border {{ $badgeClass }} {{ $textColor }}">
+        {{ $displayStatus }}
+    </span>
+</td>
 
 
                             <!-- Approved At -->

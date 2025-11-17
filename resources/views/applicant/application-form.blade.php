@@ -85,7 +85,7 @@
                 </div>
             </div>
 
-            <form id="applicationForm">
+            
              <!-- Step 1: Basic Information -->
 <div class="step bg-white p-8 rounded-2xl shadow-md" id="step1">
     <div class="text-center mb-8">
@@ -1844,4 +1844,5 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+</form>
 </x-app-layout>
