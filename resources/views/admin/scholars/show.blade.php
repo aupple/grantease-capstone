@@ -597,17 +597,15 @@
                 <div class="max-h-80 overflow-y-auto pr-2 space-y-4">
                     @php
                         $application = $scholar->applicationForm;
-                        $verifiedDocuments = $application->verified_documents
-                            ? json_decode($application->verified_documents, true)
-                            : [];
+                        // Manually decode JSON string to array
+                        $verifiedDocuments = is_string($scholar->verified_documents)
+                            ? json_decode($scholar->verified_documents, true)
+                            : $scholar->verified_documents ?? [];
                     @endphp
-
                     @foreach ($documents as $label => $file)
                         @php
                             $url = getFileUrlFromValue($file);
-                            // convert label to snake_case key matching stored JSON
-                            $key = Str::snake(str_replace(' ', '_', strtolower($label)));
-                            $isVerified = isset($verifiedDocuments[$key]) && $verifiedDocuments[$key];
+                            $isVerified = isset($verifiedDocuments[$label]) && $verifiedDocuments[$label] === true;
                         @endphp
 
                         <div class="flex items-center justify-between border-b border-gray-200 pb-2">

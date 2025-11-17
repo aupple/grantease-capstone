@@ -526,6 +526,7 @@
             </div>
         </div>
 
+
         <!-- RIGHT SIDE -->
         <div class="col-span-1 space-y-6">
 
@@ -534,7 +535,7 @@
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold">Documents</h3>
 
-                    <div id="actionButtons" class="flex gap-2">
+                    <div id="actionButtons" class="@if (in_array($application->status, ['approved', 'rejected'])) hidden @endif flex gap-2">
                         <form action="{{ route('admin.applications.update-status', $application->application_form_id) }}"
                             method="POST">
                             @csrf
@@ -608,46 +609,77 @@
                 <div class="max-h-80 overflow-y-auto pr-2 space-y-4">
                     @foreach ($documents as $label => $file)
                         @php
+                            // ✅ MUST define these variables inside the loop for EACH document
                             $url = getFileUrlFromValue($file);
                             $isChecked = isset($verifiedDocs[$label]) && $verifiedDocs[$label] === true;
+
+                            // Get document-specific remark with null safety
+                            $remark = null;
+                            if ($application->remarks && $application->remarks->count() > 0) {
+                                $remark = $application->remarks->where('document_name', $label)->first();
+                            }
+                            $remarkText = $remark ? $remark->remark_text : '';
                         @endphp
 
-                        <div class="flex items-center justify-between border-b border-gray-200 pb-2">
-                            <!-- Document Label -->
-                            <p class="text-sm font-medium w-1/2">{{ $label }}</p>
+                        <div class="border border-gray-200 rounded-lg p-3 bg-white/50">
+                            <div class="flex items-center justify-between">
+                                <!-- Document Label -->
+                                <p class="text-sm font-medium w-1/2">{{ $label }}</p>
 
-                            <!-- View File Link -->
-                            <div class="w-1/4 text-center">
-                                @if ($url)
-                                    <a href="{{ $url }}" target="_blank"
-                                        class="text-blue-600 hover:underline text-sm font-semibold">View File</a>
-                                @elseif ($file)
-                                    <span class="text-sm text-gray-500">Unreadable</span>
-                                @else
-                                    <span class="text-sm text-gray-400">No file</span>
-                                @endif
+                                <!-- View File Link -->
+                                <div class="w-1/4 text-center">
+                                    @if (!empty($url))
+                                        <a href="{{ $url }}" target="_blank"
+                                            class="text-blue-600 hover:underline text-sm font-semibold">View File</a>
+                                    @elseif (!empty($file))
+                                        <span class="text-sm text-gray-500">Unreadable</span>
+                                    @else
+                                        <span class="text-sm text-gray-400">No file</span>
+                                    @endif
+                                </div>
+
+                                <!-- Verification Checkbox -->
+                                <div class="w-1/4 text-right">
+                                    @if (!empty($url))
+                                        <label class="inline-flex items-center text-sm cursor-pointer">
+                                            <input type="checkbox" class="peer hidden checkbox-tracker"
+                                                data-document="{{ $label }}" {{ $isChecked ? 'checked' : '' }}>
+                                            <div
+                                                class="w-2.5 h-2.5 rounded-full border border-gray-400 peer-checked:bg-green-500 peer-checked:border-green-500 transition">
+                                            </div>
+                                            <span
+                                                class="ml-2 text-xs text-gray-600 peer-checked:text-green-600 font-semibold">Verified</span>
+                                        </label>
+                                    @else
+                                        <label class="inline-flex items-center text-sm opacity-50 cursor-not-allowed">
+                                            <input type="checkbox" disabled class="hidden">
+                                            <div class="w-2.5 h-2.5 rounded-full border border-gray-300 bg-gray-200">
+                                            </div>
+                                            <span class="ml-2 text-xs text-gray-400 font-semibold">No file</span>
+                                        </label>
+                                    @endif
+                                </div>
                             </div>
 
-                            <!-- Verification Checkbox -->
-                            <div class="w-1/4 text-right">
-                                @if ($url)
-                                    <label class="inline-flex items-center text-sm cursor-pointer">
-                                        <input type="checkbox" class="peer hidden checkbox-tracker"
-                                            data-document="{{ $label }}" {{ $isChecked ? 'checked' : '' }}>
-                                        <div
-                                            class="w-2.5 h-2.5 rounded-full border border-gray-400 peer-checked:bg-green-500 peer-checked:border-green-500 transition">
-                                        </div>
-                                        <span
-                                            class="ml-2 text-xs text-gray-600 peer-checked:text-green-600 font-semibold">Verified</span>
-                                    </label>
-                                @else
-                                    <label class="inline-flex items-center text-sm opacity-50 cursor-not-allowed">
-                                        <input type="checkbox" disabled class="hidden">
-                                        <div class="w-2.5 h-2.5 rounded-full border border-gray-300 bg-gray-200"></div>
-                                        <span class="ml-2 text-xs text-gray-400 font-semibold">No file</span>
-                                    </label>
-                                @endif
-                            </div>
+                            <!-- Remarks Section -->
+                            @if (!empty($url))
+                                <div class="mt-3 pt-3 border-t border-gray-200">
+                                    <div class="flex gap-2">
+                                        <input type="text"
+                                            class="flex-1 text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 document-remark-input"
+                                            data-document="{{ $label }}"
+                                            placeholder="Add remarks for this document..." value="{{ $remarkText }}">
+                                        <button
+                                            class="bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700 transition save-remark-btn"
+                                            data-document="{{ $label }}">
+                                            Save
+                                        </button>
+                                    </div>
+                                    @if ($remarkText)
+                                        <p class="text-xs text-gray-600 mt-1 italic">Current: {{ $remarkText }}</p>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                     @endforeach
                 </div>
@@ -681,19 +713,6 @@
                         class="text-xs text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded transition">Send</button>
                 </form>
             </div>
-
-            <!-- ✅ Quick Actions -->
-            <div class="bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6">
-                <h3 class="text-lg font-bold mb-4">Quick Actions</h3>
-                <div class="space-y-2">
-                    <a href="#"
-                        class="block w-full text-center bg-gray-50 border border-gray-200 text-sm text-gray-800 rounded-md px-4 py-2 hover:bg-gray-100 transition">📄
-                        Print Application</a>
-                    <a href="#"
-                        class="block w-full text-center bg-gray-50 border border-gray-200 text-sm text-gray-800 rounded-md px-4 py-2 hover:bg-gray-100 transition">📥
-                        Download Documents</a>
-                </div>
-            </div>
         </div>
     </div>
 @endsection
@@ -714,13 +733,18 @@
             const allChecked = Array.from(checkboxes).every(cb => cb.checked);
             const currentStatus = "{{ $application->status }}";
 
+            // ✅ FIRST: Check if already approved or rejected - keep buttons hidden
+            if (currentStatus === 'approved' || currentStatus === 'rejected') {
+                actionButtons.classList.add('hidden');
+                return; // Stop here, don't do anything else
+            }
+
+            // Now handle the normal logic for other statuses
             if (allChecked) {
                 actionButtons.classList.remove('hidden');
 
-                // Only update status if NOT already in document_verification, approved, or rejected
-                if (currentStatus !== 'document_verification' &&
-                    currentStatus !== 'approved' &&
-                    currentStatus !== 'rejected') {
+                // Only update status if NOT already in document_verification
+                if (currentStatus !== 'document_verification') {
                     updateApplicantStatus(applicationId, 'document_verification');
                 }
             } else {
@@ -806,5 +830,64 @@
 
         // Initial check
         toggleActionButtons();
+    });
+
+    // ✅ HANDLE DOCUMENT REMARKS
+    document.addEventListener('DOMContentLoaded', function() {
+        const applicationId = "{{ $application->application_form_id }}"; // ✅ ADDED THIS LINE
+        const saveRemarkButtons = document.querySelectorAll('.save-remark-btn');
+
+        saveRemarkButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const documentLabel = btn.dataset.document;
+                const input = document.querySelector(
+                    `.document-remark-input[data-document="${documentLabel}"]`);
+                const remarkText = input.value.trim();
+
+                // Show loading state
+                const originalText = btn.textContent;
+                btn.disabled = true;
+                btn.textContent = 'Saving...';
+
+                fetch(`/admin/applications/${applicationId}/save-remark`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                        },
+                        body: JSON.stringify({
+                            document: documentLabel,
+                            remark: remarkText
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log('✅ Remark saved:', data);
+                        btn.textContent = '✓ Saved';
+                        btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                        btn.classList.add('bg-green-600');
+
+                        // Reset button after 2 seconds
+                        setTimeout(() => {
+                            btn.textContent = originalText;
+                            btn.disabled = false;
+                            btn.classList.remove('bg-green-600');
+                            btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('❌ Error saving remark:', err);
+                        btn.textContent = '✗ Error';
+                        btn.classList.add('bg-red-600');
+
+                        setTimeout(() => {
+                            btn.textContent = originalText;
+                            btn.disabled = false;
+                            btn.classList.remove('bg-red-600');
+                            btn.classList.add('bg-blue-600');
+                        }, 2000);
+                    });
+            });
+        });
     });
 </script>

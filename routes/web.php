@@ -51,6 +51,7 @@ Route::prefix('ched')->name('ched.')->group(function () {
         Route::get('/my-application', [ApplicationFormController::class, 'viewMyApplication'])->name('application.view');
         Route::get('/application/{id}/edit', [ApplicationFormController::class, 'edit'])->name('application.edit');
         Route::patch('/application/{id}', [ApplicationFormController::class, 'update'])->name('application.update');
+        Route::put('/application/update-document/{documentType}', [ApplicationFormController::class, 'updateDocument'])->name('application.update-document');
 
 
         // Applicant PDF Routes
@@ -104,7 +105,7 @@ Route::prefix('ched')->name('ched.')->group(function () {
         Route::post('/applications/{id}/reject', [AdminController::class, 'rejectApplication'])->name('applications.reject');
         Route::post('/applications/{id}/status', [AdminController::class, 'updateStatus'])->name('applications.update-status');
         Route::post('/applications/{applicationId}/verify-document', [AdminController::class, 'verifyDocument'])->name('applications.verify-document');
-
+        Route::post('/applications/{applicationId}/save-remark', [AdminController::class, 'saveDocumentRemark'])->name('applications.save-remark');
         // ✅ Rejected Applications
         Route::prefix('rejected')->name('rejected.')->group(function () {
             Route::get('/', [AdminController::class, 'rejectedApplications'])->name('index');

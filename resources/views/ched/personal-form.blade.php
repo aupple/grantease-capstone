@@ -190,41 +190,34 @@
                             <h3 class="text-md font-semibold text-gray-800 mb-4">Permanent Address</h3>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Province <span
-                                            class="text-red-500">*</span></label>
-                                    <select name="province" required
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Province <span class="text-red-500">*</span>
+                                    </label>
+                                    <select id="province_select" name="province" required
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                                         <option value="">Select Province</option>
-                                        <option value="Misamis Oriental"
-                                            {{ old('province') == 'Misamis Oriental' ? 'selected' : '' }}>Misamis
-                                            Oriental</option>
-                                        <option value="Bukidnon"
-                                            {{ old('province') == 'Bukidnon' ? 'selected' : '' }}>Bukidnon</option>
                                     </select>
                                 </div>
+
+                                <!-- City / Municipality -->
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">City / Municipality
-                                        <span class="text-red-500">*</span></label>
-                                    <select name="city" required
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        City / Municipality <span class="text-red-500">*</span>
+                                    </label>
+                                    <select id="city_select" name="city" required
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                                         <option value="">Select City / Municipality</option>
-                                        <option value="Cagayan de Oro"
-                                            {{ old('city') == 'Cagayan de Oro' ? 'selected' : '' }}>Cagayan de Oro
-                                        </option>
-                                        <option value="Tagoloan" {{ old('city') == 'Tagoloan' ? 'selected' : '' }}>
-                                            Tagoloan</option>
                                     </select>
                                 </div>
+
+                                <!-- Barangay -->
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Barangay <span
-                                            class="text-red-500">*</span></label>
-                                    <select name="barangay" required
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Barangay <span class="text-red-500">*</span>
+                                    </label>
+                                    <select id="barangay_select" name="barangay" required
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                                         <option value="">Select Barangay</option>
-                                        <option value="Carmen" {{ old('barangay') == 'Carmen' ? 'selected' : '' }}>
-                                            Carmen</option>
-                                        <option value="Gusa" {{ old('barangay') == 'Gusa' ? 'selected' : '' }}>Gusa
-                                        </option>
                                     </select>
                                 </div>
                             </div>
@@ -397,7 +390,9 @@
 
     @push('scripts')
         <script>
-            // Step navigation
+            // ------------------------------------------------------------
+            // STEP NAVIGATION
+            // ------------------------------------------------------------
             const step1 = document.getElementById('step1');
             const step2 = document.getElementById('step2');
             const nextBtn = document.getElementById('nextBtn');
@@ -464,7 +459,9 @@
                 });
             });
 
-            // Auto-calculate age from date of birth
+            // ------------------------------------------------------------
+            // AUTO-CALCULATE AGE
+            // ------------------------------------------------------------
             document.querySelector('[name="date_of_birth"]').addEventListener('change', function() {
                 const dob = new Date(this.value);
                 const today = new Date();
@@ -476,6 +473,106 @@
                 }
 
                 document.querySelector('[name="age"]').value = age;
+            });
+
+            // ------------------------------------------------------------
+            // PSGC — Province → City → Barangay (Step 2)
+            // ------------------------------------------------------------
+            document.addEventListener('DOMContentLoaded', async () => {
+                const provinceSelect = document.getElementById('province_select');
+                const citySelect = document.getElementById('city_select');
+                const barangaySelect = document.getElementById('barangay_select');
+                const regionInput = document.getElementById('regionInput'); // optional hidden input
+                const zipInput = document.getElementById('zipInput'); // optional hidden input
+                const regionZipFallback = {}; // optional fallback
+
+                async function setLocation(level, code) {
+                    try {
+                        if (level === "provinces") {
+                            const prov = await fetch(`https://psgc.gitlab.io/api/provinces/${code}/`).then(r =>
+                                r.json());
+                            const region = await fetch(`https://psgc.gitlab.io/api/regions/${prov.regionCode}/`)
+                                .then(r => r.json());
+                            if (regionInput) regionInput.value = region.name;
+                            if (zipInput) zipInput.value = prov.zipcode || regionZipFallback[region.code] || "";
+                        }
+                        if (level === "cities-municipalities") {
+                            const city = await fetch(
+                                `https://psgc.gitlab.io/api/cities-municipalities/${code}/`).then(r => r
+                                .json());
+                            const prov = await fetch(
+                                `https://psgc.gitlab.io/api/provinces/${city.provinceCode}/`).then(r => r
+                                .json());
+                            const region = await fetch(`https://psgc.gitlab.io/api/regions/${prov.regionCode}/`)
+                                .then(r => r.json());
+                            if (regionInput) regionInput.value = region.name;
+                            if (zipInput) zipInput.value = city.zipcode || prov.zipcode || regionZipFallback[
+                                region.code] || "";
+                        }
+                        if (level === "barangays") {
+                            const brgy = await fetch(`https://psgc.gitlab.io/api/barangays/${code}/`).then(r =>
+                                r.json());
+                            const cityCode = brgy.cityCode || brgy.municipalityCode;
+                            if (!cityCode) return;
+                            const city = await fetch(
+                                `https://psgc.gitlab.io/api/cities-municipalities/${cityCode}/`).then(r => r
+                                .json());
+                            const prov = await fetch(
+                                `https://psgc.gitlab.io/api/provinces/${city.provinceCode}/`).then(r => r
+                                .json());
+                            const region = await fetch(`https://psgc.gitlab.io/api/regions/${prov.regionCode}/`)
+                                .then(r => r.json());
+                            if (regionInput) regionInput.value = region.name || "Unknown Region";
+                            if (zipInput) zipInput.value = brgy.zipcode || city.zipcode || prov.zipcode ||
+                                regionZipFallback[region.code] || "";
+                        }
+                    } catch (err) {
+                        console.error("Error setting location:", err);
+                    }
+                }
+
+                // Load provinces
+                fetch('https://psgc.gitlab.io/api/provinces/')
+                    .then(res => res.json())
+                    .then(data => {
+                        provinceSelect.innerHTML = '<option value="">Select Province</option>';
+                        data.forEach(p => provinceSelect.add(new Option(p.name, p.code)));
+                    })
+                    .catch(err => console.error('Error loading provinces:', err));
+
+                // Province → City
+                provinceSelect.addEventListener('change', function() {
+                    const provCode = this.value;
+                    citySelect.innerHTML = '<option value="">Select City / Municipality</option>';
+                    barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+                    if (!provCode) return;
+                    setLocation("provinces", provCode);
+
+                    fetch(`https://psgc.gitlab.io/api/provinces/${provCode}/cities-municipalities/`)
+                        .then(res => res.json())
+                        .then(data => data.forEach(c => citySelect.add(new Option(c.name, c.code))))
+                        .catch(err => console.error('Error loading cities:', err));
+                });
+
+                // City → Barangay
+                citySelect.addEventListener('change', function() {
+                    const cityCode = this.value;
+                    barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+                    if (!cityCode) return;
+                    setLocation("cities-municipalities", cityCode);
+
+                    fetch(`https://psgc.gitlab.io/api/cities-municipalities/${cityCode}/barangays/`)
+                        .then(res => res.json())
+                        .then(data => data.forEach(b => barangaySelect.add(new Option(b.name, b.code))))
+                        .catch(err => console.error('Error loading barangays:', err));
+                });
+
+                // Barangay → finalize region & ZIP
+                barangaySelect.addEventListener('change', function() {
+                    const brgyCode = this.value;
+                    if (!brgyCode) return;
+                    setLocation("barangays", brgyCode);
+                });
             });
         </script>
     @endpush

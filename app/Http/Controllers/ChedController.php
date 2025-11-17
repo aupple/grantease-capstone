@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Models\ApplicationForm;
@@ -14,6 +16,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\ChedGradeReport;
 use App\Models\ChedEnrollmentReport;
 use App\Models\ChedContinuingReport;
+
 
 class ChedController extends Controller
 {
@@ -27,19 +30,55 @@ class ChedController extends Controller
 
     // =========================
     // Personal Information - VIEW PAGE (Read-only display)
-    // =========================
-    public function personalInformation()
-    {
-        $personalInfo = auth()->user()->chedInfo;
-        
-        if (!$personalInfo) {
-            return redirect()
-                ->route('ched.personal-form')
-                ->with('info', 'Please complete your personal information first.');
-        }
-        
-        return view('ched.personal-information', compact('personalInfo'));
+    // ========================
+
+public function personalInformation()
+{
+    $personalInfo = auth()->user()->chedInfo;
+
+    if (!$personalInfo) {
+        return redirect()
+            ->route('ched.personal-form')
+            ->with('info', 'Please complete your personal information first.');
     }
+
+    // Helper function to fetch name with caching and timeout
+    $fetchPSGCName = function ($type, $code) {
+        if (!$code) return '';
+
+        return Cache::remember("psgc_{$type}_{$code}", 3600, function () use ($type, $code) {
+            try {
+                $url = match($type) {
+                    'province' => "https://psgc.gitlab.io/api/provinces/{$code}/",
+                    'city'     => "https://psgc.gitlab.io/api/cities-municipalities/{$code}/",
+                    'barangay' => "https://psgc.gitlab.io/api/barangays/{$code}/",
+                };
+
+                $response = Http::timeout(10)->get($url);
+
+                if ($response->successful()) {
+                    return $response->json()['name'] ?? '';
+                }
+            } catch (\Exception $e) {
+                // Optional: log the error
+                \Log::error("PSGC fetch failed for {$type} code {$code}: ".$e->getMessage());
+            }
+
+            return '';
+        });
+    };
+
+    $provinceName = $fetchPSGCName('province', $personalInfo->province);
+    $cityName     = $fetchPSGCName('city', $personalInfo->city);
+    $barangayName = $fetchPSGCName('barangay', $personalInfo->barangay);
+
+    return view('ched.personal-information', compact(
+        'personalInfo',
+        'provinceName',
+        'cityName',
+        'barangayName'
+    ));
+}
     
     public function personalForm()
     {
@@ -402,6 +441,41 @@ public function reports(Request $request)
     )
     ->orderBy('ched_info_table.last_name')
     ->get();
+    
+    // ✅ Convert PSGC codes to readable names
+    $scholars = $scholars->map(function ($scholar) {
+        // Helper function to fetch PSGC name
+        $fetchPSGCName = function ($type, $code) {
+            if (!$code) return '';
+
+            return Cache::remember("psgc_{$type}_{$code}", 3600, function () use ($type, $code) {
+                try {
+                    $url = match($type) {
+                        'province' => "https://psgc.gitlab.io/api/provinces/{$code}/",
+                        'city'     => "https://psgc.gitlab.io/api/cities-municipalities/{$code}/",
+                        'barangay' => "https://psgc.gitlab.io/api/barangays/{$code}/",
+                    };
+
+                    $response = Http::timeout(10)->get($url);
+
+                    if ($response->successful()) {
+                        return $response->json()['name'] ?? '';
+                    }
+                } catch (\Exception $e) {
+                    \Log::error("PSGC fetch failed for {$type} code {$code}: ".$e->getMessage());
+                }
+
+                return $code; // Return code if fetch fails
+            });
+        };
+
+        // Convert codes to names
+        $scholar->province = $fetchPSGCName('province', $scholar->province);
+        $scholar->city = $fetchPSGCName('city', $scholar->city);
+        $scholar->barangay = $fetchPSGCName('barangay', $scholar->barangay);
+
+        return $scholar;
+    });
     
     // Separate scholars by enrollment category
     $scholars_enrollment_a = $scholars->where('category', 'a');

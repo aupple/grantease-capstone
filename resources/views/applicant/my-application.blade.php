@@ -4,7 +4,6 @@
     @endphp
 
     <style>
-        /* ===== PAGE & PRINT ===== */
         body {
             background-color: #f9fafb;
         }
@@ -114,9 +113,57 @@
             padding: 4px;
             background: #fff;
         }
+
+        @keyframes slide-in {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slide-out {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .animate-slide-in {
+            animation: slide-in 0.3s ease-out;
+        }
+
+        .animate-slide-out {
+            animation: slide-out 0.3s ease-out;
+        }
     </style>
 
     <div class="py-6 px-4 sm:px-6 lg:px-8 bg-gray-50 min-h-screen">
+        <!-- Success Toast Notification -->
+        @if (session('success'))
+            <div id="successToast"
+                class="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 animate-slide-in">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span class="font-semibold">{{ session('success') }}</span>
+                <button onclick="closeToast()" class="ml-4 text-white hover:text-gray-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+        @endif
         <div class="print-area">
             @if ($applications->isEmpty())
                 <p class="text-gray-600">You haven't submitted any applications yet.</p>
@@ -151,7 +198,7 @@
                             <div class="ml-auto">
                                 <a href="{{ route('applicant.application.edit', ['id' => $application->id]) }}"
                                     class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded text-sm">
-                                    ✏️ Edit Application
+                                    Edit Application
                                 </a>
                             </div>
                         @endif
@@ -167,7 +214,7 @@
                         <div class="title text-center">
                             <p class="text-sm font-semibold">DEPARTMENT OF SCIENCE AND TECHNOLOGY</p>
                             <p class="text-sm font-semibold">SCIENCE EDUCATION INSTITUTE</p>
-                            <p class="text-xs">Bicutan, Taguig City</p>
+                            <p class="text-xs">Lapasan, Cagayan De Oro City</p>
                             <h1 class="text-base font-bold underline mt-1">APPLICATION FORM</h1>
                             <p class="text-xs mt-1">for the</p>
                             <h2 class="text-sm font-bold mt-1">
@@ -191,7 +238,8 @@
                     <div class="grid grid-cols-4 gap-2 text-sm mb-4">
                         <div>
                             <label class="block text-[12px] font-semibold">Application No.</label>
-                            <div class="editable-field bg-gray-100 text-center">{{ $application->application_no }}</div>
+                            <div class="editable-field bg-gray-100 text-center">{{ $application->application_no }}
+                            </div>
                         </div>
                         <div>
                             <label class="block text-[12px] font-semibold">Academic Year</label>
@@ -406,9 +454,22 @@
 
                         <!-- Strand / Type / Scholarship table -->
                         @php
+                            // Decode JSON strings to arrays
                             $strand_categories = $application->strand_category ?? [];
+                            if (is_string($strand_categories)) {
+                                $strand_categories = json_decode($strand_categories, true) ?? [];
+                            }
+
                             $applicant_types = $application->applicant_type ?? [];
+                            if (is_string($applicant_types)) {
+                                $applicant_types = json_decode($applicant_types, true) ?? [];
+                            }
+
                             $scholarship_types = $application->scholarship_type ?? [];
+                            if (is_string($scholarship_types)) {
+                                $scholarship_types = json_decode($scholarship_types, true) ?? [];
+                            }
+
                             $research_approved = $application->research_topic_approved ? 'YES' : 'NO';
                         @endphp
 
@@ -736,100 +797,853 @@
                     <div class="section-box mb-4 text-[13px] leading-snug text-gray-800">
                         <p class="mb-2 font-semibold">Uploaded Documents:</p>
 
+                        @php
+                            // Helper function to check if document exists
+                            function hasDocument($doc)
+                            {
+                                if (empty($doc)) {
+                                    return false;
+                                }
+
+                                if (is_string($doc) && (str_starts_with($doc, '[') || str_starts_with($doc, '{'))) {
+                                    $decoded = json_decode($doc, true);
+                                    if (is_array($decoded)) {
+                                        return !empty($decoded);
+                                    }
+                                }
+
+                                return !empty($doc);
+                            }
+
+                            // Helper to get file URL
+                            function getFileUrl($doc)
+                            {
+                                if (empty($doc)) {
+                                    return null;
+                                }
+
+                                if (is_string($doc) && (str_starts_with($doc, '[') || str_starts_with($doc, '{'))) {
+                                    $decoded = json_decode($doc, true);
+                                    if (is_array($decoded) && !empty($decoded)) {
+                                        $doc = $decoded[0] ?? null;
+                                    }
+                                }
+
+                                return $doc ? asset('storage/' . $doc) : null;
+                            }
+
+                            // Get remarks from application
+                            $allRemarks = DB::table('remarks')
+                                ->where('application_form_id', $application->application_form_id) // ✅ Fixed!
+                                ->get()
+                                ->keyBy('document_name');
+                        @endphp
+
                         <!-- General Requirements -->
-                        <div class="space-y-2 pl-4">
-                            <div>
-                                <p>• Birth Certificate (Photocopy)</p>
-                                <div class="p-1 border rounded">
-                                    {{ $application->birth_certificate ?? 'Not uploaded' }}</div>
-                            </div>
+                        <div class="space-y-3 pl-4">
+                            <!-- Birth Certificate -->
+                            @php
+                                $documentKey = 'Birth Certificate';
+                                $hasRemark = $allRemarks->has($documentKey);
+                                $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
+                            @endphp
+                            <div
+                                class="border rounded-lg p-3 {{ $hasRemark ? 'bg-red-50 border-red-300' : (hasDocument($application->birth_certificate_pdf) ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200') }}">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <p class="font-medium text-sm">
+                                            • Birth Certificate (Photocopy)
+                                        </p>
+                                        <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                            @if (hasDocument($application->birth_certificate_pdf))
+                                                <span class="text-green-700 font-semibold text-xs">✓ Uploaded</span>
+                                                <a href="{{ getFileUrl($application->birth_certificate_pdf) }}"
+                                                    target="_blank"
+                                                    class="text-blue-600 hover:text-blue-800 text-xs font-semibold underline flex items-center gap-1">
+                                                    View File
+                                                </a>
+                                                <button
+                                                    onclick="openDocumentModal('{{ getFileUrl($application->birth_certificate_pdf) }}', 'Birth Certificate')"
+                                                    class="text-purple-600 hover:text-purple-800 text-xs font-semibold underline">
+                                                    Quick View
+                                                </button>
+                                            @else
+                                                <span class="text-gray-500 text-xs">Not uploaded</span>
+                                            @endif
+                                        </div>
 
-                            <div>
-                                <p>• Certified True Copy of the Official Transcript of Record</p>
-                                <div class="p-1 border rounded">
-                                    {{ $application->transcript_record ?? 'Not uploaded' }}</div>
-                            </div>
+                                        <!-- Remarks Section -->
+                                        @if ($hasRemark)
+                                            <div class="mt-2 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                                                <div class="flex items-start justify-between">
+                                                    <div class="flex-1">
+                                                        <p
+                                                            class="font-semibold text-yellow-800 text-xs flex items-center gap-1">
+                                                            ⚠️ Admin Remarks:
+                                                        </p>
+                                                        <p class="text-yellow-700 mt-1 text-xs">
+                                                            {{ $remarkData->remark_text }}</p>
+                                                        <p class="text-yellow-600 text-xs mt-1 italic">
+                                                            Please update this document and resubmit.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
 
-                            <div>
-                                <p>• Endorsement 1 – Former professor in college for MS / former professor in MS program
-                                    for PhD</p>
-                                <div class="p-1 border rounded">{{ $application->endorsement_1 ?? 'Not uploaded' }}
+                                    @if ($application->status === 'pending' || $hasRemark)
+                                        <button onclick="openEditModal('birth_certificate', 'Birth Certificate')"
+                                            class="ml-2 text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded flex items-center gap-1 whitespace-nowrap">
+                                            {{ hasDocument($application->birth_certificate_pdf) ? 'Edit File' : 'Upload File' }}
+                                        </button>
+                                    @endif
                                 </div>
                             </div>
 
-                            <div>
-                                <p>• Endorsement 2 – Former professor in college for MS / former professor in MS program
-                                    for PhD</p>
-                                <div class="p-1 border rounded">{{ $application->endorsement_2 ?? 'Not uploaded' }}
+                            <!-- Transcript of Record -->
+                            @php
+                                $documentKey = 'Transcript of Record';
+                                $hasRemark = $allRemarks->has($documentKey);
+                                $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
+                                $needsRevision = $hasRemark;
+                            @endphp
+                            <div
+                                class="border rounded-lg p-3 {{ hasDocument($application->transcript_of_record_pdf) ? ($needsRevision ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200' }}">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <p class="font-medium text-sm flex items-center gap-2">
+                                            • Certified True Copy of the Official Transcript of Record
+                                        </p>
+                                        <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                            @if (hasDocument($application->transcript_of_record_pdf))
+                                                <span class="text-green-700 font-semibold text-xs">✓ Uploaded</span>
+                                                <a href="{{ getFileUrl($application->transcript_of_record_pdf) }}"
+                                                    target="_blank"
+                                                    class="text-blue-600 hover:text-blue-800 text-xs font-semibold underline">
+                                                    View File
+                                                </a>
+                                                <button
+                                                    onclick="openDocumentModal('{{ getFileUrl($application->transcript_of_record_pdf) }}', 'Transcript of Record')"
+                                                    class="text-purple-600 hover:text-purple-800 text-xs font-semibold underline">
+                                                    Quick View
+                                                </button>
+                                            @else
+                                                <span class="text-gray-500 text-xs">Not uploaded</span>
+                                            @endif
+                                        </div>
+
+                                        <!-- Remarks Section -->
+                                        @if ($hasRemark)
+                                            <div class="mt-2 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                                                <div class="flex items-start justify-between">
+                                                    <div class="flex-1">
+                                                        <p
+                                                            class="font-semibold text-yellow-800 text-xs flex items-center gap-1">
+                                                            ⚠️ Admin Remarks:
+                                                        </p>
+                                                        <p class="text-yellow-700 mt-1 text-xs">
+                                                            {{ $remarkData->remark_text }}</p>
+                                                        <p class="text-yellow-600 text-xs mt-1 italic">
+                                                            Please update this document and resubmit.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    @if (($application->status === 'pending' || $needsRevision) && hasDocument($application->transcript_of_record_pdf))
+                                        <button onclick="openEditModal('transcript_of_record', 'Transcript of Record')"
+                                            class="ml-2 text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded flex items-center gap-1 whitespace-nowrap">
+                                            Edit File
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <!-- Endorsement 1 -->
+                            @php
+                                $documentKey = 'Endorsement Letter 1';
+                                $hasRemark = $allRemarks->has($documentKey);
+                                $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
+                                $needsRevision = $hasRemark;
+                            @endphp
+                            <div
+                                class="border rounded-lg p-3 {{ hasDocument($application->endorsement_1_pdf) ? ($needsRevision ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200' }}">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <p class="font-medium text-sm flex items-center gap-2">
+                                            • Endorsement 1 – Former professor in college for MS / former professor in
+                                            MS program for PhD
+                                        </p>
+                                        <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                            @if (hasDocument($application->endorsement_1_pdf))
+                                                <span class="text-green-700 font-semibold text-xs">✓ Uploaded</span>
+                                                <a href="{{ getFileUrl($application->endorsement_1_pdf) }}"
+                                                    target="_blank"
+                                                    class="text-blue-600 hover:text-blue-800 text-xs font-semibold underline">
+                                                    View File
+                                                </a>
+                                                <button
+                                                    onclick="openDocumentModal('{{ getFileUrl($application->endorsement_1_pdf) }}', 'Endorsement 1')"
+                                                    class="text-purple-600 hover:text-purple-800 text-xs font-semibold underline">
+                                                    Quick View
+                                                </button>
+                                            @else
+                                                <span class="text-gray-500 text-xs">Not uploaded</span>
+                                            @endif
+                                        </div>
+
+                                        @if ($hasRemark)
+                                            <div class="mt-2 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                                                <p
+                                                    class="font-semibold text-yellow-800 text-xs flex items-center gap-1">
+                                                    ⚠️ Admin Remarks:
+                                                </p>
+                                                <p class="text-yellow-700 mt-1 text-xs">
+                                                    {{ $remarkData->remark_text }}</p>
+                                                <p class="text-yellow-600 text-xs mt-1 italic">
+                                                    Please update this document and resubmit.
+                                                </p>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    @if (($application->status === 'pending' || $needsRevision) && hasDocument($application->endorsement_1_pdf))
+                                        <button onclick="openEditModal('endorsement_1', 'Endorsement 1')"
+                                            class="ml-2 text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded flex items-center gap-1 whitespace-nowrap">
+                                            Edit File
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <!-- Endorsement 2 -->
+                            @php
+                                $documentKey = 'Endorsement Letter 2';
+                                $hasRemark = $allRemarks->has($documentKey);
+                                $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
+                                $needsRevision = $hasRemark;
+                            @endphp
+                            <div
+                                class="border rounded-lg p-3 {{ hasDocument($application->endorsement_2_pdf) ? ($needsRevision ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200' }}">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <p class="font-medium text-sm flex items-center gap-2">
+                                            • Endorsement 2 – Former professor in college for MS / former professor in
+                                            MS program for PhD
+
+                                        </p>
+                                        <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                            @if (hasDocument($application->endorsement_2_pdf))
+                                                <span class="text-green-700 font-semibold text-xs">✓ Uploaded</span>
+                                                <a href="{{ getFileUrl($application->endorsement_2_pdf) }}"
+                                                    target="_blank"
+                                                    class="text-blue-600 hover:text-blue-800 text-xs font-semibold underline">
+                                                    View File
+                                                </a>
+                                                <button
+                                                    onclick="openDocumentModal('{{ getFileUrl($application->endorsement_2_pdf) }}', 'Endorsement 2')"
+                                                    class="text-purple-600 hover:text-purple-800 text-xs font-semibold underline">
+                                                    Quick View
+                                                </button>
+                                            @else
+                                                <span class="text-gray-500 text-xs">Not uploaded</span>
+                                            @endif
+                                        </div>
+
+                                        @if ($hasRemark)
+                                            <div class="mt-2 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                                                <p
+                                                    class="font-semibold text-yellow-800 text-xs flex items-center gap-1">
+                                                    ⚠️ Admin Remarks:
+                                                </p>
+                                                <p class="text-yellow-700 mt-1 text-xs">
+                                                    {{ $remarkData->remark_text }}</p>
+                                                <p class="text-yellow-600 text-xs mt-1 italic">
+                                                    Please update this document and resubmit.
+                                                </p>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    @if (($application->status === 'pending' || $needsRevision) && hasDocument($application->endorsement_2_pdf))
+                                        <button onclick="openEditModal('endorsement_2', 'Endorsement 2')"
+                                            class="ml-2 text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded flex items-center gap-1 whitespace-nowrap">
+                                            Edit File
+                                        </button>
+                                    @endif
                                 </div>
                             </div>
                         </div>
 
                         <!-- If Employed -->
-                        <div class="mt-3 pl-4">
-                            <p class="font-semibold">If Employed:</p>
-                            <div class="space-y-2 pl-4 mt-1">
-                                <div>
-                                    <p>• Recommendation from Head of Agency</p>
-                                    <div class="p-1 border rounded">
-                                        {{ $application->recommendation_head_agency ?? 'Not uploaded' }}</div>
-                                </div>
-                                <div>
-                                    <p>• Form 2A – Certificate of Employment and Permit to Study</p>
-                                    <div class="p-1 border rounded">{{ $application->form_2a ?? 'Not uploaded' }}
+                        <div class="mt-4 pl-4">
+                            <p class="font-semibold mb-2">If Employed:</p>
+                            <div class="space-y-3 pl-4">
+                                <!-- Recommendation from Head of Agency -->
+                                @php
+                                    $documentKey = 'Recommendation from Head of Agency';
+                                    $hasRemark = $allRemarks->has($documentKey);
+                                    $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
+                                    $needsRevision = $hasRemark;
+                                @endphp
+                                <div
+                                    class="border rounded-lg p-3 {{ hasDocument($application->recommendation_head_agency_pdf) ? ($needsRevision ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200' }}">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <p class="font-medium text-sm flex items-center gap-2">
+                                                • Recommendation from Head of Agency
+
+                                            </p>
+                                            <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                                @if (hasDocument($application->recommendation_head_agency_pdf))
+                                                    <span class="text-green-700 font-semibold text-xs">✓
+                                                        Uploaded</span>
+                                                    <a href="{{ getFileUrl($application->recommendation_head_agency_pdf) }}"
+                                                        target="_blank"
+                                                        class="text-blue-600 hover:text-blue-800 text-xs font-semibold underline">
+                                                        View File
+                                                    </a>
+                                                    <button
+                                                        onclick="openDocumentModal('{{ getFileUrl($application->recommendation_head_agency_pdf) }}', 'Recommendation from Head of Agency')"
+                                                        class="text-purple-600 hover:text-purple-800 text-xs font-semibold underline">
+                                                        Quick View
+                                                    </button>
+                                                @else
+                                                    <span class="text-gray-500 text-xs">Not uploaded</span>
+                                                @endif
+                                            </div>
+
+                                            @if ($hasRemark)
+                                                <div
+                                                    class="mt-2 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                                                    <p
+                                                        class="font-semibold text-yellow-800 text-xs flex items-center gap-1">
+                                                        ⚠️ Admin Remarks:
+                                                    </p>
+                                                    <p class="text-yellow-700 mt-1 text-xs">
+                                                        {{ $remarkData->remark_text }}</p>
+                                                    <p class="text-yellow-600 text-xs mt-1 italic">
+                                                        Please update this document and resubmit.
+                                                    </p>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        @if (($application->status === 'pending' || $needsRevision) && hasDocument($application->recommendation_head_agency_pdf))
+                                            <button
+                                                onclick="openEditModal('recommendation_head_agency', 'Recommendation from Head of Agency')"
+                                                class="ml-2 text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded flex items-center gap-1 whitespace-nowrap">
+                                                Edit File
+                                            </button>
+                                        @endif
                                     </div>
                                 </div>
-                                <div>
-                                    <p>• Form 2B – Certificate of DepEd Employment and Permit to Study (for DepEd
-                                        employees only)</p>
-                                    <div class="p-1 border rounded">{{ $application->form_2b ?? 'Not uploaded' }}
+
+                                <!-- Form 2B -->
+                                @php
+                                    $documentKey = 'Form 2B - Optional Employment Cert.'; // ✅ FIXED: Correct key
+                                    $hasRemark = $allRemarks->has($documentKey);
+                                    $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
+                                @endphp
+                                <div
+                                    class="border rounded-lg p-3 {{ $hasRemark ? 'bg-red-50 border-red-300' : (hasDocument($application->form_2b_pdf) ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200') }}">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <p class="font-medium text-sm">
+                                                • Form 2B – Certificate of DepEd Employment and Permit to Study (for
+                                                DepEd employees only)
+                                            </p>
+                                            <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                                @if (hasDocument($application->form_2b_pdf))
+                                                    <span class="text-green-700 font-semibold text-xs">✓
+                                                        Uploaded</span>
+                                                    <a href="{{ getFileUrl($application->form_2b_pdf) }}"
+                                                        target="_blank"
+                                                        class="text-blue-600 hover:text-blue-800 text-xs font-semibold underline">
+                                                        View File
+                                                    </a>
+                                                    <button
+                                                        onclick="openDocumentModal('{{ getFileUrl($application->form_2b_pdf) }}', 'Form 2B')"
+                                                        class="text-purple-600 hover:text-purple-800 text-xs font-semibold underline">
+                                                        Quick View
+                                                    </button>
+                                                @else
+                                                    <span class="text-gray-500 text-xs">Not uploaded</span>
+                                                @endif
+                                            </div>
+
+                                            @if ($hasRemark)
+                                                <div
+                                                    class="mt-2 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                                                    <p
+                                                        class="font-semibold text-yellow-800 text-xs flex items-center gap-1">
+                                                        ⚠️ Admin Remarks:
+                                                    </p>
+                                                    <p class="text-yellow-700 mt-1 text-xs">
+                                                        {{ $remarkData->remark_text }}</p>
+                                                    <p class="text-yellow-600 text-xs mt-1 italic">
+                                                        Please update this document and resubmit.
+                                                    </p>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        @if ($application->status === 'pending' || $hasRemark)
+                                            <button onclick="openEditModal('form_2b', 'Form 2B')"
+                                                class="ml-2 text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded flex items-center gap-1 whitespace-nowrap">
+                                                {{ hasDocument($application->form_2b_pdf) ? 'Edit File' : 'Upload File' }}
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <!-- Form 2B -->
+                                @php
+                                    $documentKey = 'Form B - Career Plans';
+                                    $hasRemark = $allRemarks->has($documentKey);
+                                    $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
+                                    $needsRevision = $hasRemark;
+                                @endphp
+                                <div
+                                    class="border rounded-lg p-3 {{ hasDocument($application->form_2b_pdf) ? ($needsRevision ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200' }}">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <p class="font-medium text-sm flex items-center gap-2">
+                                                • Form 2B – Certificate of DepEd Employment and Permit to Study (for
+                                                DepEd employees only)
+
+                                            </p>
+                                            <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                                @if (hasDocument($application->form_2b_pdf))
+                                                    <span class="text-green-700 font-semibold text-xs">✓
+                                                        Uploaded</span>
+                                                    <a href="{{ getFileUrl($application->form_2b_pdf) }}"
+                                                        target="_blank"
+                                                        class="text-blue-600 hover:text-blue-800 text-xs font-semibold underline">
+                                                        View File
+                                                    </a>
+                                                    <button
+                                                        onclick="openDocumentModal('{{ getFileUrl($application->form_2b_pdf) }}', 'Form 2B')"
+                                                        class="text-purple-600 hover:text-purple-800 text-xs font-semibold underline">
+                                                        Quick View
+                                                    </button>
+                                                @else
+                                                    <span class="text-gray-500 text-xs">Not uploaded</span>
+                                                @endif
+                                            </div>
+
+                                            @if ($hasRemark)
+                                                <div
+                                                    class="mt-2 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                                                    <p
+                                                        class="font-semibold text-yellow-800 text-xs flex items-center gap-1">
+                                                        ⚠️ Admin Remarks:
+                                                    </p>
+                                                    <p class="text-yellow-700 mt-1 text-xs">
+                                                        {{ $remarkData->remark_text }}</p>
+                                                    <p class="text-yellow-600 text-xs mt-1 italic">
+                                                        Please update this document and resubmit.
+                                                    </p>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        @if (($application->status === 'pending' || $needsRevision) && hasDocument($application->form_2b_pdf))
+                                            <button onclick="openEditModal('form_2b', 'Form 2B')"
+                                                class="ml-2 text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded flex items-center gap-1 whitespace-nowrap">
+                                                Edit File
+                                            </button>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Other Requirements -->
-                        <div class="mt-3 pl-4">
-                            <p class="font-semibold">Other Requirements:</p>
-                            <div class="space-y-2 pl-4 mt-1">
-                                <div>
-                                    <p>• Form C – Certification of Health Status</p>
-                                    <div class="p-1 border rounded">
-                                        {{ $application->form_c_health_status ?? 'Not uploaded' }}</div>
-                                </div>
-                                <div>
-                                    <p>• Valid NBI Clearance</p>
-                                    <div class="p-1 border rounded">
-                                        {{ $application->nbi_clearance ?? 'Not uploaded' }}</div>
-                                </div>
-                                <div>
-                                    <p>• Letter of Admission with Regular Status (includes Evaluation Sheet)</p>
-                                    <div class="p-1 border rounded">
-                                        {{ $application->letter_of_admission ?? 'Not uploaded' }}
+                        <div class="mt-4 pl-4">
+                            <p class="font-semibold mb-2">Other Requirements:</p>
+                            <div class="space-y-3 pl-4">
+                                <!-- Form C -->
+                                @php
+                                    $documentKey = 'Form C - Health Status';
+                                    $hasRemark = $allRemarks->has($documentKey);
+                                    $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
+                                @endphp
+                                <div
+                                    class="border rounded-lg p-3 {{ $hasRemark ? 'bg-red-50 border-red-300' : (hasDocument($application->form_c_health_status_pdf) ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200') }}">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <p class="font-medium text-sm">
+                                                • Form C – Certification of Health Status
+                                            </p>
+                                            <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                                @if (hasDocument($application->form_c_health_status_pdf))
+                                                    <span class="text-green-700 font-semibold text-xs">✓
+                                                        Uploaded</span>
+                                                    <a href="{{ getFileUrl($application->form_c_health_status_pdf) }}"
+                                                        target="_blank"
+                                                        class="text-blue-600 hover:text-blue-800 text-xs font-semibold underline">
+                                                        View File
+                                                    </a>
+                                                    <button
+                                                        onclick="openDocumentModal('{{ getFileUrl($application->form_c_health_status_pdf) }}', 'Form C - Health Status')"
+                                                        class="text-purple-600 hover:text-purple-800 text-xs font-semibold underline">
+                                                        Quick View
+                                                    </button>
+                                                @else
+                                                    <span class="text-gray-500 text-xs">Not uploaded</span>
+                                                @endif
+                                            </div>
+
+                                            @if ($hasRemark)
+                                                <div
+                                                    class="mt-2 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                                                    <p
+                                                        class="font-semibold text-yellow-800 text-xs flex items-center gap-1">
+                                                        ⚠️ Admin Remarks:
+                                                    </p>
+                                                    <p class="text-yellow-700 mt-1 text-xs">
+                                                        {{ $remarkData->remark_text }}</p>
+                                                    <p class="text-yellow-600 text-xs mt-1 italic">
+                                                        Please update this document and resubmit.
+                                                    </p>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        @if ($application->status === 'pending' || $hasRemark)
+                                            <button
+                                                onclick="openEditModal('form_c_health_status', 'Form C - Health Status')"
+                                                class="ml-2 text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded flex items-center gap-1 whitespace-nowrap">
+                                                {{ hasDocument($application->form_c_health_status_pdf) ? 'Edit File' : 'Upload File' }}
+                                            </button>
+                                        @endif
                                     </div>
                                 </div>
-                                <div>
-                                    <p>• Approved Program of Study</p>
-                                    <div class="p-1 border rounded">
-                                        {{ $application->approved_program_study ?? 'Not uploaded' }}</div>
+                                <!-- NBI Clearance -->
+                                @php
+                                    $documentKey = 'NBI Clearance';
+                                    $hasRemark = $allRemarks->has($documentKey);
+                                    $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
+                                    $needsRevision = $hasRemark;
+                                @endphp
+                                <div
+                                    class="border rounded-lg p-3 {{ hasDocument($application->nbi_clearance_pdf) ? ($needsRevision ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200' }}">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <p class="font-medium text-sm flex items-center gap-2">
+                                                • Valid NBI Clearance
+
+                                            </p>
+                                            <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                                @if (hasDocument($application->nbi_clearance_pdf))
+                                                    <span class="text-green-700 font-semibold text-xs">✓
+                                                        Uploaded</span>
+                                                    <a href="{{ getFileUrl($application->nbi_clearance_pdf) }}"
+                                                        target="_blank"
+                                                        class="text-blue-600 hover:text-blue-800 text-xs font-semibold underline">
+                                                        View File
+                                                    </a>
+                                                    <button
+                                                        onclick="openDocumentModal('{{ getFileUrl($application->nbi_clearance_pdf) }}', 'NBI Clearance')"
+                                                        class="text-purple-600 hover:text-purple-800 text-xs font-semibold underline">
+                                                        Quick View
+                                                    </button>
+                                                @else
+                                                    <span class="text-gray-500 text-xs">Not uploaded</span>
+                                                @endif
+                                            </div>
+
+                                            @if ($hasRemark)
+                                                <div
+                                                    class="mt-2 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                                                    <p
+                                                        class="font-semibold text-yellow-800 text-xs flex items-center gap-1">
+                                                        ⚠️ Admin Remarks:
+                                                    </p>
+                                                    <p class="text-yellow-700 mt-1 text-xs">
+                                                        {{ $remarkData->remark_text }}</p>
+                                                    <p class="text-yellow-600 text-xs mt-1 italic">
+                                                        Please update this document and resubmit.
+                                                    </p>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        @if (($application->status === 'pending' || $needsRevision) && hasDocument($application->nbi_clearance_pdf))
+                                            <button onclick="openEditModal('nbi_clearance', 'NBI Clearance')"
+                                                class="ml-2 text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded flex items-center gap-1 whitespace-nowrap">
+                                                Edit File
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <!-- Letter of Admission -->
+                                @php
+                                    $documentKey = 'Letter of Admission';
+                                    $hasRemark = $allRemarks->has($documentKey);
+                                    $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
+                                    $needsRevision = $hasRemark;
+                                @endphp
+                                <div
+                                    class="border rounded-lg p-3 {{ hasDocument($application->letter_of_admission_pdf) ? ($needsRevision ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200' }}">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <p class="font-medium text-sm flex items-center gap-2">
+                                                • Letter of Admission with Regular Status (includes Evaluation Sheet)
+
+                                            </p>
+                                            <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                                @if (hasDocument($application->letter_of_admission_pdf))
+                                                    <span class="text-green-700 font-semibold text-xs">✓
+                                                        Uploaded</span>
+                                                    <a href="{{ getFileUrl($application->letter_of_admission_pdf) }}"
+                                                        target="_blank"
+                                                        class="text-blue-600 hover:text-blue-800 text-xs font-semibold underline">
+                                                        View File
+                                                    </a>
+                                                    <button
+                                                        onclick="openDocumentModal('{{ getFileUrl($application->letter_of_admission_pdf) }}', 'Letter of Admission')"
+                                                        class="text-purple-600 hover:text-purple-800 text-xs font-semibold underline">
+                                                        Quick View
+                                                    </button>
+                                                @else
+                                                    <span class="text-gray-500 text-xs">Not uploaded</span>
+                                                @endif
+                                            </div>
+
+                                            @if ($hasRemark)
+                                                <div
+                                                    class="mt-2 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                                                    <p
+                                                        class="font-semibold text-yellow-800 text-xs flex items-center gap-1">
+                                                        ⚠️ Admin Remarks:
+                                                    </p>
+                                                    <p class="text-yellow-700 mt-1 text-xs">
+                                                        {{ $remarkData->remark_text }}</p>
+                                                    <p class="text-yellow-600 text-xs mt-1 italic">
+                                                        Please update this document and resubmit.
+                                                    </p>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        @if (($application->status === 'pending' || $needsRevision) && hasDocument($application->letter_of_admission_pdf))
+                                            <button
+                                                onclick="openEditModal('letter_of_admission', 'Letter of Admission')"
+                                                class="ml-2 text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded flex items-center gap-1 whitespace-nowrap">
+                                                Edit File
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <!-- Approved Program of Study -->
+                                @php
+                                    $documentKey = 'Approved Program of Study';
+                                    $hasRemark = $allRemarks->has($documentKey);
+                                    $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
+                                    $needsRevision = $hasRemark;
+                                @endphp
+                                <div
+                                    class="border rounded-lg p-3 {{ hasDocument($application->approved_program_of_study_pdf) ? ($needsRevision ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200' }}">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <p class="font-medium text-sm flex items-center gap-2">
+                                                • Approved Program of Study
+
+                                            </p>
+                                            <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                                @if (hasDocument($application->approved_program_of_study_pdf))
+                                                    <span class="text-green-700 font-semibold text-xs">✓
+                                                        Uploaded</span>
+                                                    <a href="{{ getFileUrl($application->approved_program_of_study_pdf) }}"
+                                                        target="_blank"
+                                                        class="text-blue-600 hover:text-blue-800 text-xs font-semibold underline">
+                                                        View File
+                                                    </a>
+                                                    <button
+                                                        onclick="openDocumentModal('{{ getFileUrl($application->approved_program_of_study_pdf) }}', 'Approved Program of Study')"
+                                                        class="text-purple-600 hover:text-purple-800 text-xs font-semibold underline">
+                                                        Quick View
+                                                    </button>
+                                                @else
+                                                    <span class="text-gray-500 text-xs">Not uploaded</span>
+                                                @endif
+                                            </div>
+
+                                            @if ($hasRemark)
+                                                <div
+                                                    class="mt-2 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                                                    <p
+                                                        class="font-semibold text-yellow-800 text-xs flex items-center gap-1">
+                                                        ⚠️ Admin Remarks:
+                                                    </p>
+                                                    <p class="text-yellow-700 mt-1 text-xs">
+                                                        {{ $remarkData->remark_text }}</p>
+                                                    <p class="text-yellow-600 text-xs mt-1 italic">
+                                                        Please update this document and resubmit.
+                                                    </p>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        @if (($application->status === 'pending' || $needsRevision) && hasDocument($application->approved_program_of_study_pdf))
+                                            <button
+                                                onclick="openEditModal('approved_program_of_study', 'Approved Program of Study')"
+                                                class="ml-2 text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded flex items-center gap-1 whitespace-nowrap">
+                                                Edit File
+                                            </button>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Lateral Applicants -->
-                        <div class="mt-3 pl-4">
-                            <p class="font-semibold">Additional Requirements for Lateral Applicants:</p>
-                            <div class="space-y-2 pl-4 mt-1">
-                                <div>
-                                    <p>• Certification from the university indicating:</p>
-                                    <ul class="list-disc pl-8 text-[12px] mt-1">
-                                        <li>Number of graduate units required in the program</li>
-                                        <li>Number of graduate units already earned with corresponding grades</li>
-                                    </ul>
-                                    <div class="p-1 border rounded">
-                                        {{ $application->lateral_certification ?? 'Not uploaded' }}</div>
+                        <div class="mt-4 pl-4">
+                            <p class="font-semibold mb-2">Additional Requirements for Lateral Applicants:</p>
+                            <div class="space-y-3 pl-4">
+                                @php
+                                    $documentKey = 'Lateral Certification';
+                                    $hasRemark = $allRemarks->has($documentKey);
+                                    $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
+                                    $needsRevision = $hasRemark;
+                                @endphp
+                                <div
+                                    class="border rounded-lg p-3 {{ hasDocument($application->lateral_certification_pdf) ? ($needsRevision ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200' }}">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <p class="font-medium text-sm flex items-center gap-2">
+                                                • Certification from the university indicating:
+
+                                            </p>
+                                            <ul class="list-disc pl-6 text-xs mt-1 mb-2">
+                                                <li>Number of graduate units required in the program</li>
+                                                <li>Number of graduate units already earned with corresponding grades
+                                                </li>
+                                            </ul>
+                                            <div class="flex items-center gap-2">
+                                                @if (hasDocument($application->lateral_certification_pdf))
+                                                    <span class="text-green-700 font-semibold text-xs">✓
+                                                        Uploaded</span>
+                                                    <a href="{{ getFileUrl($application->lateral_certification_pdf) }}"
+                                                        target="_blank"
+                                                        class="text-blue-600 hover:text-blue-800 text-xs font-semibold underline">
+                                                        View File
+                                                    </a>
+                                                    <button
+                                                        onclick="openDocumentModal('{{ getFileUrl($application->lateral_certification_pdf) }}', 'Lateral Certification')"
+                                                        class="text-purple-600 hover:text-purple-800 text-xs font-semibold underline">
+                                                        Quick View
+                                                    </button>
+                                                @else
+                                                    <span class="text-gray-500 text-xs">Not uploaded</span>
+                                                @endif
+                                            </div>
+
+                                            @if ($hasRemark)
+                                                <div
+                                                    class="mt-2 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                                                    <p
+                                                        class="font-semibold text-yellow-800 text-xs flex items-center gap-1">
+                                                        ⚠️ Admin Remarks:
+                                                    </p>
+                                                    <p class="text-yellow-700 mt-1 text-xs">
+                                                        {{ $remarkData->remark_text }}</p>
+                                                    <p class="text-yellow-600 text-xs mt-1 italic">
+                                                        Please update this document and resubmit.
+                                                    </p>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        @if (($application->status === 'pending' || $needsRevision) && hasDocument($application->lateral_certification_pdf))
+                                            <button
+                                                onclick="openEditModal('lateral_certification', 'Lateral Certification')"
+                                                class="ml-2 text-xs bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded flex items-center gap-1 whitespace-nowrap">
+                                                Replace
+                                            </button>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    <!-- END OF ATTACHED DOCUMENTS SECTION -->
+
+                    <!-- Document Quick View Modal -->
+                    <div id="documentModal"
+                        class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                        <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col">
+                            <div class="flex items-center justify-between p-4 border-b">
+                                <h3 id="modalTitle" class="text-lg font-semibold">Document Viewer</h3>
+                                <button onclick="closeDocumentModal()" class="text-gray-500 hover:text-gray-700">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="flex-1 overflow-auto p-4">
+                                <iframe id="documentFrame" class="w-full h-full min-h-[500px]"
+                                    frameborder="0"></iframe>
+                            </div>
+                            <div class="p-4 border-t flex justify-end gap-2">
+                                <a id="downloadLink" href="#" target="_blank"
+                                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm">
+                                    Download
+                                </a>
+                                <button onclick="closeDocumentModal()"
+                                    class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm">
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Edit Document Modal -->
+                    <div id="editModal"
+                        class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                        <div class="bg-white rounded-lg max-w-md w-full">
+                            <div class="flex items-center justify-between p-4 border-b">
+                                <h3 id="editModalTitle" class="text-lg font-semibold">Replace Document</h3>
+                                <button onclick="closeEditModal()" class="text-gray-500 hover:text-gray-700">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <form id="editDocumentForm" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                @method('PUT')
+                                <div class="p-4">
+                                    <input type="hidden" id="documentType" name="document_type">
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Upload New Document (PDF only)
+                                        </label>
+                                        <input type="file" name="document" id="documentFile" accept=".pdf"
+                                            required class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                                        <p class="text-xs text-gray-500 mt-1">Maximum file size: 5MB</p>
+                                    </div>
+                                </div>
+                                <div class="p-4 border-t flex justify-end gap-2">
+                                    <button type="button" onclick="closeEditModal()"
+                                        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm">
+                                        Cancel
+                                    </button>
+                                    <button type="submit"
+                                        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm">
+                                        Upload
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
 
@@ -838,64 +1652,155 @@
                     <div class="section-box mb-4 text-[13px] leading-snug">
                         <p class="mb-2 text-justify">
                             I hereby certify that all information given above are true and correct to the best of my
-                            knowledge. Any misinformation or withholding
-                            of information will automatically disqualify me from the program, Project Science and
-                            Technology Regional Alliance of Universities for National
-                            Development (STRAND). I am willing to refund all the financial benefits received plus
-                            appropriate interest if such misinformation is discovered.
+                            knowledge. Any misinformation or withholding of information will automatically disqualify me
+                            from the program, Project Science and Technology Regional Alliance of Universities for
+                            National Development (STRAND). I am willing to refund all the financial benefits received
+                            plus appropriate interest if such misinformation is discovered.
                         </p>
 
                         <p class="mb-3 text-justify">
                             Moreover, I hereby authorize the Science Education Institute of the Department of Science
-                            and Technology (SEI-DOST) to collect,
-                            record, organize, update or modify, retrieve, consult, use, consolidate, block, erase or
-                            destruct my personal data that I have provided in
-                            relation to my application to this scholarship. I hereby affirm my right to be informed,
-                            object to processing, access and rectify, suspend or
-                            withdraw my personal data, and be indemnified in case of damages pursuant to the provisions
-                            of the Republic Act No. 10173 of the Philippines,
-                            Data Privacy Act of 2012 and its corresponding Implementing Rules and Regulations.
+                            and Technology (SEI-DOST) to collect, record, organize, update or modify, retrieve,
+                            consult, use, consolidate, block, erase or destruct my personal data that I have provided
+                            in relation to my application to this scholarship. I hereby affirm my right to be informed,
+                            object to processing, access and rectify, suspend or withdraw my personal data, and be
+                            indemnified in case of damages pursuant to the provisions of the Republic Act No. 10173 of
+                            the Philippines, Data Privacy Act of 2012 and its corresponding Implementing Rules and
+                            Regulations.
                         </p>
 
-                        <div class="grid grid-cols-2 gap-6 mt-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                             <!-- Applicant Name -->
                             <div>
                                 <label class="block text-[12px] font-semibold mb-1">Applicant Name</label>
-                                <div class="p-1 border rounded bg-gray-100">
+                                <div class="p-2 border rounded bg-gray-50">
                                     {{ trim(($user->first_name ?? '') . ' ' . ($user->middle_name ?? '') . ' ' . ($user->last_name ?? '')) }}
                                 </div>
                             </div>
-
-                            <!-- Applicant Signature -->
-                            <div>
-                                <label class="block text-[12px] font-semibold mb-1">Applicant Signature</label>
-                                @if (!empty($application->applicant_signature))
-                                    <img src="{{ $application->applicant_signature }}" alt="Applicant Signature"
-                                        class="border rounded w-full h-24 object-contain">
-                                @else
-                                    <div
-                                        class="p-2 border rounded w-full h-24 flex items-center justify-center bg-gray-100 text-gray-500">
-                                        No signature uploaded
-                                    </div>
-                                @endif
+                            <!-- Terms Agreement -->
+                            <div class="mt-4 flex items-start gap-2">
+                                <input type="checkbox" class="h-4 w-4 border-gray-400 mt-0.5" disabled
+                                    {{ $application->terms_and_conditions_agreed ? 'checked' : '' }}>
+                                <span class="text-[12px]">I agree to the Terms, Conditions, and Data Privacy
+                                    Policy.</span>
                             </div>
                         </div>
-
-                        <!-- Terms Agreement -->
-                        <div class="mt-4 flex items-center gap-2">
-                            <input type="checkbox" class="h-4 w-4 border-gray-400" disabled
-                                {{ $application->terms_and_conditions_agreed ? 'checked' : '' }}>
-                            <span class="text-[12px]">I agree to the Terms, Conditions, and Data Privacy Policy.</span>
-                        </div>
-                    </div>
                 @endforeach
             @endif
-
-            <div class="mt-6">
-                <a href="{{ route('applicant.dashboard') }}" class="text-blue-600 hover:underline">
-                    ← Back to Dashboard
-                </a>
-            </div>
         </div>
     </div>
+    <script>
+        function openDocumentModal(fileUrl, title) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('documentFrame').src = fileUrl;
+            document.getElementById('downloadLink').href = fileUrl;
+            document.getElementById('documentModal').classList.remove('hidden');
+            // Prevent body scroll when modal is open
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDocumentModal() {
+            document.getElementById('documentModal').classList.add('hidden');
+            document.getElementById('documentFrame').src = '';
+            // Restore body scroll
+            document.body.style.overflow = '';
+        }
+
+        function openEditModal(documentType, title) {
+            document.getElementById('editModalTitle').textContent = 'Replace ' + title;
+            document.getElementById('documentType').value = documentType;
+            document.getElementById('editDocumentForm').action = `/applicant/application/update-document/${documentType}`;
+            document.getElementById('editModal').classList.remove('hidden');
+            // Prevent body scroll when modal is open
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+            document.getElementById('editDocumentForm').reset();
+            // Restore body scroll
+            document.body.style.overflow = '';
+        }
+
+        // Close toast notification
+        function closeToast() {
+            const toast = document.getElementById('successToast');
+            if (toast) {
+                toast.classList.remove('animate-slide-in');
+                toast.classList.add('animate-slide-out');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }
+        }
+
+        // Auto-hide toast after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const toast = document.getElementById('successToast');
+            if (toast) {
+                setTimeout(() => {
+                    closeToast();
+                }, 3000);
+            }
+        });
+
+        // Close modals when clicking outside
+        document.getElementById('documentModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDocumentModal();
+            }
+        });
+
+        document.getElementById('editModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditModal();
+            }
+        });
+
+        // Close modals with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDocumentModal();
+                closeEditModal();
+            }
+        });
+
+        // File input validation
+        document.getElementById('documentFile')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Check file type
+                if (file.type !== 'application/pdf') {
+                    alert('Please upload a PDF file only.');
+                    this.value = '';
+                    return;
+                }
+
+                // Check file size (5MB = 5 * 1024 * 1024 bytes)
+                const maxSize = 5 * 1024 * 1024;
+                if (file.size > maxSize) {
+                    alert('File size must be less than 5MB. Your file is ' + (file.size / (1024 * 1024)).toFixed(
+                        2) + 'MB');
+                    this.value = '';
+                    return;
+                }
+            }
+        });
+
+        // Form submission handling
+        document.getElementById('editDocumentForm')?.addEventListener('submit', function(e) {
+            const fileInput = document.getElementById('documentFile');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                e.preventDefault();
+                alert('Please select a file to upload.');
+                return false;
+            }
+
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML =
+                '<svg class="animate-spin h-5 w-5 mr-2 inline" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Uploading...';
+        });
+    </script>
 </x-app-layout>

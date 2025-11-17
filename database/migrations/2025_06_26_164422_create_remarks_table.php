@@ -8,11 +8,15 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('remarks', function (Blueprint $table) {
             $table->id('remark_id');
-            $table->unsignedBigInteger('evaluation_id');
-            $table->text('content');
+            $table->unsignedBigInteger('application_form_id');
+            $table->string('document_name');
+            $table->text('remark_text');
             $table->timestamps();
 
-            $table->foreign('evaluation_id')->references('evaluation_id')->on('evaluations')->onDelete('cascade');
+            $table->foreign('application_form_id')
+                  ->references('application_form_id')
+                  ->on('application_forms')
+                  ->onDelete('cascade');
         });
     }
 
