@@ -220,19 +220,6 @@
                             @endif
                         </div>
                     </div>
-
-                    <!-- Action Buttons -->
-                    <div class="flex justify-between items-center pt-6 border-t">
-                        <a href="{{ route('ched.dashboard') }}"
-                            class="text-gray-600 hover:text-gray-800 font-medium">
-                            ← Back to Dashboard
-                        </a>
-                        <a href="{{ route('ched.personal-form') }}"
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition shadow-md">
-                            Edit Information
-                        </a>
-                    </div>
-
                 </div>
             </div>
         </div>

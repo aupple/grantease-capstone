@@ -29,11 +29,11 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        $user->first_name = Str::ucfirst(strtolower($request->first_name));
+        $user->first_name = Str::title(strtolower($request->first_name));
         $user->middle_name = $request->middle_name
-            ? Str::ucfirst(strtolower($request->middle_name))
+            ? Str::title(strtolower($request->middle_name))
             : null;
-        $user->last_name = Str::ucfirst(strtolower($request->last_name));
+        $user->last_name = Str::title(strtolower($request->last_name));
         $user->email = $request->email;
 
         if ($user->isDirty('email')) {

@@ -81,7 +81,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     /**
-     * Profile Management
+     * Profile Management for verified users (CHED & DOST)
      */
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -90,6 +90,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // ✅ Admin routes - auth only (no verification required for admin)
 Route::middleware(['auth'])->group(function () {
+
     Route::prefix('admin')->name('admin.')->middleware(['role:1'])->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::get('/applications', [AdminController::class, 'viewApplications'])->name('applications');
@@ -147,8 +148,12 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/{id}', [App\Http\Controllers\ScholarMonitoringController::class, 'destroy'])->name('destroy');
         });
 
-        Route::get('/profile/edit', [AdminProfileController::class, 'edit'])->name('profile.edit');
-        Route::put('/profile/update', [AdminProfileController::class, 'update'])->name('profile.update');
+        /**
+         * Admin Profile - Separate from regular users
+         */
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 });
 
