@@ -7,6 +7,7 @@ use App\Models\ApplicationForm;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Remark;
 use Illuminate\Support\Facades\Storage;
+use App\Helpers\ActivityLogger;
 
 class ApplicationFormController extends Controller
 {
@@ -28,6 +29,9 @@ class ApplicationFormController extends Controller
      */
    public function viewMyApplication()
 {
+
+    ActivityLogger::log('VIEW_APPLICATION', 'Viewed own application');
+    
     $user = Auth::user();
 
     $applications = ApplicationForm::with(['remarks.attachments'])
@@ -231,6 +235,8 @@ foreach ($fileFields as $field) {
 // Save the application
 $application->save();
 
+ActivityLogger::log('APPLICATION_SUBMITTED', 'Application ID: ' . $application->application_form_id . ' | Program: ' . $application->program);
+
 // Redirect with success message
 return redirect()->route('dashboard')
     ->with('success', 'Application form submitted successfully.');
@@ -265,7 +271,8 @@ public function updateDocument(Request $request, $documentType)
     $application->$columnName = $path;
     $application->save();
 
-    // ✅ DELETE THE REMARK for this document
+    ActivityLogger::log('DOCUMENT_UPDATED', "Document: {$documentType} | Application ID: {$application->application_form_id}");
+
     $documentNameMap = [
         'birth_certificate' => 'Birth Certificate',
         'transcript_of_record' => 'Transcript of Record',

@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use App\Helpers\ActivityLogger; // ✅ Add this
 
 class AuthenticatedSessionController extends Controller
 {
@@ -50,6 +51,18 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        // ✅ Log logout BEFORE logging out (so we still have user info)
+        $user = Auth::user();
+        if ($user) {
+            $roleName = $user->role->role_name ?? 'Unknown';
+            $programType = $user->program_type ?? 'N/A';
+            
+            ActivityLogger::log(
+                'LOGOUT',
+                "User logged out | Role: {$roleName} | Program: {$programType}"
+            );
+        }
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

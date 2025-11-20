@@ -15,36 +15,31 @@ Route::redirect('/', '/login');
 // ✅ Handle form submission (POST)
 Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');
 
-Route::middleware(['auth'])->group(function () {
+// ✅ Routes that require BOTH auth AND verified
+Route::middleware(['auth', 'verified'])->group(function () {
     
     /**
-     * =======================
-     * CHED Scholar Routes
-     * =======================
+     * CHED Scholar Routes (role_id = 2, program_type = 'CHED')
      */
-Route::prefix('ched')->name('ched.')->group(function () {
-    // Add this dashboard route
-    Route::get('/dashboard', [ChedController::class, 'dashboard'])->name('dashboard');
-    
-    Route::get('/personal-form', [ChedController::class, 'personalForm'])->name('personal-form');
-    Route::post('/personal-form', [ChedController::class, 'storePersonalInformation'])->name('personal-form.store');
-    
-    // View page (read-only display)
-    Route::get('/personal-information', [ChedController::class, 'personalInformation'])->name('personal-information');
+    Route::prefix('ched')->name('ched.')->middleware(['role:2:CHED'])->group(function () {
+        Route::get('/dashboard', [ChedController::class, 'dashboard'])->name('dashboard');
+        
+        Route::get('/personal-form', [ChedController::class, 'personalForm'])->name('personal-form');
+        Route::post('/personal-form', [ChedController::class, 'storePersonalInformation'])->name('personal-form.store');
+        
+        Route::get('/personal-information', [ChedController::class, 'personalInformation'])->name('personal-information');
+        Route::get('/reports', [ChedController::class, 'reports'])->name('reports');
 
-    Route::get('/reports', [ChedController::class, 'reports'])->name('reports');
+        // CHED Reports
+        Route::get('/report/grade', [ChedController::class, 'generateGradeReport'])->name('report.grade');
+        Route::get('/report/enrollment', [ChedController::class, 'generateEnrollmentReport'])->name('report.enrollment');
+        Route::get('/report/eligibility', [ChedController::class, 'generateContinuingEligibilityReport'])->name('report.eligibility');
+    });
 
-    // CHED Reports
-    Route::get('/report/grade', [ChedController::class, 'generateGradeReport'])->name('report.grade');
-    Route::get('/report/enrollment', [ChedController::class, 'generateEnrollmentReport'])->name('report.enrollment');
-    Route::get('/report/eligibility', [ChedController::class, 'generateContinuingEligibilityReport'])->name('report.eligibility');
-});
     /**
-     * =======================
-     * Applicant Routes
-     * =======================
+     * DOST Applicant Routes (role_id = 2, program_type = 'DOST')
      */
-    Route::prefix('applicant')->name('applicant.')->group(function () {
+    Route::prefix('applicant')->name('applicant.')->middleware(['role:2:DOST'])->group(function () {
         Route::get('/application/{program}', [ApplicationFormController::class, 'create'])->name('application.create');
         Route::post('/applicant/application', [ApplicationFormController::class, 'store'])->name('application.store');
         Route::get('/dashboard', fn() => view('applicant.dashboard'))->name('dashboard');
@@ -52,7 +47,6 @@ Route::prefix('ched')->name('ched.')->group(function () {
         Route::get('/application/{id}/edit', [ApplicationFormController::class, 'edit'])->name('application.edit');
         Route::patch('/application/{id}', [ApplicationFormController::class, 'update'])->name('application.update');
         Route::put('/application/update-document/{documentType}', [ApplicationFormController::class, 'updateDocument'])->name('application.update-document');
-
 
         // Applicant PDF Routes
         Route::prefix('pdf')->name('pdf.')->group(function () {
@@ -68,9 +62,7 @@ Route::prefix('ched')->name('ched.')->group(function () {
     });
 
     /**
-     * =======================
      * Role-based redirect
-     * =======================
      */
     Route::get('/dashboard', function () {
         $user = auth()->user();
@@ -78,27 +70,28 @@ Route::prefix('ched')->name('ched.')->group(function () {
         if ($user->role_id == 1) {
             return redirect()->route('admin.dashboard');
         } elseif ($user->role_id == 2) {
-            // Role 2 = Applicant, check program_type
             if ($user->program_type === 'DOST') {
                 return redirect()->route('applicant.dashboard');
             } elseif ($user->program_type === 'CHED') {
-                return redirect()->route('ched.dashboard'); // Adjust route name if using the applicant group
+                return redirect()->route('ched.dashboard');
             }
         }
 
-        abort(403); // Unknown or unauthorized role
+        abort(403);
     })->name('dashboard');
 
     /**
-     * =======================
-     * Admin Routes
-     * =======================
+     * Profile Management
      */
-    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 
-        // Dashboard
+// ✅ Admin routes - auth only (no verification required for admin)
+Route::middleware(['auth'])->group(function () {
+    Route::prefix('admin')->name('admin.')->middleware(['role:1'])->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-
         Route::get('/applications', [AdminController::class, 'viewApplications'])->name('applications');
         Route::get('/applications/{id}', [AdminController::class, 'showApplication'])->name('applications.show');
         Route::post('/applications/{id}/approve', [AdminController::class, 'approveApplication'])->name('applications.approve');
@@ -106,20 +99,18 @@ Route::prefix('ched')->name('ched.')->group(function () {
         Route::post('/applications/{id}/status', [AdminController::class, 'updateStatus'])->name('applications.update-status');
         Route::post('/applications/{applicationId}/verify-document', [AdminController::class, 'verifyDocument'])->name('applications.verify-document');
         Route::post('/applications/{applicationId}/save-remark', [AdminController::class, 'saveDocumentRemark'])->name('applications.save-remark');
-        // ✅ Rejected Applications
+
         Route::prefix('rejected')->name('rejected.')->group(function () {
             Route::get('/', [AdminController::class, 'rejectedApplications'])->name('index');
             Route::get('/{id}', [AdminController::class, 'showRejected'])->name('show');
         });
 
         Route::prefix('ched-scholars')->name('ched.')->group(function () {
-        Route::get('/', [AdminController::class, 'viewChedScholars'])->name('index');
-        Route::get('/{id}', [AdminController::class, 'showChedScholar'])->name('show');
-        Route::post('/{id}/update-status', [AdminController::class, 'updateChedStatus'])->name('update-status');
-    });
+            Route::get('/', [AdminController::class, 'viewChedScholars'])->name('index');
+            Route::get('/{id}', [AdminController::class, 'showChedScholar'])->name('show');
+            Route::post('/{id}/update-status', [AdminController::class, 'updateChedStatus'])->name('update-status');
+        });
 
-
-        // Reports
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
         Route::get('/reports/pdf', [AdminController::class, 'downloadReportPdf'])->name('reports.pdf');
         Route::post('/reports/export-selected', [ReportController::class, 'exportSelected'])->name('reports.export-selected');
@@ -133,7 +124,6 @@ Route::prefix('ched')->name('ched.')->group(function () {
         Route::get('/reports/monitoring/download', [ReportController::class, 'downloadMonitoring'])->name('reports.monitoring.download');
         Route::get('/reports/monitoring/print', [ReportController::class, 'printMonitoring'])->name('reports.monitoring.print');
         
-        //Ched monitoring
         Route::get('/reports/ched-monitoring/print-personal', [ChedController::class, 'printPersonalInformation'])->name('reports.ched-monitoring.print-personal');
         Route::post('/reports/ched-monitoring/export-excel', [ChedController::class, 'exportToExcel'])->name('reports.ched-monitoring.export-excel');
         Route::post('/reports/ched-monitoring/add-to-enrollment/{id}', [ChedController::class, 'addToEnrollment'])->name('reports.ched-monitoring.add-to-enrollment');
@@ -145,11 +135,9 @@ Route::prefix('ched')->name('ched.')->group(function () {
         Route::post('/reports/ched-monitoring/add-to-continuing/{id}', [ChedController::class, 'addToContinuing'])->name('reports.ched-monitoring.add-to-continuing');
         Route::post('/reports/ched-monitoring/update-continuing/{id}', [ChedController::class, 'updateContinuingReport'])->name('reports.ched-monitoring.update-continuing');
 
-
-        // Scholars
         Route::get('/scholars', [AdminController::class, 'viewScholars'])->name('scholars');
         Route::get('/scholars/{id}', [AdminController::class, 'showScholar'])->name('scholars.show');
-        // Scholar Monitoring
+
         Route::prefix('monitoring')->name('monitoring.')->group(function () {
             Route::get('/', [App\Http\Controllers\ScholarMonitoringController::class, 'index'])->name('index');
             Route::get('/{scholar}/create', [App\Http\Controllers\ScholarMonitoringController::class, 'create'])->name('create');
@@ -159,21 +147,9 @@ Route::prefix('ched')->name('ched.')->group(function () {
             Route::delete('/{id}', [App\Http\Controllers\ScholarMonitoringController::class, 'destroy'])->name('destroy');
         });
 
-
-        // Admin Profile
         Route::get('/profile/edit', [AdminProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile/update', [AdminProfileController::class, 'update'])->name('profile.update');
     });
-
-    /**
-     * =======================
-     * Profile Management for Applicants
-     * =======================
-     */
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Breeze auth routes
 require __DIR__ . '/auth.php';

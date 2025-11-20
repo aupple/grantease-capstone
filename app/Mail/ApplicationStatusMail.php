@@ -1,23 +1,56 @@
-{{-- Pwede ni nimo usbon ang design, pero mao ni ang basic nga sulod --}}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Scholarship Application Status</title>
-</head>
-<body>
-    <p>Hello Applicant,</p>
-    <p>There has been an update on your scholarship application.</p>
-    
-    <p><strong>New Status: {{ $status }}</strong></p>
+<?php
 
-    @if ($remarks)
-        <p><strong>Remarks from Admin:</strong></p>
-        <p>{{ $remarks }}</p>
-    @endif
+namespace App\Mail;
 
-    <p>You can log in to your account for more details.</p>
-    <p>Thank you,<br>
-    {{ config('app.name') }}
-    </p>
-</body>
-</html>
+use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Queue\SerializesModels;
+
+class ApplicationStatusMail extends Mailable
+{
+    use Queueable, SerializesModels;
+
+    public $status;
+    public $remarks;
+
+    /**
+     * Create a new message instance.
+     */
+    public function __construct($status, $remarks = null)
+    {
+        $this->status = $status;
+        $this->remarks = $remarks;
+    }
+
+    /**
+     * Get the message envelope.
+     */
+    public function envelope(): Envelope
+    {
+        return new Envelope(
+            subject: 'DOST Scholarship Application Status - GrantEase',
+        );
+    }
+
+    /**
+     * Get the message content definition.
+     */
+    public function content(): Content
+    {
+        return new Content(
+            view: 'emails.application-status',
+        );
+    }
+
+    /**
+     * Get the attachments for the message.
+     *
+     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     */
+    public function attachments(): array
+    {
+        return [];
+    }
+}

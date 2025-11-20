@@ -22,17 +22,7 @@ class VerifyEmailController extends Controller
             }
         }
 
-        // Redirect based on role and program_type
-        if ($user->role_id == 1) {
-            return redirect()->route('admin.dashboard')->with('verified', 1);
-        } elseif ($user->role_id == 2) {
-            if ($user->program_type === 'CHED') {
-                return redirect()->route('ched.dashboard')->with('verified', 1);
-            } else {
-                return redirect()->route('applicant.dashboard')->with('verified', 1);
-            }
-        }
-
-        abort(403);
+        // ✅ Redirect back to verify-email page (it will detect verified status and show success)
+        return redirect()->route('verification.notice');
     }
 }

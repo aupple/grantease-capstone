@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\ChedGradeReport;
 use App\Models\ChedEnrollmentReport;
 use App\Models\ChedContinuingReport;
-
+use App\Helpers\ActivityLogger;
 
 class ChedController extends Controller
 {
@@ -82,14 +82,28 @@ public function personalInformation()
     
     public function personalForm()
     {
-        // Get existing data if user has filled it before (for editing)
+        ActivityLogger::log('VIEW_APPLICATION', 'Viewed own application');
+
         $personalInfo = auth()->user()->chedInfo;
+
+        if ($personalInfo) {
+        ActivityLogger::log(
+            'CHED_PERSONAL_FORM_VIEWED', 
+            'Viewed CHED personal information form | CHED Info ID: ' . $personalInfo->id
+        );
+    } else {
+        ActivityLogger::log(
+            'CHED_PERSONAL_FORM_VIEWED', 
+            'Viewed empty CHED personal information form (new submission)'
+        );
+    }
         
         return view('ched.personal-form', compact('personalInfo'));
     }
 
     public function storePersonalInformation(Request $request)
     {
+
         $validated = $request->validate([
             // Step 1 fields
             'academic_year' => 'required|string',
@@ -158,6 +172,12 @@ public function personalInformation()
             $user = auth()->user();
             $user->personal_info_completed = 1;
             $user->save();
+
+             $action = $personalInfo->wasRecentlyCreated ? 'CHED_PERSONAL_INFO_SUBMITTED' : 'CHED_PERSONAL_INFO_UPDATED';
+        ActivityLogger::log(
+            $action, 
+            'CHED Info ID: ' . $personalInfo->id . ' | Name: ' . $personalInfo->getFullNameAttribute() . ' | Application No: ' . $personalInfo->application_no
+        );
 
             // Redirect to VIEW page (not dashboard)
             return redirect()

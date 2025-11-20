@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use App\Helpers\ActivityLogger; // ✅ Add this
 
 class LoginRequest extends FormRequest
 {
@@ -44,12 +45,28 @@ class LoginRequest extends FormRequest
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
+            // ✅ Log failed login attempt
+            ActivityLogger::log(
+                'LOGIN_FAILED',
+                'Failed login attempt for email: ' . $this->email
+            );
+
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
             ]);
         }
 
         RateLimiter::clear($this->throttleKey());
+
+        // ✅ Log successful login
+        $user = Auth::user();
+        $roleName = $user->role->role_name ?? 'Unknown';
+        $programType = $user->program_type ?? 'N/A';
+        
+        ActivityLogger::log(
+            'LOGIN_SUCCESS',
+            "User logged in | Role: {$roleName} | Program: {$programType}"
+        );
     }
 
     /**
