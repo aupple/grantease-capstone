@@ -193,8 +193,8 @@
                         <div>
                             <label for="suffix" class="text-sm font-medium text-gray-700">Suffix</label>
                             <input type="text" name="suffix" id="suffix"
-                                value="{{ Auth::user()->suffix ?? 'N/A' }}"
-                                class="mt-1 w-full border-gray-300 rounded-md shadow-sm text-sm bg-gray-100" readonly>
+                                value="{{ old('suffix', Auth::user()->suffix) }}" placeholder="e.g., Jr., Sr., III"
+                                class="mt-1 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         </div>
                     </div>
                     <!-- 🏠 Address Section -->
@@ -241,7 +241,9 @@
                         <div>
                             <label for="zip_code" class="text-sm font-medium text-gray-700">Zip Code</label>
                             <input type="text" name="zip_code" id="zip_code"
-                                class="mt-1 w-full border-gray-300 rounded-md shadow-sm text-sm bg-gray-100" readonly>
+                                value="{{ old('zip_code', Auth::user()->zip_code) }}" placeholder="e.g., 9000"
+                                maxlength="10"
+                                class="mt-1 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         </div>
                     </div>
 

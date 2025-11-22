@@ -22,23 +22,22 @@ class AdminController extends Controller
      * Keys should match values stored in scholars.status
      */
     protected $scholarStatusMap = [
-        'qualifiers' => ['label' => 'Qualifiers', 'code' => '1'],
-        'not_availing' => ['label' => 'Not Availing', 'code' => '2'],
-        'deferred' => ['label' => 'Deferred', 'code' => '3'],
-        'graduated_on_time' => ['label' => 'Graduated on Time', 'code' => '4a'],
-        'graduated_ext' => ['label' => 'Graduated with Extension', 'code' => '4b'],
-        'on_ext_complete_fa' => ['label' => 'On Ext - Complete FA', 'code' => '5a'],
-        'on_ext_with_fa' => ['label' => 'On Ext - With FA', 'code' => '5b'],
-        'on_ext_for_monitoring' => ['label' => 'On Ext - For Monitoring', 'code' => '5c'],
-        'gs_on_track' => ['label' => 'GS - On Track', 'code' => '6a'],
-        'leave_of_absence' => ['label' => 'Leave of Absence', 'code' => '6b'],
-        'suspended' => ['label' => 'Suspended', 'code' => '6c'],
-        'no_report' => ['label' => 'No Report', 'code' => '6d'],
-        'non_compliance' => ['label' => 'Non-Compliance', 'code' => '7'],
-        'terminated' => ['label' => 'Terminated', 'code' => '8'],
-        'withdrawn' => ['label' => 'Withdrew', 'code' => '9'],
-    ];
-
+    'qualifiers' => ['label' => 'Qualifiers', 'code' => '1', 'color' => '#4CAF50'],
+    'not_availing' => ['label' => 'Not Availing', 'code' => '2', 'color' => '#FF9800'],
+    'deferred' => ['label' => 'Deferred', 'code' => '3', 'color' => '#03A9F4'],
+    'graduated_on_time' => ['label' => 'Graduated on Time', 'code' => '4a', 'color' => '#9C27B0'],
+    'graduated_ext' => ['label' => 'Graduated with Extension', 'code' => '4b', 'color' => '#F44336'],
+    'on_ext_complete_fa' => ['label' => 'On Ext - Complete FA', 'code' => '5a', 'color' => '#FFC107'],
+    'on_ext_with_fa' => ['label' => 'On Ext - With FA', 'code' => '5b', 'color' => '#00BCD4'],
+    'on_ext_for_monitoring' => ['label' => 'On Ext - For Monitoring', 'code' => '5c', 'color' => '#607D8B'],
+    'gs_on_track' => ['label' => 'GS - On Track', 'code' => '6a', 'color' => '#795548'],
+    'leave_of_absence' => ['label' => 'Leave of Absence', 'code' => '6b', 'color' => '#E91E63'],
+    'suspended' => ['label' => 'Suspended', 'code' => '6c', 'color' => '#8BC34A'],
+    'no_report' => ['label' => 'No Report', 'code' => '6d', 'color' => '#2196F3'],
+    'non_compliance' => ['label' => 'Non-Compliance', 'code' => '7', 'color' => '#CDDC39'],
+    'terminated' => ['label' => 'Terminated', 'code' => '8', 'color' => '#009688'],
+    'withdrawn' => ['label' => 'Withdrew', 'code' => '9', 'color' => '#673AB7'],
+];
     /**
      * Admin Dashboard
      */
@@ -46,11 +45,12 @@ class AdminController extends Controller
 {
     $search = $request->query('search');
 
+    // DOST Application Statistics
     $total_applicants = ApplicationForm::count();
-    $pending = ApplicationForm::where('status', 'pending')->count();
+    $pending_dost = ApplicationForm::where('status', 'pending')->count();
     $document_verification = ApplicationForm::where('status', 'document_verification')->count();
-    $approved = ApplicationForm::where('status', 'approved')->count();
-    $rejected = ApplicationForm::where('status', 'rejected')->count();
+    $approved_dost = ApplicationForm::where('status', 'approved')->count();
+    $rejected_dost = ApplicationForm::where('status', 'rejected')->count();
     
     // CHED Scholar Statistics
     $total_ched_scholars = ChedInfo::count();
@@ -58,8 +58,11 @@ class AdminController extends Controller
     $approved_ched_scholars = ChedInfo::where('status', 'approved')->count();
     $rejected_ched_scholars = ChedInfo::where('status', 'rejected')->count();
 
-    // ✅ Calculate Total Scholars (CHED + DOST approved)
-    $total_scholars = $approved_ched_scholars + $approved;
+    // ✅ COMBINED Statistics for Summary Cards (using correct variable names)
+    $total_scholars = $approved_ched_scholars + $approved_dost;
+    $pending = $pending_dost + $pending_ched_scholars;
+    $approved = $approved_dost + $approved_ched_scholars;
+    $rejected = $rejected_dost + $rejected_ched_scholars;
 
     // Get DOST applications
     $recent_applicants = ApplicationForm::with('user')
@@ -92,15 +95,20 @@ class AdminController extends Controller
         ->merge($recent_ched_scholars)
         ->sortByDesc('created_at')
         ->take(10)
-        ->values(); // Reset array keys
+        ->values();
 
+    // ✅ Get scholar statuses from database (snake_case format)
     $rawStatuses = Scholar::select('status', DB::raw('count(*) as total'))
         ->groupBy('status')
         ->pluck('total', 'status');
 
+    // ✅ Map database statuses to display labels with counts
     $scholarStatuses = collect($this->scholarStatusMap)->mapWithKeys(function ($info, $key) use ($rawStatuses) {
         return [$info['label'] => $rawStatuses[$key] ?? 0];
     });
+
+    // ✅ Extract colors in the same order as labels for the pie chart
+    $scholarColors = collect($this->scholarStatusMap)->pluck('color')->values();
 
     return view('admin.dashboard', compact(
         'total_applicants',
@@ -110,6 +118,7 @@ class AdminController extends Controller
         'rejected',
         'combined_recent',
         'scholarStatuses',
+        'scholarColors',
         'search',
         'total_ched_scholars',
         'pending_ched_scholars',
@@ -355,7 +364,6 @@ class AdminController extends Controller
                 'status' => 'qualifiers',
                 'start_date' => now(),
                 'end_date' => null,
-                // ✅ NEW: Preserve verified documents
                 'verified_documents' => $application->verified_documents,
             ]
         );
@@ -366,8 +374,10 @@ class AdminController extends Controller
     // Send email only to DOST applicants
     if ($application->user->program_type === 'DOST') {
         try {
+            $applicantName = $application->user->first_name . ' ' . $application->user->last_name;
+            
             Mail::to($application->user->email)->send(
-                new ApplicationStatusMail($request->status, $request->remarks)
+                new ApplicationStatusMail($request->status, $applicantName, 'DOST', $request->remarks)
             );
         } catch (\Throwable $e) {
             \Log::error('Email send failed: ' . $e->getMessage());
@@ -491,7 +501,8 @@ class AdminController extends Controller
         $dostScholars = \App\Models\Scholar::with(['user', 'applicationForm'])
             ->whereHas('applicationForm', function ($q) use ($semester) {
                 $q->where('program', 'DOST');
-                if ($semester && $semester !== 'all') {
+                // DOST uses "First" and "Second"
+                if ($semester !== 'all') {
                     $q->where('school_term', $semester);
                 }
             })
@@ -511,44 +522,62 @@ class AdminController extends Controller
         $combinedScholars = $combinedScholars->merge($dostScholars);
     }
 
+    // Get CHED scholars
     if ($program === 'CHED' || $program === 'all') {
-    $chedScholars = \App\Models\ChedInfo::with('user')
-        ->where('status', 'approved')
-        ->when($semester !== 'all', function ($query) use ($semester) {
-            $query->where('school_term', $semester);
-        })
-        ->when($search, function ($query, $search) {
-            $query->whereHas('user', function ($userQuery) use ($search) {
-                $firstLetter = substr($search, 0, 1);
-                $userQuery->where('first_name', 'like', "{$firstLetter}%")
-                    ->orWhere('last_name', 'like', "{$firstLetter}%");
+        // Convert semester format for CHED (CHED uses "1st Semester", "2nd Semester")
+        $chedSemester = $semester;
+        if ($semester === 'First Semester') {
+            $chedSemester = '1st Semester';
+        } elseif ($semester === 'Second Semester') {
+            $chedSemester = '2nd Semester';
+        }
+        
+        $chedScholars = \App\Models\ChedInfo::with('user')
+            ->where('status', 'approved')
+            // Filter by converted semester value
+            ->when($semester !== 'all', function ($query) use ($chedSemester) {
+                $query->where('school_term', $chedSemester);
+            })
+            ->when($search, function ($query, $search) {
+                $query->whereHas('user', function ($userQuery) use ($search) {
+                    $firstLetter = substr($search, 0, 1);
+                    $userQuery->where('first_name', 'like', "{$firstLetter}%")
+                        ->orWhere('last_name', 'like', "{$firstLetter}%");
+                });
+            })
+            ->latest()
+            ->get()
+            ->map(function ($chedInfo) {
+                // Create a scholar-like object
+                $scholar = new \stdClass();
+                $scholar->id = $chedInfo->id;
+                $scholar->user = $chedInfo->user;
+                $scholar->status = $chedInfo->status;
+                $scholar->updated_at = $chedInfo->updated_at;
+                $scholar->program_type = 'CHED';
+                
+                // Convert CHED semester format to match DOST format
+                $displaySemester = $chedInfo->school_term ?? 'N/A';
+                if ($displaySemester === '1st Semester') {
+                    $displaySemester = 'First Semester';
+                } elseif ($displaySemester === '2nd Semester') {
+                    $displaySemester = 'Second Semester';
+                }
+                
+                // Create applicationForm object with CHED data
+                $scholar->applicationForm = new \stdClass();
+                $scholar->applicationForm->program = 'CHED';
+                $scholar->applicationForm->scholarship_type = 'CHED Scholar';
+                $scholar->applicationForm->school_term = $displaySemester;
+                $scholar->applicationForm->school = $chedInfo->school ?? 'N/A';
+                $scholar->applicationForm->year_level = $chedInfo->year_level ?? 'N/A';
+                $scholar->applicationForm->bs_university = 'N/A';  // For DOST compatibility
+                
+                return $scholar;
             });
-        })
-        ->latest()
-        ->get()
-        ->map(function ($chedInfo) {
-            // Create a scholar-like object
-            $scholar = new \stdClass();
-            $scholar->id = $chedInfo->id;
-            $scholar->user = $chedInfo->user;
-            $scholar->status = $chedInfo->status;
-            $scholar->updated_at = $chedInfo->updated_at;
-            $scholar->program_type = 'CHED';
-            
-            // Create applicationForm object with CHED data
-            $scholar->applicationForm = new \stdClass();
-            $scholar->applicationForm->program = 'CHED';
-            $scholar->applicationForm->scholarship_type = 'CHED Scholar';
-            $scholar->applicationForm->school_term = $chedInfo->school_term ?? 'N/A';
-            $scholar->applicationForm->school = $chedInfo->school ?? 'N/A';              // ✅ Add this
-            $scholar->applicationForm->year_level = $chedInfo->year_level ?? 'N/A';      // ✅ Add thi             // ✅ Add this (bonus)
-            $scholar->applicationForm->bs_university = 'N/A';  // For DOST compatibility
-            
-            return $scholar;
-        });
-    
-    $combinedScholars = $combinedScholars->merge($chedScholars);
-}
+        
+        $combinedScholars = $combinedScholars->merge($chedScholars);
+    }
 
     // Sort by updated_at
     $combinedScholars = $combinedScholars->sortByDesc(function($scholar) {
@@ -733,6 +762,45 @@ public function saveDocumentRemark(Request $request, $applicationId)
         'document' => $documentLabel,
         'remark' => $remarkText,
     ]);
+}
+
+public function updateScholarStatus(Request $request, $id)
+{
+    try {
+        $validStatuses = array_keys($this->scholarStatusMap);
+        
+        $request->validate([
+            'status' => [
+                'required',
+                'string',
+                'in:' . implode(',', $validStatuses)
+            ]
+        ]);
+
+        $scholar = Scholar::findOrFail($id);
+        $oldStatus = $scholar->status;
+        $oldLabel = $this->scholarStatusMap[$oldStatus]['label'] ?? $oldStatus;
+        $newLabel = $this->scholarStatusMap[$request->status]['label'];
+        
+        $scholar->status = $request->status;
+        $scholar->save();
+
+        \Log::info("Scholar #{$id} status updated", [
+            'old_status' => $oldStatus,
+            'new_status' => $request->status,
+            'updated_by' => auth()->id()
+        ]);
+
+        return redirect()->back()->with('success', "Scholar status successfully updated from '{$oldLabel}' to '{$newLabel}'!");
+        
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return redirect()->back()->with('error', 'Invalid status selected. Please choose a valid status from the list.');
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return redirect()->route('admin.scholars')->with('error', 'Scholar not found.');
+    } catch (\Exception $e) {
+        \Log::error('Failed to update scholar status: ' . $e->getMessage());
+        return redirect()->back()->with('error', 'Failed to update scholar status. Please try again.');
+    }
 }
 
 }

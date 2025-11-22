@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <style>
+    <   tyle>
         body {
             font-family: Arial, sans-serif;
             line-height: 1.6;
@@ -30,7 +30,7 @@
             font-size: 24px;
             font-weight: bold;
 
-            @if (in_array(strtolower($status), ['approved', 'confirmed']))
+            @if (in_array(strtolower($status), ['approved', 'confirmed', 'document_verified']))
                 color: #10b981;
             @elseif(strtolower($status) === 'rejected')
                 color: #ef4444;
@@ -51,7 +51,8 @@
             display: inline-block;
             padding: 12px 24px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            color: white !important;
+            /* Added !important to ensure it stays white */
             text-decoration: none;
             border-radius: 6px;
             margin: 20px 0;
@@ -85,6 +86,8 @@
             Status:
             @if ($programType === 'CHED' && strtolower($status) === 'approved')
                 Confirmed
+            @elseif(strtolower($status) === 'document_verification')
+                Document Verified
             @else
                 {{ ucfirst($status) }}
             @endif

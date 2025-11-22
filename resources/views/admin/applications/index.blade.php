@@ -4,7 +4,7 @@
     <div class="mb-6 space-y-6">
         <h1 class="text-3xl font-bold text-gray-800 mb-4">DOST Applicants</h1>
 
-        <!-- 🔍 Search Only -->
+        <!-- 🔍 Filters -->
         <form method="GET" action="{{ route('admin.applications') }}"
             class="flex flex-wrap gap-4 items-center bg-gray-150/80 backdrop-blur-xl border border-gray-100 shadow-md rounded-xl px-4 py-3">
 
@@ -16,10 +16,38 @@
                     class="ml-2 px-3 py-2 border border-white/30 rounded-md bg-white/30 backdrop-blur-md text-sm w-full max-w-md focus:ring-2 focus:ring-blue-400 focus:outline-none placeholder:text-gray-500">
             </div>
 
+            <!-- Academic Year Filter -->
+            <div>
+                <label for="academic_year" class="text-sm font-semibold text-gray-700">Academic Year:</label>
+                <select name="academic_year" id="academic_year"
+                    class="ml-2 px-3 py-2 pr-10 border border-white/30 rounded-md text-sm bg-white/30 backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <option value="all" {{ request('academic_year') == 'all' ? 'selected' : '' }}>All</option>
+                    <option value="2024-2025" {{ request('academic_year') == '2024-2025' ? 'selected' : '' }}>2024-2025
+                    </option>
+                    <option value="2025-2026" {{ request('academic_year') == '2025-2026' ? 'selected' : '' }}>2025-2026
+                    </option>
+                    <option value="2026-2027" {{ request('academic_year') == '2026-2027' ? 'selected' : '' }}>2026-2027
+                    </option>
+                </select>
+            </div>
+
+            <!-- Semester Filter -->
+            <div>
+                <label for="semester" class="text-sm font-semibold text-gray-700">Semester:</label>
+                <select name="semester" id="semester"
+                    class="ml-2 px-3 py-2 pr-10 border border-white/30 rounded-md text-sm bg-white/30 backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <option value="all" {{ request('semester') == 'all' ? 'selected' : '' }}>All</option>
+                    <option value="First Semester" {{ request('semester') == 'First Semester' ? 'selected' : '' }}>1st
+                        Semester</option>
+                    <option value="Second Semester" {{ request('semester') == 'Second Semester' ? 'selected' : '' }}>2nd
+                        Semester</option>
+                </select>
+            </div>
+
             <!-- Apply Button -->
             <button type="submit"
                 class="bg-blue-900 backdrop-blur-md text-white px-4 py-2 text-sm rounded-md shadow-md hover:bg-blue-600/80 transition font-semibold">
-                Search
+                Apply
             </button>
         </form>
 
@@ -33,6 +61,8 @@
                         <th class="p-3 text-left font-semibold">Applicant Name</th>
                         <th class="p-3 text-left font-semibold">Email</th>
                         <th class="p-3 text-left font-semibold">Program</th>
+                        <th class="p-3 text-left font-semibold">Academic Year</th>
+                        <th class="p-3 text-left font-semibold">Semester</th>
                         <th class="p-3 text-left font-semibold">Status</th>
                         <th class="p-3 text-left font-semibold">Applied At</th>
                         <th class="p-3 text-left font-semibold">Action</th>
@@ -83,6 +113,22 @@
                                 </div>
                             </td>
 
+                            <!-- Academic Year -->
+                            <td class="p-1">
+                                <div
+                                    class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
+                                    {{ $application->academic_year ?? 'N/A' }}
+                                </div>
+                            </td>
+
+                            <!-- Semester -->
+                            <td class="p-1">
+                                <div
+                                    class="bg-white/10 backdrop-blur-md rounded-lg border border-white/10 px-3 py-2 shadow-sm">
+                                    {{ $application->school_term ?? 'N/A' }}
+                                </div>
+                            </td>
+
                             <!-- Status -->
                             <td class="p-1">
                                 <div
@@ -123,7 +169,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="p-4 text-center text-gray-500">No applications yet.</td>
+                            <td colspan="9" class="p-4 text-center text-gray-500">No applications yet.</td>
                         </tr>
                     @endforelse
                 </tbody>

@@ -33,8 +33,8 @@
                 <select name="semester" id="semester"
                     class="ml-2 px-3 py-2 pr-10 border border-white/30 rounded-md text-sm bg-white/30 backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-blue-400">
                     <option value="all" {{ $semester == 'all' ? 'selected' : '' }}>All</option>
-                    <option value="First" {{ $semester == 'First' ? 'selected' : '' }}>1st Semester</option>
-                    <option value="Second" {{ $semester == 'Second' ? 'selected' : '' }}>2nd Semester</option>
+                    <option value="First Semester" {{ $semester == 'First' ? 'selected' : '' }}>1st Semester</option>
+                    <option value="Second Semester" {{ $semester == 'Second' ? 'selected' : '' }}>2nd Semester</option>
                 </select>
             </div>
 
@@ -119,43 +119,73 @@
                             </td>
 
                             <!-- Scholar Status -->
-                           @php
-    $status = $scholar->status ?? 'N/A';
-    $statusLower = strtolower($status);
-    $badgeClass = ''; // For Tailwind background and border
-    $textColor = 'text-gray-700'; // For Tailwind text color
-    $displayStatus = ucfirst(str_replace('_', ' ', $status)); // Para nindot tan-awon ang text
+                            @php
+                                $status = $scholar->status ?? 'N/A';
+                                $statusLower = strtolower($status);
+                                $badgeClass = ''; // For Tailwind background and border
+                                $textColor = 'text-gray-700'; // For Tailwind text color
+                                $displayStatus = ucfirst(str_replace('_', ' ', $status)); // Para nindot tan-awon ang text
 
-    // --- COLOR MAPPING LOGIC ---
+                                // --- COLOR MAPPING LOGIC ---
 
-    // GREEN: Approved, Qualifiers, Graduated, On Track
-    if (in_array($statusLower, ['qualifiers', 'approved', 'graduated_on_time', 'graduated_ext', 'gs_on_track'])) {
-        $badgeClass = 'bg-green-500/30 border-green-500'; 
-        $textColor = 'text-green-800';
-    } 
-    // YELLOW/ORANGE: Pending, For Review, Monitoring, Leave
-    elseif (in_array($statusLower, ['pending', 'document_verification', 'for_interview', 'on_ext_for_monitoring', 'on_ext_complete_fa', 'on_ext_with_fa', 'leave_of_absence'])) {
-        $badgeClass = 'bg-yellow-500/30 border-yellow-500'; 
-        $textColor = 'text-yellow-800';
-    } 
-    // RED: Rejected, Terminated, Non-Compliant, Withdrawn
-    elseif (in_array($statusLower, ['rejected', 'not_availing', 'suspended', 'no_report', 'non_compliance', 'terminated', 'withdrawn'])) {
-        $badgeClass = 'bg-red-500/30 border-red-500'; 
-        $textColor = 'text-red-700';
-    } 
-    // DEFAULT/INFO: Deferred
-    else {
-        $badgeClass = 'bg-blue-500/30 border-blue-500';
-        $textColor = 'text-blue-700';
-    }
-@endphp
+                                // GREEN: Approved, Qualifiers, Graduated, On Track
+                                if (
+                                    in_array($statusLower, [
+                                        'qualifiers',
+                                        'approved',
+                                        'graduated_on_time',
+                                        'graduated_ext',
+                                        'gs_on_track',
+                                    ])
+                                ) {
+                                    $badgeClass = 'bg-green-500/30 border-green-500';
+                                    $textColor = 'text-green-800';
+                                }
+                                // YELLOW/ORANGE: Pending, For Review, Monitoring, Leave
+                                elseif (
+                                    in_array($statusLower, [
+                                        'pending',
+                                        'document_verification',
+                                        'for_interview',
+                                        'on_ext_for_monitoring',
+                                        'on_ext_complete_fa',
+                                        'on_ext_with_fa',
+                                        'leave_of_absence',
+                                    ])
+                                ) {
+                                    $badgeClass = 'bg-yellow-500/30 border-yellow-500';
+                                    $textColor = 'text-yellow-800';
+                                }
+                                // RED: Rejected, Terminated, Non-Compliant, Withdrawn
+                                elseif (
+                                    in_array($statusLower, [
+                                        'rejected',
+                                        'not_availing',
+                                        'suspended',
+                                        'no_report',
+                                        'non_compliance',
+                                        'terminated',
+                                        'withdrawn',
+                                    ])
+                                ) {
+                                    $badgeClass = 'bg-red-500/30 border-red-500';
+                                    $textColor = 'text-red-700';
+                                }
+                                // DEFAULT/INFO: Deferred
+                                else {
+                                    $badgeClass = 'bg-blue-500/30 border-blue-500';
+                                    $textColor = 'text-blue-700';
+                                }
+                            @endphp
 
-<td class="p-4">
-    <span
-        class="px-3 py-1 rounded-full text-xs font-semibold shadow-sm backdrop-blur-sm border {{ $badgeClass }} {{ $textColor }}">
-        {{ $displayStatus }}
-    </span>
-</td>
+                            <td class="p-4">
+                                <div class="inline-flex items-center">
+                                    <span
+                                        class="px-4 py-1.5 rounded-full text-xs font-semibold shadow-sm backdrop-blur-sm border whitespace-nowrap {{ $badgeClass }} {{ $textColor }}">
+                                        {{ $displayStatus }}
+                                    </span>
+                                </div>
+                            </td>
 
 
                             <!-- Approved At -->

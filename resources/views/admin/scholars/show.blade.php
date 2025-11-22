@@ -1,6 +1,44 @@
 @extends('layouts.admin-layout')
 
 @section('content')
+    {{-- Success/Error Messages --}}
+    @if (session('success'))
+        <div
+            class="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded-md shadow-sm flex justify-between items-center">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clip-rule="evenodd" />
+                </svg>
+                <span class="font-semibold">{{ session('success') }}</span>
+            </div>
+            <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div
+            class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-md shadow-sm flex justify-between items-center">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clip-rule="evenodd" />
+                </svg>
+                <span class="font-semibold">{{ session('error') }}</span>
+            </div>
+            <button onclick="this.parentElement.remove()" class="text-red-700 hover:text-red-900">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    @endif
     @php
         if (!function_exists('formatValue')) {
             function formatValue($value)
@@ -648,34 +686,122 @@
             <!-- End of Documents -->
 
             <!-- Application Info -->
-            <div class="bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6">
-                <h3 class="text-lg font-bold mb-3">Application Info</h3>
-                <div class="mb-3 flex items-center gap-3">
-                    <strong class="text-sm">Status:</strong>
-                    <span
-                        class="px-3 py-1 rounded-full text-sm font-bold
-                @if ($scholar->applicationForm->status === 'approved') bg-green-100 text-green-800
-                @elseif ($scholar->applicationForm->status === 'rejected') bg-red-100 text-red-800
-                @elseif ($scholar->applicationForm->status === 'pending') bg-yellow-100 text-yellow-800
-                @elseif ($scholar->applicationForm->status === 'document_verification') bg-purple-100 text-purple-800
-                @elseif ($scholar->applicationForm->status === 'for_interview') bg-blue-100 text-blue-800
-                @else bg-gray-100 text-gray-800 @endif">
-                        {{ ucfirst(str_replace('_', ' ', $scholar->applicationForm->status)) }}
-                    </span>
+            <div class="bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-5">
+                <h3 class="text-base font-bold mb-4 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Application Info
+                </h3>
+
+                <!-- Application Status (read-only) -->
+                <div class="mb-4 p-3 bg-white/40 rounded-lg border border-white/30">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-gray-700">Application Status</span>
+                        <span
+                            class="px-3 py-1 rounded-full text-xs font-bold
+                @if ($scholar->applicationForm->status === 'approved') bg-green-100 text-green-800 border border-green-300
+                @elseif ($scholar->applicationForm->status === 'rejected') bg-red-100 text-red-800 border border-red-300
+                @elseif ($scholar->applicationForm->status === 'pending') bg-yellow-100 text-yellow-800 border border-yellow-300
+                @elseif ($scholar->applicationForm->status === 'document_verification') bg-purple-100 text-purple-800 border border-purple-300
+                @elseif ($scholar->applicationForm->status === 'for_interview') bg-blue-100 text-blue-800 border border-blue-300
+                @else bg-gray-100 text-gray-800 border border-gray-300 @endif">
+                            {{ ucfirst(str_replace('_', ' ', $scholar->applicationForm->status)) }}
+                        </span>
+                    </div>
                 </div>
 
-                <form
-                    action="{{ route('admin.applications.update-status', $scholar->applicationForm->application_form_id) }}"
-                    method="POST" class="flex items-center gap-2">
-                    @csrf
-                    <strong class="text-sm">Remarks:</strong>
-                    <input type="text" name="remarks" class="text-xs border px-3 py-1 rounded w-64"
-                        placeholder="Type your message here..." value="{{ $scholar->applicationForm->remarks }}">
-                    <button type="submit"
-                        class="text-xs text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded transition">Send</button>
-                </form>
+                <!-- Scholar Status Management -->
+                <div class="p-3 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 rounded-lg border border-blue-200/50">
+                    <label for="scholarStatus" class="text-xs font-semibold text-gray-700 mb-2 block">
+                        Manage Scholar Status
+                    </label>
+
+                    <form action="{{ route('admin.scholars.update-status', $scholar->id) }}" method="POST"
+                        id="statusForm">
+                        @csrf
+                        @method('PATCH')
+
+                        @php
+                            $statusMap = [
+                                'qualifiers' => 'Qualifiers',
+                                'not_availing' => 'Not Availing',
+                                'deferred' => 'Deferred',
+                                'graduated_on_time' => 'Graduated on Time',
+                                'graduated_ext' => 'Graduated with Extension',
+                                'on_ext_complete_fa' => 'On Ext - Complete FA',
+                                'on_ext_with_fa' => 'On Ext - With FA',
+                                'on_ext_for_monitoring' => 'On Ext - For Monitoring',
+                                'gs_on_track' => 'GS - On Track',
+                                'leave_of_absence' => 'Leave of Absence',
+                                'suspended' => 'Suspended',
+                                'no_report' => 'No Report',
+                                'non_compliance' => 'Non-Compliance',
+                                'terminated' => 'Terminated',
+                                'withdrawn' => 'Withdrew',
+                            ];
+                            $currentStatusLabel = $statusMap[$scholar->status] ?? $scholar->status;
+                        @endphp
+
+                        <!-- Current Status Badge -->
+                        <div class="mb-2 flex items-center gap-2 text-xs text-gray-600">
+                            <span>Current:</span>
+                            <span
+                                class="px-2 py-0.5 rounded-full font-semibold bg-blue-100 text-blue-800 border border-blue-300">
+                                {{ $currentStatusLabel }}
+                            </span>
+                        </div>
+
+                        <select name="status" id="scholarStatus"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs font-medium bg-white shadow-sm mb-2">
+                            <option value="qualifiers" {{ $scholar->status === 'qualifiers' ? 'selected' : '' }}>
+                                Qualifiers</option>
+                            <option value="not_availing" {{ $scholar->status === 'not_availing' ? 'selected' : '' }}>Not
+                                Availing</option>
+                            <option value="deferred" {{ $scholar->status === 'deferred' ? 'selected' : '' }}>Deferred
+                            </option>
+                            <option value="graduated_on_time"
+                                {{ $scholar->status === 'graduated_on_time' ? 'selected' : '' }}>Graduated on Time</option>
+                            <option value="graduated_ext" {{ $scholar->status === 'graduated_ext' ? 'selected' : '' }}>
+                                Graduated with Extension</option>
+                            <option value="on_ext_complete_fa"
+                                {{ $scholar->status === 'on_ext_complete_fa' ? 'selected' : '' }}>On Ext - Complete FA
+                            </option>
+                            <option value="on_ext_with_fa" {{ $scholar->status === 'on_ext_with_fa' ? 'selected' : '' }}>
+                                On Ext - With FA</option>
+                            <option value="on_ext_for_monitoring"
+                                {{ $scholar->status === 'on_ext_for_monitoring' ? 'selected' : '' }}>On Ext - For
+                                Monitoring</option>
+                            <option value="gs_on_track" {{ $scholar->status === 'gs_on_track' ? 'selected' : '' }}>GS - On
+                                Track</option>
+                            <option value="leave_of_absence"
+                                {{ $scholar->status === 'leave_of_absence' ? 'selected' : '' }}>Leave of Absence</option>
+                            <option value="suspended" {{ $scholar->status === 'suspended' ? 'selected' : '' }}>Suspended
+                            </option>
+                            <option value="no_report" {{ $scholar->status === 'no_report' ? 'selected' : '' }}>No Report
+                            </option>
+                            <option value="non_compliance" {{ $scholar->status === 'non_compliance' ? 'selected' : '' }}>
+                                Non-Compliance</option>
+                            <option value="terminated" {{ $scholar->status === 'terminated' ? 'selected' : '' }}>
+                                Terminated</option>
+                            <option value="withdrawn" {{ $scholar->status === 'withdrawn' ? 'selected' : '' }}>Withdrew
+                            </option>
+                        </select>
+
+                        <button type="submit"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center gap-2">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                            Update Status
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
+    </div>
     </div>
     </div>
 @endsection

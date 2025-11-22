@@ -100,7 +100,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/applications/{id}/status', [AdminController::class, 'updateStatus'])->name('applications.update-status');
         Route::post('/applications/{applicationId}/verify-document', [AdminController::class, 'verifyDocument'])->name('applications.verify-document');
         Route::post('/applications/{applicationId}/save-remark', [AdminController::class, 'saveDocumentRemark'])->name('applications.save-remark');
-
+        Route::patch('/scholars/{id}/update-status', [AdminController::class, 'updateScholarStatus'])->name('scholars.update-status');
+        
         Route::prefix('rejected')->name('rejected.')->group(function () {
             Route::get('/', [AdminController::class, 'rejectedApplications'])->name('index');
             Route::get('/{id}', [AdminController::class, 'showRejected'])->name('show');

@@ -702,16 +702,6 @@
                         {{ $application->status === 'document_verified' ? 'Document verified' : ucfirst(str_replace('_', ' ', $application->status)) }}
                     </span>
                 </div>
-
-                <form action="{{ route('admin.applications.update-status', $application->application_form_id) }}"
-                    method="POST" class="flex items-center gap-2">
-                    @csrf
-                    <strong class="text-sm">Remarks:</strong>
-                    <input type="text" name="remarks" class="text-xs border px-3 py-1 rounded w-64"
-                        placeholder="Type your message here..." value="{{ $application->remarks }}">
-                    <button type="submit"
-                        class="text-xs text-white bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded transition">Send</button>
-                </form>
             </div>
         </div>
     </div>

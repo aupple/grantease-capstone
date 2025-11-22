@@ -82,10 +82,12 @@
                     <select name="academic_year"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">All</option>
-                        @foreach (['2025-2026'] as $year)
-                            <option value="{{ $year }}" {{ $academicYear == $year ? 'selected' : '' }}>
-                                {{ $year }}</option>
-                        @endforeach
+                        <option value="2024-2025" {{ request('academic_year') == '2024-2025' ? 'selected' : '' }}>2024-2025
+                        </option>
+                        <option value="2025-2026" {{ request('academic_year') == '2025-2026' ? 'selected' : '' }}>2025-2026
+                        </option>
+                        <option value="2026-2027" {{ request('academic_year') == '2026-2027' ? 'selected' : '' }}>2026-2027
+                        </option>
                     </select>
                 </div>
 
@@ -95,19 +97,17 @@
                     <select name="school_term"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">All</option>
-                        @foreach (['First', 'Second'] as $term)
-                            <option value="{{ $term }}" {{ $schoolTerm == $term ? 'selected' : '' }}>
-                                {{ $term }} Semester / Term
-                            </option>
-                        @endforeach
+                        <option value="First Semester" {{ request('school_term') == 'First Semester' ? 'selected' : '' }}>
+                            1st Semester</option>
+                        <option value="Second Semester" {{ request('school_term') == 'Second Semester' ? 'selected' : '' }}>
+                            2nd Semester</option>
                     </select>
                 </div>
-
 
                 <!-- Buttons -->
                 <div class="flex items-end gap-2">
                     <button type="submit"
-                        class=" bg-blue-600 font-medium text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow-md">
+                        class="bg-blue-600 font-medium text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow-md">
                         Filter
                     </button>
                     <button id="printBtn" type="button"
@@ -158,8 +158,8 @@
             'remarks' => 'Remarks',
         ] as $col => $label)
                     <label class="flex items-center text-sm text-gray-800">
-                        <input type="checkbox" class="col-toggle rounded text-blue-600 focus:ring-blue-500" data-col="{{ $col }}"
-                            checked>
+                        <input type="checkbox" class="col-toggle rounded text-blue-600 focus:ring-blue-500"
+                            data-col="{{ $col }}" checked>
                         {{ $label }}
                     </label>
                 @endforeach

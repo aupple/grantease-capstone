@@ -99,25 +99,38 @@
         <!-- Filters & Actions Card -->
         <div class="bg-white/30 backdrop-blur-lg shadow-md border border-white/20 rounded-2xl p-6">
             <form id="filtersForm" method="GET" action="{{ route('admin.reports.monitoring') }}"
-                class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                class="grid grid-cols-1 sm:grid-cols-4 gap-6">
+
+                <!-- Academic Year filter -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Academic Year</label>
+                    <select name="academic_year"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All</option>
+                        <option value="2024-2025" {{ request('academic_year') == '2024-2025' ? 'selected' : '' }}>2024-2025
+                        </option>
+                        <option value="2025-2026" {{ request('academic_year') == '2025-2026' ? 'selected' : '' }}>2025-2026
+                        </option>
+                        <option value="2026-2027" {{ request('academic_year') == '2026-2027' ? 'selected' : '' }}>2026-2027
+                        </option>
+                    </select>
+                </div>
 
                 <!-- Semester filter -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Semester</label>
                     <select name="semester"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="" {{ request('semester') == '' ? 'selected' : '' }}>All Semesters</option>
-                        <option value="First Semester" {{ request('semester') == 'First' ? 'selected' : '' }}>First
-                            Semester
-                        </option>
-                        <option value="Second Semester" {{ request('semester') == 'Second' ? 'selected' : '' }}>Second
-                            Semester
-                        </option>
+                        <option value="" {{ request('semester') == '' ? 'selected' : '' }}>All</option>
+                        <option value="First Semester" {{ request('semester') == 'First Semester' ? 'selected' : '' }}>1st
+                            Semester</option>
+                        <option value="Second Semester" {{ request('semester') == 'Second Semester' ? 'selected' : '' }}>2nd
+                            Semester</option>
                     </select>
                 </div>
 
                 <!-- Buttons -->
-                <div class="flex items-end gap-2">
+                <div class="flex items-end gap-2 col-span-2">
                     <button type="submit"
                         class="bg-blue-600 font-medium text-white text-sm px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition">
                         Filter
@@ -325,7 +338,8 @@
 
                                 <!-- Editable fields -->
                                 <td data-col="course" class="px-2 py-2 border">
-                                    <span class="display-text" data-field="course">{{ $monitoring?->course ?? '' }}</span>
+                                    <span class="display-text"
+                                        data-field="course">{{ $monitoring?->course ?? '' }}</span>
                                     <input type="text" class="edit-input hidden border px-1 py-1 w-full"
                                         value="{{ $monitoring?->course ?? '' }}" data-field="course"
                                         data-monitoring-id="{{ $monitoring?->id }}"

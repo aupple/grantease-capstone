@@ -47,7 +47,7 @@
                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
-                <p class="text-sm text-yellow-900 font-semibold mb-1">Pending Applicants</p>
+                <p class="text-sm text-yellow-900 font-semibold mb-1">Pending</p>
                 <p class="text-3xl font-bold text-yellow-800">{{ $pending }}</p>
             </div>
         </div>

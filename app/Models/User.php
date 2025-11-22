@@ -17,12 +17,14 @@ class User extends Authenticatable implements MustVerifyEmail
         'first_name',
         'middle_name',
         'last_name',
+        'suffix',
         'email',
         'password',
         'program_type',
         'role_id',
-        'personal_info_completed', // ← Add this
-    ];
+        'personal_info_completed',
+        'zip_code',
+    ];  // ✅ ADD THIS CLOSING BRACKET - This was missing!
 
     protected $hidden = [
         'password',
@@ -32,7 +34,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
-        'personal_info_completed' => 'boolean', // ← Add this
+        'personal_info_completed' => 'boolean',
     ];
 
     // Accessor for full name

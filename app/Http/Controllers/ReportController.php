@@ -158,11 +158,8 @@ class ReportController extends Controller
         }
 
         if ($schoolTerm) {
-            $query->where(function ($q) use ($schoolTerm) {
-                $q->where('school_term', $schoolTerm)
-                    ->orWhere('school_term', 'LIKE', "%{$schoolTerm}%");
-            });
-        }
+    $query->where('school_term', $schoolTerm);
+}
 
         // Retrieve applicants (sorted alphabetically)
         $applicants = $query->orderBy('last_name')->get();
@@ -179,21 +176,28 @@ class ReportController extends Controller
 
 
     public function monitoring(Request $request)
-    {
-        $semester = $request->input('semester');
+{
+    $semester = $request->input('semester');
+    $academicYear = $request->input('academic_year');
 
-        $scholars = Scholar::with('applicationForm')
-            ->whereHas('applicationForm', function ($q) use ($semester) {
-                $q->where('status', 'approved');
+    $scholars = Scholar::with('applicationForm')
+        ->whereHas('applicationForm', function ($q) use ($semester, $academicYear) {
+            $q->where('status', 'approved');
 
-                if (!empty($semester)) {
-                    $q->where('school_term', $semester);
-                }
-            })
-            ->get();
+            // Filter by semester
+            if (!empty($semester)) {
+                $q->where('school_term', $semester);
+            }
 
-        return view('admin.reports.monitoring', compact('scholars'));
-    }
+            // Filter by academic year
+            if (!empty($academicYear)) {
+                $q->where('academic_year', $academicYear);
+            }
+        })
+        ->get();
+
+    return view('admin.reports.monitoring', compact('scholars', 'semester', 'academicYear'));
+}
 
 
     public function showMonitoring()

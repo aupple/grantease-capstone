@@ -84,10 +84,10 @@
                                 class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                                 <option value="" {{ request('semester') == '' ? 'selected' : '' }}>All Semesters
                                 </option>
-                                <option value="1st" {{ request('semester') == '1st' ? 'selected' : '' }}>1st Semester
-                                </option>
-                                <option value="2nd" {{ request('semester') == '2nd' ? 'selected' : '' }}>2nd Semester
-                                </option>
+                                <option value="1st Semester" {{ request('semester') == '1st Semester' ? 'selected' : '' }}>
+                                    1st Semester</option>
+                                <option value="2nd Semester" {{ request('semester') == '2nd Semester' ? 'selected' : '' }}>
+                                    2nd Semester</option>
                             </select>
                         </div>
 
@@ -98,13 +98,12 @@
                                 class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                                 <option value="" {{ request('academic_year') == '' ? 'selected' : '' }}>All Years
                                 </option>
-
-                                @foreach (range(date('Y'), date('Y') - 10) as $year)
-                                    <option value="{{ $year }}-{{ $year + 1 }}"
-                                        {{ request('academic_year') == $year . '-' . ($year + 1) ? 'selected' : '' }}>
-                                        {{ $year }}-{{ $year + 1 }}
-                                    </option>
-                                @endforeach
+                                <option value="2024-2025" {{ request('academic_year') == '2024-2025' ? 'selected' : '' }}>
+                                    2024-2025</option>
+                                <option value="2025-2026" {{ request('academic_year') == '2025-2026' ? 'selected' : '' }}>
+                                    2025-2026</option>
+                                <option value="2026-2027" {{ request('academic_year') == '2026-2027' ? 'selected' : '' }}>
+                                    2026-2027</option>
                             </select>
                         </div>
 

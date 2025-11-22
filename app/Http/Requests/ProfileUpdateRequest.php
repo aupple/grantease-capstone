@@ -19,6 +19,7 @@ class ProfileUpdateRequest extends FormRequest
         'first_name' => ['required', 'string', 'max:255'],
         'middle_name' => ['nullable', 'string', 'max:255'],
         'last_name' => ['required', 'string', 'max:255'],
+        'suffix' => ['nullable', 'string', 'max:50'],
         'email' => [
             'required',
             'string',
@@ -27,6 +28,7 @@ class ProfileUpdateRequest extends FormRequest
             'max:255',
             Rule::unique('users', 'email')->ignore($this->user()->user_id, 'user_id'),
         ],
+        'zip_code' => ['nullable', 'string', 'max:20'],
     ];
 }
 
