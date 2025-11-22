@@ -29,7 +29,14 @@
         .status {
             font-size: 24px;
             font-weight: bold;
-            color: {{ $status === 'approved' ? '#10b981' : ($status === 'rejected' ? '#ef4444' : '#3b82f6') }};
+
+            @if (in_array(strtolower($status), ['approved', 'confirmed']))
+                color: #10b981;
+            @elseif(strtolower($status) === 'rejected')
+                color: #ef4444;
+            @else
+                color: #3b82f6;
+            @endif
             margin: 20px 0;
         }
 
@@ -66,30 +73,52 @@
     </div>
 
     <div class="content">
-        <p>Hello {{ $applicantName ?? 'Applicant' }},</p>
+        <p>Hello {{ $applicantName ?? 'Scholar' }},</p>
 
-        <p>We are writing to inform you about an update on your {{ $programType ?? 'scholarship' }} application.</p>
+        @if ($programType === 'CHED')
+            <p>We are writing to inform you about an update on your CHED scholar registration in our system.</p>
+        @else
+            <p>We are writing to inform you about an update on your {{ $programType ?? 'scholarship' }} application.</p>
+        @endif
 
         <div class="status">
-            Status: {{ ucfirst($status) }}
+            Status:
+            @if ($programType === 'CHED' && strtolower($status) === 'approved')
+                Confirmed
+            @else
+                {{ ucfirst($status) }}
+            @endif
         </div>
 
-        @if ($remarks ?? false)
+        @if ($remarks)
             <div class="remarks">
                 <strong>Remarks:</strong>
                 <p>{{ $remarks }}</p>
             </div>
         @endif
 
-        <p>You can log in to your account to view more details about your application.</p>
+        @if ($programType === 'CHED')
+            <p>You can log in to your CHED scholar dashboard to view your profile and submit required information.</p>
+        @else
+            <p>You can log in to your account to view more details about your application.</p>
+        @endif
 
         @php
             // Set dashboard URL based on program type
-            $dashboardUrl = ($programType ?? 'DOST') === 'CHED' ? url('/ched/dashboard') : url('/dashboard');
+            $dashboardUrl =
+                $programType === 'CHED'
+                    ? url('/ched/dashboard') // CHED scholars dashboard
+                    : url('/applicant/dashboard'); // DOST applicants dashboard
         @endphp
 
         <center>
-            <a href="{{ $dashboardUrl }}" class="button">View Dashboard</a>
+            <a href="{{ $dashboardUrl }}" class="button">
+                @if ($programType === 'CHED')
+                    View Scholar Dashboard
+                @else
+                    View Dashboard
+                @endif
+            </a>
         </center>
 
         <div class="footer">

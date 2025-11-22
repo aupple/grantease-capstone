@@ -8,7 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
-use App\Helpers\ActivityLogger; // ✅ Add this
+use App\Helpers\ActivityLogger;
 
 class AuthenticatedSessionController extends Controller
 {

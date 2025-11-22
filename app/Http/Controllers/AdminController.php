@@ -284,21 +284,26 @@ class AdminController extends Controller
     // Send email only to DOST applicants
     if ($application->user->program_type === 'DOST') {
         try {
+            $applicantName = $application->user->first_name . ' ' . $application->user->last_name;
+            $remarks = 'Congratulations! Your DOST scholarship application has been approved.';
+            
             Mail::to($application->user->email)->send(
-                new ApplicationStatusMail('approved', 'Congratulations! Your DOST scholarship application has been approved.')
+                new ApplicationStatusMail('approved', $applicantName, 'DOST', $remarks)
             );
+            
+            \Log::info('DOST Approval email sent to: ' . $application->user->email);
         } catch (\Throwable $e) {
             \Log::error('Email send failed: ' . $e->getMessage());
         }
     }
 
-    return redirect()->route('admin.applications')->with('success', 'Application approved.');
+    return redirect()->route('admin.applications')->with('success', 'Application approved and email notification sent.');
 }
 
     /**
      * Reject application
      */
-    public function rejectApplication(Request $request, $id)
+   public function rejectApplication(Request $request, $id)
 {
     $request->validate([
         'remarks' => 'required|string'
@@ -312,15 +317,19 @@ class AdminController extends Controller
     // Send email only to DOST applicants
     if ($application->user->program_type === 'DOST') {
         try {
+            $applicantName = $application->user->first_name . ' ' . $application->user->last_name;
+            
             Mail::to($application->user->email)->send(
-                new ApplicationStatusMail('rejected', $request->remarks)
+                new ApplicationStatusMail('rejected', $applicantName, 'DOST', $request->remarks)
             );
+            
+            \Log::info('DOST Rejection email sent to: ' . $application->user->email);
         } catch (\Throwable $e) {
             \Log::error('Email send failed: ' . $e->getMessage());
         }
     }
 
-    return redirect()->route('admin.applications')->with('success', 'Application rejected.');
+    return redirect()->route('admin.applications')->with('success', 'Application rejected and email notification sent.');
 }
 
     public function updateStatus(Request $request, $id)
@@ -650,24 +659,40 @@ public function updateChedStatus(Request $request, $id)
     ]);
     
     $chedInfo = \App\Models\ChedInfo::with('user')->findOrFail($id);
+    $oldStatus = $chedInfo->status; // Track old status
+    
     $chedInfo->status = $request->status;
     $chedInfo->updated_at = now();
     $chedInfo->save();
     
-    // Send email to CHED applicants
-    if ($chedInfo->user && $chedInfo->user->program_type === 'CHED') {
+    // Send email to CHED applicants (only if status changed and not pending)
+    if ($chedInfo->user && 
+        $chedInfo->user->program_type === 'CHED' && 
+        $oldStatus !== $request->status &&
+        in_array($request->status, ['approved', 'rejected'])) {
+        
         try {
-            $remarks = $request->remarks ?? null;
+            $applicantName = $chedInfo->user->first_name . ' ' . $chedInfo->user->last_name;
             
+            // Set default messages if no remarks provided
             if ($request->status === 'approved') {
-                $remarks = $remarks ?? 'Congratulations! Your CHED scholarship application has been approved.';
+                $remarks = $request->remarks ?? 'Congratulations! Your CHED scholarship application has been approved.';
             } elseif ($request->status === 'rejected') {
-                $remarks = $remarks ?? 'Unfortunately, your CHED scholarship application has been rejected.';
+                $remarks = $request->remarks ?? 'Unfortunately, your CHED scholarship application has been rejected. Please review the remarks for more details.';
+            } else {
+                $remarks = $request->remarks;
             }
             
             Mail::to($chedInfo->user->email)->send(
-                new ApplicationStatusMail($request->status, $remarks)
+                new ApplicationStatusMail($request->status, $applicantName, 'CHED', $remarks)
             );
+            
+            \Log::info('CHED Status email sent', [
+                'email' => $chedInfo->user->email,
+                'status' => $request->status,
+                'applicant' => $applicantName
+            ]);
+            
         } catch (\Throwable $e) {
             \Log::error('CHED Email send failed: ' . $e->getMessage());
         }
@@ -676,13 +701,14 @@ public function updateChedStatus(Request $request, $id)
     // Debug: Log the update
     \Log::info('CHED Status Updated', [
         'id' => $id,
+        'old_status' => $oldStatus,
         'new_status' => $request->status,
         'saved' => $chedInfo->wasChanged()
     ]);
     
     return redirect()
         ->back()
-        ->with('success', 'Status updated to: ' . ucfirst($request->status));
+        ->with('success', 'Status updated to: ' . ucfirst($request->status) . '. Email notification sent to applicant.');
 }
 
 public function saveDocumentRemark(Request $request, $applicationId)

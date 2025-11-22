@@ -14,13 +14,17 @@ class ApplicationStatusMail extends Mailable
 
     public $status;
     public $remarks;
+    public $applicantName;
+    public $programType;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($status, $remarks = null)
+    public function __construct($status, $applicantName, $programType = 'DOST', $remarks = null)
     {
         $this->status = $status;
+        $this->applicantName = $applicantName;
+        $this->programType = $programType;
         $this->remarks = $remarks;
     }
 
@@ -30,7 +34,7 @@ class ApplicationStatusMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'DOST Scholarship Application Status - GrantEase',
+            subject: $this->programType . ' Scholarship Application Status - GrantEase',
         );
     }
 
