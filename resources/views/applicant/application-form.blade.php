@@ -465,20 +465,20 @@
                                 <span class="text-sm text-gray-700 font-semibold">Scholarship (if applicable)</span>
                                 <div class="mt-2 flex flex-wrap gap-2">
                                     <label class="inline-flex items-center text-sm text-gray-700"><input
-                                            type="checkbox" name="bs_scholarship_type[]" value="PSHS"
+                                            type="checkbox" name="ms_scholarship_type[]" value="PSHS"
                                             class="form-checkbox text-blue-600 mr-2">PSHS</label>
                                     <label class="inline-flex items-center text-sm text-gray-700"><input
-                                            type="checkbox" name="bs_scholarship_type[]" value="RA 7687"
+                                            type="checkbox" name="ms_scholarship_type[]" value="RA 7687"
                                             class="form-checkbox text-blue-600 mr-2">RA 7687</label>
                                     <label class="inline-flex items-center text-sm text-gray-700"><input
-                                            type="checkbox" name="bs_scholarship_type[]" value="MERIT"
+                                            type="checkbox" name="ms_scholarship_type[]" value="MERIT"
                                             class="form-checkbox text-blue-600 mr-2">MERIT</label>
                                     <label class="inline-flex items-center text-sm text-gray-700"><input
-                                            type="checkbox" name="bs_scholarship_type[]" value="RA 10612"
+                                            type="checkbox" name="ms_scholarship_type[]" value="RA 10612"
                                             class="form-checkbox text-blue-600 mr-2">RA 10612</label>
                                     <label class="inline-flex items-center text-sm text-gray-700 mt-1">
                                         Others:
-                                        <input type="text" name="bs_scholarship_others"
+                                        <input type="text" name="ms_scholarship_others"
                                             class="ml-2 w-32 border-gray-300 rounded-md shadow-sm sm:text-sm focus:ring-1 focus:ring-blue-400">
                                     </label>
                                 </div>
@@ -522,20 +522,20 @@
                                 <span class="text-sm text-gray-700 font-semibold">Scholarship (if applicable)</span>
                                 <div class="mt-2 flex flex-wrap gap-2">
                                     <label class="inline-flex items-center text-sm text-gray-700"><input
-                                            type="checkbox" name="bs_scholarship_type[]" value="PSHS"
+                                            type="checkbox" name="phd_scholarship_type[]" value="PSHS"
                                             class="form-checkbox text-blue-600 mr-2">PSHS</label>
                                     <label class="inline-flex items-center text-sm text-gray-700"><input
-                                            type="checkbox" name="bs_scholarship_type[]" value="RA 7687"
+                                            type="checkbox" name="phd_scholarship_type[]" value="RA 7687"
                                             class="form-checkbox text-blue-600 mr-2">RA 7687</label>
                                     <label class="inline-flex items-center text-sm text-gray-700"><input
-                                            type="checkbox" name="bs_scholarship_type[]" value="MERIT"
+                                            type="checkbox" name="phd_scholarship_type[]" value="MERIT"
                                             class="form-checkbox text-blue-600 mr-2">MERIT</label>
                                     <label class="inline-flex items-center text-sm text-gray-700"><input
-                                            type="checkbox" name="bs_scholarship_type[]" value="RA 10612"
+                                            type="checkbox" name="phd_scholarship_type[]" value="RA 10612"
                                             class="form-checkbox text-blue-600 mr-2">RA 10612</label>
                                     <label class="inline-flex items-center text-sm text-gray-700 mt-1">
                                         Others:
-                                        <input type="text" name="bs_scholarship_others"
+                                        <input type="text" name="phd_scholarship_others"
                                             class="ml-2 w-32 border-gray-300 rounded-md shadow-sm sm:text-sm focus:ring-1 focus:ring-blue-400">
                                     </label>
                                 </div>
@@ -923,6 +923,7 @@
                             onclick="validateAndNext(5)">Next: R&D / Pubs / Awards</button>
                     </div>
                 </div>
+                
                 <!-- Step 6: Research, Publications, Awards -->
                 <div class="step bg-white p-8 rounded-2xl shadow-md hidden" id="step6">
                     <!-- V. Research and Development Involvement -->
@@ -1292,6 +1293,7 @@
                         </div>
                     </div>
                 </div>
+                
                 <script>
 document.addEventListener('DOMContentLoaded', function() {
     currentStep = 1;
@@ -1304,11 +1306,10 @@ document.addEventListener('DOMContentLoaded', function() {
     attachAgeCalculation();
     attachAcademicYear();
     attachSignaturePad();
-    attachDegreeButtons();
     attachLiveValidation();
     attachApplicantTypeToggle();
     autoFillSignatureAndDate();
-    attachLocationSelectors(); // Province/City/Barangay auto-fill
+    attachLocationSelectors();
 });
 
 // --- Step Navigation ---
@@ -1381,10 +1382,10 @@ function validateCurrentStep(step) {
     return isValid;
 }
 
-function validateAndNext() {
-    if (validateCurrentStep(currentStep)) {
-        document.getElementById(`step${currentStep}`).classList.add('hidden');
-        currentStep++;
+function validateAndNext(step) {
+    if (validateCurrentStep(step)) {
+        document.getElementById(`step${step}`).classList.add('hidden');
+        currentStep = step + 1;
         document.getElementById(`step${currentStep}`).classList.remove('hidden');
         updateStepIndicator();
     }
@@ -1430,6 +1431,38 @@ function updateStepIndicator() {
             label.classList.add('text-gray-500');
         }
     });
+}
+
+// --- Show/Hide Degree Sections ---
+function showDegree(sectionId, button) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.classList.remove('hidden');
+        button.disabled = true;
+        button.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+}
+
+function hideDegree(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.classList.add('hidden');
+        
+        // Re-enable the corresponding button
+        const buttons = document.querySelectorAll('#degree-buttons button');
+        buttons.forEach(btn => {
+            if (btn.getAttribute('onclick')?.includes(sectionId)) {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        });
+        
+        // Clear inputs in the section
+        section.querySelectorAll('input, select, textarea').forEach(input => {
+            input.value = '';
+            input.required = false;
+        });
+    }
 }
 
 // --- Auto Academic Year ---
@@ -1507,11 +1540,15 @@ function attachEmploymentStatusListeners() {
 
             employedFields.querySelectorAll('input').forEach(el => el.required = false);
             selfEmployedFields.querySelectorAll('input').forEach(el => el.required = false);
+            
+            // Clear employed-required attribute
+            document.querySelectorAll('.employed-required').forEach(el => el.required = false);
 
             if (['Permanent', 'Contractual', 'Probationary'].includes(this.value)) {
                 employedFields.classList.remove('hidden');
                 employedUploadSection.classList.remove('hidden');
                 employedFields.querySelectorAll('input').forEach(el => el.required = true);
+                document.querySelectorAll('.employed-required').forEach(el => el.required = true);
             }
 
             if (this.value === 'Self-employed') {
@@ -1588,31 +1625,33 @@ function attachDynamicFieldListeners() {
         rdCount++;
         const container = document.getElementById('rd_involvement_container');
         const newItem = document.createElement('div');
-        newItem.classList.add('rd_involvement_item', 'grid', 'grid-cols-1', 'md:grid-cols-4', 'gap-4', 'border', 'p-3', 'rounded-md');
+        newItem.classList.add('rd_involvement_item', 'bg-gray-50', 'border', 'border-gray-200', 'rounded-xl', 'p-6', 'shadow-sm');
         newItem.innerHTML = `
-            <div>
-                <label for="rd_field_title_${rdCount}" class="block text-sm font-medium text-gray-700">
-                    FIELD AND TITLE OF RESEARCH <span class="text-red-500">*</span>
-                </label>
-                <input type="text" name="rd_involvement[${rdCount-1}][field_title]" id="rd_field_title_${rdCount}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-            </div>
-            <div>
-                <label for="rd_location_duration_${rdCount}" class="block text-sm font-medium text-gray-700">
-                    LOCATION/DURATION <span class="text-red-500">*</span>
-                </label>
-                <input type="text" name="rd_involvement[${rdCount-1}][location_duration]" id="rd_location_duration_${rdCount}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-            </div>
-            <div>
-                <label for="rd_fund_source_${rdCount}" class="block text-sm font-medium text-gray-700">
-                    FUND SOURCE
-                </label>
-                <input type="text" name="rd_involvement[${rdCount-1}][fund_source]" id="rd_fund_source_${rdCount}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-            </div>
-            <div>
-                <label for="rd_nature_of_involvement_${rdCount}" class="block text-sm font-medium text-gray-700">
-                    NATURE OF INVOLVEMENT
-                </label>
-                <input type="text" name="rd_involvement[${rdCount-1}][nature_of_involvement]" id="rd_nature_of_involvement_${rdCount}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
+                <div class="flex flex-col justify-between">
+                    <label for="rd_field_title_${rdCount}" class="block text-sm font-medium text-gray-700 h-[40px] flex items-end">
+                        Field & Title of Research <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="rd_involvement[${rdCount-1}][field_title]" id="rd_field_title_${rdCount}" class="mt-2 w-full border border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div class="flex flex-col justify-between">
+                    <label for="rd_location_duration_${rdCount}" class="block text-sm font-medium text-gray-700 h-[40px] flex items-end">
+                        Location / Duration <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="rd_involvement[${rdCount-1}][location_duration]" id="rd_location_duration_${rdCount}" class="mt-2 w-full border border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div class="flex flex-col justify-between">
+                    <label for="rd_fund_source_${rdCount}" class="block text-sm font-medium text-gray-700 h-[40px] flex items-end">
+                        Fund Source
+                    </label>
+                    <input type="text" name="rd_involvement[${rdCount-1}][fund_source]" id="rd_fund_source_${rdCount}" class="mt-2 w-full border border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex flex-col justify-between">
+                    <label for="rd_nature_of_involvement_${rdCount}" class="block text-sm font-medium text-gray-700 h-[40px] flex items-end">
+                        Nature of Involvement
+                    </label>
+                    <input type="text" name="rd_involvement[${rdCount-1}][nature_of_involvement]" id="rd_nature_of_involvement_${rdCount}" class="mt-2 w-full border border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
             </div>
         `;
         container.appendChild(newItem);
@@ -1624,25 +1663,27 @@ function attachDynamicFieldListeners() {
         pubCount++;
         const container = document.getElementById('publications_container');
         const newItem = document.createElement('div');
-        newItem.classList.add('publication_item', 'grid', 'grid-cols-1', 'md:grid-cols-3', 'gap-4', 'border', 'p-3', 'rounded-md');
+        newItem.classList.add('publication_item', 'bg-gray-50', 'border', 'border-gray-200', 'rounded-xl', 'p-6', 'shadow-sm');
         newItem.innerHTML = `
-            <div>
-                <label for="pub_title_${pubCount}" class="block text-sm font-medium text-gray-700">
-                    TITLE OF ARTICLE <span class="text-red-500">*</span>
-                </label>
-                <input type="text" name="publications[${pubCount-1}][title]" id="pub_title_${pubCount}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-            </div>
-            <div>
-                <label for="pub_name_year_${pubCount}" class="block text-sm font-medium text-gray-700">
-                    NAME / YEAR OF PUBLICATION
-                </label>
-                <input type="text" name="publications[${pubCount-1}][name_year]" id="pub_name_year_${pubCount}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-            </div>
-            <div>
-                <label for="pub_nature_of_involvement_${pubCount}" class="block text-sm font-medium text-gray-700">
-                    NATURE OF INVOLVEMENT
-                </label>
-                <input type="text" name="publications[${pubCount-1}][nature_of_involvement]" id="pub_nature_of_involvement_${pubCount}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label for="pub_title_${pubCount}" class="block text-sm font-medium text-gray-700">
+                        Title of Article <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="publications[${pubCount-1}][title]" id="pub_title_${pubCount}" class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div>
+                    <label for="pub_name_year_${pubCount}" class="block text-sm font-medium text-gray-700">
+                        Name / Year of Publication
+                    </label>
+                    <input type="text" name="publications[${pubCount-1}][name_year]" id="pub_name_year_${pubCount}" class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="pub_nature_of_involvement_${pubCount}" class="block text-sm font-medium text-gray-700">
+                        Nature of Involvement
+                    </label>
+                    <input type="text" name="publications[${pubCount-1}][nature_of_involvement]" id="pub_nature_of_involvement_${pubCount}" class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
             </div>
         `;
         container.appendChild(newItem);
@@ -1654,25 +1695,27 @@ function attachDynamicFieldListeners() {
         awardCount++;
         const container = document.getElementById('awards_container');
         const newItem = document.createElement('div');
-        newItem.classList.add('award_item', 'grid', 'grid-cols-1', 'md:grid-cols-3', 'gap-4', 'border', 'p-3', 'rounded-md');
+        newItem.classList.add('award_item', 'bg-gray-50', 'border', 'border-gray-200', 'rounded-xl', 'p-6', 'shadow-sm');
         newItem.innerHTML = `
-            <div>
-                <label for="award_title_${awardCount}" class="block text-sm font-medium text-gray-700">
-                    TITLE OF AWARD <span class="text-red-500">*</span>
-                </label>
-                <input type="text" name="awards[${awardCount-1}][title]" id="award_title_${awardCount}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm" required>
-            </div>
-            <div>
-                <label for="award_giving_body_${awardCount}" class="block text-sm font-medium text-gray-700">
-                    AWARD GIVING BODY
-                </label>
-                <input type="text" name="awards[${awardCount-1}][giving_body]" id="award_giving_body_${awardCount}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-            </div>
-            <div>
-                <label for="award_year_${awardCount}" class="block text-sm font-medium text-gray-700">
-                    YEAR OF AWARD
-                </label>
-                <input type="text" name="awards[${awardCount-1}][year]" id="award_year_${awardCount}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label for="award_title_${awardCount}" class="block text-sm font-medium text-gray-700">
+                        Title of Award <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="awards[${awardCount-1}][title]" id="award_title_${awardCount}" class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div>
+                    <label for="award_giving_body_${awardCount}" class="block text-sm font-medium text-gray-700">
+                        Award Giving Body
+                    </label>
+                    <input type="text" name="awards[${awardCount-1}][giving_body]" id="award_giving_body_${awardCount}" class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="award_year_${awardCount}" class="block text-sm font-medium text-gray-700">
+                        Year of Award
+                    </label>
+                    <input type="text" name="awards[${awardCount-1}][year]" id="award_year_${awardCount}" class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
             </div>
         `;
         container.appendChild(newItem);
@@ -1712,157 +1755,122 @@ function attachSignaturePad() {
     });
 }
 
-// --- Degree Buttons ---
-function attachDegreeButtons() {
-    const addDegreeBtn = document.getElementById('add_degree');
-    const container = document.getElementById('degree_container');
-    let degreeCount = container?.children.length || 0;
+// --- Location Selectors ---
+function attachLocationSelectors() {
+    const provinceSelect = document.getElementById('province_select');
+    const citySelect = document.getElementById('city_select');
+    const barangaySelect = document.getElementById('barangay_select');
+    const regionInput = document.getElementById('region_select');
+    const zipInput = document.getElementById('zip_code');
 
-    addDegreeBtn?.addEventListener('click', () => {
-        degreeCount++;
-        const newDegree = document.createElement('div');
-        newDegree.classList.add('degree_item', 'grid', 'grid-cols-1', 'md:grid-cols-4', 'gap-4', 'border', 'p-3', 'rounded-md');
-        newDegree.innerHTML = `
-            <div><input type="text" name="degrees[${degreeCount-1}][school]" placeholder="School Name" required></div>
-            <div><input type="text" name="degrees[${degreeCount-1}][degree]" placeholder="Degree" required></div>
-            <div><input type="text" name="degrees[${degreeCount-1}][year]" placeholder="Year Graduated" required></div>
-            <div><button type="button" class="remove-degree-btn">Remove</button></div>
-        `;
-        container.appendChild(newDegree);
+    // Fallback ZIPs by Region
+    const regionZipFallback = {
+        "010000000": "2900",
+        "020000000": "3500",
+        "030000000": "2000",
+        "040000000": "4000",
+        "050000000": "4400",
+        "060000000": "5000",
+        "070000000": "6000",
+        "080000000": "6500",
+        "090000000": "7000",
+        "100000000": "9000",
+        "110000000": "8000",
+        "120000000": "9600",
+        "130000000": "1000",
+        "140000000": "2600",
+        "150000000": "9700",
+        "160000000": "8600",
+        "170000000": "5200"
+    };
 
-        newDegree.querySelector('.remove-degree-btn').addEventListener('click', () => newDegree.remove());
+    // Automatically set Region & ZIP
+    async function setLocation(level, code) {
+        try {
+            if (level === "provinces") {
+                const prov = await fetch(`https://psgc.gitlab.io/api/provinces/${code}/`).then(r => r.json());
+                const region = await fetch(`https://psgc.gitlab.io/api/regions/${prov.regionCode}/`).then(r => r.json());
+
+                regionInput.value = region.name;
+                regionInput.dataset.code = region.code;
+                zipInput.value = prov.zipcode || regionZipFallback[region.code] || "";
+            }
+
+            if (level === "cities-municipalities") {
+                const city = await fetch(`https://psgc.gitlab.io/api/cities-municipalities/${code}/`).then(r => r.json());
+                const prov = await fetch(`https://psgc.gitlab.io/api/provinces/${city.provinceCode}/`).then(r => r.json());
+                const region = await fetch(`https://psgc.gitlab.io/api/regions/${prov.regionCode}/`).then(r => r.json());
+
+                regionInput.value = region.name;
+                regionInput.dataset.code = region.code;
+                zipInput.value = city.zipcode || prov.zipcode || regionZipFallback[region.code] || "";
+            }
+
+            if (level === "barangays") {
+                const brgy = await fetch(`https://psgc.gitlab.io/api/barangays/${code}/`).then(r => r.json());
+                const cityCode = brgy.cityCode || brgy.municipalityCode;
+                if (!cityCode) {
+                    console.warn("Barangay has no city/municipality code:", brgy);
+                    return;
+                }
+
+                const city = await fetch(`https://psgc.gitlab.io/api/cities-municipalities/${cityCode}/`).then(r => r.json());
+                const prov = await fetch(`https://psgc.gitlab.io/api/provinces/${city.provinceCode}/`).then(r => r.json());
+                const region = await fetch(`https://psgc.gitlab.io/api/regions/${prov.regionCode}/`).then(r => r.json());
+
+                regionInput.value = region.name || "Unknown Region";
+                regionInput.dataset.code = region.code || "";
+                zipInput.value = brgy.zipcode || city.zipcode || prov.zipcode || regionZipFallback[region.code] || "";
+            }
+        } catch (err) {
+            console.error("Error setting location:", err);
+        }
+    }
+
+    // Load all provinces
+    fetch('https://psgc.gitlab.io/api/provinces/')
+        .then(res => res.json())
+        .then(data => data.forEach(p => provinceSelect.add(new Option(p.name, p.code))))
+        .catch(err => console.error('Error loading provinces:', err));
+
+    // Province → City / Municipality
+    provinceSelect.addEventListener('change', function() {
+        const provCode = this.value;
+        citySelect.innerHTML = '<option value="">Select City / Municipality</option>';
+        barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+        if (!provCode) return;
+
+        fetch(`https://psgc.gitlab.io/api/provinces/${provCode}/cities-municipalities/`)
+            .then(res => res.json())
+            .then(data => data.forEach(c => citySelect.add(new Option(c.name, c.code))))
+            .catch(err => console.error('Error loading cities:', err));
+
+        setLocation("provinces", provCode);
+    });
+
+    // City → Auto-fill Region + Load Barangays
+    citySelect.addEventListener('change', function() {
+        const cityCode = this.value;
+        barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+        if (!cityCode) return;
+
+        setLocation("cities-municipalities", cityCode);
+
+        fetch(`https://psgc.gitlab.io/api/cities-municipalities/${cityCode}/barangays/`)
+            .then(res => res.json())
+            .then(data => data.forEach(b => barangaySelect.add(new Option(b.name, b.code))))
+            .catch(err => console.error('Error loading barangays:', err));
+    });
+
+    // Barangay → Finalize ZIP & Region
+    barangaySelect.addEventListener('change', function() {
+        const brgyCode = this.value;
+        if (!brgyCode) return;
+        setLocation("barangays", brgyCode);
     });
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-                        const provinceSelect = document.getElementById('province_select');
-                        const citySelect = document.getElementById('city_select');
-                        const barangaySelect = document.getElementById('barangay_select');
-                        const regionInput = document.getElementById('region_select'); // readonly
-                        const zipInput = document.getElementById('zip_code');
-
-                        // 🔹 Fallback ZIPs by Region
-                        const regionZipFallback = {
-                            "010000000": "2900",
-                            "020000000": "3500",
-                            "030000000": "2000",
-                            "040000000": "4000",
-                            "050000000": "4400",
-                            "060000000": "5000",
-                            "070000000": "6000",
-                            "080000000": "6500",
-                            "090000000": "7000",
-                            "100000000": "9000",
-                            "110000000": "8000",
-                            "120000000": "9600",
-                            "130000000": "1000",
-                            "140000000": "2600",
-                            "150000000": "9700",
-                            "160000000": "8600",
-                            "170000000": "5200"
-                        };
-
-                        // 🔹 Automatically set Region & ZIP
-                        async function setLocation(level, code) {
-                            try {
-                                if (level === "provinces") {
-                                    const prov = await fetch(`https://psgc.gitlab.io/api/provinces/${code}/`).then(r => r
-                                        .json());
-                                    const region = await fetch(`https://psgc.gitlab.io/api/regions/${prov.regionCode}/`)
-                                        .then(r => r.json());
-
-                                    regionInput.value = region.name;
-                                    regionInput.dataset.code = region.code;
-                                    zipInput.value = prov.zipcode || regionZipFallback[region.code] || "";
-                                }
-
-                                if (level === "cities-municipalities") {
-                                    const city = await fetch(`https://psgc.gitlab.io/api/cities-municipalities/${code}/`)
-                                        .then(r => r.json());
-                                    const prov = await fetch(`https://psgc.gitlab.io/api/provinces/${city.provinceCode}/`)
-                                        .then(r => r.json());
-                                    const region = await fetch(`https://psgc.gitlab.io/api/regions/${prov.regionCode}/`)
-                                        .then(r => r.json());
-
-                                    // ✅ Auto-fill Region and ZIP
-                                    regionInput.value = region.name;
-                                    regionInput.dataset.code = region.code;
-                                    zipInput.value = city.zipcode || prov.zipcode || regionZipFallback[region.code] || "";
-                                }
-
-                                if (level === "barangays") {
-                                    const brgy = await fetch(`https://psgc.gitlab.io/api/barangays/${code}/`).then(r => r
-                                        .json());
-
-                                    // ✅ Some barangays use "municipalityCode" instead of "cityCode"
-                                    const cityCode = brgy.cityCode || brgy.municipalityCode;
-                                    if (!cityCode) {
-                                        console.warn("Barangay has no city/municipality code:", brgy);
-                                        return;
-                                    }
-
-                                    const city = await fetch(
-                                        `https://psgc.gitlab.io/api/cities-municipalities/${cityCode}/`).then(r => r
-                                        .json());
-                                    const prov = await fetch(`https://psgc.gitlab.io/api/provinces/${city.provinceCode}/`)
-                                        .then(r => r.json());
-                                    const region = await fetch(`https://psgc.gitlab.io/api/regions/${prov.regionCode}/`)
-                                        .then(r => r.json());
-
-                                    // ✅ Always populate Region safely
-                                    regionInput.value = region.name || "Unknown Region";
-                                    regionInput.dataset.code = region.code || "";
-                                    zipInput.value = brgy.zipcode || city.zipcode || prov.zipcode || regionZipFallback[
-                                        region.code] || "";
-                                }
-                            } catch (err) {
-                                console.error("Error setting location:", err);
-                            }
-                        }
-
-                        // 🔹 Load all provinces
-                        fetch('https://psgc.gitlab.io/api/provinces/')
-                            .then(res => res.json())
-                            .then(data => data.forEach(p => provinceSelect.add(new Option(p.name, p.code))))
-                            .catch(err => console.error('Error loading provinces:', err));
-
-                        // 🔹 Province → City / Municipality
-                        provinceSelect.addEventListener('change', function() {
-                            const provCode = this.value;
-                            citySelect.innerHTML = '<option value="">Select City / Municipality</option>';
-                            barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
-                            if (!provCode) return;
-
-                            fetch(`https://psgc.gitlab.io/api/provinces/${provCode}/cities-municipalities/`)
-                                .then(res => res.json())
-                                .then(data => data.forEach(c => citySelect.add(new Option(c.name, c.code))))
-                                .catch(err => console.error('Error loading cities:', err));
-
-                            setLocation("provinces", provCode);
-                        });
-
-                        // 🔹 City → Auto-fill Region + Load Barangays
-                        citySelect.addEventListener('change', function() {
-                            const cityCode = this.value;
-                            barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
-                            if (!cityCode) return;
-
-                            // ✅ Auto-fill Region and ZIP
-                            setLocation("cities-municipalities", cityCode);
-
-                            fetch(`https://psgc.gitlab.io/api/cities-municipalities/${cityCode}/barangays/`)
-                                .then(res => res.json())
-                                .then(data => data.forEach(b => barangaySelect.add(new Option(b.name, b.code))))
-                                .catch(err => console.error('Error loading barangays:', err));
-                        });
-
-                        // 🔹 Barangay → Finalize ZIP & Region
-                        barangaySelect.addEventListener('change', function() {
-                            const brgyCode = this.value;
-                            if (!brgyCode) return;
-                            setLocation("barangays", brgyCode);
-                        });
-                    });
                 </script>
             </form>
+        </div>
+    </div>
 </x-app-layout>
