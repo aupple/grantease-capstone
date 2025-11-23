@@ -690,17 +690,31 @@
             <!-- Application Info -->
             <div class="bg-white/30 backdrop-blur-md border border-white/20 shadow-md rounded-2xl p-6">
                 <h3 class="text-lg font-bold mb-3">Application Info</h3>
+
                 <div class="mb-3 flex items-center gap-3">
                     <strong class="text-sm">Status:</strong>
                     <span
-                        class="px-3 py-1 rounded-full text-sm font-bold
-                    @if ($application->status === 'approved') bg-green-200 text-green-800
-                    @elseif ($application->status === 'rejected') bg-red-200 text-red-800
-                    @elseif ($application->status === 'pending') bg-yellow-200 text-yellow-800
-                    @elseif ($application->status === 'document_verification') bg-blue-200 text-blue-800 
-                    @else bg-gray-100 text-gray-800 @endif">
+                        class="application-status-badge px-3 py-1 rounded-full text-sm font-bold
+            @if ($application->status === 'approved') bg-green-200 text-green-800
+            @elseif ($application->status === 'rejected') bg-red-200 text-red-800
+            @elseif ($application->status === 'pending') bg-yellow-200 text-yellow-800
+            @elseif ($application->status === 'document_verification') bg-blue-200 text-blue-800 
+            @else bg-gray-100 text-gray-800 @endif">
                         {{ $application->status === 'document_verified' ? 'Document verified' : ucfirst(str_replace('_', ' ', $application->status)) }}
                     </span>
+                </div>
+
+                <!-- Print Application Form Button -->
+                <div class="mt-4">
+                    <a href="{{ route('admin.applications.print', $application->application_form_id) }}" target="_blank"
+                        class="inline-flex items-center gap-2 w-full justify-center bg-blue-600 text-white text-sm px-4 py-2.5 rounded-md hover:bg-blue-700 transition font-semibold shadow-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        </svg>
+                        Print Application Form
+                    </a>
                 </div>
             </div>
         </div>

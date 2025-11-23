@@ -163,6 +163,288 @@ class AdminController extends Controller
     
     return view('admin.applications.show', compact('application', 'allRemarks'));
 }
+
+public function printApplicationForm($id)
+{
+    $application = ApplicationForm::with('user')->findOrFail($id);
+    
+    try {
+        $pdf = new \setasign\Fpdi\Fpdi();
+        $templatePath = storage_path('app/pdf-templates/Application-Form_STRAND.pdf');
+        
+        // Check if template exists
+        if (!file_exists($templatePath)) {
+            return redirect()->back()->with('error', 'PDF template not found.');
+        }
+        
+        // Get page count
+        $pageCount = $pdf->setSourceFile($templatePath);
+        
+        // Import first page
+        $templateId = $pdf->importPage(1);
+        $size = $pdf->getTemplateSize($templateId);
+        $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+        $pdf->useTemplate($templateId);
+        
+        // Set font for filling
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->SetTextColor(0, 0, 0);
+        
+        // ===== FILL FORM FIELDS WITH CORRECTED COORDINATES =====
+        
+        // Application Number (top left) - KEEP AS IS (WORKING)
+        $pdf->SetXY(41, 14);
+        $pdf->Write(0, $application->application_form_id ?? '');
+        
+        // School Term checkboxes - KEEP AS IS (WORKING)
+        if (is_array($application->school_term)) {
+            $term = $application->school_term[0] ?? '';
+        } else {
+            $term = $application->school_term ?? '';
+        }
+        
+        if (stripos($term, 'First') !== false) {
+            $pdf->SetXY(32.5, 74);
+            $pdf->Write(0, 'X');
+        } elseif (stripos($term, 'Second') !== false) {
+            $pdf->SetXY(48, 67);
+            $pdf->Write(0, 'X');
+        } elseif (stripos($term, 'Third') !== false) {
+            $pdf->SetXY(66, 67);
+            $pdf->Write(0, 'X');
+        }
+        
+        // === PERSONAL INFORMATION ===
+        
+        // Row a: Last Name, First Name, Middle Name
+        // Last Name - KEEP AS IS (WORKING)
+        $pdf->SetXY(25, 93);
+        $pdf->Write(0, $application->user->last_name ?? '');
+        
+        // First Name
+        $pdf->SetXY(87, 93);
+        $pdf->Write(0, $application->user->first_name ?? '');
+        
+        // Middle Name
+        $pdf->SetXY(155, 93);
+        $pdf->Write(0, $application->user->middle_name ?? '');
+        
+        // Row b: Permanent Address No., Street, Barangay, City/Municipality, Province
+        // No.
+        $pdf->SetXY(25, 94);
+        $pdf->Write(0, $application->address_no ?? '');
+        
+        // Street
+        $pdf->SetXY(55, 94);
+        $pdf->Write(0, $application->address_street ?? '');
+        
+        // Barangay
+        $pdf->SetXY(95, 94);
+        $barangayName = $this->getLocationName($application->barangay, 'barangay');
+        $pdf->Write(0, $barangayName);
+        
+        // City/Municipality
+        $pdf->SetXY(135, 94);
+        $cityName = $this->getLocationName($application->city, 'city');
+        $pdf->Write(0, $cityName);
+        
+        // Province
+        $pdf->SetXY(180, 94);
+        $provinceName = $this->getLocationName($application->province, 'province');
+        $pdf->Write(0, $provinceName);
+        
+        // Row c: Zip Code, Region, District, Passport No., Email Address
+        // Zip Code
+        $pdf->SetXY(28, 102);
+        $pdf->Write(0, $application->zip_code ?? '');
+        
+        // Region (converted to Roman numeral)
+        $pdf->SetXY(64, 102);
+        $regionName = $this->convertRegionToRoman($application->region);
+        $pdf->Write(0, $regionName);
+        
+        // District
+        $pdf->SetXY(92, 102);
+        $pdf->Write(0, $application->district ?? '');
+        
+        // Passport No.
+        $pdf->SetXY(131, 102);
+        $pdf->Write(0, $application->passport_no ?? '');
+        
+        // Email Address
+        $pdf->SetXY(165, 102);
+        $pdf->Write(0, $application->email_address ?? $application->user->email ?? '');
+        
+        // Row d: Current Mailing Address
+        $pdf->SetXY(30, 110);
+        $pdf->Write(0, $application->current_mailing_address ?? '');
+        
+        // Row e: Telephone Nos
+        $pdf->SetXY(27, 118);
+        $pdf->Write(0, $application->telephone_nos ?? '');
+        
+        // Row f: Civil Status, Date of Birth, Age, Sex
+        // Civil Status
+        $pdf->SetXY(33, 127);
+        $pdf->Write(0, $application->civil_status ?? '');
+        
+        // Date of Birth
+        $pdf->SetXY(72, 127);
+        $pdf->Write(0, $application->date_of_birth ?? '');
+        
+        // Age
+        $pdf->SetXY(121, 127);
+        $pdf->Write(0, $application->age ?? '');
+        
+        // Sex
+        $pdf->SetXY(169, 127);
+        $pdf->Write(0, $application->sex ?? '');
+        
+        // Row g: Father's Name, Mother's Name
+        // Father's Name
+        $pdf->SetXY(28, 135);
+        $pdf->Write(0, $application->father_name ?? '');
+        
+        // Mother's Name
+        $pdf->SetXY(119, 135);
+        $pdf->Write(0, $application->mother_name ?? '');
+        
+        // If there's a second page, import it
+        if ($pageCount > 1) {
+            for ($pageNo = 2; $pageNo <= $pageCount; $pageNo++) {
+                $templateId = $pdf->importPage($pageNo);
+                $size = $pdf->getTemplateSize($templateId);
+                $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+                $pdf->useTemplate($templateId);
+            }
+        }
+        
+        // Output PDF
+        return response($pdf->Output('S'), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="Application_Form_' . $application->application_form_id . '.pdf"');
+            
+    } catch (\Exception $e) {
+        \Log::error('PDF Generation Error: ' . $e->getMessage());
+        return redirect()->back()->with('error', 'Failed to generate PDF: ' . $e->getMessage());
+    }
+}
+
+/**
+ * Helper function to get location names from PSGC codes
+ */
+private function getLocationName($code, $type = 'city')
+{
+    if (!$code) return 'N/A';
+    
+    $jsonUrls = [
+        'province' => 'https://psgc.gitlab.io/api/provinces/',
+        'city' => 'https://psgc.gitlab.io/api/cities-municipalities/',
+        'barangay' => 'https://psgc.gitlab.io/api/barangays/',
+        'district' => 'https://psgc.gitlab.io/api/districts/',
+    ];
+    
+    if (!isset($jsonUrls[$type])) {
+        return 'Unknown';
+    }
+    
+    $cacheFile = storage_path("app/psgc_$type.json");
+    $data = null;
+    
+    // Use cache if available
+    if (file_exists($cacheFile)) {
+        $data = json_decode(file_get_contents($cacheFile), true);
+    }
+    
+    // If cache is missing/invalid, try fetching from API
+    if (empty($data)) {
+        try {
+            $json = @file_get_contents($jsonUrls[$type]);
+            if ($json !== false) {
+                $data = json_decode($json, true);
+                
+                if (json_last_error() === JSON_ERROR_NONE && is_array($data)) {
+                    file_put_contents($cacheFile, json_encode($data));
+                }
+            }
+        } catch (\Exception $e) {
+            return 'Unknown';
+        }
+    }
+    
+    // Find code in data
+    if (is_array($data)) {
+        foreach ($data as $item) {
+            if (isset($item['code']) && $item['code'] == $code) {
+                return $item['name'];
+            }
+        }
+    }
+    
+    return 'Unknown';
+}
+
+/**
+ * Convert region name to Roman numeral format
+ */
+private function convertRegionToRoman($region)
+{
+    if (!$region) return 'N/A';
+    
+    // Mapping of region names to Roman numerals
+    $regionMap = [
+        'Region I' => 'Region I',
+        'Region II' => 'Region II',
+        'Region III' => 'Region III',
+        'Region IV-A' => 'Region IV-A',
+        'Region IV-B' => 'Region IV-B',
+        'Region V' => 'Region V',
+        'Region VI' => 'Region VI',
+        'Region VII' => 'Region VII',
+        'Region VIII' => 'Region VIII',
+        'Region IX' => 'Region IX',
+        'Region X' => 'Region X',
+        'Region XI' => 'Region XI',
+        'Region XII' => 'Region XII',
+        'Region XIII' => 'Region XIII',
+        'NCR' => 'NCR',
+        'CAR' => 'CAR',
+        'BARMM' => 'BARMM',
+        // Alternative names
+        'Northern Mindanao' => 'Region X',
+        'Davao Region' => 'Region XI',
+        'SOCCSKSARGEN' => 'Region XII',
+        'Caraga' => 'Region XIII',
+        'Ilocos Region' => 'Region I',
+        'Cagayan Valley' => 'Region II',
+        'Central Luzon' => 'Region III',
+        'CALABARZON' => 'Region IV-A',
+        'MIMAROPA' => 'Region IV-B',
+        'Bicol Region' => 'Region V',
+        'Western Visayas' => 'Region VI',
+        'Central Visayas' => 'Region VII',
+        'Eastern Visayas' => 'Region VIII',
+        'Zamboanga Peninsula' => 'Region IX',
+        'National Capital Region' => 'NCR',
+        'Cordillera Administrative Region' => 'CAR',
+        'Bangsamoro Autonomous Region in Muslim Mindanao' => 'BARMM',
+    ];
+    
+    // Check if the region matches any mapping
+    foreach ($regionMap as $key => $value) {
+        if (stripos($region, $key) !== false) {
+            return $value;
+        }
+    }
+    
+    // If already in Roman numeral format, return as is
+    if (preg_match('/^(I{1,3}|IV|V|VI{0,3}|IX|X{1,3}|XI{1,2}|NCR|CAR|BARMM)(-[A-Z])?$/', $region)) {
+        return $region;
+    }
+    
+    return $region; // Return original if no match found
+}
+
     public function showScholar($id)
     {
         $scholar = Scholar::with(['user', 'applicationForm'])->findOrFail($id);

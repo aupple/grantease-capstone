@@ -95,6 +95,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::get('/applications', [AdminController::class, 'viewApplications'])->name('applications');
         Route::get('/applications/{id}', [AdminController::class, 'showApplication'])->name('applications.show');
+        Route::get('/applications/{id}/print', [AdminController::class, 'printApplicationForm'])->name('applications.print');
         Route::post('/applications/{id}/approve', [AdminController::class, 'approveApplication'])->name('applications.approve');
         Route::post('/applications/{id}/reject', [AdminController::class, 'rejectApplication'])->name('applications.reject');
         Route::post('/applications/{id}/status', [AdminController::class, 'updateStatus'])->name('applications.update-status');

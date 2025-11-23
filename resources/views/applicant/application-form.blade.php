@@ -1892,7 +1892,7 @@
                         const provinceSelect = document.getElementById('province_select');
                         const citySelect = document.getElementById('city_select');
                         const barangaySelect = document.getElementById('barangay_select');
-                        const regionInput = document.getElementById('region_select'); // readonly
+                        const regionInput = document.getElementById('region_select');
                         const zipInput = document.getElementById('zip_code');
 
                         // 🔹 Fallback ZIPs by Region

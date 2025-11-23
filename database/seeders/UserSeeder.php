@@ -30,7 +30,7 @@ class UserSeeder extends Seeder
         ]);
 
         user::create([
-            'first_name' => 'Blacknigga',
+            'first_name' => 'Black',
             'middle_name' => null,
             'last_name' => 'Black',
             'email' => 'black@gmail.com',
