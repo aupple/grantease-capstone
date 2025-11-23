@@ -141,7 +141,7 @@
                             <label for="application_no" class="block text-sm font-medium text-gray-700">Application
                                 No.</label>
                             <input type="text" name="application_no" id="application_no"
-                                value="STRAND-{{ uniqid() }}" readonly
+                                value="DOST-{{ date('Y') }}-{{ strtoupper(substr(uniqid(), -6)) }}" readonly
                                 class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm bg-gray-100 sm:text-sm">
                         </div>
                         <div>

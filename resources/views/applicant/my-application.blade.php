@@ -40,14 +40,18 @@
 
         /* ===== FORM STYLING ===== */
         .editable-field {
-            min-height: 24px;
-            padding: 6px 8px;
+            min-height: 20px;
+            /* Changed from 24px */
+            padding: 2px 4px;
+            /* Even smaller padding */
             border: 1px solid #cbd5e1;
             border-radius: 4px;
             background: #fff;
             font-size: 13px;
-            white-space: pre-wrap;
+            white-space: normal;
             overflow-wrap: break-word;
+            word-break: break-word;
+            overflow: hidden;
         }
 
         .editable-field[contenteditable="false"] {
@@ -240,19 +244,22 @@
                     </div>
 
                     <!-- APPLICATION DETAILS -->
-                    <div class="grid grid-cols-4 gap-2 text-sm mb-4">
+                    <div class="flex gap-4 text-sm mb-4">
                         <div>
                             <label class="block text-[12px] font-semibold">Application No.</label>
-                            <div class="editable-field bg-gray-100 text-center">{{ $application->application_no }}
+                            <div class="editable-field bg-gray-100 text-center inline-block px-6 py-2">
+                                {{ $application->application_no }}
                             </div>
                         </div>
                         <div>
                             <label class="block text-[12px] font-semibold">Academic Year</label>
-                            <div class="editable-field bg-gray-100 text-center">{{ $application->academic_year }}</div>
+                            <div class="editable-field bg-gray-100 text-center inline-block px-6 py-2">
+                                {{ $application->academic_year }}</div>
                         </div>
                         <div>
                             <label class="block text-[12px] font-semibold">School Term</label>
-                            <div class="editable-field bg-gray-100 text-center">{{ $application->school_term }}</div>
+                            <div class="editable-field bg-gray-100 text-center inline-block px-6 py-2">
+                                {{ $application->school_term }}</div>
                         </div>
                     </div>
 
@@ -281,26 +288,33 @@
                         </div>
 
                         <!-- Permanent Address -->
-                        <div class="grid grid-cols-6 gap-2 p-1.5">
-                            <div class="col-span-2">
+                        <div class="grid grid-cols-6 gap-2 p-1.5 w-full">
+                            <div class="col-span-2 min-w-0">
                                 <label class="block text-[12px] font-semibold">Permanent Address (No.)</label>
                                 <div class="editable-field text-[13px]">{{ $application->address_no ?? '—' }}</div>
                             </div>
-                            <div>
+                            <div class="min-w-0">
                                 <label class="block text-[12px] font-semibold">Street</label>
                                 <div class="editable-field text-[13px]">{{ $application->address_street ?? '—' }}</div>
                             </div>
-                            <div>
+                            <div class="min-w-0">
                                 <label class="block text-[12px] font-semibold">Barangay</label>
                                 <div class="editable-field text-[13px]">
                                     {{ getLocationName($barangays, $application->barangay) }}</div>
                             </div>
-                            <div>
+                            <div class="min-w-0">
                                 <label class="block text-[10px] font-semibold">City / Municipality</label>
-                                <div class="editable-field text-[13px]">
-                                    {{ getLocationName($cities, $application->city) }}</div>
+                                <div
+                                    class="editable-field whitespace-nowrap overflow-hidden
+        @if (strlen(getLocationName($cities, $application->city)) > 20) text-[9px]
+        @elseif(strlen(getLocationName($cities, $application->city)) > 15)
+            text-[10px]
+        @else
+            text-[13px] @endif">
+                                    {{ getLocationName($cities, $application->city) }}
+                                </div>
                             </div>
-                            <div>
+                            <div class="min-w-0">
                                 <label class="block text-[12px] font-semibold">Province</label>
                                 <div class="editable-field text-[13px]">
                                     {{ getLocationName($provinces, $application->province) }}</div>
