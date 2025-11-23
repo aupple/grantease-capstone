@@ -29,7 +29,6 @@ class ApplicationFormController extends Controller
      */
    public function viewMyApplication()
 {
-
     ActivityLogger::log('VIEW_APPLICATION', 'Viewed own application');
     
     $user = Auth::user();
@@ -38,7 +37,12 @@ class ApplicationFormController extends Controller
         ->where('user_id', $user->user_id)
         ->get();
 
-    return view('applicant.my-application', compact('applications'));
+    // Load JSON files from storage/app/ directory
+    $barangays = json_decode(file_get_contents(storage_path('app/psgc_barangay.json')), true);
+    $cities = json_decode(file_get_contents(storage_path('app/psgc_city.json')), true);
+    $provinces = json_decode(file_get_contents(storage_path('app/psgc_province.json')), true);
+
+    return view('applicant.my-application', compact('applications', 'barangays', 'cities', 'provinces'));
 }
     /**
      * Store a newly created application form in storage.
@@ -222,8 +226,8 @@ $fileFields = [
     'letter_of_admission_pdf',
     'approved_program_of_study_pdf',
     'lateral_certification_pdf',
-    'evaluation_sheet_pdf',  // ✅ added
-    'scoresheet_pdf',        // ✅ added
+    'evaluation_sheet_pdf',  
+    'scoresheet_pdf',        
 ];
 
 foreach ($fileFields as $field) {

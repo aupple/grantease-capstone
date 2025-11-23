@@ -491,8 +491,6 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 text-sm text-gray-800">
                     @foreach ([
-            'Career Plans' => 'career_plans',
-            'Research Plans' => 'research_plans',
             'R&D Involvement' => 'rnd_involvement',
             'Publications' => 'publications',
             'Awards' => 'awards',

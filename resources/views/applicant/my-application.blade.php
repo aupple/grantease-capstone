@@ -146,7 +146,12 @@
             animation: slide-out 0.3s ease-out;
         }
     </style>
-
+    @php
+        function getLocationName($locations, $code)
+        {
+            return collect($locations)->firstWhere('code', $code)['name'] ?? ($code ?? '—');
+        }
+    @endphp
     <div class="py-6 px-4 sm:px-6 lg:px-8 bg-gray-50 min-h-screen">
         <!-- Success Toast Notification -->
         @if (session('success'))
@@ -287,15 +292,18 @@
                             </div>
                             <div>
                                 <label class="block text-[12px] font-semibold">Barangay</label>
-                                <div class="editable-field text-[13px]">{{ $application->barangay ?? '—' }}</div>
+                                <div class="editable-field text-[13px]">
+                                    {{ getLocationName($barangays, $application->barangay) }}</div>
                             </div>
                             <div>
                                 <label class="block text-[10px] font-semibold">City / Municipality</label>
-                                <div class="editable-field text-[13px]">{{ $application->city ?? '—' }}</div>
+                                <div class="editable-field text-[13px]">
+                                    {{ getLocationName($cities, $application->city) }}</div>
                             </div>
                             <div>
                                 <label class="block text-[12px] font-semibold">Province</label>
-                                <div class="editable-field text-[13px]">{{ $application->province ?? '—' }}</div>
+                                <div class="editable-field text-[13px]">
+                                    {{ getLocationName($provinces, $application->province) }}</div>
                             </div>
                         </div>
 
