@@ -1124,25 +1124,25 @@
                         <section id="if_employed_section"
                             class="bg-gray-50 p-5 rounded-lg shadow-sm border border-gray-100 hidden">
                             <h5 class="text-base font-semibold mb-4 text-gray-800 flex items-center gap-2">
-                                <i class="fa-solid fa-briefcase text-blue-500"></i> If Employed
+                                <i class="fa-solid fa-briefcase text-blue-500"></i> For Employed Applicants
                             </h5>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">
-                                        Recommendation from Head of Agency
+                                        Recommendation from Head of Agency <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="file" name="recommendation_head_agency_pdf"
+                                    <input type="file" name="recommendation_head_agency_pdf" id="recommendation_head_agency_pdf"
                                         accept="application/pdf"
-                                        class="w-full border border-gray-300 rounded-md text-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                                        class="w-full border border-gray-300 rounded-md text-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition employed-required">
                                 </div>
 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">
-                                        Form 2A – Certificate of Employment
+                                        Form 2A – Certificate of Employment <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="file" name="form_2a_pdf" accept="application/pdf"
-                                        class="w-full border border-gray-300 rounded-md text-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                                    <input type="file" name="form_2a_pdf" id="form_2a_pdf" accept="application/pdf"
+                                        class="w-full border border-gray-300 rounded-md text-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition employed-required">
                                 </div>
 
                                 <div>
