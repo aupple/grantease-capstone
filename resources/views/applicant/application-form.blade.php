@@ -1545,56 +1545,52 @@
                         });
                     }
 
-                    function attachIfEmployedListener() {
-                        const employedSection = document.getElementById('if_employed_section');
-                        const radios = document.querySelectorAll('input[name="employment_status"]');
+                    function attachEmploymentStatusListeners() {
 
-                        if (!employedSection || radios.length === 0) return; // safety check
+    const employmentRadios = document.querySelectorAll('input[name="employment_status"]');
 
-                        radios.forEach(radio => {
-                            radio.addEventListener('change', function() {
-                                const employedStatuses = ['Permanent', 'Contractual', 'Probationary'];
+    const employedFields = document.getElementById('employed_fields');
+    const selfEmployedFields = document.getElementById('self_employed_fields');
+    const employedUploadSection = document.getElementById('if_employed_section');
 
-                                if (employedStatuses.includes(this.value)) {
-                                    employedSection.classList.remove('hidden');
-                                } else {
-                                    employedSection.classList.add('hidden');
-                                }
-                            });
-                        });
-                    }
+    if (!employmentRadios.length) return;
 
-                    function attachEmploymentStatusListener() {
-                        const employmentRadios = document.querySelectorAll('input[name="employment_status"]');
-                        const employedFields = document.getElementById('employed_fields');
-                        const selfEmployedFields = document.getElementById('self_employed_fields');
+    employmentRadios.forEach(radio => {
+        radio.addEventListener('change', function () {
 
-                        if (!employmentRadios.length || !employedFields || !selfEmployedFields) return;
+            // Reset visibility
+            employedFields.classList.add('hidden');
+            selfEmployedFields.classList.add('hidden');
+            employedUploadSection.classList.add('hidden');
 
-                        employmentRadios.forEach(radio => {
-                            radio.addEventListener('change', () => {
-                                // Hide all sections
-                                employedFields.classList.add('hidden');
-                                selfEmployedFields.classList.add('hidden');
+            // Remove all required attributes (clean slate)
+            employedFields.querySelectorAll('input').forEach(el => el.required = false);
+            selfEmployedFields.querySelectorAll('input').forEach(el => el.required = false);
 
-                                // Remove required from hidden inputs
-                                employedFields.querySelectorAll('input, textarea, select').forEach(el => el.required =
-                                    false);
-                                selfEmployedFields.querySelectorAll('input, textarea, select').forEach(el => el
-                                    .required = false);
+            // EMPLOYED → show employment inputs + upload documents
+            if (['Permanent', 'Contractual', 'Probationary'].includes(this.value)) {
 
-                                // Show relevant section + set required
-                                if (['Permanent', 'Contractual', 'Probationary'].includes(radio.value)) {
-                                    employedFields.classList.remove('hidden');
-                                    employedFields.querySelectorAll('input').forEach(el => el.required = true);
-                                } else if (radio.value === 'Self-employed') {
-                                    selfEmployedFields.classList.remove('hidden');
-                                    selfEmployedFields.querySelectorAll('input').forEach(el => el.required = true);
-                                }
-                                // Unemployed → no extra fields shown
-                            });
-                        });
-                    }
+                employedFields.classList.remove('hidden');
+                employedUploadSection.classList.remove('hidden');
+
+                // Make employed fields required
+                employedFields.querySelectorAll('input').forEach(el => el.required = true);
+            }
+
+            // SELF-EMPLOYED → show business fields only
+            if (this.value === 'Self-employed') {
+
+                selfEmployedFields.classList.remove('hidden');
+
+                // Make self-employed fields required
+                selfEmployedFields.querySelectorAll('input').forEach(el => el.required = true);
+            }
+
+            // UNEMPLOYED → all hidden, nothing required
+        });
+    });
+}
+
                     // ✅ Function to handle "New Applicant" vs "Lateral Applicant" toggle
                     function attachApplicantTypeToggle() {
                         const applicantRadios = document.querySelectorAll('input[name="applicant_status"]');
