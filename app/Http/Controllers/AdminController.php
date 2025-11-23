@@ -192,11 +192,15 @@ public function printApplicationForm($id)
         
         // ===== FILL FORM FIELDS WITH CORRECTED COORDINATES =====
         
-        // Application Number (top left) - KEEP AS IS (WORKING)
+        // Application Number (top left)
         $pdf->SetXY(41, 14);
         $pdf->Write(0, $application->application_form_id ?? '');
+
+        // Academic Year
+        $pdf->SetXY(37.5, 69.5);
+        $pdf->Write(0, $application->academic_year ?? '');
         
-        // School Term checkboxes - KEEP AS IS (WORKING)
+        // School Term checkboxes
         if (is_array($application->school_term)) {
             $term = $application->school_term[0] ?? '';
         } else {
@@ -217,108 +221,397 @@ public function printApplicationForm($id)
         // === PERSONAL INFORMATION ===
         
         // Row a: Last Name, First Name, Middle Name
-        // Last Name - KEEP AS IS (WORKING)
         $pdf->SetXY(25, 93);
         $pdf->Write(0, $application->user->last_name ?? '');
         
-        // First Name
-        $pdf->SetXY(87, 93);
+        $pdf->SetXY(84, 93);
         $pdf->Write(0, $application->user->first_name ?? '');
         
-        // Middle Name
         $pdf->SetXY(155, 93);
         $pdf->Write(0, $application->user->middle_name ?? '');
         
         // Row b: Permanent Address No., Street, Barangay, City/Municipality, Province
-        // No.
-        $pdf->SetXY(25, 94);
+        $pdf->SetXY(64, 102);
         $pdf->Write(0, $application->address_no ?? '');
         
-        // Street
-        $pdf->SetXY(55, 94);
+        $pdf->SetXY(28, 102);
         $pdf->Write(0, $application->address_street ?? '');
         
-        // Barangay
-        $pdf->SetXY(95, 94);
+        $pdf->SetXY(92, 102);
         $barangayName = $this->getLocationName($application->barangay, 'barangay');
         $pdf->Write(0, $barangayName);
         
-        // City/Municipality
-        $pdf->SetXY(135, 94);
+        $pdf->SetXY(131.2, 102);
         $cityName = $this->getLocationName($application->city, 'city');
         $pdf->Write(0, $cityName);
         
-        // Province
-        $pdf->SetXY(180, 94);
+        $pdf->SetXY(176.5, 102);
         $provinceName = $this->getLocationName($application->province, 'province');
         $pdf->Write(0, $provinceName);
         
         // Row c: Zip Code, Region, District, Passport No., Email Address
-        // Zip Code
-        $pdf->SetXY(28, 102);
+        $pdf->SetXY(28, 111);
         $pdf->Write(0, $application->zip_code ?? '');
         
-        // Region (converted to Roman numeral)
-        $pdf->SetXY(64, 102);
+        $pdf->SetXY(62, 111);
         $regionName = $this->convertRegionToRoman($application->region);
         $pdf->Write(0, $regionName);
         
-        // District
-        $pdf->SetXY(92, 102);
+        $pdf->SetXY(92, 111);
         $pdf->Write(0, $application->district ?? '');
         
-        // Passport No.
-        $pdf->SetXY(131, 102);
+        $pdf->SetXY(128, 111);
         $pdf->Write(0, $application->passport_no ?? '');
         
-        // Email Address
-        $pdf->SetXY(165, 102);
+        $pdf->SetXY(165, 111);
         $pdf->Write(0, $application->email_address ?? $application->user->email ?? '');
         
         // Row d: Current Mailing Address
-        $pdf->SetXY(30, 110);
+        $pdf->SetXY(24.5, 120);
         $pdf->Write(0, $application->current_mailing_address ?? '');
         
         // Row e: Telephone Nos
-        $pdf->SetXY(27, 118);
+        $pdf->SetXY(27, 129);
         $pdf->Write(0, $application->telephone_nos ?? '');
         
         // Row f: Civil Status, Date of Birth, Age, Sex
-        // Civil Status
-        $pdf->SetXY(33, 127);
+        $pdf->SetXY(30, 138);
         $pdf->Write(0, $application->civil_status ?? '');
         
-        // Date of Birth
-        $pdf->SetXY(72, 127);
+        $pdf->SetXY(72, 138);
         $pdf->Write(0, $application->date_of_birth ?? '');
         
-        // Age
-        $pdf->SetXY(121, 127);
+        $pdf->SetXY(118, 138);
         $pdf->Write(0, $application->age ?? '');
         
-        // Sex
-        $pdf->SetXY(169, 127);
+        $pdf->SetXY(167.5, 138);
         $pdf->Write(0, $application->sex ?? '');
         
         // Row g: Father's Name, Mother's Name
-        // Father's Name
-        $pdf->SetXY(28, 135);
+        $pdf->SetXY(22, 147.5);
         $pdf->Write(0, $application->father_name ?? '');
         
-        // Mother's Name
-        $pdf->SetXY(119, 135);
-        $pdf->Write(0, $application->mother_name ?? '');
-        
-        // If there's a second page, import it
+        $pdf->SetXY(115, 147.5);
+        $pdf->Write(0, $application->mother_name ?? ''); 
+
+        // === SECTION II: EDUCATIONAL BACKGROUND ===
+
+        // BS Row
+        $pdf->SetXY(34.5, 183);
+        $pdf->Write(0, $application->bs_period ?? '');
+
+        $pdf->SetXY(74.5, 183);
+        $pdf->Write(0, $application->bs_field ?? '');
+
+        $pdf->SetXY(108.5, 183);
+        $pdf->Write(0, $application->bs_university ?? '');
+
+        // Scholarship checkboxes for BS
+        $scholarshipY = 79;
+        if (is_array($application->bs_scholarship_type)) {
+            foreach ($application->bs_scholarship_type as $scholarship) {
+                if (stripos($scholarship, 'PSHS') !== false) {
+                    $pdf->SetXY(119, $scholarshipY);
+                    $pdf->Write(0, 'X');
+                } elseif (stripos($scholarship, 'RA 7687') !== false) {
+                    $pdf->SetXY(119, $scholarshipY + 9);
+                    $pdf->Write(0, 'X');
+                } elseif (stripos($scholarship, 'MERIT') !== false) {
+                    $pdf->SetXY(119, $scholarshipY + 18);
+                    $pdf->Write(0, 'X');
+                } elseif (stripos($scholarship, 'RA 10612') !== false) {
+                    $pdf->SetXY(119, $scholarshipY + 27);
+                    $pdf->Write(0, 'X');
+                }
+            }
+        }
+
+        $pdf->SetXY(155, 195);
+        $pdf->Write(0, $application->bs_scholarship_others ?? '');
+
+        $pdf->SetXY(190, 183);
+        $pdf->Write(0, $application->bs_remarks ?? '');
+
+        // MS Row
+        $pdf->SetXY(138, 221);
+        $pdf->Write(0, $application->ms_period ?? '');
+
+        $pdf->SetXY(250, 221);
+        $pdf->Write(0, $application->ms_field ?? '');
+
+        $pdf->SetXY(345, 221);
+        $pdf->Write(0, $application->ms_university ?? '');
+
+        // Scholarship checkboxes for MS
+        $scholarshipY = 221;
+        if (is_array($application->ms_scholarship_type)) {
+            foreach ($application->ms_scholarship_type as $scholarship) {
+                if (stripos($scholarship, 'NSDB/NSTA') !== false) {
+                    $pdf->SetXY(590, $scholarshipY);
+                    $pdf->Write(0, 'X');
+                } elseif (stripos($scholarship, 'ASTHRDP') !== false) {
+                    $pdf->SetXY(590, $scholarshipY + 9);
+                    $pdf->Write(0, 'X');
+                } elseif (stripos($scholarship, 'ERDT') !== false) {
+                    $pdf->SetXY(590, $scholarshipY + 18);
+                    $pdf->Write(0, 'X');
+                } elseif (stripos($scholarship, 'COUNCIL/SEI') !== false) {
+                    $pdf->SetXY(590, $scholarshipY + 27);
+                    $pdf->Write(0, 'X');
+                }
+            }
+        }
+
+        $pdf->SetXY(590, 249);
+        $pdf->Write(0, $application->ms_scholarship_others ?? '');
+
+        $pdf->SetXY(770, 221);
+        $pdf->Write(0, $application->ms_remarks ?? '');
+
+        // PHD Row
+        $pdf->SetXY(138, 275);
+        $pdf->Write(0, $application->phd_period ?? '');
+
+        $pdf->SetXY(250, 275);
+        $pdf->Write(0, $application->phd_field ?? '');
+
+        $pdf->SetXY(345, 275);
+        $pdf->Write(0, $application->phd_university ?? '');
+
+        // Scholarship checkboxes for PHD
+        $scholarshipY = 275;
+        if (is_array($application->phd_scholarship_type)) {
+            foreach ($application->phd_scholarship_type as $scholarship) {
+                if (stripos($scholarship, 'NSDB/NSTA') !== false) {
+                    $pdf->SetXY(590, $scholarshipY);
+                    $pdf->Write(0, 'X');
+                } elseif (stripos($scholarship, 'ASTHRDP') !== false) {
+                    $pdf->SetXY(590, $scholarshipY + 9);
+                    $pdf->Write(0, 'X');
+                } elseif (stripos($scholarship, 'ERDT') !== false) {
+                    $pdf->SetXY(590, $scholarshipY + 18);
+                    $pdf->Write(0, 'X');
+                } elseif (stripos($scholarship, 'COUNCIL/SEI') !== false) {
+                    $pdf->SetXY(590, $scholarshipY + 27);
+                    $pdf->Write(0, 'X');
+                }
+            }
+        }
+
+        $pdf->SetXY(75, 303);
+        $pdf->Write(0, $application->phd_scholarship_others ?? '');
+
+        $pdf->SetXY(75, 275);
+        $pdf->Write(0, $application->phd_remarks ?? '');
+
+        // === SECTION III: GRADUATE SCHOLARSHIP INTENTIONS DATA ===
+
+        // Strand Category checkboxes
+        if (stripos($application->strand_category, 'STRAND 1') !== false) {
+            $pdf->SetXY(10, 265.5);
+            $pdf->Write(0, 'X');
+        } elseif (stripos($application->strand_category, 'STRAND 2') !== false) {
+            $pdf->SetXY(39, 265.5);
+            $pdf->Write(0, 'X');
+        }
+
+        // Type of Applicant checkboxes
+        if (stripos($application->applicant_type, 'Student') !== false) {
+            $pdf->SetXY(70, 265.5);
+            $pdf->Write(0, 'X');
+        } elseif (stripos($application->applicant_type, 'Faculty') !== false) {
+            $pdf->SetXY(101.5, 265.5);
+            $pdf->Write(0, 'X');
+        }
+
+        // Type of Scholarship checkboxes
+        if (is_array($application->scholarship_type)) {
+            foreach ($application->scholarship_type as $type) {
+                if (stripos($type, 'MS') !== false) {
+                    $pdf->SetXY(141.5, 265.5);
+                    $pdf->Write(0, 'X');
+                } elseif (stripos($type, 'PhD') !== false) {
+                    $pdf->SetXY(177.5, 265.5);
+                    $pdf->Write(0, 'X');
+                }
+            }
+        }
+
+        // New Applicant section
+        $pdf->SetXY(365, 535);
+        $pdf->Write(0, $application->new_applicant_university ?? '');
+
+        $pdf->SetXY(365, 566);
+        $pdf->Write(0, $application->new_applicant_course ?? '');
+
+        // Lateral Applicant section
+        $pdf->SetXY(83.5, 293);
+        $pdf->Write(0, $application->lateral_university_enrolled ?? '');
+
+        $pdf->SetXY(83.5, 299.5);
+        $pdf->Write(0, $application->lateral_course_degree ?? '');
+
+        $pdf->SetXY(70.5, 306.5);
+        $pdf->Write(0, $application->lateral_units_earned ?? '');
+
+        $pdf->SetXY(175, 306.5);
+        $pdf->Write(0, $application->lateral_remaining_units ?? '');
+
+        // ===== SECOND PAGE =====
         if ($pageCount > 1) {
-            for ($pageNo = 2; $pageNo <= $pageCount; $pageNo++) {
-                $templateId = $pdf->importPage($pageNo);
-                $size = $pdf->getTemplateSize($templateId);
-                $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
-                $pdf->useTemplate($templateId);
+            $templateId = $pdf->importPage(2);
+            $size = $pdf->getTemplateSize($templateId);
+            $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+            $pdf->useTemplate($templateId);
+
+            // === Research Topic Approval ===
+            // YES checkbox
+            if ($application->research_topic_approved === true || $application->research_topic_approved === 1) {
+                $pdf->SetXY(106, 14.5);//106
+                $pdf->Write(0, 'X');
+            }
+
+            // NO checkbox
+            if ($application->research_topic_approved === false || $application->research_topic_approved === 0) {
+                $pdf->SetXY(128, 14.5);
+                $pdf->Write(0, 'X');
+            }
+
+            // Research Title
+            $pdf->SetXY(32, 19);
+            $pdf->Write(0, $application->research_title ?? '');
+
+            // Date of last enrollment
+            $pdf->SetXY(98, 26);
+            $pdf->Write(0, $application->last_enrollment_date ?? '');
+
+            // === SECTION IV: CAREER/EMPLOYMENT INFORMATION ===
+
+            // Present Employment Status checkboxes
+            $status = $application->employment_status ?? '';
+            if (stripos($status, 'Permanent') !== false) {
+                $pdf->SetXY(83, 38);
+                $pdf->Write(0, 'X');
+            } elseif (stripos($status, 'Contractual') !== false) {
+                $pdf->SetXY(127, 38);
+                $pdf->Write(0, 'X');
+            } elseif (stripos($status, 'Probationary') !== false) {
+                $pdf->SetXY(170, 38);
+                $pdf->Write(0, 'X');
+            } elseif (stripos($status, 'Self-employed') !== false) {
+                $pdf->SetXY(83, 41.5);
+                $pdf->Write(0, 'X');
+            } elseif (stripos($status, 'Unemployed') !== false) {
+                $pdf->SetXY(127, 41.5);//127, 41.5
+                $pdf->Write(0, 'X');
+            }
+
+            // a.1 For those who are presently employed
+            $pdf->SetXY(35, 179);
+            $pdf->Write(0, $application->employed_position ?? '');
+
+            $pdf->SetXY(130, 179);
+            $pdf->Write(0, $application->employed_length_of_service ?? '');
+
+            $pdf->SetXY(50, 201);
+            $pdf->Write(0, $application->employed_company_name ?? '');
+
+            $pdf->SetXY(50, 224);
+            $pdf->Write(0, $application->employed_company_address ?? '');
+
+            $pdf->SetXY(35, 247);
+            $pdf->Write(0, $application->employed_email ?? '');
+
+            $pdf->SetXY(120, 247);
+            $pdf->Write(0, $application->employed_website ?? '');
+
+            $pdf->SetXY(35, 270);
+            $pdf->Write(0, $application->employed_telephone ?? '');
+
+            $pdf->SetXY(120, 270);
+            $pdf->Write(0, $application->employed_fax ?? '');
+
+            // a.2 For those who are self-employed
+            $pdf->SetXY(45, 317);
+            $pdf->Write(0, $application->self_employed_business_name ?? '');
+
+            $pdf->SetXY(35, 339);
+            $pdf->Write(0, $application->self_employed_address ?? '');
+
+            $pdf->SetXY(35, 363);
+            $pdf->Write(0, $application->self_employed_email_website ?? '');
+
+            $pdf->SetXY(90, 363);
+            $pdf->Write(0, $application->self_employed_telephone ?? '');
+
+            $pdf->SetXY(140, 363);
+            $pdf->Write(0, $application->self_employed_fax ?? '');
+
+            $pdf->SetXY(35, 387);
+            $pdf->Write(0, $application->self_employed_type_of_business ?? '');
+
+            $pdf->SetXY(120, 387);
+            $pdf->Write(0, $application->self_employed_years_of_operation ?? '');
+
+           // === SECTION VI: PUBLICATIONS (last five years) ===
+if ($application->publications) {
+    $publications = is_string($application->publications) 
+        ? json_decode($application->publications, true) 
+        : $application->publications;
+    
+    $pubY = 202;
+    $rowHeight = 25;
+    
+    if (is_array($publications)) {
+        foreach (array_slice($publications, 0, 2) as $index => $pub) {
+            // Title of Article
+            $pdf->SetXY(33, $pubY + ($index * $rowHeight));
+            $pdf->Write(0, $pub['title'] ?? '');
+            
+            // Name/Year of Publication
+            $pdf->SetXY(92, $pubY + ($index * $rowHeight));
+            $pdf->Write(0, $pub['name_year'] ?? ''); 
+            
+            // Nature of Involvement
+            $pdf->SetXY(163, $pubY + ($index * $rowHeight));
+            $pdf->Write(0, $pub['nature_of_involvement'] ?? '');  
+        }
+    }
+}
+
+            // === SECTION VII: AWARDS RECEIVED ===
+            if ($application->awards) {
+                $awards = is_string($application->awards) 
+                    ? json_decode($application->awards, true) 
+                    : $application->awards;
+                
+                $awardY = 229;
+                $rowHeight = 25;
+                
+                if (is_array($awards)) {
+                    foreach (array_slice($awards, 0, 2) as $index => $award) {
+                        $pdf->SetXY(23, $awardY + ($index * $rowHeight));
+                        $pdf->Write(0, $award['title'] ?? '');
+                        
+                        $pdf->SetXY(89, $awardY + ($index * $rowHeight));
+                        $pdf->Write(0, $award['giving_body'] ?? '');
+                        
+                        $pdf->SetXY(155, $awardY + ($index * $rowHeight));
+                        $pdf->Write(0, $award['year'] ?? '');
+                    }
+                }
             }
         }
         
+        $pdf->SetXY(157.5, 292);
+$fullName = ($application->user->first_name ?? '') . ' ' . 
+            ($application->user->middle_name ?? '') . ' ' . 
+            ($application->user->last_name ?? '');
+$pdf->Write(0, trim($fullName));
+
+// Date
+$pdf->SetXY(160, 299.5);
+$pdf->Write(0, $application->declaration_date ?? date('Y-m-d'));
         // Output PDF
         return response($pdf->Output('S'), 200)
             ->header('Content-Type', 'application/pdf')
