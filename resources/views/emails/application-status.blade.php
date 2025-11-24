@@ -76,7 +76,7 @@
         <p>Hello {{ $applicantName ?? 'Scholar' }},</p>
 
         @if ($programType === 'CHED')
-            <p>We are writing to inform you about an update on your CHED scholar registration in our system.</p>
+            <p>We are writing to inform you about an update on your CHED SIKAP Scholarship registration in our system.</p>
         @else
             <p>We are writing to inform you about an update on your {{ $programType ?? 'scholarship' }} application.</p>
         @endif

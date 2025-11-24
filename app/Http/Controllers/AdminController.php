@@ -923,7 +923,7 @@ private function convertRegionToRoman($region)
         if ($application->user->program_type === 'DOST') {
             try {
                 $applicantName = $application->first_name . ' ' . $application->last_name;
-                $remarks = 'Congratulations! Your DOST scholarship application has been approved.';
+                $remarks = 'Congratulations! Your DOST STRAND Scholarship application has been approved.';
                 
                 // Send Email
                 Mail::to($application->user->email)->send(
@@ -1381,7 +1381,7 @@ public function updateChedStatus(Request $request, $id)
             
             // ✅ Set standardized messages for email notifications
             if ($request->status === 'approved') {
-                $emailMessage = $request->remarks ?? 'Congratulations! Your CHED scholarship application has been approved.';
+                $emailMessage = $request->remarks ?? 'Congratulations! Your CHED SIKAP Scholarship application has been approved.';
             } elseif ($request->status === 'rejected') {
                 // ✅ Use standardized CHED rejection message
                 $emailMessage = 'Your CHED scholarship application has been rejected as your name was not included in the official CHED scholarship list. Please contact the scholarship office for clarification.';
