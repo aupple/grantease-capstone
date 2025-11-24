@@ -14,9 +14,19 @@ use App\Models\ChedInfo;
 use App\Models\Remark;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use App\Services\IProgSmsService;
 
 class AdminController extends Controller
 {
+
+    protected $smsService; 
+
+     
+    public function __construct(IProgSmsService $smsService)
+    {
+        $this->smsService = $smsService;
+    }
+
     /**
      * Scholar status map (labels + optional codes if needed)
      * Keys should match values stored in scholars.status
@@ -744,150 +754,208 @@ private function convertRegionToRoman($region)
         return view('admin.scholars.show', compact('scholar'));
     }
 
-    public function verifyDocument(Request $request, $id)
-    {
-        $application = ApplicationForm::findOrFail($id);
-        $document = $request->input('document');
-        $verified = $request->input('verified');
-
-        // Decode existing verified documents (or default to empty array)
-        $verifiedDocs = $application->verified_documents ? json_decode($application->verified_documents, true) : [];
-
-        // ✅ FIX: Use the exact document name as the key (don't convert to snake_case)
-        if ($verified) {
-            $verifiedDocs[$document] = true;
-        } else {
-            unset($verifiedDocs[$document]);
-        }
-
-        $application->verified_documents = json_encode($verifiedDocs);
-        $application->save();
-
-        // ✅ Define ALL document names that match your Blade file
-        $requiredDocuments = [
-            'Passport Picture',
-            'Birth Certificate',
-            'Transcript of Record',
-            'Endorsement Letter 1',
-            'Endorsement Letter 2',
-            'Recommendation of Head of Agency',
-            'Form 2A - Certificate of Employment',
-            'Form 2B - Optional Employment Cert.',
-            'Form A - Research Plans',
-            'Form B - Career Plans',
-            'Form C - Health Status',
-            'NBI Clearance',
-            'Letter of Admission',
-            'Approved Program of Study',
-            'Lateral Certification',
-        ];
-
-        // ✅ Filter only uploaded documents from required list
-        $uploadedRequiredDocs = array_filter($requiredDocuments, function ($doc) use ($application) {
-            $documents = [
-                'Passport Picture' => $application->passport_picture ?? null,
-                'Birth Certificate' => $application->birth_certificate_pdf ?? null,
-                'Transcript of Record' => $application->transcript_of_record_pdf ?? null,
-                'Endorsement Letter 1' => $application->endorsement_1_pdf ?? null,
-                'Endorsement Letter 2' => $application->endorsement_2_pdf ?? null,
-                'Recommendation of Head of Agency' => $application->recommendation_head_agency_pdf ?? null,
-                'Form 2A - Certificate of Employment' => $application->form_2a_pdf ?? null,
-                'Form 2B - Optional Employment Cert.' => $application->form_2b_pdf ?? null,
-                'Form A - Research Plans' => $application->form_a_research_plans_pdf ?? null,
-                'Form B - Career Plans' => $application->form_b_career_plans_pdf ?? null,
-                'Form C - Health Status' => $application->form_c_health_status_pdf ?? null,
-                'NBI Clearance' => $application->nbi_clearance_pdf ?? null,
-                'Letter of Admission' => $application->letter_of_admission_pdf ?? null,
-                'Approved Program of Study' => $application->approved_program_of_study_pdf ?? null,
-                'Lateral Certification' => $application->lateral_certification_pdf ?? null,
-            ];
-            return !empty($documents[$doc]);
-        });
-
-        // ✅ Count how many uploaded required docs are verified
-        $verifiedCount = count(array_filter($uploadedRequiredDocs, function ($doc) use ($verifiedDocs) {
-            return isset($verifiedDocs[$doc]) && $verifiedDocs[$doc] === true;
-        }));
-
-        $totalRequired = count($uploadedRequiredDocs);
-        $allVerified = $verifiedCount === $totalRequired && $totalRequired > 0;
-
-        // ✅ Update status when all required docs are verified
-        if ($allVerified && $application->status === 'pending') {
-            $application->status = 'document_verification';
-            $application->save();
-        } elseif (!$allVerified && $application->status === 'document_verification') {
-            // ✅ If unchecking documents, revert to pending
-            $application->status = 'pending';
-            $application->save();
-        }
-
-        // ✅ DEBUG: check if update actually happens
-        \Log::info('Document verification update', [
-            'id' => $application->id,
-            'document' => $document,
-            'verified' => $verified,
-            'verified_count' => $verifiedCount,
-            'required_count' => $totalRequired,
-            'all_verified' => $allVerified,
-            'status' => $application->status,
-            'verified_docs' => $verifiedDocs,
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'verified_documents' => $verifiedDocs,
-            'verified_count' => $verifiedCount,
-            'total_required' => $totalRequired,
-            'all_verified' => $allVerified,
-            'status' => $application->status,
-        ]);
-    }
-
-   public function approveApplication($id)
+     public function verifyDocument(Request $request, $id)
 {
     $application = ApplicationForm::with('user')->findOrFail($id);
+    $document = $request->input('document');
+    $verified = $request->input('verified');
 
-    // Update application status
-    $application->status = 'approved';
-    $application->remarks = null;
-    $application->save();
+    // Decode existing verified documents (or default to empty array)
+    $verifiedDocs = $application->verified_documents ? json_decode($application->verified_documents, true) : [];
 
-    // ✅ FIX: Copy verified_documents when creating scholar
-    Scholar::firstOrCreate(
-        ['application_form_id' => $application->application_form_id],
-        [
-            'user_id' => $application->user_id,
-            'status' => 'qualifiers',
-            'start_date' => now(),
-            // ✅ NEW: Preserve verified documents
-            'verified_documents' => $application->verified_documents,
-        ]
-    );
-
-    // Send email only to DOST applicants
-    if ($application->user->program_type === 'DOST') {
-        try {
-            $applicantName = $application->user->first_name . ' ' . $application->user->last_name;
-            $remarks = 'Congratulations! Your DOST scholarship application has been approved.';
-            
-            Mail::to($application->user->email)->send(
-                new ApplicationStatusMail('approved', $applicantName, 'DOST', $remarks)
-            );
-            
-            \Log::info('DOST Approval email sent to: ' . $application->user->email);
-        } catch (\Throwable $e) {
-            \Log::error('Email send failed: ' . $e->getMessage());
-        }
+    if ($verified) {
+        $verifiedDocs[$document] = true;
+    } else {
+        unset($verifiedDocs[$document]);
     }
 
-    return redirect()->route('admin.applications')->with('success', 'Application approved and email notification sent.');
+    $application->verified_documents = json_encode($verifiedDocs);
+    $application->save();
+
+    // Define all required documents
+    $requiredDocuments = [
+        'Passport Picture',
+        'Birth Certificate',
+        'Transcript of Record',
+        'Endorsement Letter 1',
+        'Endorsement Letter 2',
+        'Recommendation of Head of Agency',
+        'Form 2A - Certificate of Employment',
+        'Form 2B - Optional Employment Cert.',
+        'Form A - Research Plans',
+        'Form B - Career Plans',
+        'Form C - Health Status',
+        'NBI Clearance',
+        'Letter of Admission',
+        'Approved Program of Study',
+        'Lateral Certification',
+    ];
+
+    // Filter only uploaded documents
+    $uploadedRequiredDocs = array_filter($requiredDocuments, function ($doc) use ($application) {
+        $documents = [
+            'Passport Picture' => $application->passport_picture ?? null,
+            'Birth Certificate' => $application->birth_certificate_pdf ?? null,
+            'Transcript of Record' => $application->transcript_of_record_pdf ?? null,
+            'Endorsement Letter 1' => $application->endorsement_1_pdf ?? null,
+            'Endorsement Letter 2' => $application->endorsement_2_pdf ?? null,
+            'Recommendation of Head of Agency' => $application->recommendation_head_agency_pdf ?? null,
+            'Form 2A - Certificate of Employment' => $application->form_2a_pdf ?? null,
+            'Form 2B - Optional Employment Cert.' => $application->form_2b_pdf ?? null,
+            'Form A - Research Plans' => $application->form_a_research_plans_pdf ?? null,
+            'Form B - Career Plans' => $application->form_b_career_plans_pdf ?? null,
+            'Form C - Health Status' => $application->form_c_health_status_pdf ?? null,
+            'NBI Clearance' => $application->nbi_clearance_pdf ?? null,
+            'Letter of Admission' => $application->letter_of_admission_pdf ?? null,
+            'Approved Program of Study' => $application->approved_program_of_study_pdf ?? null,
+            'Lateral Certification' => $application->lateral_certification_pdf ?? null,
+        ];
+        return !empty($documents[$doc]);
+    });
+
+    $verifiedCount = count(array_filter($uploadedRequiredDocs, function ($doc) use ($verifiedDocs) {
+        return isset($verifiedDocs[$doc]) && $verifiedDocs[$doc] === true;
+    }));
+
+    $totalRequired = count($uploadedRequiredDocs);
+    $allVerified = $verifiedCount === $totalRequired && $totalRequired > 0;
+
+    // Store previous status
+    $previousStatus = $application->status;
+    
+    // ✅ Send BOTH email and SMS when all documents are verified
+    if ($allVerified && $application->status === 'pending') {
+        $application->status = 'document_verification';
+        $application->save();
+        
+        // ✅ Send notifications (BOTH email and SMS)
+        if ($application->user) {
+            try {
+                $applicantName = $application->first_name . ' ' . $application->last_name;
+                $remarks = 'All your documents have been verified. Please wait for the approval process.';
+                
+                // ✅ SEND EMAIL FIRST
+                Mail::to($application->user->email)->send(
+                    new ApplicationStatusMail(
+                        'document_verified',
+                        $applicantName,
+                        'DOST',
+                        $remarks
+                    )
+                );
+                
+                \Log::info('✅ EMAIL SENT: Document verification', [
+                    'application_id' => $application->id,
+                    'email' => $application->user->email,
+                    'applicant_name' => $applicantName
+                ]);
+                
+                // ✅ THEN SEND SMS
+                if ($application->telephone_nos) {
+                    $smsResult = $this->smsService->sendDostStatus(
+                        $application->telephone_nos,
+                        $applicantName,
+                        'document_verified'
+                    );
+                    
+                    \Log::info('✅ SMS SENT: Document verification', [
+                        'application_id' => $application->id,
+                        'phone' => $application->telephone_nos,
+                        'sms_success' => $smsResult['success'] ?? false,
+                    ]);
+                }
+                
+            } catch (\Exception $e) {
+                \Log::error('❌ NOTIFICATION FAILED: ' . $e->getMessage(), [
+                    'application_id' => $application->id,
+                    'line' => $e->getLine(),
+                    'file' => $e->getFile(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+            }
+        }
+    } elseif (!$allVerified && $application->status === 'document_verification') {
+        // ✅ Revert to pending if documents become unverified
+        $application->status = 'pending';
+        $application->save();
+    }
+
+    \Log::info('Document verification update', [
+        'id' => $application->id,
+        'document' => $document,
+        'verified' => $verified,
+        'verified_count' => $verifiedCount,
+        'required_count' => $totalRequired,
+        'all_verified' => $allVerified,
+        'previous_status' => $previousStatus,
+        'new_status' => $application->status,
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'verified_documents' => $verifiedDocs,
+        'verified_count' => $verifiedCount,
+        'total_required' => $totalRequired,
+        'all_verified' => $allVerified,
+        'status' => $application->status,
+    ]);
 }
+
+   public function approveApplication($id)
+    {
+        $application = ApplicationForm::with('user')->findOrFail($id);
+
+        $application->status = 'approved';
+        $application->remarks = null;
+        $application->save();
+
+        Scholar::firstOrCreate(
+            ['application_form_id' => $application->application_form_id],
+            [
+                'user_id' => $application->user_id,
+                'status' => 'qualifiers',
+                'start_date' => now(),
+                'verified_documents' => $application->verified_documents,
+            ]
+        );
+
+        // Send email and SMS to DOST applicants
+        if ($application->user->program_type === 'DOST') {
+            try {
+                $applicantName = $application->first_name . ' ' . $application->last_name;
+                $remarks = 'Congratulations! Your DOST scholarship application has been approved.';
+                
+                // Send Email
+                Mail::to($application->user->email)->send(
+                    new ApplicationStatusMail('approved', $applicantName, 'DOST', $remarks)
+                );
+                
+                // ✅ Send SMS using telephone_nos
+                if ($application->telephone_nos) {
+                    $this->smsService->sendDostStatus(
+                        $application->telephone_nos,
+                        $applicantName,
+                        'approved'
+                    );
+                    \Log::info('SMS sent: Application approved', [
+                        'application_id' => $application->id,
+                        'phone' => $application->telephone_nos
+                    ]);
+                }
+                
+                \Log::info('DOST Approval notifications sent to: ' . $application->user->email);
+            } catch (\Throwable $e) {
+                \Log::error('Notification failed: ' . $e->getMessage());
+            }
+        }
+
+        return redirect()->route('admin.applications')->with('success', 'Application approved. Email and SMS notifications sent.');
+    }
 
     /**
      * Reject application
      */
-   public function rejectApplication(Request $request, $id)
+  public function rejectApplication(Request $request, $id)
 {
     $request->validate([
         'remarks' => 'required|string'
@@ -895,83 +963,116 @@ private function convertRegionToRoman($region)
 
     $application = ApplicationForm::with('user')->findOrFail($id);
     $application->status = 'rejected';
-    $application->remarks = $request->remarks;
+    $application->remarks = $request->remarks; // ✅ Keep admin's internal remarks
     $application->save();
 
-    // Send email only to DOST applicants
+    // Send email and SMS to DOST applicants
     if ($application->user->program_type === 'DOST') {
         try {
-            $applicantName = $application->user->first_name . ' ' . $application->user->last_name;
+            $applicantName = $application->first_name . ' ' . $application->last_name;
             
+            // ✅ Use standardized rejection message for notifications
+            $rejectionMessage = 'Your DOST scholarship application has been rejected due to failure to comply with or update the required documents. Please contact the scholarship office for more details.';
+            
+            // Send Email
             Mail::to($application->user->email)->send(
-                new ApplicationStatusMail('rejected', $applicantName, 'DOST', $request->remarks)
+                new ApplicationStatusMail('rejected', $applicantName, 'DOST', $rejectionMessage)
             );
             
-            \Log::info('DOST Rejection email sent to: ' . $application->user->email);
+            // ✅ Send SMS (SMS service already has the fixed message)
+            if ($application->telephone_nos) {
+                $this->smsService->sendDostStatus(
+                    $application->telephone_nos,
+                    $applicantName,
+                    'rejected'
+                    // ❌ No need to pass $request->remarks anymore since SMS has fixed message
+                );
+                \Log::info('SMS sent: Application rejected', [
+                    'application_id' => $application->id,
+                    'phone' => $application->telephone_nos
+                ]);
+            }
+            
+            \Log::info('DOST Rejection notifications sent to: ' . $application->user->email);
         } catch (\Throwable $e) {
-            \Log::error('Email send failed: ' . $e->getMessage());
+            \Log::error('Notification failed: ' . $e->getMessage());
         }
     }
 
-    return redirect()->route('admin.applications')->with('success', 'Application rejected and email notification sent.');
+    return redirect()->route('admin.applications')->with('success', 'Application rejected. Email and SMS notifications sent.');
 }
 
     public function updateStatus(Request $request, $id)
-{
-    $request->validate([
-        'status' => 'required|in:pending,document_verification,for_interview,approved,rejected',
-        'remarks' => 'nullable|string',
-    ]);
-
-    $application = ApplicationForm::with('user')->findOrFail($id);
-    $application->status = $request->status;
-    $application->remarks = $request->remarks;
-    $application->save();
-
-    // ✅ Handle scholar creation/removal
-    if ($request->status === 'approved') {
-        \App\Models\Scholar::updateOrCreate(
-            [
-                'user_id' => $application->user_id,
-                'application_form_id' => $application->application_form_id,
-            ],
-            [
-                'status' => 'qualifiers',
-                'start_date' => now(),
-                'end_date' => null,
-                'verified_documents' => $application->verified_documents,
-            ]
-        );
-    } elseif ($request->status === 'rejected') {
-        \App\Models\Scholar::where('application_form_id', $application->application_form_id)->delete();
-    }
-
-    // Send email only to DOST applicants
-    if ($application->user->program_type === 'DOST') {
-        try {
-            $applicantName = $application->user->first_name . ' ' . $application->user->last_name;
-            
-            Mail::to($application->user->email)->send(
-                new ApplicationStatusMail($request->status, $applicantName, 'DOST', $request->remarks)
-            );
-        } catch (\Throwable $e) {
-            \Log::error('Email send failed: ' . $e->getMessage());
-        }
-    }
-
-    // If request came from fetch() → return JSON
-    if ($request->expectsJson()) {
-        return response()->json([
-            'success' => true,
-            'status' => $application->status,
-            'message' => 'Status updated successfully.',
+    {
+        $request->validate([
+            'status' => 'required|in:pending,document_verification,for_interview,approved,rejected',
+            'remarks' => 'nullable|string',
         ]);
-    }
 
-    // Otherwise, normal redirect
-    return redirect()->route('admin.applications.show', $id)
-        ->with('success', 'Application status updated successfully!');
-}
+        $application = ApplicationForm::with('user')->findOrFail($id);
+        $oldStatus = $application->status;
+        $application->status = $request->status;
+        $application->remarks = $request->remarks;
+        $application->save();
+
+        // Handle scholar creation/removal
+        if ($request->status === 'approved') {
+            \App\Models\Scholar::updateOrCreate(
+                [
+                    'user_id' => $application->user_id,
+                    'application_form_id' => $application->application_form_id,
+                ],
+                [
+                    'status' => 'qualifiers',
+                    'start_date' => now(),
+                    'end_date' => null,
+                    'verified_documents' => $application->verified_documents,
+                ]
+            );
+        } elseif ($request->status === 'rejected') {
+            \App\Models\Scholar::where('application_form_id', $application->application_form_id)->delete();
+        }
+
+        // Send notifications to DOST applicants (only if status changed)
+        if ($application->user->program_type === 'DOST' && $oldStatus !== $request->status) {
+            try {
+                $applicantName = $application->first_name . ' ' . $application->last_name;
+                
+                // Send Email
+                Mail::to($application->user->email)->send(
+                    new ApplicationStatusMail($request->status, $applicantName, 'DOST', $request->remarks)
+                );
+                
+                // ✅ Send SMS (only for approved/rejected) using telephone_nos
+                if ($application->telephone_nos && in_array($request->status, ['approved', 'rejected'])) {
+                    $this->smsService->sendDostStatus(
+                        $application->telephone_nos,
+                        $applicantName,
+                        $request->status,
+                        $request->remarks
+                    );
+                    \Log::info('SMS sent: Status updated', [
+                        'application_id' => $application->id,
+                        'new_status' => $request->status,
+                        'phone' => $application->telephone_nos
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                \Log::error('Notification failed: ' . $e->getMessage());
+            }
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'status' => $application->status,
+                'message' => 'Status updated successfully.',
+            ]);
+        }
+
+        return redirect()->route('admin.applications.show', $id)
+            ->with('success', 'Application status updated successfully! Notifications sent.');
+    }
 
     public function reportSummary(Request $request)
     {
@@ -1263,13 +1364,13 @@ public function updateChedStatus(Request $request, $id)
     ]);
     
     $chedInfo = \App\Models\ChedInfo::with('user')->findOrFail($id);
-    $oldStatus = $chedInfo->status; // Track old status
+    $oldStatus = $chedInfo->status;
     
     $chedInfo->status = $request->status;
     $chedInfo->updated_at = now();
     $chedInfo->save();
     
-    // Send email to CHED applicants (only if status changed and not pending)
+    // Send notifications to CHED applicants (only if status changed and not pending)
     if ($chedInfo->user && 
         $chedInfo->user->program_type === 'CHED' && 
         $oldStatus !== $request->status &&
@@ -1278,41 +1379,56 @@ public function updateChedStatus(Request $request, $id)
         try {
             $applicantName = $chedInfo->user->first_name . ' ' . $chedInfo->user->last_name;
             
-            // Set default messages if no remarks provided
+            // ✅ Set standardized messages for email notifications
             if ($request->status === 'approved') {
-                $remarks = $request->remarks ?? 'Congratulations! Your CHED scholarship application has been approved.';
+                $emailMessage = $request->remarks ?? 'Congratulations! Your CHED scholarship application has been approved.';
             } elseif ($request->status === 'rejected') {
-                $remarks = $request->remarks ?? 'Unfortunately, your CHED scholarship application has been rejected. Please review the remarks for more details.';
+                // ✅ Use standardized CHED rejection message
+                $emailMessage = 'Your CHED scholarship application has been rejected as your name was not included in the official CHED scholarship list. Please contact the scholarship office for clarification.';
             } else {
-                $remarks = $request->remarks;
+                $emailMessage = $request->remarks;
             }
             
+            // Send Email
             Mail::to($chedInfo->user->email)->send(
-                new ApplicationStatusMail($request->status, $applicantName, 'CHED', $remarks)
+                new ApplicationStatusMail($request->status, $applicantName, 'CHED', $emailMessage)
             );
             
-            \Log::info('CHED Status email sent', [
+            // ✅ Send SMS (SMS service already has the fixed message, no need to pass remarks)
+            if ($chedInfo->contact_no) {
+                $this->smsService->sendChedStatus(
+                    $chedInfo->contact_no,
+                    $applicantName,
+                    $request->status === 'approved' ? 'confirmed' : 'rejected'
+                    // ❌ Removed $remarks parameter - SMS uses fixed message
+                );
+                \Log::info('SMS sent: CHED status updated', [
+                    'ched_id' => $id,
+                    'new_status' => $request->status,
+                    'phone' => $chedInfo->contact_no
+                ]);
+            }
+            
+            \Log::info('CHED Status notifications sent', [
                 'email' => $chedInfo->user->email,
                 'status' => $request->status,
                 'applicant' => $applicantName
             ]);
             
         } catch (\Throwable $e) {
-            \Log::error('CHED Email send failed: ' . $e->getMessage());
+            \Log::error('CHED Notification failed: ' . $e->getMessage());
         }
     }
     
-    // Debug: Log the update
     \Log::info('CHED Status Updated', [
         'id' => $id,
         'old_status' => $oldStatus,
         'new_status' => $request->status,
-        'saved' => $chedInfo->wasChanged()
     ]);
     
     return redirect()
         ->back()
-        ->with('success', 'Status updated to: ' . ucfirst($request->status) . '. Email notification sent to applicant.');
+        ->with('success', 'Status updated to: ' . ucfirst($request->status) . '. Email and SMS notifications sent to applicant.');
 }
 
 public function saveDocumentRemark(Request $request, $applicationId)

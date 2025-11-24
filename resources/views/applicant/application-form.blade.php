@@ -1267,21 +1267,6 @@
                             </div>
                         </div>
 
-                        <!-- E-Signature Section -->
-                        <div class="mt-6">
-                            <label class="block text-sm font-medium text-gray-700">E-Signature:</label>
-                            <canvas id="signature-pad" class="border border-gray-300 rounded-md bg-white mt-1"
-                                width="400" height="150"></canvas>
-
-                            <div class="mt-2 flex gap-3">
-                                <button type="button" id="clear-signature"
-                                    class="px-3 py-1 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">Clear</button>
-                            </div>
-
-                            <!-- Hidden input to store the base64 signature image -->
-                            <input type="hidden" name="signature_image" id="signature_image">
-                        </div>
-
                         <!-- Navigation Buttons -->
                         <div class="flex justify-between mt-8">
                             <button type="button"

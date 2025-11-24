@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <   tyle>
+    <style>
         body {
             font-family: Arial, sans-serif;
             line-height: 1.6;

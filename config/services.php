@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'iprogsms' => [
+    'api_key' => env('IPROGSMS_API_KEY'),
+    'sender_id' => env('IPROGSMS_SENDER_ID', 'GrantEase'),
+],
+
 ];

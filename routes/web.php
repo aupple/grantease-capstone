@@ -9,6 +9,8 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\ChedController;
+use App\Services\IProgSmsService;
+
 
 Route::redirect('/', '/login');
 
@@ -88,7 +90,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// ✅ Admin routes - auth only (no verification required for admin)
+
 Route::middleware(['auth'])->group(function () {
 
     Route::prefix('admin')->name('admin.')->middleware(['role:1'])->group(function () {
@@ -158,5 +160,121 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 });
+
+Route::get('/test-sms', function () {
+    $smsService = new IProgSmsService();
+    
+    $testType = request('type', 'dost');
+    
+    if ($testType === 'ched') {
+        // ✅ Test CHED confirmation
+        $chedInfo = \App\Models\ChedInfo::whereNotNull('contact_no')->first();
+        
+        if (!$chedInfo) {
+            return "❌ No CHED scholar found with contact number. <br><br><a href='/test-sms?type=dost'>Test DOST instead</a>";
+        }
+        
+        $applicantName = $chedInfo->first_name . ' ' . $chedInfo->last_name;
+        
+        $result = $smsService->sendChedStatus(
+            $chedInfo->contact_no,
+            $applicantName,
+            'confirmed'
+        );
+        
+        if ($result['success']) {
+            return "✅ CHED SMS Sent Successfully to {$chedInfo->contact_no}!<br><br><strong>Recipient:</strong> {$applicantName}<br><br><strong>Message:</strong><br>" . nl2br($result['sms_content']) . "<br><br><a href='/test-sms?type=dost'>Test DOST</a> | <a href='/test-sms?type=ched-reject'>Test CHED Rejection</a>";
+        } else {
+            return "❌ CHED SMS Failed<br><br><strong>Error:</strong><br>" . $result['message'] . "<br><br>Check storage/logs/laravel.log for details<br><br><a href='/test-sms?type=dost'>Test DOST instead</a>";
+        }
+    } elseif ($testType === 'ched-reject') {
+        // ✅ Test CHED rejection with default reason
+        $chedInfo = \App\Models\ChedInfo::whereNotNull('contact_no')->first();
+        
+        if (!$chedInfo) {
+            return "❌ No CHED scholar found with contact number. <br><br><a href='/test-sms?type=dost'>Test DOST instead</a>";
+        }
+        
+        $applicantName = $chedInfo->first_name . ' ' . $chedInfo->last_name;
+        
+        // ✅ No custom reason = uses default CHED rejection message
+        $result = $smsService->sendChedStatus(
+            $chedInfo->contact_no,
+            $applicantName,
+            'rejected'
+        );
+        
+        if ($result['success']) {
+            return "✅ CHED REJECTION SMS Sent Successfully to {$chedInfo->contact_no}!<br><br><strong>Recipient:</strong> {$applicantName}<br><br><strong>Message:</strong><br>" . nl2br($result['sms_content']) . "<br><br><a href='/test-sms?type=dost'>Test DOST</a> | <a href='/test-sms?type=ched'>Test CHED Approval</a>";
+        } else {
+            return "❌ CHED SMS Failed<br><br><strong>Error:</strong><br>" . $result['message'] . "<br><br>Check storage/logs/laravel.log for details";
+        }
+    } elseif ($testType === 'dost-approve') {
+        // ✅ Test DOST approval
+        $application = \App\Models\ApplicationForm::whereNotNull('telephone_nos')->first();
+        
+        if (!$application) {
+            return "❌ No DOST application found with phone number. <br><br><a href='/test-sms?type=ched'>Test CHED instead</a>";
+        }
+        
+        $applicantName = $application->first_name . ' ' . $application->last_name;
+        
+        $result = $smsService->sendDostStatus(
+            $application->telephone_nos,
+            $applicantName,
+            'approved'
+        );
+        
+        if ($result['success']) {
+            return "✅ DOST APPROVAL SMS Sent Successfully to {$application->telephone_nos}!<br><br><strong>Recipient:</strong> {$applicantName}<br><br><strong>Message:</strong><br>" . nl2br($result['sms_content']) . "<br><br><a href='/test-sms'>Test Document Verified</a> | <a href='/test-sms?type=dost-reject'>Test DOST Rejection</a>";
+        } else {
+            return "❌ DOST SMS Failed<br><br><strong>Error:</strong><br>" . $result['message'];
+        }
+    } elseif ($testType === 'dost-reject') {
+        // ✅ Test DOST rejection with default reason
+        $application = \App\Models\ApplicationForm::whereNotNull('telephone_nos')->first();
+        
+        if (!$application) {
+            return "❌ No DOST application found with phone number. <br><br><a href='/test-sms?type=ched'>Test CHED instead</a>";
+        }
+        
+        $applicantName = $application->first_name . ' ' . $application->last_name;
+        
+        // ✅ No custom reason = uses default DOST rejection message
+        $result = $smsService->sendDostStatus(
+            $application->telephone_nos,
+            $applicantName,
+            'rejected'
+        );
+        
+        if ($result['success']) {
+            return "✅ DOST REJECTION SMS Sent Successfully to {$application->telephone_nos}!<br><br><strong>Recipient:</strong> {$applicantName}<br><br><strong>Message:</strong><br>" . nl2br($result['sms_content']) . "<br><br><a href='/test-sms'>Test Document Verified</a> | <a href='/test-sms?type=dost-approve'>Test DOST Approval</a>";
+        } else {
+            return "❌ DOST SMS Failed<br><br><strong>Error:</strong><br>" . $result['message'];
+        }
+    } else {
+        // ✅ Test DOST document verified (default)
+        $application = \App\Models\ApplicationForm::whereNotNull('telephone_nos')->first();
+        
+        if (!$application) {
+            return "❌ No DOST application found with phone number. <br><br><a href='/test-sms?type=ched'>Test CHED instead</a>";
+        }
+        
+        $applicantName = $application->first_name . ' ' . $application->last_name;
+        
+        $result = $smsService->sendDostStatus(
+            $application->telephone_nos,
+            $applicantName,
+            'document_verified'
+        );
+        
+        if ($result['success']) {
+            return "✅ DOST SMS Sent Successfully to {$application->telephone_nos}!<br><br><strong>Recipient:</strong> {$applicantName}<br><br><strong>Message:</strong><br>" . nl2br($result['sms_content']) . "<br><br><a href='/test-sms?type=ched'>Test CHED</a> | <a href='/test-sms?type=dost-approve'>Test DOST Approval</a> | <a href='/test-sms?type=dost-reject'>Test DOST Rejection</a>";
+        } else {
+            return "❌ DOST SMS Failed<br><br><strong>Error:</strong><br>" . $result['message'] . "<br><br>Check storage/logs/laravel.log for details<br><br><a href='/test-sms?type=ched'>Test CHED instead</a>";
+        }
+    }
+});
+
 
 require __DIR__ . '/auth.php';
