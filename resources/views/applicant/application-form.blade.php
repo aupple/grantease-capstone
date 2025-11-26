@@ -1299,7 +1299,6 @@
                     let currentStep = 1;
                     const totalSteps = 8;
 
-                    /* ✅ Updated Validation Function */
                     function validateCurrentStep(step) {
                         const currentStepElement = document.getElementById(`step${step}`);
                         if (!currentStepElement) return true;
@@ -1307,7 +1306,6 @@
                         let isValid = true;
                         let firstInvalidInput = null;
 
-                        // Get all required fields
                         const requiredInputs = currentStepElement.querySelectorAll(
                             'input[required], select[required], textarea[required]');
 
@@ -1325,9 +1323,7 @@
                                 valid = input.files && input.files.length > 0;
                             } else {
                                 valid = input.value.trim() !== '';
-                            }
-
-                            // Toggle red border
+                            }           
                             if (!valid) {
                                 isValid = false;
                                 firstInvalidInput = firstInvalidInput || input;

@@ -50,7 +50,6 @@ class ApplicationFormController extends Controller
 */
 public function store(Request $request)
 { 
-    // Full validation rules
     $validated = $request->validate([
         // Step 1: Basic Info
         'academic_year' => 'required|string|max:20',
@@ -168,22 +167,16 @@ public function store(Request $request)
         'applicant_signature' => 'nullable|string|max:150',
         'declaration_date' => 'nullable|date',
     ]);
-    
-
-        // Create new ApplicationForm instance
 $application = new ApplicationForm();
 
-// Set default values
 $application->user_id = Auth::user()->user_id;
 $application->program = $request->program;
 $application->status = 'pending';
 $application->submitted_at = now();
 
-// Add these lines:
 $application->applicant_status = $request->applicant_status;
 $application->applicant_type = $request->applicant_type;
 
-// Fill all non-file fields safely using validated data
 $nonFileFields = collect($validated)->except([
     'passport_picture',
     'form137',
@@ -207,7 +200,7 @@ $nonFileFields = collect($validated)->except([
 
 $application->fill($nonFileFields);
 
-// Handle file uploads dynamically
+
 $fileFields = [
     'passport_picture',
     'form137',
@@ -237,12 +230,10 @@ foreach ($fileFields as $field) {
     }
 }
 
-// Save the application
 $application->save();
 
 ActivityLogger::log('APPLICATION_SUBMITTED', 'Application ID: ' . $application->application_form_id . ' | Program: ' . $application->program);
 
-// Redirect with success message
 return redirect()->route('dashboard')
     ->with('success', 'Application form submitted successfully.');
   }

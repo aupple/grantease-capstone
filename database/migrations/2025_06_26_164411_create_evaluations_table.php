@@ -46,7 +46,7 @@ return new class extends Migration {
     $table->string('ms_phd_gwa')->nullable();
 
     $table->text('remarks')->nullable();
-    $table->string('decision')->nullable(); // approved / disapproved
+    $table->string('decision')->nullable();
     $table->string('evaluator_name')->nullable();
     $table->date('evaluation_date')->nullable();
 

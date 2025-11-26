@@ -17,9 +17,6 @@ class ApplicationStatusMail extends Mailable
     public $applicantName;
     public $programType;
 
-    /**
-     * Create a new message instance.
-     */
     public function __construct($status, $applicantName, $programType = 'DOST', $remarks = null)
     {
         $this->status = $status;
@@ -28,9 +25,6 @@ class ApplicationStatusMail extends Mailable
         $this->remarks = $remarks;
     }
 
-    /**
-     * Get the message envelope.
-     */
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -38,9 +32,6 @@ class ApplicationStatusMail extends Mailable
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
     public function content(): Content
     {
         return new Content(

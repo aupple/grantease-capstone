@@ -13,30 +13,20 @@ class UserSeeder extends Seeder
         User::create([
             'first_name' => 'Jampong',
             'middle_name' => null,
-            'last_name' => 'Administrator',
+            'last_name' => 'Scholarship Staff',
             'email' => 'admin@gmail.com',
             'password' => Hash::make('admin123'),
             'role_id' => 1,
         ]);
 
         user::create([
-            'first_name' => 'Uno',
-            'middle_name' => null,
+            'first_name' => 'Thresha',
+            'middle_name' => 'Calinga',
             'last_name' => 'macapayad',
-            'email' => 'uno@gmail.com',
-            'password' => Hash::make('blabla'),
+            'email' => 'villaro.threshamelle@gmail.com',
+            'password' => Hash::make('shang123'),
             'role_id' => 2,
             'program_type' => 'CHED',
-        ]);
-
-        user::create([
-            'first_name' => 'Black',
-            'middle_name' => null,
-            'last_name' => 'Black',
-            'email' => 'black@gmail.com',
-            'password' => Hash::make('blabla'),
-            'role_id' => 2,
-            'program_type' => 'DOST',
         ]);
     }
 }

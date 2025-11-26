@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <style>
         body {
@@ -76,7 +77,8 @@
         <p>Hello {{ $applicantName ?? 'Scholar' }},</p>
 
         @if ($programType === 'CHED')
-            <p>We are writing to inform you about an update on your CHED SIKAP Scholarship registration in our system.</p>
+            <p>We are writing to inform you about an update on your CHED SIKAP Scholarship registration in our system.
+            </p>
         @else
             <p>We are writing to inform you about an update on your {{ $programType ?? 'scholarship' }} application.</p>
         @endif
@@ -85,7 +87,7 @@
             Status:
             @if ($programType === 'CHED' && strtolower($status) === 'approved')
                 Confirmed
-            @elseif(strtolower($status) === 'document_verification')
+            @elseif(in_array(strtolower($status), ['document_verification', 'document_verified']))
                 Document Verified
             @else
                 {{ ucfirst($status) }}
