@@ -193,8 +193,8 @@
                         <div>
                             <label for="suffix" class="text-sm font-medium text-gray-700">Suffix</label>
                             <input type="text" name="suffix" id="suffix"
-                                value="{{ Auth::user()->suffix ?? 'N/A' }}"
-                                class="mt-1 w-full border-gray-300 rounded-md shadow-sm text-sm bg-gray-100" readonly>
+                                value="{{ old('suffix', Auth::user()->suffix) }}" placeholder="e.g., Jr., Sr., III"
+                                class="mt-1 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         </div>
                     </div>
                     <!-- 🏠 Address Section -->
@@ -241,7 +241,9 @@
                         <div>
                             <label for="zip_code" class="text-sm font-medium text-gray-700">Zip Code</label>
                             <input type="text" name="zip_code" id="zip_code"
-                                class="mt-1 w-full border-gray-300 rounded-md shadow-sm text-sm bg-gray-100" readonly>
+                                value="{{ old('zip_code', Auth::user()->zip_code) }}" placeholder="e.g., 9000"
+                                maxlength="10"
+                                class="mt-1 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         </div>
                     </div>
 
@@ -465,20 +467,20 @@
                                 <span class="text-sm text-gray-700 font-semibold">Scholarship (if applicable)</span>
                                 <div class="mt-2 flex flex-wrap gap-2">
                                     <label class="inline-flex items-center text-sm text-gray-700"><input
-                                            type="checkbox" name="ms_scholarship_type[]" value="PSHS"
+                                            type="checkbox" name="bs_scholarship_type[]" value="PSHS"
                                             class="form-checkbox text-blue-600 mr-2">PSHS</label>
                                     <label class="inline-flex items-center text-sm text-gray-700"><input
-                                            type="checkbox" name="ms_scholarship_type[]" value="RA 7687"
+                                            type="checkbox" name="bs_scholarship_type[]" value="RA 7687"
                                             class="form-checkbox text-blue-600 mr-2">RA 7687</label>
                                     <label class="inline-flex items-center text-sm text-gray-700"><input
-                                            type="checkbox" name="ms_scholarship_type[]" value="MERIT"
+                                            type="checkbox" name="bs_scholarship_type[]" value="MERIT"
                                             class="form-checkbox text-blue-600 mr-2">MERIT</label>
                                     <label class="inline-flex items-center text-sm text-gray-700"><input
-                                            type="checkbox" name="ms_scholarship_type[]" value="RA 10612"
+                                            type="checkbox" name="bs_scholarship_type[]" value="RA 10612"
                                             class="form-checkbox text-blue-600 mr-2">RA 10612</label>
                                     <label class="inline-flex items-center text-sm text-gray-700 mt-1">
                                         Others:
-                                        <input type="text" name="ms_scholarship_others"
+                                        <input type="text" name="bs_scholarship_others"
                                             class="ml-2 w-32 border-gray-300 rounded-md shadow-sm sm:text-sm focus:ring-1 focus:ring-blue-400">
                                     </label>
                                 </div>
@@ -522,20 +524,20 @@
                                 <span class="text-sm text-gray-700 font-semibold">Scholarship (if applicable)</span>
                                 <div class="mt-2 flex flex-wrap gap-2">
                                     <label class="inline-flex items-center text-sm text-gray-700"><input
-                                            type="checkbox" name="phd_scholarship_type[]" value="PSHS"
+                                            type="checkbox" name="bs_scholarship_type[]" value="PSHS"
                                             class="form-checkbox text-blue-600 mr-2">PSHS</label>
                                     <label class="inline-flex items-center text-sm text-gray-700"><input
-                                            type="checkbox" name="phd_scholarship_type[]" value="RA 7687"
+                                            type="checkbox" name="bs_scholarship_type[]" value="RA 7687"
                                             class="form-checkbox text-blue-600 mr-2">RA 7687</label>
                                     <label class="inline-flex items-center text-sm text-gray-700"><input
-                                            type="checkbox" name="phd_scholarship_type[]" value="MERIT"
+                                            type="checkbox" name="bs_scholarship_type[]" value="MERIT"
                                             class="form-checkbox text-blue-600 mr-2">MERIT</label>
                                     <label class="inline-flex items-center text-sm text-gray-700"><input
-                                            type="checkbox" name="phd_scholarship_type[]" value="RA 10612"
+                                            type="checkbox" name="bs_scholarship_type[]" value="RA 10612"
                                             class="form-checkbox text-blue-600 mr-2">RA 10612</label>
                                     <label class="inline-flex items-center text-sm text-gray-700 mt-1">
                                         Others:
-                                        <input type="text" name="phd_scholarship_others"
+                                        <input type="text" name="bs_scholarship_others"
                                             class="ml-2 w-32 border-gray-300 rounded-md shadow-sm sm:text-sm focus:ring-1 focus:ring-blue-400">
                                     </label>
                                 </div>
@@ -923,7 +925,6 @@
                             onclick="validateAndNext(5)">Next: R&D / Pubs / Awards</button>
                     </div>
                 </div>
-                
                 <!-- Step 6: Research, Publications, Awards -->
                 <div class="step bg-white p-8 rounded-2xl shadow-md hidden" id="step6">
                     <!-- V. Research and Development Involvement -->
@@ -1121,41 +1122,40 @@
                             </div>
                         </section>
 
-                        <!-- 🔹 If Employed Section -->
-                        <section id="if_employed_section"
-                            class="bg-gray-50 p-5 rounded-lg shadow-sm border border-gray-100 hidden">
-                            <h5 class="text-base font-semibold mb-4 text-gray-800 flex items-center gap-2">
-                                <i class="fa-solid fa-briefcase text-blue-500"></i> For Employed Applicants
-                            </h5>
+                       <!-- 🔹 If Employed Section -->
+<section id="if_employed_section"
+    class="bg-gray-50 p-5 rounded-lg shadow-sm border border-gray-100 hidden">
+    <h5 class="text-base font-semibold mb-4 text-gray-800 flex items-center gap-2">
+        <i class="fa-solid fa-briefcase text-blue-500"></i> If Employed
+    </h5>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                                        Recommendation from Head of Agency <span class="text-red-500">*</span>
-                                    </label>
-                                    <input type="file" name="recommendation_head_agency_pdf" id="recommendation_head_agency_pdf"
-                                        accept="application/pdf"
-                                        class="w-full border border-gray-300 rounded-md text-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition employed-required">
-                                </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+                Recommendation from Head of Agency
+            </label>
+            <input type="file" name="recommendation_head_agency_pdf"
+                accept="application/pdf"
+                class="w-full border border-gray-300 rounded-md text-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+        </div>
 
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                                        Form 2A – Certificate of Employment <span class="text-red-500">*</span>
-                                    </label>
-                                    <input type="file" name="form_2a_pdf" id="form_2a_pdf" accept="application/pdf"
-                                        class="w-full border border-gray-300 rounded-md text-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition employed-required">
-                                </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+                Form 2A – Certificate of Employment
+            </label>
+            <input type="file" name="form_2a_pdf" accept="application/pdf"
+                class="w-full border border-gray-300 rounded-md text-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+        </div>
 
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                                        Form 2B – Certificate of Employment (Optional)
-                                    </label>
-                                    <input type="file" name="form_2b_pdf" accept="application/pdf"
-                                        class="w-full border border-gray-300 rounded-md text-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
-                                </div>
-                            </div>
-                        </section>
-
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+                Form 2B – Certificate of Employment (Optional)
+            </label>
+            <input type="file" name="form_2b_pdf" accept="application/pdf"
+                class="w-full border border-gray-300 rounded-md text-sm p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+        </div>
+    </div>
+</section>
                         <!-- 🔹 Additional Requirements -->
                         <section class="bg-gray-50 p-5 rounded-lg shadow-sm border border-gray-100">
                             <h5 class="text-base font-semibold mb-4 text-gray-800 flex items-center gap-2">
@@ -1266,21 +1266,6 @@
                             </div>
                         </div>
 
-                        <!-- E-Signature Section -->
-                        <div class="mt-6">
-                            <label class="block text-sm font-medium text-gray-700">E-Signature:</label>
-                            <canvas id="signature-pad" class="border border-gray-300 rounded-md bg-white mt-1"
-                                width="400" height="150"></canvas>
-
-                            <div class="mt-2 flex gap-3">
-                                <button type="button" id="clear-signature"
-                                    class="px-3 py-1 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">Clear</button>
-                            </div>
-
-                            <!-- Hidden input to store the base64 signature image -->
-                            <input type="hidden" name="signature_image" id="signature_image">
-                        </div>
-
                         <!-- Navigation Buttons -->
                         <div class="flex justify-between mt-8">
                             <button type="button"
@@ -1293,584 +1278,732 @@
                         </div>
                     </div>
                 </div>
-                
                 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    currentStep = 1;
-    updateStepIndicator();
-
-    attachEmploymentStatusListeners();
-    attachDynamicFieldListeners();
-    attachStrandCategoryListener();
-    attachNumericValidation();
-    attachAgeCalculation();
-    attachAcademicYear();
-    attachSignaturePad();
-    attachLiveValidation();
-    attachApplicantTypeToggle();
-    autoFillSignatureAndDate();
-    attachLocationSelectors();
-});
-
-// --- Step Navigation ---
-let currentStep = 1;
-const totalSteps = 8;
-
-function validateCurrentStep(step) {
-    const currentStepElement = document.getElementById(`step${step}`);
-    if (!currentStepElement) return true;
-
-    let isValid = true;
-    let firstInvalidInput = null;
-
-    const requiredInputs = currentStepElement.querySelectorAll('input[required], select[required], textarea[required]');
-    requiredInputs.forEach(input => {
-        if (input.disabled || input.offsetParent === null) return; // skip hidden/disabled
-
-        let valid = true;
-        if (input.type === 'radio') {
-            const group = currentStepElement.querySelectorAll(`input[name="${input.name}"]`);
-            valid = Array.from(group).some(r => r.checked);
-        } else if (input.type === 'checkbox') {
-            valid = input.checked;
-        } else if (input.type === 'file') {
-            valid = input.files && input.files.length > 0;
-        } else {
-            valid = input.value.trim() !== '';
-        }
-
-        if (!valid) {
-            isValid = false;
-            firstInvalidInput = firstInvalidInput || input;
-            input.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
-        } else {
-            input.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
-        }
+    document.addEventListener('DOMContentLoaded', function() {
+        currentStep = 1;
+        updateStepIndicator();
+        attachEmploymentStatusListener();
+        attachDynamicFieldListeners();
+        attachStrandCategoryListener();
+        attachNumericValidation();
+        attachAgeCalculation();
+        attachAcademicYear();
+        attachIfEmployedListener();
+        attachDegreeButtons();
+        attachLiveValidation();
+        attachApplicantTypeToggle();
+        autoFillSignatureAndDate();
     });
 
-    // Conditional employment validation
-    const employmentStatus = document.querySelector('input[name="employment_status"]:checked');
-    if (step === 5 && employmentStatus) {
-        if (['Permanent', 'Contractual', 'Probationary'].includes(employmentStatus.value)) {
-            const employedFields = document.getElementById('employed_fields');
-            if (!employedFields.classList.contains('hidden')) {
-                employedFields.querySelectorAll('input[required]').forEach(input => {
-                    if (input.value.trim() === '') {
-                        isValid = false;
-                        firstInvalidInput = firstInvalidInput || input;
-                    }
-                });
+    let currentStep = 1;
+    const totalSteps = 8;
+
+    /* ✅ FIXED Validation Function */
+    function validateCurrentStep(step) {
+        const currentStepElement = document.getElementById(`step${step}`);
+        if (!currentStepElement) return true;
+
+        let isValid = true;
+        let firstInvalidInput = null;
+
+        // Get all required fields in current step
+        const requiredInputs = currentStepElement.querySelectorAll(
+            'input[required], select[required], textarea[required]');
+
+        requiredInputs.forEach(input => {
+            // ✅ ENHANCED: Check if element is actually hidden
+            const isHidden = 
+                input.disabled || 
+                input.offsetParent === null || 
+                input.closest('.hidden') !== null ||
+                input.closest('[style*="display: none"]') !== null ||
+                input.closest('[style*="display:none"]') !== null ||
+                window.getComputedStyle(input).display === 'none' ||
+                window.getComputedStyle(input).visibility === 'hidden' ||
+                window.getComputedStyle(input.parentElement).display === 'none';
+
+            // Skip validation for hidden inputs
+            if (isHidden) {
+                return;
             }
-        } else if (employmentStatus.value === 'Self-employed') {
-            const selfFields = document.getElementById('self_employed_fields');
-            if (!selfFields.classList.contains('hidden')) {
-                selfFields.querySelectorAll('input[required]').forEach(input => {
-                    if (input.value.trim() === '') {
-                        isValid = false;
-                        firstInvalidInput = firstInvalidInput || input;
-                    }
+
+            let valid = true;
+
+            if (input.type === 'radio') {
+                const group = currentStepElement.querySelectorAll(`input[name="${input.name}"]`);
+                const visibleGroup = Array.from(group).filter(r => {
+                    return r.offsetParent !== null && 
+                           r.closest('.hidden') === null &&
+                           window.getComputedStyle(r).display !== 'none';
                 });
+                const checked = visibleGroup.some(r => r.checked);
+                valid = checked;
+                
+                // Mark all visible radios in group if invalid
+                if (!valid && visibleGroup.length > 0) {
+                    visibleGroup.forEach(r => {
+                        r.classList.add('border-red-500');
+                        if (r.parentElement) {
+                            r.parentElement.classList.add('text-red-500');
+                        }
+                    });
+                    firstInvalidInput = firstInvalidInput || visibleGroup[0];
+                }
+            } else if (input.type === 'checkbox') {
+                valid = input.checked;
+            } else if (input.type === 'file') {
+                valid = input.files && input.files.length > 0;
+            } else {
+                valid = input.value.trim() !== '';
             }
+
+            if (!valid && input.type !== 'radio') {
+                isValid = false;
+                firstInvalidInput = firstInvalidInput || input;
+                input.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+            } else if (input.type !== 'radio') {
+                input.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+            }
+        });
+
+        // Focus + alert
+        if (!isValid && firstInvalidInput) {
+            firstInvalidInput.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+            
+            // Get field label
+            let fieldLabel = 'Required field';
+            const label = firstInvalidInput.previousElementSibling;
+            if (label && label.tagName === 'LABEL') {
+                fieldLabel = label.textContent.replace('*', '').trim();
+            }
+            
+            alert(`⚠️ Please fill out all required fields before proceeding.\n\nMissing: ${fieldLabel}`);
+        }
+
+        return isValid;
+    }
+
+    /* ✅ Real-time validation feedback */
+    function attachLiveValidation() {
+        const allInputs = document.querySelectorAll('input[required], select[required], textarea[required]');
+
+        allInputs.forEach(input => {
+            input.addEventListener('input', () => {
+                if (input.type === 'file') {
+                    if (input.files && input.files.length > 0) {
+                        input.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+                    }
+                } else if (input.value.trim() !== '') {
+                    input.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+                }
+            });
+
+            input.addEventListener('change', () => {
+                if (input.type === 'radio' || input.type === 'checkbox' || input.tagName === 'SELECT') {
+                    input.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+                    if (input.type === 'radio') {
+                        // Remove red from all radios in group
+                        const group = document.querySelectorAll(`input[name="${input.name}"]`);
+                        group.forEach(r => {
+                            r.classList.remove('border-red-500');
+                            if (r.parentElement) {
+                                r.parentElement.classList.remove('text-red-500');
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    }
+
+    /* ✅ Navigation and Step Functions */
+    function validateAndNext(step) {
+        if (validateCurrentStep(currentStep)) {
+            document.getElementById(`step${currentStep}`).classList.add('hidden');
+            currentStep = step + 1;
+            document.getElementById(`step${currentStep}`).classList.remove('hidden');
+            updateStepIndicator();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     }
 
-    if (!isValid && firstInvalidInput) {
-        firstInvalidInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        alert('⚠️ Please fill out all required fields before proceeding.');
-    }
-
-    return isValid;
-}
-
-function validateAndNext(step) {
-    if (validateCurrentStep(step)) {
-        document.getElementById(`step${step}`).classList.add('hidden');
-        currentStep = step + 1;
+    function nextStep(step) {
+        document.getElementById(`step${currentStep}`).classList.add('hidden');
+        currentStep = step;
         document.getElementById(`step${currentStep}`).classList.remove('hidden');
         updateStepIndicator();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-}
 
-function nextStep(step) {
-    document.getElementById(`step${currentStep}`).classList.add('hidden');
-    currentStep = step;
-    document.getElementById(`step${currentStep}`).classList.remove('hidden');
-    updateStepIndicator();
-}
-
-function prevStep(step) {
-    document.getElementById(`step${currentStep}`).classList.add('hidden');
-    currentStep = step;
-    document.getElementById(`step${currentStep}`).classList.remove('hidden');
-    updateStepIndicator();
-}
-
-function goToStep(step) {
-    if (step < currentStep) prevStep(step);
-    else if (step > currentStep) nextStep(step);
-}
-
-function updateStepIndicator() {
-    const progressBar = document.getElementById('progress-bar');
-    const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
-    if (progressBar) progressBar.style.width = `${progressPercentage}%`;
-
-    document.querySelectorAll('.step-indicator').forEach(indicator => {
-        const stepNumber = parseInt(indicator.dataset.step);
-        const circle = indicator.querySelector('div:first-child');
-        const label = indicator.querySelector('span');
-
-        circle.classList.remove('bg-blue-600', 'bg-gray-200', 'text-white', 'text-gray-600');
-        label.classList.remove('text-blue-600', 'text-gray-500');
-
-        if (stepNumber === currentStep || stepNumber < currentStep) {
-            circle.classList.add('bg-blue-600', 'text-white');
-            label.classList.add('text-blue-600');
-        } else {
-            circle.classList.add('bg-gray-200', 'text-gray-600');
-            label.classList.add('text-gray-500');
-        }
-    });
-}
-
-// --- Show/Hide Degree Sections ---
-function showDegree(sectionId, button) {
-    const section = document.getElementById(sectionId);
-    if (section) {
-        section.classList.remove('hidden');
-        button.disabled = true;
-        button.classList.add('opacity-50', 'cursor-not-allowed');
+    function prevStep(step) {
+        document.getElementById(`step${currentStep}`).classList.add('hidden');
+        currentStep = step;
+        document.getElementById(`step${currentStep}`).classList.remove('hidden');
+        updateStepIndicator();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-}
 
-function hideDegree(sectionId) {
-    const section = document.getElementById(sectionId);
-    if (section) {
-        section.classList.add('hidden');
+    function goToStep(step) {
+        if (step < currentStep) prevStep(step);
+        else if (step > currentStep) nextStep(step);
+    }
+
+    function updateStepIndicator() {
+        const progressBar = document.getElementById('progress-bar');
+        const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
+        progressBar.style.width = `${progressPercentage}%`;
+
+        document.querySelectorAll('.step-indicator').forEach(indicator => {
+            const stepNumber = parseInt(indicator.dataset.step);
+            const circle = indicator.querySelector('div:first-child');
+            const label = indicator.querySelector('span');
+
+            circle.classList.remove('bg-blue-600', 'bg-gray-200', 'text-white', 'text-gray-600');
+            label.classList.remove('text-blue-600', 'text-gray-500');
+
+            if (stepNumber === currentStep || stepNumber < currentStep) {
+                circle.classList.add('bg-blue-600', 'text-white');
+                label.classList.add('text-blue-600');
+            } else {
+                circle.classList.add('bg-gray-200', 'text-gray-600');
+                label.classList.add('text-gray-500');
+            }
+        });
+    }
+
+    function autoFillSignatureAndDate() {
+        const firstName = document.getElementById("first_name")?.value || "";
+        const lastName = document.getElementById("last_name")?.value || "";
+        const middleName = document.getElementById("middle_name")?.value || "";
+        const suffix = document.getElementById("suffix")?.value || "";
         
-        // Re-enable the corresponding button
-        const buttons = document.querySelectorAll('#degree-buttons button');
-        buttons.forEach(btn => {
-            if (btn.getAttribute('onclick')?.includes(sectionId)) {
-                btn.disabled = false;
-                btn.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
-        });
-        
-        // Clear inputs in the section
-        section.querySelectorAll('input, select, textarea').forEach(input => {
-            input.value = '';
-            input.required = false;
-        });
-    }
-}
+        let fullName = `${firstName} ${middleName} ${lastName}`.trim();
+        if (suffix) fullName += ` ${suffix}`;
 
-// --- Auto Academic Year ---
-function attachAcademicYear() {
-    const academicYearInput = document.getElementById("academic_year");
-    if (!academicYearInput) return;
+        const signatureInput = document.getElementById("applicant_signature");
+        if (signatureInput) signatureInput.value = fullName;
 
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth() + 1;
-
-    let startYear, endYear;
-    if (month >= 6) {
-        startYear = year;
-        endYear = year + 1;
-    } else {
-        startYear = year - 1;
-        endYear = year;
+        const today = new Date().toISOString().split("T")[0];
+        const dateInput = document.getElementById("declaration_date");
+        if (dateInput) dateInput.value = today;
     }
 
-    academicYearInput.value = `${startYear}-${endYear}`;
-}
-
-// --- Auto Age Calculation ---
-function attachAgeCalculation() {
-    const dobInput = document.getElementById("date_of_birth");
-    const ageInput = document.getElementById("age");
-    if (!dobInput || !ageInput) return;
-
-    dobInput.addEventListener("change", function() {
-        const dob = new Date(this.value);
-        if (!isNaN(dob.getTime())) {
-            const today = new Date();
-            let age = today.getFullYear() - dob.getFullYear();
-            const m = today.getMonth() - dob.getMonth();
-            if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
-            ageInput.value = age >= 0 ? age : "";
-        } else {
-            ageInput.value = "";
-        }
-    });
-}
-
-// --- Auto Signature & Date ---
-function autoFillSignatureAndDate() {
-    const firstName = document.getElementById("first_name")?.value || "";
-    const lastName = document.getElementById("last_name")?.value || "";
-    const fullName = `${firstName} ${lastName}`.trim();
-
-    const signatureInput = document.getElementById("applicant_signature");
-    if (signatureInput) signatureInput.value = fullName;
-
-    const today = new Date().toISOString().split("T")[0];
-    const dateInput = document.getElementById("declaration_date");
-    if (dateInput) dateInput.value = today;
-
-    document.getElementById("first_name")?.addEventListener("input", autoFillSignatureAndDate);
-    document.getElementById("last_name")?.addEventListener("input", autoFillSignatureAndDate);
-}
-
-// --- Employment Status ---
-function attachEmploymentStatusListeners() {
-    const employmentRadios = document.querySelectorAll('input[name="employment_status"]');
-    if (!employmentRadios.length) return;
-
-    const employedFields = document.getElementById('employed_fields');
-    const selfEmployedFields = document.getElementById('self_employed_fields');
-    const employedUploadSection = document.getElementById('if_employed_section');
-
-    employmentRadios.forEach(radio => {
-        radio.addEventListener('change', function () {
-            employedFields.classList.add('hidden');
-            selfEmployedFields.classList.add('hidden');
-            employedUploadSection.classList.add('hidden');
-
-            employedFields.querySelectorAll('input').forEach(el => el.required = false);
-            selfEmployedFields.querySelectorAll('input').forEach(el => el.required = false);
-            
-            // Clear employed-required attribute
-            document.querySelectorAll('.employed-required').forEach(el => el.required = false);
-
-            if (['Permanent', 'Contractual', 'Probationary'].includes(this.value)) {
-                employedFields.classList.remove('hidden');
-                employedUploadSection.classList.remove('hidden');
-                employedFields.querySelectorAll('input').forEach(el => el.required = true);
-                document.querySelectorAll('.employed-required').forEach(el => el.required = true);
-            }
-
-            if (this.value === 'Self-employed') {
-                selfEmployedFields.classList.remove('hidden');
-                selfEmployedFields.querySelectorAll('input').forEach(el => el.required = true);
-            }
-        });
-    });
-}
-
-// --- Applicant Type ---
-function attachApplicantTypeToggle() {
-    const applicantRadios = document.querySelectorAll('input[name="applicant_status"]');
-    const newSection = document.getElementById('newApplicantSection');
-    const lateralSection = document.getElementById('lateralApplicantSection');
-
-    applicantRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            if (this.value === 'new') {
-                newSection.classList.remove('hidden');
-                lateralSection.classList.add('hidden');
-            } else if (this.value === 'lateral') {
-                newSection.classList.add('hidden');
-                lateralSection.classList.remove('hidden');
-            }
-        });
-    });
-}
-
-// --- Numeric Validation ---
-function attachNumericValidation() {
-    document.querySelectorAll(".numeric-only").forEach(input => {
-        input.addEventListener("input", function() {
-            this.value = this.value.replace(/[^0-9]/g, "");
-        });
-    });
-}
-
-// --- Live Validation ---
-function attachLiveValidation() {
-    const allInputs = document.querySelectorAll('input[required], select[required], textarea[required]');
-    allInputs.forEach(input => {
-        input.addEventListener('input', () => {
-            if (input.type === 'file' && input.files && input.files.length > 0) {
-                input.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
-            } else if (input.value.trim() !== '') {
-                input.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
-            }
-        });
-        input.addEventListener('change', () => {
-            if (input.type === 'radio' || input.type === 'checkbox' || input.tagName === 'SELECT') {
-                input.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
-            }
-        });
-    });
-}
-
-// --- Strand Category ---
-function attachStrandCategoryListener() {
-    document.querySelectorAll('input[name="strand_category"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-            const strand2Fields = document.getElementById('strand2_fields');
-            if (this.value === 'STRAND 2') strand2Fields.classList.remove('hidden');
-            else strand2Fields.classList.add('hidden');
-        });
-    });
-}
-
-// --- Dynamic Fields: R&D, Publications, Awards ---
-function attachDynamicFieldListeners() {
-    // --- R&D Involvement ---
-    let rdCount = 1;
-    document.getElementById('add_rd_involvement')?.addEventListener('click', function() {
-        rdCount++;
-        const container = document.getElementById('rd_involvement_container');
-        const newItem = document.createElement('div');
-        newItem.classList.add('rd_involvement_item', 'bg-gray-50', 'border', 'border-gray-200', 'rounded-xl', 'p-6', 'shadow-sm');
-        newItem.innerHTML = `
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
-                <div class="flex flex-col justify-between">
-                    <label for="rd_field_title_${rdCount}" class="block text-sm font-medium text-gray-700 h-[40px] flex items-end">
-                        Field & Title of Research <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" name="rd_involvement[${rdCount-1}][field_title]" id="rd_field_title_${rdCount}" class="mt-2 w-full border border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500" required>
-                </div>
-                <div class="flex flex-col justify-between">
-                    <label for="rd_location_duration_${rdCount}" class="block text-sm font-medium text-gray-700 h-[40px] flex items-end">
-                        Location / Duration <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" name="rd_involvement[${rdCount-1}][location_duration]" id="rd_location_duration_${rdCount}" class="mt-2 w-full border border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500" required>
-                </div>
-                <div class="flex flex-col justify-between">
-                    <label for="rd_fund_source_${rdCount}" class="block text-sm font-medium text-gray-700 h-[40px] flex items-end">
-                        Fund Source
-                    </label>
-                    <input type="text" name="rd_involvement[${rdCount-1}][fund_source]" id="rd_fund_source_${rdCount}" class="mt-2 w-full border border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div class="flex flex-col justify-between">
-                    <label for="rd_nature_of_involvement_${rdCount}" class="block text-sm font-medium text-gray-700 h-[40px] flex items-end">
-                        Nature of Involvement
-                    </label>
-                    <input type="text" name="rd_involvement[${rdCount-1}][nature_of_involvement]" id="rd_nature_of_involvement_${rdCount}" class="mt-2 w-full border border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
-                </div>
-            </div>
-        `;
-        container.appendChild(newItem);
-    });
-
-    // --- Publications ---
-    let pubCount = 1;
-    document.getElementById('add_publication')?.addEventListener('click', function() {
-        pubCount++;
-        const container = document.getElementById('publications_container');
-        const newItem = document.createElement('div');
-        newItem.classList.add('publication_item', 'bg-gray-50', 'border', 'border-gray-200', 'rounded-xl', 'p-6', 'shadow-sm');
-        newItem.innerHTML = `
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <label for="pub_title_${pubCount}" class="block text-sm font-medium text-gray-700">
-                        Title of Article <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" name="publications[${pubCount-1}][title]" id="pub_title_${pubCount}" class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500" required>
-                </div>
-                <div>
-                    <label for="pub_name_year_${pubCount}" class="block text-sm font-medium text-gray-700">
-                        Name / Year of Publication
-                    </label>
-                    <input type="text" name="publications[${pubCount-1}][name_year]" id="pub_name_year_${pubCount}" class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div>
-                    <label for="pub_nature_of_involvement_${pubCount}" class="block text-sm font-medium text-gray-700">
-                        Nature of Involvement
-                    </label>
-                    <input type="text" name="publications[${pubCount-1}][nature_of_involvement]" id="pub_nature_of_involvement_${pubCount}" class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
-                </div>
-            </div>
-        `;
-        container.appendChild(newItem);
-    });
-
-    // --- Awards ---
-    let awardCount = 1;
-    document.getElementById('add_award')?.addEventListener('click', function() {
-        awardCount++;
-        const container = document.getElementById('awards_container');
-        const newItem = document.createElement('div');
-        newItem.classList.add('award_item', 'bg-gray-50', 'border', 'border-gray-200', 'rounded-xl', 'p-6', 'shadow-sm');
-        newItem.innerHTML = `
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <label for="award_title_${awardCount}" class="block text-sm font-medium text-gray-700">
-                        Title of Award <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" name="awards[${awardCount-1}][title]" id="award_title_${awardCount}" class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500" required>
-                </div>
-                <div>
-                    <label for="award_giving_body_${awardCount}" class="block text-sm font-medium text-gray-700">
-                        Award Giving Body
-                    </label>
-                    <input type="text" name="awards[${awardCount-1}][giving_body]" id="award_giving_body_${awardCount}" class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div>
-                    <label for="award_year_${awardCount}" class="block text-sm font-medium text-gray-700">
-                        Year of Award
-                    </label>
-                    <input type="text" name="awards[${awardCount-1}][year]" id="award_year_${awardCount}" class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
-                </div>
-            </div>
-        `;
-        container.appendChild(newItem);
-    });
-}
-
-// --- Signature Pad ---
-function attachSignaturePad() {
-    const canvas = document.getElementById('signature-pad');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const clearBtn = document.getElementById('clear-signature');
-    const signatureInput = document.getElementById('signature_image');
-    let drawing = false;
-
-    canvas.addEventListener('mousedown', e => {
-        drawing = true;
-        ctx.beginPath();
-        ctx.moveTo(e.offsetX, e.offsetY);
-    });
-
-    canvas.addEventListener('mousemove', e => {
-        if (drawing) {
-            ctx.lineTo(e.offsetX, e.offsetY);
-            ctx.stroke();
+    // Update signature when name fields change
+    ['first_name', 'last_name', 'middle_name', 'suffix'].forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener("input", autoFillSignatureAndDate);
         }
     });
 
-    canvas.addEventListener('mouseup', () => {
-        drawing = false;
-        signatureInput.value = canvas.toDataURL();
-    });
+    /* ✅ FIXED: If Employed Section Toggle */
+    function attachIfEmployedListener() {
+        const employedSection = document.getElementById('if_employed_section');
+        const radios = document.querySelectorAll('input[name="employment_status"]');
 
-    clearBtn?.addEventListener('click', () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        signatureInput.value = '';
-    });
-}
+        if (!employedSection || radios.length === 0) return;
 
-// --- Location Selectors ---
-function attachLocationSelectors() {
-    const provinceSelect = document.getElementById('province_select');
-    const citySelect = document.getElementById('city_select');
-    const barangaySelect = document.getElementById('barangay_select');
-    const regionInput = document.getElementById('region_select');
-    const zipInput = document.getElementById('zip_code');
+        radios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                const employedStatuses = ['Permanent', 'Contractual', 'Probationary'];
+                const fileInputs = employedSection.querySelectorAll('input[type="file"]');
 
-    // Fallback ZIPs by Region
-    const regionZipFallback = {
-        "010000000": "2900",
-        "020000000": "3500",
-        "030000000": "2000",
-        "040000000": "4000",
-        "050000000": "4400",
-        "060000000": "5000",
-        "070000000": "6000",
-        "080000000": "6500",
-        "090000000": "7000",
-        "100000000": "9000",
-        "110000000": "8000",
-        "120000000": "9600",
-        "130000000": "1000",
-        "140000000": "2600",
-        "150000000": "9700",
-        "160000000": "8600",
-        "170000000": "5200"
-    };
-
-    // Automatically set Region & ZIP
-    async function setLocation(level, code) {
-        try {
-            if (level === "provinces") {
-                const prov = await fetch(`https://psgc.gitlab.io/api/provinces/${code}/`).then(r => r.json());
-                const region = await fetch(`https://psgc.gitlab.io/api/regions/${prov.regionCode}/`).then(r => r.json());
-
-                regionInput.value = region.name;
-                regionInput.dataset.code = region.code;
-                zipInput.value = prov.zipcode || regionZipFallback[region.code] || "";
-            }
-
-            if (level === "cities-municipalities") {
-                const city = await fetch(`https://psgc.gitlab.io/api/cities-municipalities/${code}/`).then(r => r.json());
-                const prov = await fetch(`https://psgc.gitlab.io/api/provinces/${city.provinceCode}/`).then(r => r.json());
-                const region = await fetch(`https://psgc.gitlab.io/api/regions/${prov.regionCode}/`).then(r => r.json());
-
-                regionInput.value = region.name;
-                regionInput.dataset.code = region.code;
-                zipInput.value = city.zipcode || prov.zipcode || regionZipFallback[region.code] || "";
-            }
-
-            if (level === "barangays") {
-                const brgy = await fetch(`https://psgc.gitlab.io/api/barangays/${code}/`).then(r => r.json());
-                const cityCode = brgy.cityCode || brgy.municipalityCode;
-                if (!cityCode) {
-                    console.warn("Barangay has no city/municipality code:", brgy);
-                    return;
+                if (employedStatuses.includes(this.value)) {
+                    // Show section
+                    employedSection.classList.remove('hidden');
+                    
+                    // ✅ Files are OPTIONAL - remove required attribute
+                    fileInputs.forEach(input => {
+                        input.required = false;
+                        input.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+                    });
+                } else {
+                    // Hide section
+                    employedSection.classList.add('hidden');
+                    
+                    // Clear and remove required
+                    fileInputs.forEach(input => {
+                        input.required = false;
+                        input.value = '';
+                        input.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+                    });
                 }
+            });
+        });
+    }
 
-                const city = await fetch(`https://psgc.gitlab.io/api/cities-municipalities/${cityCode}/`).then(r => r.json());
-                const prov = await fetch(`https://psgc.gitlab.io/api/provinces/${city.provinceCode}/`).then(r => r.json());
-                const region = await fetch(`https://psgc.gitlab.io/api/regions/${prov.regionCode}/`).then(r => r.json());
+    /* ✅ FIXED: Employment Status Listener */
+    function attachEmploymentStatusListener() {
+        const employmentRadios = document.querySelectorAll('input[name="employment_status"]');
+        const employedFields = document.getElementById('employed_fields');
+        const selfEmployedFields = document.getElementById('self_employed_fields');
 
-                regionInput.value = region.name || "Unknown Region";
-                regionInput.dataset.code = region.code || "";
-                zipInput.value = brgy.zipcode || city.zipcode || prov.zipcode || regionZipFallback[region.code] || "";
+        if (!employmentRadios.length || !employedFields || !selfEmployedFields) return;
+
+        employmentRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                // Hide all sections first
+                employedFields.classList.add('hidden');
+                selfEmployedFields.classList.add('hidden');
+
+                // ✅ Remove required from ALL inputs when hiding
+                employedFields.querySelectorAll('input, textarea, select').forEach(el => {
+                    el.required = false;
+                    el.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+                });
+                selfEmployedFields.querySelectorAll('input, textarea, select').forEach(el => {
+                    el.required = false;
+                    el.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+                });
+
+                // Show relevant section (fields are OPTIONAL)
+                if (['Permanent', 'Contractual', 'Probationary'].includes(radio.value)) {
+                    employedFields.classList.remove('hidden');
+                } else if (radio.value === 'Self-employed') {
+                    selfEmployedFields.classList.remove('hidden');
+                }
+                // Unemployed → no extra fields shown
+            });
+        });
+    }
+
+    /* ✅ FIXED: Applicant Type Toggle */
+    function attachApplicantTypeToggle() {
+        const applicantRadios = document.querySelectorAll('input[name="applicant_status"]');
+        const newSection = document.getElementById('newApplicantSection');
+        const lateralSection = document.getElementById('lateralApplicantSection');
+
+        if (!applicantRadios.length || !newSection || !lateralSection) return;
+
+        applicantRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                // Hide both sections
+                newSection.classList.add('hidden');
+                lateralSection.classList.add('hidden');
+
+                // Remove required from both
+                newSection.querySelectorAll('input, select, textarea').forEach(el => {
+                    el.required = false;
+                    el.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+                });
+                lateralSection.querySelectorAll('input, select, textarea').forEach(el => {
+                    el.required = false;
+                    el.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+                });
+
+                // Show relevant section (fields are OPTIONAL)
+                if (this.value === 'new') {
+                    newSection.classList.remove('hidden');
+                } else if (this.value === 'lateral') {
+                    lateralSection.classList.remove('hidden');
+                }
+            });
+        });
+    }
+
+    /* ✅ Degree Buttons */
+    function attachDegreeButtons() {
+        window.showDegree = function(sectionId, button) {
+            const section = document.getElementById(sectionId);
+            const buttonsContainer = document.getElementById("degree-buttons");
+            
+            if (!section || !buttonsContainer) return;
+            
+            section.classList.remove("hidden");
+            section.insertAdjacentElement("afterend", buttonsContainer);
+
+            // ✅ Make text inputs in this section required
+            section.querySelectorAll('input[type="text"]').forEach(input => {
+                input.required = true;
+            });
+
+            // Disable button
+            button.disabled = true;
+            button.classList.add('opacity-50', 'cursor-not-allowed');
+        };
+
+        window.hideDegree = function(sectionId) {
+            const section = document.getElementById(sectionId);
+            const buttonsContainer = document.getElementById("degree-buttons");
+            
+            if (!section || !buttonsContainer) return;
+            
+            section.classList.add("hidden");
+
+            // ✅ Remove required and clear values
+            section.querySelectorAll('input').forEach(input => {
+                input.required = false;
+                input.value = '';
+                input.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+            });
+
+            // Place buttons back
+            const bsSection = document.querySelector("#step3 > .bg-gray-50");
+            if (bsSection) {
+                bsSection.insertAdjacentElement("afterend", buttonsContainer);
             }
-        } catch (err) {
-            console.error("Error setting location:", err);
+
+            // Re-enable button
+            const relatedButton = sectionId === "ms-degree-section" 
+                ? document.querySelector('button[onclick*="ms-degree-section"]')
+                : document.querySelector('button[onclick*="phd-degree-section"]');
+            
+            if (relatedButton) {
+                relatedButton.disabled = false;
+                relatedButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        };
+    }
+
+    /* ✅ STRAND Category Listener */
+    function attachStrandCategoryListener() {
+        const strandRadios = document.querySelectorAll('input[name="strand_category"]');
+        const strand2Fields = document.getElementById('strand2_fields');
+
+        if (!strandRadios.length || !strand2Fields) return;
+
+        strandRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'STRAND 2') {
+                    strand2Fields.classList.remove('hidden');
+                    // Make applicant_type required
+                    strand2Fields.querySelectorAll('input[name="applicant_type"]').forEach(r => {
+                        r.required = true;
+                    });
+                } else {
+                    strand2Fields.classList.add('hidden');
+                    // Remove required
+                    strand2Fields.querySelectorAll('input[name="applicant_type"]').forEach(r => {
+                        r.required = false;
+                        r.checked = false;
+                        r.classList.remove('border-red-500');
+                    });
+                }
+            });
+        });
+    }
+
+    /* ✅ Dynamic Field Listeners */
+    function attachDynamicFieldListeners() {
+        // --- Research & Development Involvement ---
+        let rdInvolvementCount = 1;
+        const addRdButton = document.getElementById('add_rd_involvement');
+        
+        if (addRdButton) {
+            addRdButton.addEventListener('click', function() {
+                rdInvolvementCount++;
+                const container = document.getElementById('rd_involvement_container');
+                const newItem = document.createElement('div');
+                newItem.classList.add('rd_involvement_item', 'bg-gray-50', 'border', 'border-gray-200', 'rounded-xl', 'p-6', 'shadow-sm', 'relative');
+                newItem.innerHTML = `
+                    <button type="button" onclick="this.parentElement.remove()" 
+                        class="absolute top-2 right-2 text-red-500 hover:text-red-700 font-bold text-xl">×</button>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
+                        <div class="flex flex-col justify-between">
+                            <label class="block text-sm font-medium text-gray-700 h-[40px] flex items-end">
+                                Field & Title of Research <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="rd_involvement[${rdInvolvementCount - 1}][field_title]" 
+                                class="mt-2 w-full border border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500"
+                                required>
+                        </div>
+                        <div class="flex flex-col justify-between">
+                            <label class="block text-sm font-medium text-gray-700 h-[40px] flex items-end">
+                                Location / Duration <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="rd_involvement[${rdInvolvementCount - 1}][location_duration]" 
+                                class="mt-2 w-full border border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500"
+                                required>
+                        </div>
+                        <div class="flex flex-col justify-between">
+                            <label class="block text-sm font-medium text-gray-700 h-[40px] flex items-end">
+                                Fund Source
+                            </label>
+                            <input type="text" name="rd_involvement[${rdInvolvementCount - 1}][fund_source]" 
+                                class="mt-2 w-full border border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div class="flex flex-col justify-between">
+                            <label class="block text-sm font-medium text-gray-700 h-[40px] flex items-end">
+                                Nature of Involvement
+                            </label>
+                            <input type="text" name="rd_involvement[${rdInvolvementCount - 1}][nature_of_involvement]" 
+                                class="mt-2 w-full border border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                `;
+                container.appendChild(newItem);
+            });
+        }
+
+        // --- Publications ---
+        let publicationCount = 1;
+        const addPubButton = document.getElementById('add_publication');
+        
+        if (addPubButton) {
+            addPubButton.addEventListener('click', function() {
+                publicationCount++;
+                const container = document.getElementById('publications_container');
+                const newItem = document.createElement('div');
+                newItem.classList.add('publication_item', 'bg-gray-50', 'border', 'border-gray-200', 'rounded-xl', 'p-6', 'shadow-sm', 'relative');
+                newItem.innerHTML = `
+                    <button type="button" onclick="this.parentElement.remove()" 
+                        class="absolute top-2 right-2 text-red-500 hover:text-red-700 font-bold text-xl">×</button>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">
+                                Title of Article <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="publications[${publicationCount - 1}][title]" 
+                                class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500"
+                                required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">
+                                Name / Year of Publication
+                            </label>
+                            <input type="text" name="publications[${publicationCount - 1}][name_year]" 
+                                class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">
+                                Nature of Involvement
+                            </label>
+                            <input type="text" name="publications[${publicationCount - 1}][nature_of_involvement]" 
+                                class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                `;
+                container.appendChild(newItem);
+            });
+        }
+
+        // --- Awards ---
+        let awardCount = 1;
+        const addAwardButton = document.getElementById('add_award');
+        
+        if (addAwardButton) {
+            addAwardButton.addEventListener('click', function() {
+                awardCount++;
+                const container = document.getElementById('awards_container');
+                const newItem = document.createElement('div');
+                newItem.classList.add('award_item', 'bg-gray-50', 'border', 'border-gray-200', 'rounded-xl', 'p-6', 'shadow-sm', 'relative');
+                newItem.innerHTML = `
+                    <button type="button" onclick="this.parentElement.remove()" 
+                        class="absolute top-2 right-2 text-red-500 hover:text-red-700 font-bold text-xl">×</button>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">
+                                Title of Award <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="awards[${awardCount - 1}][title]" 
+                                class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500"
+                                required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">
+                                Award Giving Body
+                            </label>
+                            <input type="text" name="awards[${awardCount - 1}][giving_body]" 
+                                class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">
+                                Year of Award
+                            </label>
+                            <input type="text" name="awards[${awardCount - 1}][year]" 
+                                class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                `;
+                container.appendChild(newItem);
+            });
         }
     }
 
-    // Load all provinces
-    fetch('https://psgc.gitlab.io/api/provinces/')
-        .then(res => res.json())
-        .then(data => data.forEach(p => provinceSelect.add(new Option(p.name, p.code))))
-        .catch(err => console.error('Error loading provinces:', err));
+    /* ✅ Numeric-only validation */
+    function attachNumericValidation() {
+        document.querySelectorAll(".numeric-only").forEach(input => {
+            input.addEventListener("input", function() {
+                this.value = this.value.replace(/[^0-9]/g, "");
+            });
+        });
+    }
 
-    // Province → City / Municipality
-    provinceSelect.addEventListener('change', function() {
-        const provCode = this.value;
-        citySelect.innerHTML = '<option value="">Select City / Municipality</option>';
-        barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
-        if (!provCode) return;
+    /* ✅ Auto Age Calculation */
+    function attachAgeCalculation() {
+        const dobInput = document.getElementById("date_of_birth");
+        const ageInput = document.getElementById("age");
 
-        fetch(`https://psgc.gitlab.io/api/provinces/${provCode}/cities-municipalities/`)
-            .then(res => res.json())
-            .then(data => data.forEach(c => citySelect.add(new Option(c.name, c.code))))
-            .catch(err => console.error('Error loading cities:', err));
+        if (dobInput && ageInput) {
+            dobInput.addEventListener("change", function() {
+                const dob = new Date(this.value);
+                if (!isNaN(dob.getTime())) {
+                    const today = new Date();
+                    let age = today.getFullYear() - dob.getFullYear();
+                    const m = today.getMonth() - dob.getMonth();
+                    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+                        age--;
+                    }
+                    ageInput.value = age >= 0 ? age : "";
+                } else {
+                    ageInput.value = "";
+                }
+            });
+        }
+    }
 
-        setLocation("provinces", provCode);
-    });
+    /* ✅ Auto Academic Year */
+    function attachAcademicYear() {
+        const academicYearInput = document.getElementById("academic_year");
+        if (academicYearInput) {
+            const today = new Date();
+            let year = today.getFullYear();
+            let month = today.getMonth() + 1;
 
-    // City → Auto-fill Region + Load Barangays
-    citySelect.addEventListener('change', function() {
-        const cityCode = this.value;
-        barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
-        if (!cityCode) return;
+            let startYear, endYear;
+            if (month >= 6) {
+                startYear = year;
+                endYear = year + 1;
+            } else {
+                startYear = year - 1;
+                endYear = year;
+            }
 
-        setLocation("cities-municipalities", cityCode);
+            academicYearInput.value = `${startYear}-${endYear}`;
+        }
+    }
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const provinceSelect = document.getElementById('province_select');
+                        const citySelect = document.getElementById('city_select');
+                        const barangaySelect = document.getElementById('barangay_select');
+                        const regionInput = document.getElementById('region_select'); // readonly
+                        const zipInput = document.getElementById('zip_code');
 
-        fetch(`https://psgc.gitlab.io/api/cities-municipalities/${cityCode}/barangays/`)
-            .then(res => res.json())
-            .then(data => data.forEach(b => barangaySelect.add(new Option(b.name, b.code))))
-            .catch(err => console.error('Error loading barangays:', err));
-    });
+                        // 🔹 Fallback ZIPs by Region
+                        const regionZipFallback = {
+                            "010000000": "2900",
+                            "020000000": "3500",
+                            "030000000": "2000",
+                            "040000000": "4000",
+                            "050000000": "4400",
+                            "060000000": "5000",
+                            "070000000": "6000",
+                            "080000000": "6500",
+                            "090000000": "7000",
+                            "100000000": "9000",
+                            "110000000": "8000",
+                            "120000000": "9600",
+                            "130000000": "1000",
+                            "140000000": "2600",
+                            "150000000": "9700",
+                            "160000000": "8600",
+                            "170000000": "5200"
+                        };
 
-    // Barangay → Finalize ZIP & Region
-    barangaySelect.addEventListener('change', function() {
-        const brgyCode = this.value;
-        if (!brgyCode) return;
-        setLocation("barangays", brgyCode);
-    });
-}
+                        // 🔹 Automatically set Region & ZIP
+                        async function setLocation(level, code) {
+                            try {
+                                if (level === "provinces") {
+                                    const prov = await fetch(`https://psgc.gitlab.io/api/provinces/${code}/`).then(r => r
+                                        .json());
+                                    const region = await fetch(`https://psgc.gitlab.io/api/regions/${prov.regionCode}/`)
+                                        .then(r => r.json());
+
+                                    regionInput.value = region.name;
+                                    regionInput.dataset.code = region.code;
+                                    zipInput.value = prov.zipcode || regionZipFallback[region.code] || "";
+                                }
+
+                                if (level === "cities-municipalities") {
+                                    const city = await fetch(`https://psgc.gitlab.io/api/cities-municipalities/${code}/`)
+                                        .then(r => r.json());
+                                    const prov = await fetch(`https://psgc.gitlab.io/api/provinces/${city.provinceCode}/`)
+                                        .then(r => r.json());
+                                    const region = await fetch(`https://psgc.gitlab.io/api/regions/${prov.regionCode}/`)
+                                        .then(r => r.json());
+
+                                    // ✅ Auto-fill Region and ZIP
+                                    regionInput.value = region.name;
+                                    regionInput.dataset.code = region.code;
+                                    zipInput.value = city.zipcode || prov.zipcode || regionZipFallback[region.code] || "";
+                                }
+
+                                if (level === "barangays") {
+                                    const brgy = await fetch(`https://psgc.gitlab.io/api/barangays/${code}/`).then(r => r
+                                        .json());
+
+                                    // ✅ Some barangays use "municipalityCode" instead of "cityCode"
+                                    const cityCode = brgy.cityCode || brgy.municipalityCode;
+                                    if (!cityCode) {
+                                        console.warn("Barangay has no city/municipality code:", brgy);
+                                        return;
+                                    }
+
+                                    const city = await fetch(
+                                        `https://psgc.gitlab.io/api/cities-municipalities/${cityCode}/`).then(r => r
+                                        .json());
+                                    const prov = await fetch(`https://psgc.gitlab.io/api/provinces/${city.provinceCode}/`)
+                                        .then(r => r.json());
+                                    const region = await fetch(`https://psgc.gitlab.io/api/regions/${prov.regionCode}/`)
+                                        .then(r => r.json());
+
+                                    // ✅ Always populate Region safely
+                                    regionInput.value = region.name || "Unknown Region";
+                                    regionInput.dataset.code = region.code || "";
+                                    zipInput.value = brgy.zipcode || city.zipcode || prov.zipcode || regionZipFallback[
+                                        region.code] || "";
+                                }
+                            } catch (err) {
+                                console.error("Error setting location:", err);
+                            }
+                        }
+
+                        // 🔹 Load all provinces
+                        fetch('https://psgc.gitlab.io/api/provinces/')
+                            .then(res => res.json())
+                            .then(data => data.forEach(p => provinceSelect.add(new Option(p.name, p.code))))
+                            .catch(err => console.error('Error loading provinces:', err));
+
+                        // 🔹 Province → City / Municipality
+                        provinceSelect.addEventListener('change', function() {
+                            const provCode = this.value;
+                            citySelect.innerHTML = '<option value="">Select City / Municipality</option>';
+                            barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+                            if (!provCode) return;
+
+                            fetch(`https://psgc.gitlab.io/api/provinces/${provCode}/cities-municipalities/`)
+                                .then(res => res.json())
+                                .then(data => data.forEach(c => citySelect.add(new Option(c.name, c.code))))
+                                .catch(err => console.error('Error loading cities:', err));
+
+                            setLocation("provinces", provCode);
+                        });
+
+                        // 🔹 City → Auto-fill Region + Load Barangays
+                        citySelect.addEventListener('change', function() {
+                            const cityCode = this.value;
+                            barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+                            if (!cityCode) return;
+
+                            // ✅ Auto-fill Region and ZIP
+                            setLocation("cities-municipalities", cityCode);
+
+                            fetch(`https://psgc.gitlab.io/api/cities-municipalities/${cityCode}/barangays/`)
+                                .then(res => res.json())
+                                .then(data => data.forEach(b => barangaySelect.add(new Option(b.name, b.code))))
+                                .catch(err => console.error('Error loading barangays:', err));
+                        });
+
+                        // 🔹 Barangay → Finalize ZIP & Region
+                        barangaySelect.addEventListener('change', function() {
+                            const brgyCode = this.value;
+                            if (!brgyCode) return;
+                            setLocation("barangays", brgyCode);
+                        });
+                    });
                 </script>
             </form>
-        </div>
-    </div>
 </x-app-layout>
