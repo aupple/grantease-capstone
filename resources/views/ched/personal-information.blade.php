@@ -46,9 +46,6 @@
                                     {{ $personalInfo->first_name }}
                                     {{ $personalInfo->middle_name }}
                                     {{ $personalInfo->last_name }}
-                                    @if ($personalInfo->suffix)
-                                        {{ $personalInfo->suffix }}
-                                    @endif
                                 </h1>
                                 <p class="text-blue-200 text-sm mt-1">Application No:
                                     {{ $personalInfo->application_no }}</p>
