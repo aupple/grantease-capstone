@@ -11,13 +11,4 @@ export default defineConfig({
     server: {
         host: "localhost",
     },
-    build: {
-        manifest: true,
-        outDir: "public/build",
-        rollupOptions: {
-            output: {
-                manualChunks: undefined,
-            },
-        },
-    },
 });
