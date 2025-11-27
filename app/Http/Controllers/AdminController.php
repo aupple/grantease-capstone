@@ -221,7 +221,7 @@ public function printApplicationForm($id)
             $pdf->SetXY(32.5, 74);
             $pdf->Write(0, 'X');
         } elseif (stripos($term, 'Second') !== false) {
-            $pdf->SetXY(48, 67);
+            $pdf->SetXY(47, 74);
             $pdf->Write(0, 'X');
         } elseif (stripos($term, 'Third') !== false) {
             $pdf->SetXY(66, 67);
@@ -273,7 +273,7 @@ public function printApplicationForm($id)
         $pdf->SetXY(128, 111);
         $pdf->Write(0, $application->passport_no ?? '');
         
-        $pdf->SetXY(165, 111);
+        $pdf->SetXY(162, 111);
         $pdf->Write(0, $application->email_address ?? $application->user->email ?? '');
         
         // Row d: Current Mailing Address
@@ -448,10 +448,10 @@ public function printApplicationForm($id)
         }
 
         // New Applicant section
-        $pdf->SetXY(365, 535);
+        $pdf->SetXY(82, 275.5);
         $pdf->Write(0, $application->new_applicant_university ?? '');
 
-        $pdf->SetXY(365, 566);
+        $pdf->SetXY(82, 283);
         $pdf->Write(0, $application->new_applicant_course ?? '');
 
         // Lateral Applicant section
@@ -613,7 +613,7 @@ if ($application->publications) {
             }
         }
         
-        $pdf->SetXY(157.5, 292);
+        $pdf->SetXY(146, 292);
 $fullName = ($application->user->first_name ?? '') . ' ' . 
             ($application->user->middle_name ?? '') . ' ' . 
             ($application->user->last_name ?? '');
@@ -850,30 +850,29 @@ private function convertRegionToRoman($region)
                     'applicant_name' => $applicantName
                 ]);
                 
-                // ✅ THEN SEND SMS
-                if ($application->telephone_nos) {
-                    $smsResult = $this->smsService->sendDostStatus(
-                        $application->telephone_nos,
-                        $applicantName,
-                        'document_verified'
-                    );
-                    
-                    \Log::info('✅ SMS SENT: Document verification', [
-                        'application_id' => $application->id,
-                        'phone' => $application->telephone_nos,
-                        'sms_success' => $smsResult['success'] ?? false,
-                    ]);
-                }
-                
-            } catch (\Exception $e) {
-                \Log::error('❌ NOTIFICATION FAILED: ' . $e->getMessage(), [
-                    'application_id' => $application->id,
-                    'line' => $e->getLine(),
-                    'file' => $e->getFile(),
-                    'trace' => $e->getTraceAsString()
-                ]);
-            }
-        }
+           // ✅ THEN SEND SMS
+if ($application->telephone_nos) {
+    $this->smsService->sendDostStatus(
+        $application->telephone_nos,
+        $applicantName,
+        'document_verified'
+    );
+    
+    \Log::info('SMS sent: Document verified', [
+        'application_id' => $application->id,
+        'phone' => $application->telephone_nos
+    ]);
+}
+        
+    } catch (\Exception $e) {
+        \Log::error('❌ NOTIFICATION FAILED: ' . $e->getMessage(), [
+            'application_id' => $application->id,
+            'line' => $e->getLine(),
+            'file' => $e->getFile(),
+            'trace' => $e->getTraceAsString()
+        ]);
+    }
+}
     } elseif (!$allVerified && $application->status === 'document_verification') {
         // ✅ Revert to pending if documents become unverified
         $application->status = 'pending';

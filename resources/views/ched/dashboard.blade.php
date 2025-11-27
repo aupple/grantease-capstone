@@ -112,9 +112,9 @@ if (in_array($currentStatus, ['approved', 'rejected'])) {
                                                 @if ($verdictLabel === 'rejected')
                                                     Rejected
                                                 @elseif($verdictLabel === 'approved')
-                                                    Approved
+                                                    Confirmed
                                                 @else
-                                                    Awaiting Decision
+                                                    Awaiting Confirmation
                                                 @endif
                                             </p>
                                         </div>

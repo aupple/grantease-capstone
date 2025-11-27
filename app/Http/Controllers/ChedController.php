@@ -791,6 +791,8 @@ public function exportToExcel(Request $request)
                 'ched_info_table.last_name',
                 'ched_info_table.suffix',
                 'ched_info_table.application_no',
+                'ched_info_table.school_term',
+                'ched_info_table.academic_year',
                 
                 // From ched_grade_reports table
                 'ched_grade_reports.degree_program',
@@ -812,6 +814,8 @@ public function exportToExcel(Request $request)
                 'ched_info_table.last_name',
                 'ched_info_table.suffix',
                 'ched_info_table.application_no',
+                'ched_info_table.school_term',
+                'ched_info_table.academic_year',
                 
                 'ched_enrollment_reports.*'
             )->get();
@@ -823,6 +827,8 @@ public function exportToExcel(Request $request)
                 'ched_info_table.last_name',
                 'ched_info_table.suffix',
                 'ched_info_table.application_no',
+                 'ched_info_table.school_term',
+                'ched_info_table.academic_year',
                 
                 'ched_continuing_reports.*'
             )->get();
@@ -945,12 +951,21 @@ private function populateGradeReport($sheet, $scholars, $hiddenColumns)
     $sheet->getStyle('M6:M' . ($row - 1))->getAlignment()->setWrapText(true);
 }
 
-// Replace your enrollment methods with these updated versions
 
 private function populateEnrollmentReport($spreadsheet, $scholars, $hiddenColumns)
 {
     // Use ONLY the active sheet
     $sheet = $spreadsheet->getActiveSheet();
+
+    if ($scholars->isNotEmpty()) {
+        $firstScholar = $scholars->first();
+        
+        // Row 5, Column C: Academic Year of Monitoring
+        $sheet->setCellValue('C5', $firstScholar->academic_year ?? '');
+        
+        // Row 6, Column C: Term of Monitoring  
+        $sheet->setCellValue('C6', $firstScholar->school_term ?? '');
+    }
     
     // DEBUG: Log what we're getting
     \Log::info('Total scholars for enrollment: ' . $scholars->count());
@@ -959,21 +974,29 @@ private function populateEnrollmentReport($spreadsheet, $scholars, $hiddenColumn
     \Log::info('Category C count: ' . $scholars->where('category', 'c')->count());
     \Log::info('Category D count: ' . $scholars->where('category', 'd')->count());
     
-    // Table A: Enrolled Scholars, With No Issues (Row 8 based on template)
-    $currentRow = 11; 
-    $currentRow = $this->populateEnrollmentTableA($sheet, $scholars->where('category', 'a'), $hiddenColumns, $currentRow);
+    // Table A: Enrolled Scholars, With No Issues (starts at row 11)
+    $tableAStart = 11; 
+    $this->populateEnrollmentTableA($sheet, $scholars->where('category', 'a'), $hiddenColumns, $tableAStart);
     
-    // ✅ Table B: Starts where Table A ended + spacing for headers
-    $currentRow += 3; // Add space for Table B header (adjust based on your template)
-    $currentRow = $this->populateEnrollmentTableB($sheet, $scholars->where('category', 'b'), $hiddenColumns, $currentRow);
+    \Log::info('Table A completed');
     
-    // ✅ Table C: Starts where Table B ended + spacing for headers
-    $currentRow += 3; // Add space for Table C header (adjust based on your template)
-    $currentRow = $this->populateEnrollmentTableC($sheet, $scholars->where('category', 'c'), $hiddenColumns, $currentRow);
+    // Table B: Enrolled Scholars, But With Issues (starts at row 29)
+    $tableBStart = 29;
+    $this->populateEnrollmentTableB($sheet, $scholars->where('category', 'b'), $hiddenColumns, $tableBStart);
     
-    // ✅ Table D: Starts where Table C ended + spacing for headers
-    $currentRow += 3; // Add space for Table D header (adjust based on your template)
-    $currentRow = $this->populateEnrollmentTableD($sheet, $scholars->where('category', 'd'), $hiddenColumns, $currentRow);
+    \Log::info('Table B completed');
+    
+    // Table C: Expected to Enroll, But Did Not Enroll (starts at row 46)
+    $tableCStart = 46;
+    $this->populateEnrollmentTableC($sheet, $scholars->where('category', 'c'), $hiddenColumns, $tableCStart);
+    
+    \Log::info('Table C completed');
+    
+    // Table D: Scholars No Longer Expected to Enroll (starts at row 64) 
+    $tableDStart = 64;
+    $this->populateEnrollmentTableD($sheet, $scholars->where('category', 'd'), $hiddenColumns, $tableDStart);
+    
+    \Log::info('Table D completed');
 }
 
 private function populateEnrollmentTableA($sheet, $scholars, $hiddenColumns, $startRow)
@@ -1042,246 +1065,23 @@ private function populateEnrollmentTableA($sheet, $scholars, $hiddenColumns, $st
 
 private function populateEnrollmentTableB($sheet, $scholars, $hiddenColumns, $startRow)
 {
-    $row = $startRow;
-    $no = 1;
-    
-    foreach ($scholars as $scholar) {
-        $colIndex = 1;
-        
-        if (!in_array('enr_b_no', $hiddenColumns)) {
-            $sheet->setCellValueByColumnAndRow($colIndex++, $row, $no);
-        } else {
-            $colIndex++;
-        }
-        
-        if (!in_array('enr_b_name', $hiddenColumns)) {
-            $fullName = trim(($scholar->first_name ?? '') . ' ' . 
-                            ($scholar->middle_name ?? '') . ' ' . 
-                            ($scholar->last_name ?? '') . ' ' . 
-                            ($scholar->suffix ?? ''));
-            $sheet->setCellValueByColumnAndRow($colIndex++, $row, $fullName);
-        } else {
-            $colIndex++;
-        }
-        
-        if (!in_array('enr_b_application_number', $hiddenColumns)) {
-            $sheet->setCellValueByColumnAndRow($colIndex++, $row, $scholar->application_no ?? '');
-        } else {
-            $colIndex++;
-        }
-        
-        if (!in_array('enr_b_degree_program', $hiddenColumns)) {
-            $sheet->setCellValueByColumnAndRow($colIndex++, $row, $scholar->enrollment_degree_program ?? '');
-        } else {
-            $colIndex++;
-        }
-        
-        if (!in_array('enr_b_status', $hiddenColumns)) {
-            $sheet->setCellValueByColumnAndRow($colIndex++, $row, $scholar->issue_status ?? '');
-        } else {
-            $colIndex++;
-        }
-        
-        if (!in_array('enr_b_others_status', $hiddenColumns)) {
-            $sheet->setCellValueByColumnAndRow($colIndex++, $row, $scholar->others_status ?? '');
-        } else {
-            $colIndex++;
-        }
-        
-        if (!in_array('enr_b_description', $hiddenColumns)) {
-            $sheet->setCellValueByColumnAndRow($colIndex++, $row, $scholar->status_description ?? '');
-        } else {
-            $colIndex++;
-        }
-
-        $row++;
-        $no++;
-    }
-    
-    return $row;
-}
-
-private function populateEnrollmentTableC($sheet, $scholars, $hiddenColumns, $startRow)
-{
-    $row = $startRow;
-    $no = 1;
-    
-    foreach ($scholars as $scholar) {
-        $colIndex = 1;
-        
-        if (!in_array('enr_c_no', $hiddenColumns)) {
-            $sheet->setCellValueByColumnAndRow($colIndex++, $row, $no);
-        } else {
-            $colIndex++;
-        }
-        
-        if (!in_array('enr_c_name', $hiddenColumns)) {
-            $fullName = trim(($scholar->first_name ?? '') . ' ' . 
-                            ($scholar->middle_name ?? '') . ' ' . 
-                            ($scholar->last_name ?? '') . ' ' . 
-                            ($scholar->suffix ?? ''));
-            $sheet->setCellValueByColumnAndRow($colIndex++, $row, $fullName);
-        } else {
-            $colIndex++;
-        }
-        
-        if (!in_array('enr_c_application_number', $hiddenColumns)) {
-            $sheet->setCellValueByColumnAndRow($colIndex++, $row, $scholar->application_no ?? '');
-        } else {
-            $colIndex++;
-        }
-        
-        if (!in_array('enr_c_degree_program', $hiddenColumns)) {
-            $sheet->setCellValueByColumnAndRow($colIndex++, $row, $scholar->enrollment_degree_program ?? '');
-        } else {
-            $colIndex++;
-        }
-        
-        if (!in_array('enr_c_status', $hiddenColumns)) {
-            $sheet->setCellValueByColumnAndRow($colIndex++, $row, $scholar->non_enrollment_status ?? '');
-        } else {
-            $colIndex++;
-        }
-        
-        if (!in_array('enr_c_others_status', $hiddenColumns)) {
-            $sheet->setCellValueByColumnAndRow($colIndex++, $row, $scholar->others_status ?? '');
-        } else {
-            $colIndex++;
-        }
-        
-        if (!in_array('enr_c_description', $hiddenColumns)) {
-            $sheet->setCellValueByColumnAndRow($colIndex++, $row, $scholar->status_description ?? '');
-        } else {
-            $colIndex++;
-        }
-
-        $row++;
-        $no++;
-    }
-    
-    return $row;
-}
-
-private function populateEnrollmentTableD($sheet, $scholars, $hiddenColumns, $startRow)
-{
-    $row = $startRow;
-    $no = 1;
-    
-    foreach ($scholars as $scholar) {
-        $colIndex = 1;
-        
-        if (!in_array('enr_d_no', $hiddenColumns)) {
-            $sheet->setCellValueByColumnAndRow($colIndex++, $row, $no);
-        } else {
-            $colIndex++;
-        }
-        
-        if (!in_array('enr_d_name', $hiddenColumns)) {
-            $fullName = trim(($scholar->first_name ?? '') . ' ' . 
-                            ($scholar->middle_name ?? '') . ' ' . 
-                            ($scholar->last_name ?? '') . ' ' . 
-                            ($scholar->suffix ?? ''));
-            $sheet->setCellValueByColumnAndRow($colIndex++, $row, $fullName);
-        } else {
-            $colIndex++;
-        }
-        
-        if (!in_array('enr_d_application_number', $hiddenColumns)) {
-            $sheet->setCellValueByColumnAndRow($colIndex++, $row, $scholar->application_no ?? '');
-        } else {
-            $colIndex++;
-        }
-        
-        if (!in_array('enr_d_degree_program', $hiddenColumns)) {
-            $sheet->setCellValueByColumnAndRow($colIndex++, $row, $scholar->enrollment_degree_program ?? '');
-        } else {
-            $colIndex++;
-        }
-        
-        if (!in_array('enr_d_status', $hiddenColumns)) {
-            $sheet->setCellValueByColumnAndRow($colIndex++, $row, $scholar->termination_status ?? '');
-        } else {
-            $colIndex++;
-        }
-        
-        if (!in_array('enr_d_others_status', $hiddenColumns)) {
-            $sheet->setCellValueByColumnAndRow($colIndex++, $row, $scholar->others_status ?? '');
-        } else {
-            $colIndex++;
-        }
-        
-        if (!in_array('enr_d_description', $hiddenColumns)) {
-            $sheet->setCellValueByColumnAndRow($colIndex++, $row, $scholar->status_description ?? '');
-        } else {
-            $colIndex++;
-        }
-
-        $row++;
-        $no++;
-    }
-    
-    return $row;
-}
-
-// Helper method for Continuing Report
-private function populateContinuingReport($spreadsheet, $scholars, $hiddenColumns)
-{
-    $sheet = $spreadsheet->getActiveSheet();
-    
-    // DEBUG: Log what we're getting
-    \Log::info('=== CONTINUING REPORT DEBUG ===');
-    \Log::info('Total scholars for continuing: ' . $scholars->count());
-    \Log::info('Category A count: ' . $scholars->where('category', 'a')->count());  // ✅ Changed
-    \Log::info('Category B count: ' . $scholars->where('category', 'b')->count());  // ✅ Changed
-    
-    // Log first scholar to see structure
-    $firstScholar = $scholars->first();
-    if ($firstScholar) {
-        \Log::info('First scholar data: ' . json_encode($firstScholar));
-    }
-    
-    // Table A: Continuing Scholars (starts at row 2)
-    $currentRow = 7;
-    $currentRow = $this->populateContinuingTableA($sheet, $scholars->where('category', 'a'), $hiddenColumns, $currentRow);  // ✅ Changed
-    
-    // Table B: Add header and populate
-    $currentRow += 2; // Add spacing
-    
-    // Define Table B columns
-    $tableBColumns = [
-        'cont_b_no' => 'No.',
-        'cont_b_name' => 'Name',
-        'cont_b_application_number' => 'Application Number',
-        'cont_b_scholarship_type' => 'Scholarship Type',
-        'cont_b_degree_program' => 'Degree Program',
-        'cont_b_academic_year' => 'Academic Year of Graduation',
-        'cont_b_term_graduation' => 'Term of Graduation',
-        'cont_b_remarks' => 'Remarks'
-    ];
-    
-    // Populate Table B data
-    $currentRow = $this->populateContinuingTableB($sheet, $scholars->where('category', 'b'), $hiddenColumns, $currentRow);  // ✅ Changed
-}
-
-private function populateContinuingTableA($sheet, $scholars, $hiddenColumns, $startRow)
-{
-    \Log::info('Continuing Table A - Starting at row: ' . $startRow . ' with ' . $scholars->count() . ' scholars');
+    \Log::info('Table B - Starting at row: ' . $startRow . ' with ' . $scholars->count() . ' scholars');
     
     $row = $startRow;
     $no = 1;
-    $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M']; // ✅ Added 'M' (13 columns)
-
+    $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G']; // Column letters for Table B
+    
     foreach ($scholars as $scholar) {
         $colIndex = 0;
         
-        // Column A: No.
-        if (!in_array('cont_a_no', $hiddenColumns)) {
+        // Column: No.
+        if (!in_array('enr_b_no', $hiddenColumns)) {
             $sheet->setCellValue($columns[$colIndex] . $row, $no);
         }
         $colIndex++;
         
-        // Column B: Name
-        if (!in_array('cont_a_name', $hiddenColumns)) {
+        // Column: Name
+        if (!in_array('enr_b_name', $hiddenColumns)) {
             $fullName = trim(($scholar->first_name ?? '') . ' ' . 
                             ($scholar->middle_name ?? '') . ' ' . 
                             ($scholar->last_name ?? '') . ' ' . 
@@ -1290,73 +1090,295 @@ private function populateContinuingTableA($sheet, $scholars, $hiddenColumns, $st
         }
         $colIndex++;
         
-        // Column C: Application Number
-        if (!in_array('cont_a_application_number', $hiddenColumns)) {
+        // Column: Application Number
+        if (!in_array('enr_b_application_number', $hiddenColumns)) {
             $sheet->setCellValue($columns[$colIndex] . $row, $scholar->application_no ?? '');
         }
         $colIndex++;
         
-        // Column D: Scholarship Type
-        if (!in_array('cont_a_scholarship_type', $hiddenColumns)) {
-            $sheet->setCellValue($columns[$colIndex] . $row, $scholar->scholarship_type ?? '');
-        }
-        $colIndex++;
-        
-        // Column E: Degree Program
-        if (!in_array('cont_a_degree_program', $hiddenColumns)) {
+        // Column: Degree Program
+        if (!in_array('enr_b_degree_program', $hiddenColumns)) {
             $sheet->setCellValue($columns[$colIndex] . $row, $scholar->degree_program ?? '');
         }
         $colIndex++;
         
-        // Column F: Year of Approval
+        // Column: Status
+        if (!in_array('enr_b_status', $hiddenColumns)) {
+            $sheet->setCellValue($columns[$colIndex] . $row, $scholar->issue_status ?? '');
+        }
+        $colIndex++;
+        
+        // Column: If Others, State Status
+        if (!in_array('enr_b_others_status', $hiddenColumns)) {
+            $sheet->setCellValue($columns[$colIndex] . $row, $scholar->others_status ?? '');
+        }
+        $colIndex++;
+        
+        // Column: Provide Short Description of Status
+        if (!in_array('enr_b_description', $hiddenColumns)) {
+            $sheet->setCellValue($columns[$colIndex] . $row, $scholar->status_description ?? '');
+        }
+        $colIndex++;
+
+        $row++;
+        $no++;
+    }
+    
+    \Log::info('Table B - Ended at row: ' . $row);
+    return $row;
+}
+
+private function populateEnrollmentTableC($sheet, $scholars, $hiddenColumns, $startRow)
+{
+    \Log::info('Table C - Starting at row: ' . $startRow . ' with ' . $scholars->count() . ' scholars');
+    
+    $row = $startRow;
+    $no = 1;
+    $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G']; // Column letters for Table C
+    
+    foreach ($scholars as $scholar) {
+        $colIndex = 0;
+        
+        if (!in_array('enr_c_no', $hiddenColumns)) {
+            $sheet->setCellValue($columns[$colIndex] . $row, $no);
+        }
+        $colIndex++;
+        
+        if (!in_array('enr_c_name', $hiddenColumns)) {
+            $fullName = trim(($scholar->first_name ?? '') . ' ' . 
+                            ($scholar->middle_name ?? '') . ' ' . 
+                            ($scholar->last_name ?? '') . ' ' . 
+                            ($scholar->suffix ?? ''));
+            $sheet->setCellValue($columns[$colIndex] . $row, $fullName);
+        }
+        $colIndex++;
+        
+        if (!in_array('enr_c_application_number', $hiddenColumns)) {
+            $sheet->setCellValue($columns[$colIndex] . $row, $scholar->application_no ?? '');
+        }
+        $colIndex++;
+        
+        if (!in_array('enr_c_degree_program', $hiddenColumns)) {
+            $sheet->setCellValue($columns[$colIndex] . $row, $scholar->degree_program ?? '');
+        }
+        $colIndex++;
+        
+        if (!in_array('enr_c_status', $hiddenColumns)) {
+            $sheet->setCellValue($columns[$colIndex] . $row, $scholar->non_enrollment_status ?? '');
+        }
+        $colIndex++;
+        
+        if (!in_array('enr_c_others_status', $hiddenColumns)) {
+            $sheet->setCellValue($columns[$colIndex] . $row, $scholar->others_status ?? '');
+        }
+        $colIndex++;
+        
+        if (!in_array('enr_c_description', $hiddenColumns)) {
+            $sheet->setCellValue($columns[$colIndex] . $row, $scholar->status_description ?? '');
+        }
+        $colIndex++;
+
+        $row++;
+        $no++;
+    }
+    
+    \Log::info('Table C - Ended at row: ' . $row);
+    return $row;
+}
+
+private function populateEnrollmentTableD($sheet, $scholars, $hiddenColumns, $startRow)
+{
+    \Log::info('=== TABLE D FUNCTION CALLED ===');
+    \Log::info('Start row: ' . $startRow);
+    \Log::info('Scholars count: ' . $scholars->count());
+    \Log::info('Scholars data: ' . json_encode($scholars->toArray()));
+    
+    if ($scholars->isEmpty()) {
+        \Log::warning('TABLE D: No scholars to populate!');
+        return $startRow;
+    }
+    
+    $row = $startRow;
+    $no = 1;
+    
+    foreach ($scholars as $scholar) {
+        \Log::info("Processing Table D scholar {$no}: " . ($scholar->first_name ?? 'N/A') . ' ' . ($scholar->last_name ?? 'N/A'));
+        
+        $col = 'A'; // Start from column A for each row
+        
+        if (!in_array('enr_d_no', $hiddenColumns)) {
+            $sheet->setCellValue($col . $row, $no);
+            \Log::info("Set {$col}{$row} = {$no}");
+            $col++;
+        }
+        
+        if (!in_array('enr_d_name', $hiddenColumns)) {
+            $fullName = trim(($scholar->first_name ?? '') . ' ' . 
+                            ($scholar->middle_name ?? '') . ' ' . 
+                            ($scholar->last_name ?? '') . ' ' . 
+                            ($scholar->suffix ?? ''));
+            $sheet->setCellValue($col . $row, $fullName);
+            \Log::info("Set {$col}{$row} = {$fullName}");
+            $col++;
+        }
+        
+        if (!in_array('enr_d_application_number', $hiddenColumns)) {
+            $sheet->setCellValue($col . $row, $scholar->application_no ?? '');
+            \Log::info("Set {$col}{$row} = " . ($scholar->application_no ?? 'empty'));
+            $col++;
+        }
+        
+        if (!in_array('enr_d_degree_program', $hiddenColumns)) {
+            $sheet->setCellValue($col . $row, $scholar->degree_program ?? '');
+            \Log::info("Set {$col}{$row} = " . ($scholar->degree_program ?? 'empty'));
+            $col++;
+        }
+        
+        if (!in_array('enr_d_status', $hiddenColumns)) {
+            $sheet->setCellValue($col . $row, $scholar->termination_status ?? '');
+            \Log::info("Set {$col}{$row} = " . ($scholar->termination_status ?? 'empty'));
+            $col++;
+        }
+        
+        if (!in_array('enr_d_others_status', $hiddenColumns)) {
+            $sheet->setCellValue($col . $row, $scholar->others_status ?? '');
+            \Log::info("Set {$col}{$row} = " . ($scholar->others_status ?? 'empty'));
+            $col++;
+        }
+        
+        if (!in_array('enr_d_description', $hiddenColumns)) {
+            $sheet->setCellValue($col . $row, $scholar->status_description ?? '');
+            \Log::info("Set {$col}{$row} = " . ($scholar->status_description ?? 'empty'));
+            $col++;
+        }
+
+        $row++;
+        $no++;
+    }
+    
+    \Log::info('Table D - Ended at row: ' . $row);
+    return $row;
+}
+
+private function populateContinuingReport($spreadsheet, $scholars, $hiddenColumns)
+{
+    $sheet = $spreadsheet->getActiveSheet();
+    
+    // DEBUG: Log what we're getting
+    \Log::info('=== CONTINUING REPORT DEBUG ===');
+    \Log::info('Total scholars for continuing: ' . $scholars->count());
+    \Log::info('Category A count: ' . $scholars->where('category', 'a')->count());
+    \Log::info('Category B count: ' . $scholars->where('category', 'b')->count());
+    
+    // Log first scholar to see structure
+    $firstScholar = $scholars->first();
+    if ($firstScholar) {
+        \Log::info('First scholar data: ' . json_encode($firstScholar));
+    }
+    
+    // Table A: Continuing Scholars (starts at row 7)
+    $tableAStart = 7;
+    $this->populateContinuingTableA($sheet, $scholars->where('category', 'a'), $hiddenColumns, $tableAStart);
+    
+    // Table B: Scholars Who Have Completed Their Degrees (starts at row 31)
+    $tableBStart = 31;
+    $this->populateContinuingTableB($sheet, $scholars->where('category', 'b'), $hiddenColumns, $tableBStart);
+}
+
+private function populateContinuingTableA($sheet, $scholars, $hiddenColumns, $startRow)
+{
+    \Log::info('Continuing Table A - Starting at row: ' . $startRow . ' with ' . $scholars->count() . ' scholars');
+    
+    $row = $startRow;
+    $no = 1;
+    
+    foreach ($scholars as $scholar) {
+        $col = 'A'; // Start from column A for each row
+        
+        // Column: No.
+        if (!in_array('cont_a_no', $hiddenColumns)) {
+            $sheet->setCellValue($col . $row, $no);
+            $col++;
+        }
+        
+        // Column: Name
+        if (!in_array('cont_a_name', $hiddenColumns)) {
+            $fullName = trim(($scholar->first_name ?? '') . ' ' . 
+                            ($scholar->middle_name ?? '') . ' ' . 
+                            ($scholar->last_name ?? '') . ' ' . 
+                            ($scholar->suffix ?? ''));
+            $sheet->setCellValue($col . $row, $fullName);
+            $col++;
+        }
+        
+        // Column: Application Number
+        if (!in_array('cont_a_application_number', $hiddenColumns)) {
+            $sheet->setCellValue($col . $row, $scholar->application_no ?? '');
+            $col++;
+        }
+        
+        // Column: Scholarship Type
+        if (!in_array('cont_a_scholarship_type', $hiddenColumns)) {
+            $sheet->setCellValue($col . $row, $scholar->scholarship_type ?? '');
+            $col++;
+        }
+        
+        // Column: Degree Program
+        if (!in_array('cont_a_degree_program', $hiddenColumns)) {
+            $sheet->setCellValue($col . $row, $scholar->degree_program ?? '');
+            $col++;
+        }
+        
+        // Column: Year of Approval
         if (!in_array('cont_a_year_approval', $hiddenColumns)) {
-            $sheet->setCellValue($columns[$colIndex] . $row, $scholar->year_of_approval ?? '');
+            $sheet->setCellValue($col . $row, $scholar->year_of_approval ?? '');
+            $col++;
         }
-        $colIndex++;
         
-        // Column G: Last Term of Enrollment
+        // Column: Last Term of Enrollment
         if (!in_array('cont_a_last_term', $hiddenColumns)) {
-            $sheet->setCellValue($columns[$colIndex] . $row, $scholar->last_term_enrollment ?? '');
+            $sheet->setCellValue($col . $row, $scholar->last_term_enrollment ?? '');
+            $col++;
         }
-        $colIndex++;
         
-        // Column H: Good Academic Standing
+        // Column: Good Academic Standing
         if (!in_array('cont_a_good_standing', $hiddenColumns)) {
-            $sheet->setCellValue($columns[$colIndex] . $row, 
+            $sheet->setCellValue($col . $row, 
                 isset($scholar->good_academic_standing) ? ($scholar->good_academic_standing ? 'Yes' : 'No') : ''
             );
+            $col++;
         }
-        $colIndex++;
         
-        // Column I: Standing Explanation
+        // Column: Standing Explanation
         if (!in_array('cont_a_standing_explanation', $hiddenColumns)) {
-            $sheet->setCellValue($columns[$colIndex] . $row, $scholar->standing_explanation ?? '');
+            $sheet->setCellValue($col . $row, $scholar->standing_explanation ?? '');
+            $col++;
         }
-        $colIndex++;
         
-        // Column J: Finish on Time
+        // Column: Finish on Time
         if (!in_array('cont_a_finish_on_time', $hiddenColumns)) {
-            $sheet->setCellValue($columns[$colIndex] . $row, 
+            $sheet->setCellValue($col . $row, 
                 isset($scholar->finish_on_time) ? ($scholar->finish_on_time ? 'Yes' : 'No') : ''
             );
+            $col++;
         }
-        $colIndex++;
         
-        // Column K: Finish Explanation
+        // Column: Finish Explanation
         if (!in_array('cont_a_finish_explanation', $hiddenColumns)) {
-            $sheet->setCellValue($columns[$colIndex] . $row, $scholar->finish_explanation ?? '');
+            $sheet->setCellValue($col . $row, $scholar->finish_explanation ?? '');
+            $col++;
         }
-        $colIndex++;
         
-        // Column L: Recommendation
+        // Column: Recommendation
         if (!in_array('cont_a_recommendation', $hiddenColumns)) {
-            $sheet->setCellValue($columns[$colIndex] . $row, $scholar->recommendation ?? '');
+            $sheet->setCellValue($col . $row, $scholar->recommendation ?? '');
+            $col++;
         }
-        $colIndex++;
         
-        // Column M: Rationale
+        // Column: Rationale
         if (!in_array('cont_a_rationale', $hiddenColumns)) {
-            $sheet->setCellValue($columns[$colIndex] . $row, $scholar->rationale ?? '');
+            $sheet->setCellValue($col . $row, $scholar->rationale ?? '');
+            $col++;
         }
 
         $row++;
@@ -1373,53 +1395,57 @@ private function populateContinuingTableB($sheet, $scholars, $hiddenColumns, $st
     
     $row = $startRow;
     $no = 1;
-    $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']; // 8 columns
 
     foreach ($scholars as $scholar) {
-        $colIndex = 0;
+        $col = 'A';
         
         if (!in_array('cont_b_no', $hiddenColumns)) {
-            $sheet->setCellValue($columns[$colIndex] . $row, $no);
+            $sheet->setCellValue($col . $row, $no);
+            $col++;
         }
-        $colIndex++;
         
         if (!in_array('cont_b_name', $hiddenColumns)) {
             $fullName = trim(($scholar->first_name ?? '') . ' ' . 
                             ($scholar->middle_name ?? '') . ' ' . 
                             ($scholar->last_name ?? '') . ' ' . 
                             ($scholar->suffix ?? ''));
-            $sheet->setCellValue($columns[$colIndex] . $row, $fullName);
+            $sheet->setCellValue($col . $row, $fullName);
+            $col++;
         }
-        $colIndex++;
         
         if (!in_array('cont_b_application_number', $hiddenColumns)) {
-            $sheet->setCellValue($columns[$colIndex] . $row, $scholar->application_no ?? '');
+            $sheet->setCellValue($col . $row, $scholar->application_no ?? '');
+            $col++;
         }
-        $colIndex++;
         
         if (!in_array('cont_b_scholarship_type', $hiddenColumns)) {
-            $sheet->setCellValue($columns[$colIndex] . $row, $scholar->scholarship_type ?? '');
+            $sheet->setCellValue($col . $row, $scholar->scholarship_type ?? '');
+            $col++;
         }
-        $colIndex++;
         
         if (!in_array('cont_b_degree_program', $hiddenColumns)) {
-            $sheet->setCellValue($columns[$colIndex] . $row, $scholar->degree_program ?? '');
+            $sheet->setCellValue($col . $row, $scholar->degree_program ?? '');
+            $col++;
         }
-        $colIndex++;
         
         if (!in_array('cont_b_academic_year', $hiddenColumns)) {
-            $sheet->setCellValue($columns[$colIndex] . $row, $scholar->academic_year_graduation ?? '');
+            $sheet->setCellValue($col . $row, $scholar->academic_year_graduation ?? '');
+            $col++;
         }
-        $colIndex++;
         
         if (!in_array('cont_b_term_graduation', $hiddenColumns)) {
-            $sheet->setCellValue($columns[$colIndex] . $row, $scholar->term_of_graduation ?? '');
+            $sheet->setCellValue($col . $row, $scholar->term_of_graduation ?? '');
+            $col++;
         }
-        $colIndex++;
         
         if (!in_array('cont_b_remarks', $hiddenColumns)) {
-            $sheet->setCellValue($columns[$colIndex] . $row, $scholar->remarks ?? '');
+            $sheet->setCellValue($col . $row, $scholar->remarks ?? '');
+            $col++;
         }
+
+        // Set entire row font color to black
+        $sheet->getStyle('A' . $row . ':H' . $row)->getFont()->getColor()
+            ->setARGB(\PhpOffice\PhpSpreadsheet\Style\Color::COLOR_BLACK);
 
         $row++;
         $no++;

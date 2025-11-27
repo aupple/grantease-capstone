@@ -14,7 +14,7 @@
             </div>
 
             <!-- Success Message -->
-            <h2 class="text-3xl font-bold text-white mb-3">Email Verified! ✅</h2>
+            <h2 class="text-3xl font-bold text-white mb-3">Email Verified!</h2>
             <p class="text-white/90 text-lg mb-2">Your email has been successfully verified.</p>
             <p class="text-white/70 text-sm">Redirecting to login page...</p>
 

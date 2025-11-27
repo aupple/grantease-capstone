@@ -23,9 +23,9 @@ class IProgSmsService
     public function sendDostStatus($phoneNumber, $applicantName, $status, $reason = null)
     {
         $messages = [
-            'document_verified' => "Hi {name}, your DOST scholarship documents have been VERIFIED. Please wait for the approval process.",
-            'approved' => "Congratulations {name}! Your DOST scholarship application has been APPROVED. Further instructions will follow.",
-            'rejected' => "Hi {name}, your DOST scholarship application has been rejected due to non-compliance with document requirements. Please contact the scholarship staff for assistance.",
+            'document_verified' => "Hi {name}, your DOST Scholarship Documents have been VERIFIED. Please wait for the approval process.",
+            'approved' => "Congratulations {name}! Your DOST Scholarship Application has been APPROVED!",
+            'rejected' => "Hi {name}, we regret to inform you that your DOST Scholarship Application has been REJECTED due to non-compliance with document requirements. Please contact the scholarship staff for assistance.",
         ];
 
         $message = $messages[$status] ?? "Your DOST scholarship status has been updated.";
@@ -46,8 +46,8 @@ class IProgSmsService
     public function sendChedStatus($phoneNumber, $applicantName, $status, $reason = null)
     {
         $messages = [
-            'confirmed' => "Congratulations {name}! Your CHED scholarship application has been CONFIRMED.",
-            'rejected' => "Hi {name}, we regret to inform you that your CHED scholarship application has been rejected as your name was not included in the official CHED scholarship list. Please contact the scholarship office for clarification.",
+            'confirmed' => "Congratulations {name}! Your CHED Scholarship Information has been CONFIRMED.",
+            'rejected' => "Hi {name}, this is to inform you that your CHED Scholarship Information has been DENIED as your name was not included in the official CHED scholarship list. Please contact the scholarship office for clarification.",
         ];
 
         $message = $messages[$status] ?? "Your CHED scholarship status has been updated.";
@@ -85,7 +85,7 @@ class IProgSmsService
             $url = $this->apiUrl . '?' . http_build_query($params);
 
             // Send POST request
-            $response = Http::timeout(30)->post($url);
+            $response = Http::timeout(90)->retry(3, 1000)->post($url);
 
             $result = $response->json();
 
