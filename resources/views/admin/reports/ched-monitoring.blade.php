@@ -1179,12 +1179,7 @@
                                                 </td>
                                                 <td class="px-2 py-1.5 text-xs text-gray-900 col-cont_a_good_standing">
                                                     <span class="view-mode">
-                                                        @if (isset($scholar->good_academic_standing))
-                                                            <span
-                                                                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $scholar->good_academic_standing ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                                                {{ $scholar->good_academic_standing ? 'Yes' : 'No' }}
-                                                            </span>
-                                                        @endif
+                                                        {{ isset($scholar->good_academic_standing) ? ($scholar->good_academic_standing ? 'Yes' : 'No') : '' }}
                                                     </span>
                                                     <select
                                                         class="edit-mode hidden w-full px-1.5 py-1 text-xs border rounded"
@@ -1207,12 +1202,7 @@
                                                 </td>
                                                 <td class="px-2 py-1.5 text-xs text-gray-900 col-cont_a_finish_on_time">
                                                     <span class="view-mode">
-                                                        @if (isset($scholar->finish_on_time))
-                                                            <span
-                                                                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $scholar->finish_on_time ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
-                                                                {{ $scholar->finish_on_time ? 'Yes' : 'No' }}
-                                                            </span>
-                                                        @endif
+                                                        {{ isset($scholar->finish_on_time) ? ($scholar->finish_on_time ? 'Yes' : 'No') : '' }}
                                                     </span>
                                                     <select
                                                         class="edit-mode hidden w-full px-1.5 py-1 text-xs border rounded"
@@ -1220,12 +1210,10 @@
                                                         <option value="">Select</option>
                                                         <option value="1"
                                                             {{ ($scholar->finish_on_time ?? '') == 1 ? 'selected' : '' }}>
-                                                            Yes
-                                                        </option>
+                                                            Yes</option>
                                                         <option value="0"
                                                             {{ ($scholar->finish_on_time ?? '') == 0 ? 'selected' : '' }}>
-                                                            No
-                                                        </option>
+                                                            No</option>
                                                     </select>
                                                 </td>
                                                 <td

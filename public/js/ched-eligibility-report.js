@@ -148,12 +148,32 @@ document.addEventListener("DOMContentLoaded", function () {
         const tableType = table.dataset.table;
         console.log("Table type:", tableType);
 
-        const inputs = row.querySelectorAll("input, select, textarea");
         const originalValues = {};
 
-        inputs.forEach((input) => {
+        // Store current visible values (from view-mode spans)
+        row.querySelectorAll("input, select, textarea").forEach((input) => {
             if (input.name) {
-                originalValues[input.name] = input.value;
+                // Get the current value from view-mode if available
+                const viewModeEl = input
+                    .closest("td")
+                    ?.querySelector(".view-mode");
+                if (viewModeEl) {
+                    // For selects (Yes/No), extract the text content
+                    const displayValue = viewModeEl.textContent.trim();
+                    if (input.tagName === "SELECT") {
+                        // Map "Yes" to "1" and "No" to "0"
+                        if (displayValue === "Yes")
+                            originalValues[input.name] = "1";
+                        else if (displayValue === "No")
+                            originalValues[input.name] = "0";
+                        else originalValues[input.name] = input.value;
+                    } else {
+                        originalValues[input.name] =
+                            displayValue || input.value;
+                    }
+                } else {
+                    originalValues[input.name] = input.value;
+                }
             }
         });
 
@@ -180,6 +200,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             });
         }
+
+        // Clear the stored original values
+        delete row.dataset.originalValues;
 
         row.querySelectorAll(".edit-mode").forEach((el) =>
             el.classList.add("hidden")
@@ -349,32 +372,26 @@ document.addEventListener("DOMContentLoaded", function () {
                 formData.rationale
             );
 
-            // Update Yes/No badges
-            const goodStandingSpan = row.querySelector(
-                ".col-cont_a_good_standing .view-mode span"
+            // Update Yes/No as plain text (no badges)
+            updateSpan(
+                row,
+                `.col-cont_a_good_standing .view-mode`,
+                formData.good_academic_standing == 1
+                    ? "Yes"
+                    : formData.good_academic_standing == 0
+                    ? "No"
+                    : ""
             );
-            if (goodStandingSpan && formData.good_academic_standing !== "") {
-                goodStandingSpan.textContent =
-                    formData.good_academic_standing == 1 ? "Yes" : "No";
-                goodStandingSpan.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    formData.good_academic_standing == 1
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                }`;
-            }
 
-            const finishTimeSpan = row.querySelector(
-                ".col-cont_a_finish_on_time .view-mode span"
+            updateSpan(
+                row,
+                `.col-cont_a_finish_on_time .view-mode`,
+                formData.finish_on_time == 1
+                    ? "Yes"
+                    : formData.finish_on_time == 0
+                    ? "No"
+                    : ""
             );
-            if (finishTimeSpan && formData.finish_on_time !== "") {
-                finishTimeSpan.textContent =
-                    formData.finish_on_time == 1 ? "Yes" : "No";
-                finishTimeSpan.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    formData.finish_on_time == 1
-                        ? "bg-green-100 text-green-800"
-                        : "bg-yellow-100 text-yellow-800"
-                }`;
-            }
         } else if (tableType === "b") {
             updateSpan(
                 row,

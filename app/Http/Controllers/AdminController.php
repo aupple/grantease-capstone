@@ -273,8 +273,18 @@ public function printApplicationForm($id)
         $pdf->SetXY(128, 111);
         $pdf->Write(0, $application->passport_no ?? '');
         
-        $pdf->SetXY(162, 111);
-        $pdf->Write(0, $application->email_address ?? $application->user->email ?? '');
+        $pdf->SetXY(164, 111);
+$email = $application->email_address ?? $application->user->email ?? '';
+$maxWidth = 40;
+
+$fontSize = 8;
+while ($pdf->GetStringWidth($email) > $maxWidth && $fontSize > 5) {
+    $fontSize -= 0.5;
+    $pdf->SetFont('Arial', '', $fontSize);
+}
+
+$pdf->Write(0, $email);
+$pdf->SetFont('Arial', '', 10);
         
         // Row d: Current Mailing Address
         $pdf->SetXY(24.5, 120);
@@ -310,11 +320,16 @@ public function printApplicationForm($id)
         $pdf->SetXY(34.5, 183);
         $pdf->Write(0, $application->bs_period ?? '');
 
-        $pdf->SetXY(74.5, 183);
+        $pdf->SetXY(73, 183);
         $pdf->Write(0, $application->bs_field ?? '');
 
-        $pdf->SetXY(108.5, 183);
-        $pdf->Write(0, $application->bs_university ?? '');
+        $pdf->SetXY(102, 177);
+$university = $application->bs_university ?? '';
+$maxWidth = 30;
+
+$pdf->SetFont('Arial', '', 7);
+$pdf->MultiCell($maxWidth, 4, $university, 0, 'L');
+$pdf->SetFont('Arial', '', 10);
 
         // Scholarship checkboxes for BS
         $scholarshipY = 79;
@@ -339,7 +354,7 @@ public function printApplicationForm($id)
         $pdf->SetXY(155, 195);
         $pdf->Write(0, $application->bs_scholarship_others ?? '');
 
-        $pdf->SetXY(190, 183);
+        $pdf->SetXY(180, 183);
         $pdf->Write(0, $application->bs_remarks ?? '');
 
         // MS Row
@@ -517,50 +532,50 @@ public function printApplicationForm($id)
             }
 
             // a.1 For those who are presently employed
-            $pdf->SetXY(35, 179);
+            $pdf->SetXY(41, 52.5);
             $pdf->Write(0, $application->employed_position ?? '');
 
-            $pdf->SetXY(130, 179);
+            $pdf->SetXY(170, 52.5);
             $pdf->Write(0, $application->employed_length_of_service ?? '');
 
-            $pdf->SetXY(50, 201);
+            $pdf->SetXY(62, 59);
             $pdf->Write(0, $application->employed_company_name ?? '');
 
-            $pdf->SetXY(50, 224);
+            $pdf->SetXY(62, 65);
             $pdf->Write(0, $application->employed_company_address ?? '');
 
-            $pdf->SetXY(35, 247);
+            $pdf->SetXY(42, 71.5);
             $pdf->Write(0, $application->employed_email ?? '');
 
-            $pdf->SetXY(120, 247);
+            $pdf->SetXY(133, 71.5);
             $pdf->Write(0, $application->employed_website ?? '');
 
-            $pdf->SetXY(35, 270);
+            $pdf->SetXY(42, 78);
             $pdf->Write(0, $application->employed_telephone ?? '');
 
-            $pdf->SetXY(120, 270);
+            $pdf->SetXY(133, 78);
             $pdf->Write(0, $application->employed_fax ?? '');
 
             // a.2 For those who are self-employed
-            $pdf->SetXY(45, 317);
+            $pdf->SetXY(41, 14);
             $pdf->Write(0, $application->self_employed_business_name ?? '');
 
-            $pdf->SetXY(35, 339);
+            $pdf->SetXY(41, 14);
             $pdf->Write(0, $application->self_employed_address ?? '');
 
-            $pdf->SetXY(35, 363);
+            $pdf->SetXY(41, 14);
             $pdf->Write(0, $application->self_employed_email_website ?? '');
 
-            $pdf->SetXY(90, 363);
+            $pdf->SetXY(41, 14);
             $pdf->Write(0, $application->self_employed_telephone ?? '');
 
-            $pdf->SetXY(140, 363);
+            $pdf->SetXY(41, 14);
             $pdf->Write(0, $application->self_employed_fax ?? '');
 
-            $pdf->SetXY(35, 387);
+            $pdf->SetXY(41, 14);
             $pdf->Write(0, $application->self_employed_type_of_business ?? '');
 
-            $pdf->SetXY(120, 387);
+            $pdf->SetXY(41, 14);
             $pdf->Write(0, $application->self_employed_years_of_operation ?? '');
 
            // === SECTION VI: PUBLICATIONS (last five years) ===

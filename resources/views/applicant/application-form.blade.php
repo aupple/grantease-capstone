@@ -141,7 +141,7 @@
                             <label for="application_no" class="block text-sm font-medium text-gray-700">Application
                                 No.</label>
                             <input type="text" name="application_no" id="application_no"
-                                value="DOST-{{ date('Y') }}-{{ strtoupper(substr(uniqid(), -6)) }}" readonly
+                                value="STRAND-{{ uniqid() }}" readonly
                                 class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm bg-gray-100 sm:text-sm">
                         </div>
                         <div>
@@ -822,7 +822,8 @@
                             <div>
                                 <label for="employed_website"
                                     class="block text-sm font-medium text-gray-700">Website</label>
-                                <input type="url" name="employed_website" id="employed_website"
+                                <input type="text" name="employed_website" id="employed_website"
+                                    placeholder="https://example.com"
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
                             </div>
                             <div>
@@ -925,6 +926,7 @@
                             onclick="validateAndNext(5)">Next: R&D / Pubs / Awards</button>
                     </div>
                 </div>
+
                 <!-- Step 6: Research, Publications, Awards -->
                 <div class="step bg-white p-8 rounded-2xl shadow-md hidden" id="step6">
                     <!-- V. Research and Development Involvement -->
@@ -1156,7 +1158,6 @@
                                 </div>
                             </div>
                         </section>
-
                         <!-- 🔹 Additional Requirements -->
                         <section class="bg-gray-50 p-5 rounded-lg shadow-sm border border-gray-100">
                             <h5 class="text-base font-semibold mb-4 text-gray-800 flex items-center gap-2">
@@ -1289,75 +1290,101 @@
                         attachNumericValidation();
                         attachAgeCalculation();
                         attachAcademicYear();
-                        attachSignaturePad();
                         attachIfEmployedListener();
                         attachDegreeButtons();
                         attachLiveValidation();
                         attachApplicantTypeToggle();
+                        autoFillSignatureAndDate();
                     });
 
                     let currentStep = 1;
                     const totalSteps = 8;
 
+                    /* ✅ FIXED Validation Function */
                     function validateCurrentStep(step) {
                         const currentStepElement = document.getElementById(`step${step}`);
-                        if (!currentStepElement) return true;
+                        if (!currentStepElement) {
+                            console.log(`Step ${step} element not found`);
+                            return true;
+                        }
 
+                        console.log(`\n===== Validating Step ${step} =====`);
                         let isValid = true;
                         let firstInvalidInput = null;
 
+                        // Get all required fields in current step
                         const requiredInputs = currentStepElement.querySelectorAll(
                             'input[required], select[required], textarea[required]');
 
+                        console.log(`Found ${requiredInputs.length} required fields`);
+
                         requiredInputs.forEach(input => {
-                            if (input.disabled || input.offsetParent === null) return; // skip hidden/disabled
+                            // Check if element is actually visible
+                            const isHidden =
+                                input.disabled ||
+                                input.offsetParent === null ||
+                                input.closest('.hidden') !== null ||
+                                input.closest('[style*="display: none"]') !== null ||
+                                input.closest('[style*="display:none"]') !== null ||
+                                window.getComputedStyle(input).display === 'none' ||
+                                window.getComputedStyle(input).visibility === 'hidden' ||
+                                window.getComputedStyle(input.parentElement).display === 'none';
+
+                            // Skip validation for hidden inputs
+                            if (isHidden) {
+                                console.log(`Skipping hidden field: ${input.name || input.id}`);
+                                return;
+                            }
+
+                            console.log(`Checking field: ${input.name || input.id} (type: ${input.type})`);
 
                             let valid = true;
+
                             if (input.type === 'radio') {
                                 const group = currentStepElement.querySelectorAll(`input[name="${input.name}"]`);
-                                const checked = Array.from(group).some(r => r.checked);
+                                const visibleGroup = Array.from(group).filter(r => {
+                                    return r.offsetParent !== null &&
+                                        r.closest('.hidden') === null &&
+                                        window.getComputedStyle(r).display !== 'none';
+                                });
+                                const checked = visibleGroup.some(r => r.checked);
                                 valid = checked;
+
+                                console.log(`Radio group ${input.name}: ${checked ? 'VALID' : 'INVALID'}`);
+
+                                if (!valid && visibleGroup.length > 0) {
+                                    visibleGroup.forEach(r => {
+                                        r.classList.add('border-red-500');
+                                        if (r.parentElement) {
+                                            r.parentElement.classList.add('text-red-500');
+                                        }
+                                    });
+                                    firstInvalidInput = firstInvalidInput || visibleGroup[0];
+                                }
                             } else if (input.type === 'checkbox') {
                                 valid = input.checked;
+                                console.log(`Checkbox ${input.name}: ${valid ? 'VALID' : 'INVALID'}`);
                             } else if (input.type === 'file') {
                                 valid = input.files && input.files.length > 0;
+                                console.log(`File ${input.name}: ${valid ? 'VALID' : 'INVALID'}`);
                             } else {
                                 valid = input.value.trim() !== '';
-                            }           
-                            if (!valid) {
+                                console.log(
+                                    `Field ${input.name || input.id}: ${valid ? 'VALID' : 'INVALID'} (value: "${input.value}")`
+                                    );
+                            }
+
+                            if (!valid && input.type !== 'radio') {
                                 isValid = false;
                                 firstInvalidInput = firstInvalidInput || input;
                                 input.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
-                            } else {
+                            } else if (input.type !== 'radio') {
                                 input.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
                             }
                         });
 
-                        // Conditional validation for employment
-                        const employmentStatus = document.querySelector('input[name="employment_status"]:checked');
-                        if (step === 5 && employmentStatus) {
-                            if (['Permanent', 'Contractual', 'Probationary'].includes(employmentStatus.value)) {
-                                const employedFields = document.getElementById('employed_fields');
-                                if (!employedFields.classList.contains('hidden')) {
-                                    employedFields.querySelectorAll('input[required]').forEach(input => {
-                                        if (input.value.trim() === '') {
-                                            isValid = false;
-                                            firstInvalidInput = firstInvalidInput || input;
-                                        }
-                                    });
-                                }
-                            } else if (employmentStatus.value === 'Self-employed') {
-                                const selfFields = document.getElementById('self_employed_fields');
-                                if (!selfFields.classList.contains('hidden')) {
-                                    selfFields.querySelectorAll('input[required]').forEach(input => {
-                                        if (input.value.trim() === '') {
-                                            isValid = false;
-                                            firstInvalidInput = firstInvalidInput || input;
-                                        }
-                                    });
-                                }
-                            }
-                        }
+                        console.log(`Step ${step} validation result: ${isValid ? 'VALID' : 'INVALID'}`);
+                        console.log('===========================\n');
 
                         // Focus + alert
                         if (!isValid && firstInvalidInput) {
@@ -1365,7 +1392,17 @@
                                 behavior: 'smooth',
                                 block: 'center'
                             });
-                            alert('⚠️ Please fill out all required fields before proceeding.');
+
+                            // Get field label
+                            let fieldLabel = 'Required field';
+                            const label = firstInvalidInput.previousElementSibling;
+                            if (label && label.tagName === 'LABEL') {
+                                fieldLabel = label.textContent.replace('*', '').trim();
+                            } else {
+                                fieldLabel = firstInvalidInput.name || firstInvalidInput.id || 'Required field';
+                            }
+
+                            alert(`⚠️ Please fill out all required fields before proceeding.\n\nMissing: ${fieldLabel}`);
                         }
 
                         return isValid;
@@ -1392,6 +1429,16 @@
                                 if (input.type === 'radio' || input.type === 'checkbox' || input.tagName === 'SELECT') {
                                     input.classList.remove('border-red-500', 'focus:border-red-500',
                                         'focus:ring-red-500');
+                                    if (input.type === 'radio') {
+                                        // Remove red from all radios in group
+                                        const group = document.querySelectorAll(`input[name="${input.name}"]`);
+                                        group.forEach(r => {
+                                            r.classList.remove('border-red-500');
+                                            if (r.parentElement) {
+                                                r.parentElement.classList.remove('text-red-500');
+                                            }
+                                        });
+                                    }
                                 }
                             });
                         });
@@ -1404,6 +1451,10 @@
                             currentStep = step + 1;
                             document.getElementById(`step${currentStep}`).classList.remove('hidden');
                             updateStepIndicator();
+                            window.scrollTo({
+                                top: 0,
+                                behavior: 'smooth'
+                            });
                         }
                     }
 
@@ -1412,6 +1463,10 @@
                         currentStep = step;
                         document.getElementById(`step${currentStep}`).classList.remove('hidden');
                         updateStepIndicator();
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
                     }
 
                     function prevStep(step) {
@@ -1419,6 +1474,10 @@
                         currentStep = step;
                         document.getElementById(`step${currentStep}`).classList.remove('hidden');
                         updateStepIndicator();
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
                     }
 
                     function goToStep(step) {
@@ -1452,7 +1511,11 @@
                     function autoFillSignatureAndDate() {
                         const firstName = document.getElementById("first_name")?.value || "";
                         const lastName = document.getElementById("last_name")?.value || "";
-                        const fullName = `${firstName} ${lastName}`.trim();
+                        const middleName = document.getElementById("middle_name")?.value || "";
+                        const suffix = document.getElementById("suffix")?.value || "";
+
+                        let fullName = `${firstName} ${middleName} ${lastName}`.trim();
+                        if (suffix) fullName += ` ${suffix}`;
 
                         const signatureInput = document.getElementById("applicant_signature");
                         if (signatureInput) signatureInput.value = fullName;
@@ -1462,321 +1525,405 @@
                         if (dateInput) dateInput.value = today;
                     }
 
-                    // Run on load + whenever user updates name
-                    document.addEventListener("DOMContentLoaded", autoFillSignatureAndDate);
-                    document.getElementById("first_name")?.addEventListener("input", autoFillSignatureAndDate);
-                    document.getElementById("last_name")?.addEventListener("input", autoFillSignatureAndDate);
-
-
-                    function validateAndNext(step) {
-                        if (validateCurrentStep(currentStep)) {
-                            document.getElementById(`step${currentStep}`).classList.add('hidden');
-                            currentStep = step + 1;
-                            document.getElementById(`step${currentStep}`).classList.remove('hidden');
-                            updateStepIndicator();
-                        } else {
-                            alert('Please fill in all required fields before proceeding.');
+                    // Update signature when name fields change
+                    ['first_name', 'last_name', 'middle_name', 'suffix'].forEach(id => {
+                        const element = document.getElementById(id);
+                        if (element) {
+                            element.addEventListener("input", autoFillSignatureAndDate);
                         }
-                    }
+                    });
 
-                    function nextStep(step) {
-                        document.getElementById(`step${currentStep}`).classList.add('hidden');
-                        currentStep = step;
-                        document.getElementById(`step${currentStep}`).classList.remove('hidden');
-                        updateStepIndicator();
-                    }
-
-                    function prevStep(step) {
-                        document.getElementById(`step${currentStep}`).classList.add('hidden');
-                        currentStep = step;
-                        document.getElementById(`step${currentStep}`).classList.remove('hidden');
-                        updateStepIndicator();
-                    }
-
-                    function goToStep(step) {
-                        if (step < currentStep) {
-                            prevStep(step);
-                        } else if (step > currentStep) {
-                            nextStep(step);
-                        }
-                    }
-
-                    function updateStepIndicator() {
-                        const progressBar = document.getElementById('progress-bar');
-                        const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
-                        progressBar.style.width = `${progressPercentage}%`;
-
-                        document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
-                            const stepNumber = parseInt(indicator.dataset.step);
-                            const circle = indicator.querySelector('div:first-child');
-                            const label = indicator.querySelector('span');
-
-                            circle.classList.remove('bg-blue-600', 'bg-gray-200', 'border-blue-100', 'border-gray-100',
-                                'text-white', 'text-gray-600');
-                            label.classList.remove('text-blue-600', 'text-gray-500');
-
-                            if (stepNumber === currentStep) {
-                                circle.classList.add('bg-blue-600', 'border-blue-100', 'text-white');
-                                label.classList.add('text-blue-600');
-                            } else if (stepNumber < currentStep) {
-                                circle.classList.add('bg-blue-600', 'border-blue-100', 'text-white');
-                                label.classList.add('text-blue-600');
-                            } else {
-                                circle.classList.add('bg-gray-200', 'border-gray-100', 'text-gray-600');
-                                label.classList.add('text-gray-500');
-                            }
-                        });
-                    }
-
+                    /* ✅ FIXED: If Employed Section Toggle */
                     function attachIfEmployedListener() {
                         const employedSection = document.getElementById('if_employed_section');
                         const radios = document.querySelectorAll('input[name="employment_status"]');
 
-                        if (!employedSection || radios.length === 0) return; // safety check
+                        if (!employedSection || radios.length === 0) return;
 
                         radios.forEach(radio => {
                             radio.addEventListener('change', function() {
                                 const employedStatuses = ['Permanent', 'Contractual', 'Probationary'];
+                                const fileInputs = employedSection.querySelectorAll('input[type="file"]');
 
                                 if (employedStatuses.includes(this.value)) {
+                                    // Show section
                                     employedSection.classList.remove('hidden');
+
+                                    // ✅ Files are OPTIONAL - remove required attribute
+                                    fileInputs.forEach(input => {
+                                        input.required = false;
+                                        input.classList.remove('border-red-500', 'focus:border-red-500',
+                                            'focus:ring-red-500');
+                                    });
                                 } else {
+                                    // Hide section
                                     employedSection.classList.add('hidden');
+
+                                    // Clear and remove required
+                                    fileInputs.forEach(input => {
+                                        input.required = false;
+                                        input.value = '';
+                                        input.classList.remove('border-red-500', 'focus:border-red-500',
+                                            'focus:ring-red-500');
+                                    });
                                 }
                             });
                         });
                     }
+
 
                     function attachEmploymentStatusListener() {
                         const employmentRadios = document.querySelectorAll('input[name="employment_status"]');
                         const employedFields = document.getElementById('employed_fields');
                         const selfEmployedFields = document.getElementById('self_employed_fields');
 
-                        if (!employmentRadios.length || !employedFields || !selfEmployedFields) return;
+                        if (!employmentRadios.length || !employedFields || !selfEmployedFields) {
+                            console.error('Employment fields not found');
+                            return;
+                        }
 
                         employmentRadios.forEach(radio => {
                             radio.addEventListener('change', () => {
-                                // Hide all sections
+                                console.log('Employment status changed to:', radio.value);
+
+                                // Step 1: Hide ALL sections and clear validation
                                 employedFields.classList.add('hidden');
                                 selfEmployedFields.classList.add('hidden');
 
-                                // Remove required from hidden inputs
-                                employedFields.querySelectorAll('input, textarea, select').forEach(el => el.required =
-                                    false);
-                                selfEmployedFields.querySelectorAll('input, textarea, select').forEach(el => el
-                                    .required = false);
+                                // Step 2: Remove ALL required attributes and clear errors
+                                employedFields.querySelectorAll('input, textarea, select').forEach(el => {
+                                    el.required = false;
+                                    el.value = ''; // Clear the value
+                                    el.classList.remove('border-red-500', 'focus:border-red-500',
+                                        'focus:ring-red-500');
+                                });
 
-                                // Show relevant section + set required
-                                if (['Permanent', 'Contractual', 'Probationary'].includes(radio.value)) {
+                                selfEmployedFields.querySelectorAll('input, textarea, select').forEach(el => {
+                                    el.required = false;
+                                    el.value = ''; // Clear the value
+                                    el.classList.remove('border-red-500', 'focus:border-red-500',
+                                        'focus:ring-red-500');
+                                });
+
+                                // Step 3: Show and set required based on selection
+                                if (radio.value === 'Permanent' || radio.value === 'Contractual' || radio.value ===
+                                    'Probationary') {
+                                    // Show employed fields
                                     employedFields.classList.remove('hidden');
-                                    employedFields.querySelectorAll('input').forEach(el => el.required = true);
+
+                                    // Mark specific fields as required
+                                    const requiredIds = [
+                                        'employed_position',
+                                        'employed_length_of_service',
+                                        'employed_company_name',
+                                        'employed_company_address'
+                                    ];
+
+                                    requiredIds.forEach(id => {
+                                        const field = document.getElementById(id);
+                                        if (field) {
+                                            field.required = true;
+                                            console.log(`Set ${id} as required`);
+                                        } else {
+                                            console.warn(`Field ${id} not found`);
+                                        }
+                                    });
+
                                 } else if (radio.value === 'Self-employed') {
+                                    // Show self-employed fields
                                     selfEmployedFields.classList.remove('hidden');
-                                    selfEmployedFields.querySelectorAll('input').forEach(el => el.required = true);
+
+                                    // Mark specific fields as required
+                                    const requiredIds = [
+                                        'self_employed_business_name',
+                                        'self_employed_address',
+                                        'self_employed_type_of_business'
+                                    ];
+
+                                    requiredIds.forEach(id => {
+                                        const field = document.getElementById(id);
+                                        if (field) {
+                                            field.required = true;
+                                            console.log(`Set ${id} as required`);
+                                        } else {
+                                            console.warn(`Field ${id} not found`);
+                                        }
+                                    });
+
+                                } else if (radio.value === 'Unemployed') {
+                                    // No additional fields needed
+                                    // Only research_plans and career_plans are required (already in HTML)
+                                    console.log('Unemployed selected - no additional fields required');
                                 }
-                                // Unemployed → no extra fields shown
                             });
                         });
+
+                        // Trigger change event for initially selected radio (if any)
+                        const checkedRadio = document.querySelector('input[name="employment_status"]:checked');
+                        if (checkedRadio) {
+                            checkedRadio.dispatchEvent(new Event('change'));
+                        }
                     }
-                    // ✅ Function to handle "New Applicant" vs "Lateral Applicant" toggle
+
+                    /* ✅ FIXED: Applicant Type Toggle */
                     function attachApplicantTypeToggle() {
                         const applicantRadios = document.querySelectorAll('input[name="applicant_status"]');
                         const newSection = document.getElementById('newApplicantSection');
                         const lateralSection = document.getElementById('lateralApplicantSection');
 
+                        if (!applicantRadios.length || !newSection || !lateralSection) return;
+
                         applicantRadios.forEach(radio => {
                             radio.addEventListener('change', function() {
+                                // Hide both sections
+                                newSection.classList.add('hidden');
+                                lateralSection.classList.add('hidden');
+
+                                // Remove required from both
+                                newSection.querySelectorAll('input, select, textarea').forEach(el => {
+                                    el.required = false;
+                                    el.classList.remove('border-red-500', 'focus:border-red-500',
+                                        'focus:ring-red-500');
+                                });
+                                lateralSection.querySelectorAll('input, select, textarea').forEach(el => {
+                                    el.required = false;
+                                    el.classList.remove('border-red-500', 'focus:border-red-500',
+                                        'focus:ring-red-500');
+                                });
+
+                                // Show relevant section (fields are OPTIONAL)
                                 if (this.value === 'new') {
                                     newSection.classList.remove('hidden');
-                                    lateralSection.classList.add('hidden');
                                 } else if (this.value === 'lateral') {
-                                    newSection.classList.add('hidden');
                                     lateralSection.classList.remove('hidden');
                                 }
                             });
                         });
                     }
 
+                    /* ✅ Degree Buttons */
                     function attachDegreeButtons() {
-                        const degreeButtonsContainer = document.getElementById("degree-buttons");
-
                         window.showDegree = function(sectionId, button) {
                             const section = document.getElementById(sectionId);
                             const buttonsContainer = document.getElementById("degree-buttons");
+
+                            if (!section || !buttonsContainer) return;
+
                             section.classList.remove("hidden");
                             section.insertAdjacentElement("afterend", buttonsContainer);
 
-                            // ✅ Make all text inputs in this section required
+                            // ✅ Make text inputs in this section required
                             section.querySelectorAll('input[type="text"]').forEach(input => {
                                 input.required = true;
                             });
 
-                            // Disable this button to prevent duplicate sections
+                            // Disable button
                             button.disabled = true;
+                            button.classList.add('opacity-50', 'cursor-not-allowed');
                         };
 
                         window.hideDegree = function(sectionId) {
                             const section = document.getElementById(sectionId);
                             const buttonsContainer = document.getElementById("degree-buttons");
+
+                            if (!section || !buttonsContainer) return;
+
                             section.classList.add("hidden");
 
-                            // ✅ Remove "required" from hidden inputs
-                            section.querySelectorAll('input[type="text"]').forEach(input => {
+                            // ✅ Remove required and clear values
+                            section.querySelectorAll('input').forEach(input => {
                                 input.required = false;
+                                input.value = '';
+                                input.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
                             });
 
-                            // Place buttons back under BS section
+                            // Place buttons back
                             const bsSection = document.querySelector("#step3 > .bg-gray-50");
-                            bsSection.insertAdjacentElement("afterend", buttonsContainer);
+                            if (bsSection) {
+                                bsSection.insertAdjacentElement("afterend", buttonsContainer);
+                            }
 
-                            // ✅ Re-enable button for this section
-                            const relatedButton =
-                                sectionId === "ms-degree-section" ?
+                            // Re-enable button
+                            const relatedButton = sectionId === "ms-degree-section" ?
                                 document.querySelector('button[onclick*="ms-degree-section"]') :
                                 document.querySelector('button[onclick*="phd-degree-section"]');
-                            if (relatedButton) relatedButton.disabled = false;
+
+                            if (relatedButton) {
+                                relatedButton.disabled = false;
+                                relatedButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                            }
                         };
                     }
 
+                    /* ✅ STRAND Category Listener */
                     function attachStrandCategoryListener() {
-                        document.querySelectorAll('input[name="strand_category"]').forEach(radio => {
+                        const strandRadios = document.querySelectorAll('input[name="strand_category"]');
+                        const strand2Fields = document.getElementById('strand2_fields');
+
+                        if (!strandRadios.length || !strand2Fields) return;
+
+                        strandRadios.forEach(radio => {
                             radio.addEventListener('change', function() {
-                                const strand2Fields = document.getElementById('strand2_fields');
                                 if (this.value === 'STRAND 2') {
                                     strand2Fields.classList.remove('hidden');
+                                    // Make applicant_type required
+                                    strand2Fields.querySelectorAll('input[name="applicant_type"]').forEach(r => {
+                                        r.required = true;
+                                    });
                                 } else {
                                     strand2Fields.classList.add('hidden');
+                                    // Remove required
+                                    strand2Fields.querySelectorAll('input[name="applicant_type"]').forEach(r => {
+                                        r.required = false;
+                                        r.checked = false;
+                                        r.classList.remove('border-red-500');
+                                    });
                                 }
                             });
                         });
                     }
 
+                    /* ✅ Dynamic Field Listeners */
                     function attachDynamicFieldListeners() {
                         // --- Research & Development Involvement ---
                         let rdInvolvementCount = 1;
-                        document.getElementById('add_rd_involvement').addEventListener('click', function() {
-                            rdInvolvementCount++;
-                            const container = document.getElementById('rd_involvement_container');
-                            const newItem = document.createElement('div');
-                            newItem.classList.add('rd_involvement_item', 'grid', 'grid-cols-1', 'md:grid-cols-4', 'gap-4',
-                                'border', 'p-3', 'rounded-md');
-                            newItem.innerHTML = `
-            <div>
-                <label for="rd_field_title_${rdInvolvementCount}" class="block text-sm font-medium text-gray-700">
-                    FIELD AND TITLE OF RESEARCH <span class="text-red-500">*</span>
-                </label>
-                <input type="text" name="rd_involvement[${rdInvolvementCount - 1}][field_title]" 
-                    id="rd_field_title_${rdInvolvementCount}" 
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm"
-                    required>
-            </div>
-            <div>
-                <label for="rd_location_duration_${rdInvolvementCount}" class="block text-sm font-medium text-gray-700">
-                    LOCATION/DURATION <span class="text-red-500">*</span>
-                </label>
-                <input type="text" name="rd_involvement[${rdInvolvementCount - 1}][location_duration]" 
-                    id="rd_location_duration_${rdInvolvementCount}" 
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm"
-                    required>
-            </div>
-            <div>
-                <label for="rd_fund_source_${rdInvolvementCount}" class="block text-sm font-medium text-gray-700">
-                    FUND SOURCE
-                </label>
-                <input type="text" name="rd_involvement[${rdInvolvementCount - 1}][fund_source]" 
-                    id="rd_fund_source_${rdInvolvementCount}" 
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-            </div>
-            <div>
-                <label for="rd_nature_of_involvement_${rdInvolvementCount}" class="block text-sm font-medium text-gray-700">
-                    NATURE OF INVOLVEMENT
-                </label>
-                <input type="text" name="rd_involvement[${rdInvolvementCount - 1}][nature_of_involvement]" 
-                    id="rd_nature_of_involvement_${rdInvolvementCount}" 
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-            </div>
-        `;
-                            container.appendChild(newItem);
-                        });
+                        const addRdButton = document.getElementById('add_rd_involvement');
+
+                        if (addRdButton) {
+                            addRdButton.addEventListener('click', function() {
+                                rdInvolvementCount++;
+                                const container = document.getElementById('rd_involvement_container');
+                                const newItem = document.createElement('div');
+                                newItem.classList.add('rd_involvement_item', 'bg-gray-50', 'border', 'border-gray-200',
+                                    'rounded-xl', 'p-6', 'shadow-sm', 'relative');
+                                newItem.innerHTML = `
+                    <button type="button" onclick="this.parentElement.remove()" 
+                        class="absolute top-2 right-2 text-red-500 hover:text-red-700 font-bold text-xl">×</button>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
+                        <div class="flex flex-col justify-between">
+                            <label class="block text-sm font-medium text-gray-700 h-[40px] flex items-end">
+                                Field & Title of Research <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="rd_involvement[${rdInvolvementCount - 1}][field_title]" 
+                                class="mt-2 w-full border border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500"
+                                required>
+                        </div>
+                        <div class="flex flex-col justify-between">
+                            <label class="block text-sm font-medium text-gray-700 h-[40px] flex items-end">
+                                Location / Duration <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="rd_involvement[${rdInvolvementCount - 1}][location_duration]" 
+                                class="mt-2 w-full border border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500"
+                                required>
+                        </div>
+                        <div class="flex flex-col justify-between">
+                            <label class="block text-sm font-medium text-gray-700 h-[40px] flex items-end">
+                                Fund Source
+                            </label>
+                            <input type="text" name="rd_involvement[${rdInvolvementCount - 1}][fund_source]" 
+                                class="mt-2 w-full border border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div class="flex flex-col justify-between">
+                            <label class="block text-sm font-medium text-gray-700 h-[40px] flex items-end">
+                                Nature of Involvement
+                            </label>
+                            <input type="text" name="rd_involvement[${rdInvolvementCount - 1}][nature_of_involvement]" 
+                                class="mt-2 w-full border border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                `;
+                                container.appendChild(newItem);
+                            });
+                        }
 
                         // --- Publications ---
                         let publicationCount = 1;
-                        document.getElementById('add_publication').addEventListener('click', function() {
-                            publicationCount++;
-                            const container = document.getElementById('publications_container');
-                            const newItem = document.createElement('div');
-                            newItem.classList.add('publication_item', 'grid', 'grid-cols-1', 'md:grid-cols-3', 'gap-4',
-                                'border', 'p-3', 'rounded-md');
-                            newItem.innerHTML = `
-            <div>
-                <label for="pub_title_${publicationCount}" class="block text-sm font-medium text-gray-700">
-                    TITLE OF ARTICLE <span class="text-red-500">*</span>
-                </label>
-                <input type="text" name="publications[${publicationCount - 1}][title]" 
-                    id="pub_title_${publicationCount}" 
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm"
-                    required>
-            </div>
-            <div>
-                <label for="pub_name_year_${publicationCount}" class="block text-sm font-medium text-gray-700">
-                    NAME / YEAR OF PUBLICATION
-                </label>
-                <input type="text" name="publications[${publicationCount - 1}][name_year]" 
-                    id="pub_name_year_${publicationCount}" 
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-            </div>
-            <div>
-                <label for="pub_nature_of_involvement_${publicationCount}" class="block text-sm font-medium text-gray-700">
-                    NATURE OF INVOLVEMENT
-                </label>
-                <input type="text" name="publications[${publicationCount - 1}][nature_of_involvement]" 
-                    id="pub_nature_of_involvement_${publicationCount}" 
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-            </div>
-        `;
-                            container.appendChild(newItem);
-                        });
+                        const addPubButton = document.getElementById('add_publication');
+
+                        if (addPubButton) {
+                            addPubButton.addEventListener('click', function() {
+                                publicationCount++;
+                                const container = document.getElementById('publications_container');
+                                const newItem = document.createElement('div');
+                                newItem.classList.add('publication_item', 'bg-gray-50', 'border', 'border-gray-200',
+                                    'rounded-xl', 'p-6', 'shadow-sm', 'relative');
+                                newItem.innerHTML = `
+                    <button type="button" onclick="this.parentElement.remove()" 
+                        class="absolute top-2 right-2 text-red-500 hover:text-red-700 font-bold text-xl">×</button>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">
+                                Title of Article <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="publications[${publicationCount - 1}][title]" 
+                                class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500"
+                                required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">
+                                Name / Year of Publication
+                            </label>
+                            <input type="text" name="publications[${publicationCount - 1}][name_year]" 
+                                class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">
+                                Nature of Involvement
+                            </label>
+                            <input type="text" name="publications[${publicationCount - 1}][nature_of_involvement]" 
+                                class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                `;
+                                container.appendChild(newItem);
+                            });
+                        }
 
                         // --- Awards ---
                         let awardCount = 1;
-                        document.getElementById('add_award').addEventListener('click', function() {
-                            awardCount++;
-                            const container = document.getElementById('awards_container');
-                            const newItem = document.createElement('div');
-                            newItem.classList.add('award_item', 'grid', 'grid-cols-1', 'md:grid-cols-3', 'gap-4', 'border',
-                                'p-3', 'rounded-md');
-                            newItem.innerHTML = `
-            <div>
-                <label for="award_title_${awardCount}" class="block text-sm font-medium text-gray-700">
-                    TITLE OF AWARD <span class="text-red-500">*</span>
-                </label>
-                <input type="text" name="awards[${awardCount - 1}][title]" 
-                    id="award_title_${awardCount}" 
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm"
-                    required>
-            </div>
-            <div>
-                <label for="award_giving_body_${awardCount}" class="block text-sm font-medium text-gray-700">
-                    AWARD GIVING BODY
-                </label>
-                <input type="text" name="awards[${awardCount - 1}][giving_body]" 
-                    id="award_giving_body_${awardCount}" 
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-            </div>
-            <div>
-                <label for="award_year_${awardCount}" class="block text-sm font-medium text-gray-700">
-                    YEAR OF AWARD
-                </label>
-                <input type="text" name="awards[${awardCount - 1}][year]" 
-                    id="award_year_${awardCount}" 
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
-            </div>
-        `;
-                            container.appendChild(newItem);
-                        });
+                        const addAwardButton = document.getElementById('add_award');
+
+                        if (addAwardButton) {
+                            addAwardButton.addEventListener('click', function() {
+                                awardCount++;
+                                const container = document.getElementById('awards_container');
+                                const newItem = document.createElement('div');
+                                newItem.classList.add('award_item', 'bg-gray-50', 'border', 'border-gray-200', 'rounded-xl',
+                                    'p-6', 'shadow-sm', 'relative');
+                                newItem.innerHTML = `
+                    <button type="button" onclick="this.parentElement.remove()" 
+                        class="absolute top-2 right-2 text-red-500 hover:text-red-700 font-bold text-xl">×</button>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">
+                                Title of Award <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="awards[${awardCount - 1}][title]" 
+                                class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500"
+                                required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">
+                                Award Giving Body
+                            </label>
+                            <input type="text" name="awards[${awardCount - 1}][giving_body]" 
+                                class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">
+                                Year of Award
+                            </label>
+                            <input type="text" name="awards[${awardCount - 1}][year]" 
+                                class="mt-2 w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                `;
+                                container.appendChild(newItem);
+                            });
+                        }
                     }
 
-                    // ✅ Numeric-only validation
+                    /* ✅ Numeric-only validation */
                     function attachNumericValidation() {
                         document.querySelectorAll(".numeric-only").forEach(input => {
                             input.addEventListener("input", function() {
@@ -1785,48 +1932,7 @@
                         });
                     }
 
-                    function attachSignaturePad() {
-                        const canvas = document.getElementById('signature-pad');
-                        if (!canvas) return;
-                        const ctx = canvas.getContext('2d');
-                        const clearBtn = document.getElementById('clear-signature');
-                        const signatureInput = document.getElementById('signature_image');
-                        let drawing = false;
-
-                        canvas.addEventListener('mousedown', e => {
-                            drawing = true;
-                            ctx.beginPath();
-                            ctx.moveTo(e.offsetX, e.offsetY);
-                        });
-
-                        canvas.addEventListener('mousemove', e => {
-                            if (drawing) {
-                                ctx.lineTo(e.offsetX, e.offsetY);
-                                ctx.strokeStyle = '#000';
-                                ctx.lineWidth = 2;
-                                ctx.lineCap = 'round';
-                                ctx.stroke();
-                            }
-                        });
-
-                        canvas.addEventListener('mouseup', () => {
-                            drawing = false;
-                            signatureInput.value = canvas.toDataURL('image/png');
-                        });
-
-                        canvas.addEventListener('mouseleave', () => {
-                            if (drawing) {
-                                drawing = false;
-                                signatureInput.value = canvas.toDataURL('image/png');
-                            }
-                        });
-
-                        clearBtn.addEventListener('click', () => {
-                            ctx.clearRect(0, 0, canvas.width, canvas.height);
-                            signatureInput.value = '';
-                        });
-                    }
-                    // ✅ Auto Age Calculation
+                    /* ✅ Auto Age Calculation */
                     function attachAgeCalculation() {
                         const dobInput = document.getElementById("date_of_birth");
                         const ageInput = document.getElementById("age");
@@ -1849,7 +1955,7 @@
                         }
                     }
 
-                    // ✅ Auto Academic Year
+                    /* ✅ Auto Academic Year */
                     function attachAcademicYear() {
                         const academicYearInput = document.getElementById("academic_year");
                         if (academicYearInput) {
@@ -1873,7 +1979,7 @@
                         const provinceSelect = document.getElementById('province_select');
                         const citySelect = document.getElementById('city_select');
                         const barangaySelect = document.getElementById('barangay_select');
-                        const regionInput = document.getElementById('region_select');
+                        const regionInput = document.getElementById('region_select'); // readonly
                         const zipInput = document.getElementById('zip_code');
 
                         // 🔹 Fallback ZIPs by Region

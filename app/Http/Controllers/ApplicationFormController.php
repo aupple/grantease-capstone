@@ -241,9 +241,16 @@ return redirect()->route('dashboard')
   
 public function updateDocument(Request $request, $documentType)
 {
-    $request->validate([
-        'document' => 'required|file|mimes:pdf|max:5120', // 5MB max
-    ]);
+    // Dynamic validation based on document type
+    if ($documentType === 'passport_picture') {
+        $request->validate([
+            'document' => 'required|image|mimes:jpeg,jpg,png|max:2048', // 2MB max for images
+        ]);
+    } else {
+        $request->validate([
+            'document' => 'required|file|mimes:pdf|max:5120', // 5MB max for PDFs
+        ]);
+    }
 
     $user = Auth::user();
     $application = ApplicationForm::where('user_id', $user->user_id)->latest()->first();
@@ -252,8 +259,14 @@ public function updateDocument(Request $request, $documentType)
         return back()->with('error', 'Application not found.');
     }
 
+    // FIX: Handle passport_picture separately (no _pdf suffix)
+    if ($documentType === 'passport_picture') {
+        $columnName = 'passport_picture'; // No _pdf suffix for images
+    } else {
+        $columnName = $documentType . '_pdf'; // Add _pdf suffix for PDFs
+    }
+
     // Delete old file if exists
-    $columnName = $documentType . '_pdf';
     if ($application->$columnName) {
         Storage::disk('public')->delete($application->$columnName);
     }
@@ -269,14 +282,16 @@ public function updateDocument(Request $request, $documentType)
 
     ActivityLogger::log('DOCUMENT_UPDATED', "Document: {$documentType} | Application ID: {$application->application_form_id}");
 
+    // Add passport_picture to the document name map
     $documentNameMap = [
+        'passport_picture' => 'Passport Picture',
         'birth_certificate' => 'Birth Certificate',
         'transcript_of_record' => 'Transcript of Record',
         'endorsement_1' => 'Endorsement Letter 1',
         'endorsement_2' => 'Endorsement Letter 2',
         'recommendation_head_agency' => 'Recommendation of Head of Agency',
         'form_2a' => 'Form 2A - Certificate of Employment',
-        'form_2b' => 'Form 2B - Optional Employment Cert.',
+        'form_2b' => 'Form 2b - Optional Employment Cert.',
         'form_a_research_plans' => 'Form A - Research Plans',
         'form_b_career_plans' => 'Form B - Career Plans',
         'form_c_health_status' => 'Form C - Health Status',
@@ -286,6 +301,7 @@ public function updateDocument(Request $request, $documentType)
         'lateral_certification' => 'Lateral Certification',
     ];
 
+    // Clear remarks for this document
     if (isset($documentNameMap[$documentType])) {
         Remark::where('application_form_id', $application->application_form_id)
               ->where('document_name', $documentNameMap[$documentType])

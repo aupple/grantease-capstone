@@ -863,6 +863,64 @@
 
                         <!-- General Requirements -->
                         <div class="space-y-3 pl-4">
+                            <!-- Passport Picture -->
+                            @php
+                                $documentKey = 'Passport Picture';
+                                $hasRemark = $allRemarks->has($documentKey);
+                                $remarkData = $hasRemark ? $allRemarks->get($documentKey) : null;
+                            @endphp
+                            <div
+                                class="border rounded-lg p-3 {{ $hasRemark ? 'bg-red-50 border-red-300' : (hasDocument($application->passport_picture) ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200') }}">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <p class="font-medium text-sm">
+                                            • Passport Picture
+                                        </p>
+                                        <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                            @if (hasDocument($application->passport_picture))
+                                                <span class="text-green-700 font-semibold text-xs">✓ Uploaded</span>
+                                                <a href="{{ getFileUrl($application->passport_picture) }}"
+                                                    target="_blank"
+                                                    class="text-blue-600 hover:text-blue-800 text-xs font-semibold underline flex items-center gap-1">
+                                                    View File
+                                                </a>
+                                                <button
+                                                    onclick="openDocumentModal('{{ getFileUrl($application->passport_picture) }}', 'Passport Picture')"
+                                                    class="text-purple-600 hover:text-purple-800 text-xs font-semibold underline">
+                                                    Quick View
+                                                </button>
+                                            @else
+                                                <span class="text-gray-500 text-xs">Not uploaded</span>
+                                            @endif
+                                        </div>
+
+                                        @if ($hasRemark)
+                                            <div class="mt-2 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                                                <div class="flex items-start justify-between">
+                                                    <div class="flex-1">
+                                                        <p
+                                                            class="font-semibold text-yellow-800 text-xs flex items-center gap-1">
+                                                            ⚠️ Admin Remarks:
+                                                        </p>
+                                                        <p class="text-yellow-700 mt-1 text-xs">
+                                                            {{ $remarkData->remark_text }}</p>
+                                                        <p class="text-yellow-600 text-xs mt-1 italic">
+                                                            Please update this document and resubmit.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    @if ($application->status === 'pending' || $hasRemark)
+                                        <button onclick="openEditModal('passport_picture', 'Passport Picture')"
+                                            class="ml-2 text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded flex items-center gap-1 whitespace-nowrap">
+                                            {{ hasDocument($application->passport_picture) ? 'Edit File' : 'Upload File' }}
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
                             <!-- Birth Certificate -->
                             @php
                                 $documentKey = 'Birth Certificate';
@@ -1647,12 +1705,14 @@
                                 <div class="p-4">
                                     <input type="hidden" id="documentType" name="document_type">
                                     <div class="mb-4">
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label id="fileTypeLabel"
+                                            class="block text-sm font-medium text-gray-700 mb-2">
                                             Upload New Document (PDF only)
                                         </label>
                                         <input type="file" name="document" id="documentFile" accept=".pdf"
                                             required class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
-                                        <p class="text-xs text-gray-500 mt-1">Maximum file size: 5MB</p>
+                                        <p id="fileSizeHint" class="text-xs text-gray-500 mt-1">Maximum file size: 5MB
+                                        </p>
                                     </div>
                                 </div>
                                 <div class="p-4 border-t flex justify-end gap-2">
@@ -1714,8 +1774,30 @@
     <script>
         function openDocumentModal(fileUrl, title) {
             document.getElementById('modalTitle').textContent = title;
-            document.getElementById('documentFrame').src = fileUrl;
             document.getElementById('downloadLink').href = fileUrl;
+
+            // Check if it's an image or PDF
+            const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'];
+            const isImage = imageExtensions.some(ext => fileUrl.toLowerCase().endsWith(ext));
+
+            const frameContainer = document.getElementById('documentFrame').parentElement;
+
+            if (isImage) {
+                // Display as image
+                frameContainer.innerHTML = `
+                <div class="flex justify-center items-center bg-gray-50 rounded-lg p-4 h-full">
+                    <img src="${fileUrl}" alt="${title}" 
+                        class="max-w-full max-h-[600px] object-contain rounded-lg shadow-lg border border-gray-200">
+                </div>
+            `;
+            } else {
+                // Display as PDF iframe
+                frameContainer.innerHTML = `
+                <iframe id="documentFrame" src="${fileUrl}" 
+                    class="w-full h-[600px] rounded-lg border-0"></iframe>
+            `;
+            }
+
             document.getElementById('documentModal').classList.remove('hidden');
             // Prevent body scroll when modal is open
             document.body.style.overflow = 'hidden';
@@ -1723,7 +1805,16 @@
 
         function closeDocumentModal() {
             document.getElementById('documentModal').classList.add('hidden');
-            document.getElementById('documentFrame').src = '';
+
+            // Reset the frame container back to iframe
+            const frameContainer = document.getElementById('documentFrame')?.parentElement;
+            if (frameContainer) {
+                frameContainer.innerHTML = `
+                <iframe id="documentFrame" src="" 
+                    class="w-full h-[600px] rounded-lg border-0"></iframe>
+            `;
+            }
+
             // Restore body scroll
             document.body.style.overflow = '';
         }
@@ -1732,6 +1823,25 @@
             document.getElementById('editModalTitle').textContent = 'Replace ' + title;
             document.getElementById('documentType').value = documentType;
             document.getElementById('editDocumentForm').action = `/applicant/application/update-document/${documentType}`;
+
+            // Update file input and labels based on document type
+            const fileInput = document.getElementById('documentFile');
+            const fileTypeLabel = document.getElementById('fileTypeLabel');
+            const fileSizeHint = document.getElementById('fileSizeHint');
+
+            if (documentType === 'passport_picture') {
+                fileInput.accept = 'image/jpeg,image/jpg,image/png';
+                fileTypeLabel.textContent = 'Upload Passport Picture (JPG or PNG only)';
+                fileSizeHint.textContent = 'Maximum file size: 2MB';
+            } else {
+                fileInput.accept = '.pdf';
+                fileTypeLabel.textContent = 'Upload New Document (PDF only)';
+                fileSizeHint.textContent = 'Maximum file size: 5MB';
+            }
+
+            // Clear any previously selected file
+            fileInput.value = '';
+
             document.getElementById('editModal').classList.remove('hidden');
             // Prevent body scroll when modal is open
             document.body.style.overflow = 'hidden';
@@ -1756,7 +1866,7 @@
             }
         }
 
-        // Auto-hide toast after 5 seconds
+        // Auto-hide toast after 3 seconds
         document.addEventListener('DOMContentLoaded', function() {
             const toast = document.getElementById('successToast');
             if (toast) {
@@ -1791,20 +1901,42 @@
         document.getElementById('documentFile')?.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                // Check file type
-                if (file.type !== 'application/pdf') {
-                    alert('Please upload a PDF file only.');
-                    this.value = '';
-                    return;
-                }
+                const documentType = document.getElementById('documentType').value;
 
-                // Check file size (5MB = 5 * 1024 * 1024 bytes)
-                const maxSize = 5 * 1024 * 1024;
-                if (file.size > maxSize) {
-                    alert('File size must be less than 5MB. Your file is ' + (file.size / (1024 * 1024)).toFixed(
-                        2) + 'MB');
-                    this.value = '';
-                    return;
+                // Allow images for passport picture, PDF only for others
+                if (documentType === 'passport_picture') {
+                    // Check if it's an image
+                    const allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                    if (!allowedImageTypes.includes(file.type)) {
+                        alert('Please upload a JPG or PNG image file for passport picture.');
+                        this.value = '';
+                        return;
+                    }
+
+                    // Check file size (2MB for images)
+                    const maxSize = 2 * 1024 * 1024;
+                    if (file.size > maxSize) {
+                        alert('Image size must be less than 2MB. Your file is ' + (file.size / (1024 * 1024))
+                            .toFixed(2) + 'MB');
+                        this.value = '';
+                        return;
+                    }
+                } else {
+                    // PDF only for other documents
+                    if (file.type !== 'application/pdf') {
+                        alert('Please upload a PDF file only.');
+                        this.value = '';
+                        return;
+                    }
+
+                    // Check file size (5MB for PDFs)
+                    const maxSize = 5 * 1024 * 1024;
+                    if (file.size > maxSize) {
+                        alert('File size must be less than 5MB. Your file is ' + (file.size / (1024 * 1024))
+                            .toFixed(2) + 'MB');
+                        this.value = '';
+                        return;
+                    }
                 }
             }
         });
