@@ -26,9 +26,8 @@ WORKDIR /app
 COPY . .
 
 # Install PHP dependencies
-RUN composer install --no-interaction --optimize-autoloader --no-scripts
-
-# Expose port (Railway provides $PORT)
+RUN composer update --no-interaction --no-scripts --ignore-platform-reqs && \
+    composer install --no-interaction --optimize-autoloader --no-scripts --ignore-platform-reqs
 EXPOSE 8080
 
 # Start command — use built-in PHP server (simple)
