@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Exports\DOSTApplicantsExport;
+use App\Exports\CHEDScholarsExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\ApplicationForm;
 use App\Models\Scholar;

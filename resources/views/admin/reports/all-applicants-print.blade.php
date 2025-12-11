@@ -384,6 +384,23 @@
         <div class="sig-line"></div>
         <p class="sig-label">Name and Signature of Project Leader</p>
     </div>
+
+    <div class="flex gap-2 mb-4">
+    {{-- Your existing filter button --}}
+    <button type="submit" class="btn btn-primary">Filter</button>
+    
+    {{-- ADD THIS: Export to Excel button --}}
+    <a href="{{ route('reports.dost.export', [
+            'academic_year' => request('academic_year'),
+            'status' => request('status')
+        ]) }}" 
+       class="btn btn-success">
+        <i class="fas fa-file-excel"></i> Export to Excel
+    </a>
+    
+    {{-- Your existing Print button --}}
+    <button type="button" class="btn btn-secondary">Print</button>
+</div>
 </div>
 <script>
     window.onload = () => window.print();

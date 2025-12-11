@@ -14,6 +14,14 @@ use App\Services\IProgSmsService;
 
 Route::redirect('/', '/login');
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/reports/dost/export', [ReportController::class, 'exportDOSTApplicants'])
+        ->name('reports.dost.export');
+    
+    Route::get('/reports/ched/export', [ReportController::class, 'exportCHEDScholars'])
+        ->name('reports.ched.export');
+});
+
 // ✅ Handle form submission (POST)
 Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');
 

@@ -104,23 +104,35 @@
                     </select>
                 </div>
 
-                <!-- Buttons -->
-                <div class="flex items-end gap-2">
-                    <button type="submit"
-                        class="bg-blue-600 font-medium text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow-md">
-                        Filter
-                    </button>
-                    <button id="printBtn" type="button"
-                        class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg shadow-md hover:bg-green-700 transition">
-                        Print
-                    </button>
-                    <button id="resetCols" type="button"
-                        class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg shadow-md hover:bg-gray-600 transition">
-                        Undo Columns
-                    </button>
-                </div>
-            </form>
-        </div>
+              <!-- Buttons -->
+<div class="flex items-end gap-2">
+    <button type="submit"
+        class="bg-blue-600 font-medium text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow-md">
+        Filter
+    </button>
+    
+    <!-- ✅ ADD THIS: Export to Excel Button -->
+    <a href="{{ route('reports.dost.export', [
+            'academic_year' => request('academic_year'),
+            'school_term' => request('school_term'),
+            'status' => request('status')
+        ]) }}" 
+       class="bg-green-600 font-medium text-white text-sm px-4 py-2 rounded-lg hover:bg-green-700 transition shadow-md flex items-center gap-2">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"/>
+        </svg>
+        Export Excel
+    </a>
+    
+    <button id="printBtn" type="button"
+        class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg shadow-md hover:bg-green-700 transition">
+        Print
+    </button>
+    <button id="resetCols" type="button"
+        class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg shadow-md hover:bg-gray-600 transition">
+        Undo Columns
+    </button>
+</div>
 
 
         <!-- Column Controls Card -->
